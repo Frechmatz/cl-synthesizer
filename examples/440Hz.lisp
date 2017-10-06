@@ -26,8 +26,23 @@
     (cl-synthesizer::add-module rack "WAVE-WRITER" #'cl-synthesizer-modules::one-channel-wave-file-writer
 				:filename "/Users/olli/waves/440HzOneChannelExample.wav")
     (cl-synthesizer::add-patch rack "VCO-1" :out "WAVE-WRITER" :channel-1)
-    (dotimes (i 100000)
-      (cl-synthesizer::update-rack rack))
-    (cl-synthesizer::shutdown-rack rack)))
+    (let ((duration-secs 2))
+      (dotimes (i (* duration-secs (getf (slot-value rack 'cl-synthesizer::environment) :sample-rate)))
+	(cl-synthesizer::update-rack rack))
+      (cl-synthesizer::shutdown-rack rack))))
 
 ;; (synthesizer-example-440hz-one-channel)
+
+(defun synthesizer-example-440hz-48000-one-channel ()
+  "Write one 440Hz channel"
+  (let ((rack (make-instance 'cl-synthesizer:rack :environment (cl-synthesizer::make-environment :sample-rate 48000))))
+    (cl-synthesizer::add-module rack "VCO-1" #'cl-synthesizer-modules::sinus-vco :f_0 440)
+    (cl-synthesizer::add-module rack "WAVE-WRITER" #'cl-synthesizer-modules::one-channel-wave-file-writer
+				:filename "/Users/olli/waves/440Hz48000OneChannelExample.wav")
+    (cl-synthesizer::add-patch rack "VCO-1" :out "WAVE-WRITER" :channel-1)
+    (let ((duration-secs 2))
+      (dotimes (i (* duration-secs (getf (slot-value rack 'cl-synthesizer::environment) :sample-rate)))
+	(cl-synthesizer::update-rack rack))
+      (cl-synthesizer::shutdown-rack rack))))
+
+;; (synthesizer-example-440hz-48000-one-channel)
