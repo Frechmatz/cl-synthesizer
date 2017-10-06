@@ -10,8 +10,9 @@
 	  :format-control format-control
 	  :format-arguments format-arguments)))
 
-(defparameter *ENVIRONMENT* (list :sample-rate 44100))
 
+(defun make-environment (&key (sample-rate 44100))
+  (list :sample-rate sample-rate))
 
 ;;
 ;; Todos:
@@ -124,12 +125,20 @@
 ;;
 
 (defclass rack ()
-  ((modules :initform nil)))
+  ((modules :initform nil)
+   (environment :initform nil)))
+
+(defmethod initialize-instance :after ((r rack) &key environment)
+  (declare (optimize (debug 3) (speed 0) (space 0)))
+  ;; todo: why are key params in initialize-instance optional?
+  (if (not environment)
+      (error "Environment must not be nil"))
+  (setf (slot-value r 'environment) environment))
 
 (defun add-module (rack name module-fn &rest args)
   (declare (optimize (debug 3) (speed 0) (space 0)))
   (assert-is-module-name-available rack name)
-  (let ((rm (make-instance 'rack-module)) (m (apply module-fn `(,*ENVIRONMENT* ,@args))))
+  (let ((rm (make-instance 'rack-module)) (m (apply module-fn `(,(slot-value rack 'environment) ,@args))))
     (setf (slot-value rm 'name) name)
     (setf (slot-value rm 'module) m)
     (push rm (slot-value rack 'modules))
