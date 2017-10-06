@@ -2,6 +2,6 @@
 (defpackage :cl-synthesizer-modules
   (:use :cl)
   (:export
-   :cosinus-vco
+   :sinus-vco
    :two-channel-wave-file-writer))
 

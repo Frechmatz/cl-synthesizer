@@ -18,7 +18,7 @@
 	       (:module "src/modules"
 			:serial t
 			:components ((:file "packages")
-				     (:file "cosinus-vco")
+				     (:file "sinus-vco")
 				     (:file "wave-file-writer")
 				     ))
 	       (:module "examples"

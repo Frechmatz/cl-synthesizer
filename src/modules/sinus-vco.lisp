@@ -1,7 +1,7 @@
 
 (in-package :cl-synthesizer-modules)
 
-(defun cosinus-vco (environment &key (f_0 440) (f_delta 50))
+(defun sinus-vco (environment &key (f_0 440) (f_delta 50))
   (declare (optimize (debug 3) (speed 0) (space 0)))
   ;; (break)
   (if (>= f_delta f_0)
@@ -29,6 +29,6 @@
 			    deltaPhi)))
 		 ;; Calc output
 		 (let ((deltaPhi (get-delta-phi (get-cur-frequency v_in))))
-		   (setf current-output (cos curPhi))
+		   (setf current-output (sin curPhi))
 		   (setf curPhi (+ curPhi deltaPhi))))))))
 
