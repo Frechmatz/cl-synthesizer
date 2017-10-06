@@ -45,7 +45,6 @@
 
 (defun one-channel-wave-file-writer (environment &key (filename "sound.wav"))
   (declare (optimize (debug 3) (speed 0) (space 0)))
-  (declare (ignore environment))
   (let ((frames nil) (output-channel-1 nil))
       (list
        :inputs (lambda () (list :channel-1)) 
@@ -63,6 +62,7 @@
        :shutdown (lambda ()
 		   (let ((wave (cl-wave:open-wave filename :direction :output)))
 		     (cl-wave:set-num-channels wave 1)
+		     (cl-wave:set-sample-rate wave (getf environment :sample-rate))
 		     (cl-wave:set-frames wave (nreverse frames))
 		     (cl-wave:close-wave wave)
 		     (setf frames nil))))))
