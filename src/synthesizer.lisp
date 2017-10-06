@@ -28,13 +28,6 @@
    (input-patches :initform (make-hash-table))
    (output-patches :initform (make-hash-table))))
 
-(defun make-rack-module (name module-fn &rest args)
-  (declare (optimize (debug 3) (speed 0) (space 0)))
-  (let ((rm (make-instance 'rack-module)) (m (apply module-fn `(,*ENVIRONMENT* ,@args))))
-    (setf (slot-value rm 'name) name)
-    (setf (slot-value rm 'module) m)
-    rm))
-
 (defun get-rack-module-name (rm)
   (slot-value rm 'name))
 
@@ -123,10 +116,24 @@
 			    (get-rack-patch-target-name i))))))
 
 ;;
+;;
+;; Rack
+;;
 ;; Represents a grid of rack-modules
 ;;
+;;
+
 (defclass rack ()
   ((modules :initform nil)))
+
+(defun add-module (rack name module-fn &rest args)
+  (declare (optimize (debug 3) (speed 0) (space 0)))
+  (assert-is-module-name-available rack name)
+  (let ((rm (make-instance 'rack-module)) (m (apply module-fn `(,*ENVIRONMENT* ,@args))))
+    (setf (slot-value rm 'name) name)
+    (setf (slot-value rm 'module) m)
+    (push rm (slot-value rack 'modules))
+    rm))
 
 (defun get-module (rack name)
   (declare (optimize (debug 3) (speed 0) (space 0)))
@@ -139,9 +146,11 @@
        :format-control "Module name ~a is not available"
        :format-arguments (list name))))
 
+#|
 (defun add-module (rack rack-module)
   (assert-is-module-name-available rack (get-rack-module-name rack-module))
   (push rack-module (slot-value rack 'modules)))
+|#
 
 (defun set-state (rack state)
   (dolist (m (slot-value rack 'modules))

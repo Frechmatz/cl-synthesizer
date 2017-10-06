@@ -3,10 +3,8 @@
 
 (defun create-test-rack-simple ()
   (let ((rack (make-instance 'cl-synthesizer:rack)))
-    (let ((rm1 (cl-synthesizer::make-rack-module "Counter" #'cl-synthesizer-test::test-module-counter))
-	  (rm2 (cl-synthesizer::make-rack-module "Multiplier" #'cl-synthesizer-test::test-module-multiply-by-two)))
-      (cl-synthesizer::add-module rack rm1)
-      (cl-synthesizer::add-module rack rm2)
+    (let ((rm1 (cl-synthesizer::add-module rack "Counter" #'cl-synthesizer-test::test-module-counter))
+	  (rm2 (cl-synthesizer::add-module rack "Multiplier" #'cl-synthesizer-test::test-module-multiply-by-two)))
       (assert-eq 2 (length (slot-value rack 'cl-synthesizer::modules)))
       (let ((found-module-1 (cl-synthesizer::get-module rack "Counter"))
 	    (found-module-2 (cl-synthesizer::get-module rack "Multiplier")))
@@ -37,12 +35,9 @@
 
 (defun create-test-rack-adder ()
   (let ((rack (make-instance 'cl-synthesizer:rack)))
-    (let ((rm1 (cl-synthesizer::make-rack-module "Counter 1" #'cl-synthesizer-test::test-module-counter))
-	  (rm2 (cl-synthesizer::make-rack-module "Counter 2" #'cl-synthesizer-test::test-module-counter))
-	  (rm3 (cl-synthesizer::make-rack-module "Adder" #'cl-synthesizer-test::test-module-adder)))
-      (cl-synthesizer::add-module rack rm1)
-      (cl-synthesizer::add-module rack rm2)
-      (cl-synthesizer::add-module rack rm3)
+    (let ((rm1 (cl-synthesizer::add-module rack "Counter 1" #'cl-synthesizer-test::test-module-counter))
+	  (rm2 (cl-synthesizer::add-module rack "Counter 2" #'cl-synthesizer-test::test-module-counter))
+	  (rm3 (cl-synthesizer::add-module rack "Adder" #'cl-synthesizer-test::test-module-adder)))
       (assert-eq 3 (length (slot-value rack 'cl-synthesizer::modules)))
       (let ((found-module-1 (cl-synthesizer::get-module rack "Counter 1"))
 	    (found-module-2 (cl-synthesizer::get-module rack "Counter 2"))
@@ -84,10 +79,8 @@
 (defun create-test-rack-recursive ()
   "Input of adder is connected with one of its outputs"
   (let ((rack (make-instance 'cl-synthesizer:rack)))
-    (let ((counter (cl-synthesizer::make-rack-module "Counter" #'cl-synthesizer-test::test-module-counter))
-	  (adder (cl-synthesizer::make-rack-module "Adder" #'cl-synthesizer-test::test-module-adder)))
-      (cl-synthesizer::add-module rack counter)
-      (cl-synthesizer::add-module rack adder)
+    (let ((counter (cl-synthesizer::add-module rack "Counter" #'cl-synthesizer-test::test-module-counter))
+	  (adder (cl-synthesizer::add-module rack "Adder" #'cl-synthesizer-test::test-module-adder)))
       (assert-eq 2 (length (slot-value rack 'cl-synthesizer::modules)))
       (let ((found-module-1 (cl-synthesizer::get-module rack "Counter"))
 	    (found-module-2 (cl-synthesizer::get-module rack "Adder")))
@@ -121,9 +114,3 @@
 		 (assert-equal 3 (apply (cl-synthesizer::get-rack-module-output-fn counter) (list :out)))
 		 (assert-equal 6 (apply (cl-synthesizer::get-rack-module-output-fn adder) (list :out)))
 		 )))
-
-
-
-
-
-		 

@@ -21,7 +21,7 @@
 				     (:file "cosinus-vco")
 				     (:file "wave-file-writer")
 				     ))
-	       (:module "src/examples"
+	       (:module "examples"
 			:serial t
 			:components ((:file "packages")
 				     (:file "440Hz"))

@@ -3,10 +3,8 @@
 
 (defun create-test-rack ()
   (let ((rack (make-instance 'cl-synthesizer:rack)))
-    (let ((rm1 (cl-synthesizer::make-rack-module "Module 1" #'cl-synthesizer-test::test-module))
-	  (rm2 (cl-synthesizer::make-rack-module "Module 2" #'cl-synthesizer-test::test-module)))
-      (cl-synthesizer::add-module rack rm1)
-      (cl-synthesizer::add-module rack rm2)
+    (let ((rm1 (cl-synthesizer::add-module rack "Module 1" #'cl-synthesizer-test::test-module))
+	  (rm2 (cl-synthesizer::add-module rack "Module 2" #'cl-synthesizer-test::test-module)))
       (assert-eq 2 (length (slot-value rack 'cl-synthesizer::modules)))
       (let ((found-module-1 (cl-synthesizer::get-module rack "Module 1"))
 	    (found-module-2 (cl-synthesizer::get-module rack "Module 2")))
