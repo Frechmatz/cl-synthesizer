@@ -16,32 +16,38 @@
     (+ i 1)))
 
 (eval-when (:compile-toplevel) 
-  (defun make-wave-writer-symbol (name num package)
-    (if (not package)
-	(setf package "CL-SYNTHESIZER-MODULES"))
+  (defun make-wave-writer-symbol-impl (name num package)
     (if num
 	(intern (format nil "~a-~a" (string-upcase name) (get-socket-number num)) package)
 	(intern (string-upcase name) package))))
 
 (eval-when (:compile-toplevel) 
+  (defun make-wave-writer-symbol (name num)
+    (make-wave-writer-symbol-impl name num "CL-SYNTHESIZER-MODULES")))
+
+(eval-when (:compile-toplevel) 
+  (defun make-keyword (name num)
+    (make-wave-writer-symbol-impl name num "KEYWORD")))
+
+(eval-when (:compile-toplevel) 
   (defun make-let-list (name count)
     (let ((l nil))
       (dotimes (i count)
-	(push (list (make-wave-writer-symbol name i nil) nil) l))
+	(push (list (make-wave-writer-symbol name i) nil) l))
       l)))
 
 (eval-when (:compile-toplevel) 
   (defun make-param-list (name count)
     (let ((l nil))
       (dotimes (i count)
-	(push (make-wave-writer-symbol name i nil) l))
+	(push (make-wave-writer-symbol name i) l))
       (nreverse l))))
 
 (eval-when (:compile-toplevel) 
   (defun make-keyword-list (name count)
     (let ((l nil))
       (dotimes (i count)
-	(push (make-wave-writer-symbol name i "KEYWORD") l))
+	(push (make-keyword name i) l))
       (nreverse l))))
 
 
@@ -54,47 +60,48 @@
    The generated module factory function has the following parameters:
    - environment: Environment that specifies sample rate etc.
    - &key filename: Pathname of the wave file."
-  `(defun ,(make-wave-writer-symbol name nil nil) (environment &key filename &allow-other-keys)
-     ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-     (let ((frames nil)
-	   (inputs (make-keyword-list "channel" ,channel-count))
-	   (outputs (make-keyword-list "out" ,channel-count))
-	   ,@(make-let-list "out" channel-count))
-       (list
-	:inputs (lambda () inputs)
-	:outputs (lambda () outputs)
-	:get-output (lambda (output)
-		      ;; TODO: Realize with cond. Did not get this to work :(
-		      (block nil
-			;; generate if-clauses
-			,@(let ((c nil))
-			       (dotimes (o channel-count)
-				 (push `(if (eq ,(make-wave-writer-symbol "out" o "KEYWORD") output)
-					    (return ,(make-wave-writer-symbol "out" o nil))) c))
-			       c)
-			(error (format nil "Unknown output ~a requested from channel-wave-file-writer" output))))
-	:update (lambda (&key ,@(make-param-list "channel" channel-count))
-		  ;; validate inputs
-		  ,@(let ((c nil))
-			 (dotimes (i channel-count)
-			   (push `(if (not ,(make-wave-writer-symbol "channel" i nil))
-				      (error (format nil "Channel ~a must not be nil" ,(get-socket-number i)))) c))
-			 c)
-		  ;; update
-		  ,@(let ((c nil))
-			 (dotimes (i channel-count)
-			   (push `(push (wave-writer-float-to-int16 ,(make-wave-writer-symbol "channel" i nil)) frames) c)
-			   (push `(setf ,(make-wave-writer-symbol "out" i nil) ,(make-wave-writer-symbol "channel" i nil)) c))
-			 c)
-		  nil)
-	:shutdown (lambda ()
-		    (let ((wave (cl-wave:open-wave filename :direction :output)))
-		      (cl-wave:set-num-channels wave ,channel-count)
-		      (cl-wave:set-sample-rate wave (getf environment :sample-rate))
-		      (cl-wave:set-frames wave (nreverse frames))
-		      (cl-wave:close-wave wave)
-		      (setf frames nil)))
-	))))
+  (let ((output-name "out") (input-name "channel"))
+    `(defun ,(make-wave-writer-symbol name nil) (environment &key filename &allow-other-keys)
+       ;;(declare (optimize (debug 3) (speed 0) (space 0)))
+       (let ((frames nil)
+	     (inputs (make-keyword-list ,input-name ,channel-count))
+	     (outputs (make-keyword-list ,output-name ,channel-count))
+	     ,@(make-let-list "out" channel-count))
+	 (list
+	  :inputs (lambda () inputs)
+	  :outputs (lambda () outputs)
+	  :get-output (lambda (output)
+			;; TODO: Realize with cond. Did not get this to work :(
+			(block nil
+			  ;; generate if-clauses
+			  ,@(let ((c nil))
+				 (dotimes (o channel-count)
+				   (push `(if (eq ,(make-keyword output-name o) output)
+					      (return ,(make-wave-writer-symbol output-name o))) c))
+				 c)
+			  (error (format nil "Unknown output ~a requested from channel-wave-file-writer" output))))
+	  :update (lambda (&key ,@(make-param-list input-name channel-count))
+		    ;; validate inputs
+		    ,@(let ((c nil))
+			   (dotimes (i channel-count)
+			     (push `(if (not ,(make-wave-writer-symbol input-name i))
+					(error (format nil "Channel ~a must not be nil" ,(get-socket-number i)))) c))
+			   c)
+		    ;; update
+		    ,@(let ((c nil))
+			   (dotimes (i channel-count)
+			     (push `(push (wave-writer-float-to-int16 ,(make-wave-writer-symbol input-name i)) frames) c)
+			     (push `(setf ,(make-wave-writer-symbol output-name i) ,(make-wave-writer-symbol input-name i)) c))
+			   c)
+		    nil)
+	  :shutdown (lambda ()
+		      (let ((wave (cl-wave:open-wave filename :direction :output)))
+			(cl-wave:set-num-channels wave ,channel-count)
+			(cl-wave:set-sample-rate wave (getf environment :sample-rate))
+			(cl-wave:set-frames wave (nreverse frames))
+			(cl-wave:close-wave wave)
+			(setf frames nil)))
+	  )))))
 
 #|
 (defun test ()
