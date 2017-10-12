@@ -11,45 +11,60 @@
   (let ((i (round (* 32000 value))))
     i))
 
-(defun make-wave-writer-symbol (name num package)
-  (if (not package)
-      (setf package "CL-SYNTHESIZER-MODULES"))
-  (if num
-      (intern (format nil "~a-~a" (string-upcase name) (+ 1 num)) package)
-      (intern (string-upcase name) package)))
+(eval-when (:compile-toplevel) 
+  (defun get-socket-number (i)
+    (+ i 1)))
 
-(defun make-let-list (name count)
-  (let ((l nil))
-    (dotimes (i count)
-      (push (list (make-wave-writer-symbol name i nil) nil) l))
-  l))
+(eval-when (:compile-toplevel) 
+  (defun make-wave-writer-symbol (name num package)
+    (if (not package)
+	(setf package "CL-SYNTHESIZER-MODULES"))
+    (if num
+	(intern (format nil "~a-~a" (string-upcase name) (get-socket-number num)) package)
+	(intern (string-upcase name) package))))
 
-(defun make-param-list (name count)
-  (let ((l nil))
-    (dotimes (i count)
-      (push (make-wave-writer-symbol name i nil) l))
-  (nreverse l)))
+(eval-when (:compile-toplevel) 
+  (defun make-let-list (name count)
+    (let ((l nil))
+      (dotimes (i count)
+	(push (list (make-wave-writer-symbol name i nil) nil) l))
+      l)))
 
-(defun make-keyword-list (name count)
-  (let ((l nil))
-    (dotimes (i count)
-      (push (make-wave-writer-symbol name i "KEYWORD") l))
-    (nreverse l)))
+(eval-when (:compile-toplevel) 
+  (defun make-param-list (name count)
+    (let ((l nil))
+      (dotimes (i count)
+	(push (make-wave-writer-symbol name i nil) l))
+      (nreverse l))))
+
+(eval-when (:compile-toplevel) 
+  (defun make-keyword-list (name count)
+    (let ((l nil))
+      (dotimes (i count)
+	(push (make-wave-writer-symbol name i "KEYWORD") l))
+      (nreverse l))))
+
 
 (defmacro n-channel-wave-file-writer (name channel-count)
-  `(defun ,(make-wave-writer-symbol name nil nil) (environment &key (filename "sound.wav"))
-     (declare (optimize (debug 3) (speed 0) (space 0)))
-     (declare (ignore environment))
+  "Generates a factory function for a multiple channel wave-file-writer module. 
+   name: Name of the module (name of the generated function).
+   channel-count: Number of channels.
+   The generated module has n input sockets channel-1...channel-n and n pass-through 
+   output sockets out-1...out-n, where n is the channel count.
+   The generated module factory function has the following parameters:
+   - environment: Environment that specifies sample rate etc.
+   - &key filename: Pathname of the wave file."
+  `(defun ,(make-wave-writer-symbol name nil nil) (environment &key filename &allow-other-keys)
+     ;;(declare (optimize (debug 3) (speed 0) (space 0)))
      (let ((frames nil)
-	   ,@(make-let-list "out" channel-count)
 	   (inputs (make-keyword-list "channel" ,channel-count))
-	   (outputs (make-keyword-list "out" ,channel-count)))
+	   (outputs (make-keyword-list "out" ,channel-count))
+	   ,@(make-let-list "out" channel-count))
        (list
 	:inputs (lambda () inputs)
 	:outputs (lambda () outputs)
 	:get-output (lambda (output)
-		      ;; TODO: Realize with cond (did not get this to work with generated conditions)
-		      ;; declare block to enable generated if clauses to leave function via return
+		      ;; TODO: Realize with cond. Did not get this to work :(
 		      (block nil
 			;; generate if-clauses
 			,@(let ((c nil))
@@ -63,7 +78,7 @@
 		  ,@(let ((c nil))
 			 (dotimes (i channel-count)
 			   (push `(if (not ,(make-wave-writer-symbol "channel" i nil))
-				      (error (format nil "Channel ~a must not be nil" ,(+ i 1)))) c))
+				      (error (format nil "Channel ~a must not be nil" ,(get-socket-number i)))) c))
 			 c)
 		  ;; update
 		  ,@(let ((c nil))
@@ -74,7 +89,8 @@
 		  nil)
 	:shutdown (lambda ()
 		    (let ((wave (cl-wave:open-wave filename :direction :output)))
-		      (cl-wave:set-num-channels wave 2)
+		      (cl-wave:set-num-channels wave ,channel-count)
+		      (cl-wave:set-sample-rate wave (getf environment :sample-rate))
 		      (cl-wave:set-frames wave (nreverse frames))
 		      (cl-wave:close-wave wave)
 		      (setf frames nil)))
@@ -95,68 +111,5 @@
 (test)
 |#
 
-
-
-
 (n-channel-wave-file-writer "two-channel-wave-file-writer" 2)
-#|
-(defun two-channel-wave-file-writer (environment &key (filename "sound.wav"))
-  "Writes inputs into a Wave file and mirrors inputs to outputs via out-<n>"
-  (declare (optimize (debug 3) (speed 0) (space 0)))
-  (declare (ignore environment))
-  ;; (break)
-  (let ((frames nil) (output-channel-1 nil) (output-channel-2 nil))
-    (list
-     :inputs (lambda () (list :channel-1 :channel-2)) 
-     :outputs (lambda () (list :out-1 :out-2))
-     :get-output (lambda (output)
-		   (cond 
-		     ((eq :out-1 output)
-		      output-channel-1)
-		     ((eq :out-2 output)
-		      output-channel-2)
-		     (t (error (format nil "Unknown output ~a requested from two-channel-wave-file-writer" output)))))
-     :update (lambda (&key channel-1 channel-2)
-	       (if (not channel-1)
-		   (error "Channel-1 must not be nil"))
-	       (if (not channel-2)
-		   (error "Channel-2 must not be nil"))
-	       (push (wave-writer-float-to-int16 channel-1) frames)
-	       (push (wave-writer-float-to-int16 channel-2) frames)
-	       (setf output-channel-1 channel-1)
-	       (setf output-channel-2 channel-2))
-     :shutdown (lambda ()
-		 (let ((wave (cl-wave:open-wave filename :direction :output)))
-		   (cl-wave:set-num-channels wave 2)
-		   (cl-wave:set-frames wave (nreverse frames))
-		   (cl-wave:close-wave wave)
-		   (setf frames nil))))))
-|#
-
 (n-channel-wave-file-writer "one-channel-wave-file-writer" 1)
-
-#|
-(defun one-channel-wave-file-writer (environment &key (filename "sound.wav"))
-  (declare (optimize (debug 3) (speed 0) (space 0)))
-  (let ((frames nil) (output-channel-1 nil))
-      (list
-       :inputs (lambda () (list :channel-1)) 
-       :outputs (lambda () (list :out-1))
-       :get-output (lambda (output)
-		     (cond 
-		       ((eq :out-1 output)
-			output-channel-1)
-		       (t (error (format nil "Unknown output ~a requested from one-channel-wave-file-writer" output)))))
-       :update (lambda (&key channel-1)
-		 (if (not channel-1)
-		     (error "Channel-1 must not be nil"))
-		 (push (wave-writer-float-to-int16 channel-1) frames)
-		 (setf output-channel-1 channel-1))
-       :shutdown (lambda ()
-		   (let ((wave (cl-wave:open-wave filename :direction :output)))
-		     (cl-wave:set-num-channels wave 1)
-		     (cl-wave:set-sample-rate wave (getf environment :sample-rate))
-		     (cl-wave:set-frames wave (nreverse frames))
-		     (cl-wave:close-wave wave)
-		     (setf frames nil))))))
-|#
