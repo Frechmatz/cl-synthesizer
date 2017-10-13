@@ -9,6 +9,7 @@
   :long-description "An audio synthesizer"
   :depends-on (
 	       ;;:cl-portaudio
+	       :cl-out123
 	       :cl-wave
 	       :verbose)
   :components ((:module "src"

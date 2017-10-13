@@ -2,6 +2,9 @@
 ;; Generates a 440Hz cosinus wave
 ;;
 
+(defpackage :cl-440Hz
+  (:use :cl))
+
 (in-package :cl-440Hz)
 
 (defparameter *sample-rate* 44100)

@@ -1,6 +1,8 @@
+
+(defpackage :cl-playportaudio
+  (:use :cl :portaudio))
+
 (in-package :cl-playportaudio)
-
-
 
 (defconstant +frames-per-buffer+ 1024)
 (defconstant +sample-rate+ 44100d0)

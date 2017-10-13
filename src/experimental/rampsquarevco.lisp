@@ -1,6 +1,9 @@
 ;;
-;; Cosimus VCO with Ramp and Square CV
+;; Cosinus VCO with Ramp and Square CV
 ;;
+
+(defpackage :cl-rampsquarevco
+  (:use :cl))
 
 (in-package :cl-rampsquarevco)
 
