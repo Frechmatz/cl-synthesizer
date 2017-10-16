@@ -1,8 +1,5 @@
 (in-package :cl-synthesizer-modules)
 
-;; todo: n-channel writer (generate with macro)
-
-
 (defun wave-writer-float-to-int16 (value)
   (if (> value 1.0)
       (break))
@@ -50,7 +47,6 @@
 	(push (make-keyword name i) l))
       (nreverse l))))
 
-
 (defmacro n-channel-wave-file-writer (name channel-count)
   "Generates a factory function for a multiple channel wave-file-writer module. 
    name: Name of the module (name of the generated function).
@@ -66,7 +62,7 @@
        (let ((frames nil)
 	     (inputs (make-keyword-list ,input-name ,channel-count))
 	     (outputs (make-keyword-list ,output-name ,channel-count))
-	     ,@(make-let-list "out" channel-count))
+	     ,@(make-let-list output-name channel-count))
 	 (list
 	  :inputs (lambda () inputs)
 	  :outputs (lambda () outputs)
@@ -118,5 +114,5 @@
 (test)
 |#
 
-(n-channel-wave-file-writer "two-channel-wave-file-writer" 2)
 (n-channel-wave-file-writer "one-channel-wave-file-writer" 1)
+(n-channel-wave-file-writer "two-channel-wave-file-writer" 2)
