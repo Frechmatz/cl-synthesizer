@@ -1,5 +1,5 @@
 
-(defpackage :cl-synthesizer-modules
+(defpackage :cl-synthesizer-modules-macro-util
   (:use :cl)
 )
 

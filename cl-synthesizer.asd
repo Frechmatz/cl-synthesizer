@@ -19,6 +19,7 @@
 	       (:module "src/modules"
 			:serial t
 			:components ((:file "packages")
+				     (:file "macro-util")
 				     (:file "sinus-vco")
 				     (:file "wave-file-writer")
 				     ))

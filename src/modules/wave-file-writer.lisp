@@ -8,45 +8,6 @@
   (let ((i (round (* 32000 value))))
     i))
 
-(eval-when (:compile-toplevel) 
-  (defun get-socket-number (i)
-    (+ i 1)))
-
-(eval-when (:compile-toplevel) 
-  (defun make-wave-writer-symbol-impl (name num package)
-    (if num
-	(intern (format nil "~a-~a" (string-upcase name) (get-socket-number num)) package)
-	(intern (string-upcase name) package))))
-
-(eval-when (:compile-toplevel) 
-  (defun make-wave-writer-symbol (name num)
-    (make-wave-writer-symbol-impl name num "CL-SYNTHESIZER-MODULES-WAVE-FILE-WRITER")))
-
-(eval-when (:compile-toplevel) 
-  (defun make-keyword (name num)
-    (make-wave-writer-symbol-impl name num "KEYWORD")))
-
-(eval-when (:compile-toplevel) 
-  (defun make-let-list (name count)
-    (let ((l nil))
-      (dotimes (i count)
-	(push (list (make-wave-writer-symbol name i) nil) l))
-      l)))
-
-(eval-when (:compile-toplevel) 
-  (defun make-param-list (name count)
-    (let ((l nil))
-      (dotimes (i count)
-	(push (make-wave-writer-symbol name i) l))
-      (nreverse l))))
-
-(eval-when (:compile-toplevel) 
-  (defun make-keyword-list (name count)
-    (let ((l nil))
-      (dotimes (i count)
-	(push (make-keyword name i) l))
-      (nreverse l))))
-
 (defmacro n-channel-wave-file-writer (name channel-count)
   "Generates a factory function for a multiple channel wave-file-writer module. 
    name: Name of the module (name of the generated function).
@@ -57,12 +18,12 @@
    - environment: Environment that specifies sample rate etc.
    - &key filename: Pathname of the wave file."
   (let ((output-name "out") (input-name "channel"))
-    `(defun ,(make-wave-writer-symbol name nil) (environment &key filename &allow-other-keys)
+    `(defun ,(cl-synthesizer-modules-macro-util::make-package-symbol name nil) (environment &key filename &allow-other-keys)
        ;;(declare (optimize (debug 3) (speed 0) (space 0)))
        (let ((frames nil)
-	     (inputs (make-keyword-list ,input-name ,channel-count))
-	     (outputs (make-keyword-list ,output-name ,channel-count))
-	     ,@(make-let-list output-name channel-count))
+	     (inputs (cl-synthesizer-modules-macro-util::make-keyword-list ,input-name ,channel-count))
+	     (outputs (cl-synthesizer-modules-macro-util::make-keyword-list ,output-name ,channel-count))
+	     ,@(cl-synthesizer-modules-macro-util::make-let-list output-name channel-count))
 	 (list
 	  :inputs (lambda () inputs)
 	  :outputs (lambda () outputs)
@@ -72,22 +33,25 @@
 			  ;; generate if-clauses
 			  ,@(let ((c nil))
 				 (dotimes (o channel-count)
-				   (push `(if (eq ,(make-keyword output-name o) output)
-					      (return ,(make-wave-writer-symbol output-name o))) c))
+				   (push `(if (eq ,(cl-synthesizer-modules-macro-util::make-keyword output-name o) output)
+					      (return ,(cl-synthesizer-modules-macro-util::make-package-symbol output-name o))) c))
 				 c)
 			  (error (format nil "Unknown output ~a requested from channel-wave-file-writer" output))))
-	  :update (lambda (&key ,@(make-param-list input-name channel-count))
+	  :update (lambda (&key ,@(cl-synthesizer-modules-macro-util::make-param-list input-name channel-count))
 		    ;; validate inputs
 		    ,@(let ((c nil))
 			   (dotimes (i channel-count)
-			     (push `(if (not ,(make-wave-writer-symbol input-name i))
-					(error (format nil "Channel ~a must not be nil" ,(get-socket-number i)))) c))
+			     (push `(if (not ,(cl-synthesizer-modules-macro-util::make-package-symbol input-name i))
+					(error (format nil "Channel ~a must not be nil"
+						       ,(cl-synthesizer-modules-macro-util::get-socket-number i)))) c))
 			   c)
 		    ;; update
 		    ,@(let ((c nil))
 			   (dotimes (i channel-count)
-			     (push `(push (wave-writer-float-to-int16 ,(make-wave-writer-symbol input-name i)) frames) c)
-			     (push `(setf ,(make-wave-writer-symbol output-name i) ,(make-wave-writer-symbol input-name i)) c))
+			     (push `(push (wave-writer-float-to-int16
+					   ,(cl-synthesizer-modules-macro-util::make-package-symbol input-name i)) frames) c)
+			     (push `(setf ,(cl-synthesizer-modules-macro-util::make-package-symbol output-name i)
+					  ,(cl-synthesizer-modules-macro-util::make-package-symbol input-name i)) c))
 			   c)
 		    nil)
 	  :shutdown (lambda ()
@@ -114,9 +78,6 @@
 (test)
 |#
 
-(eval-when (:compile-toplevel) 
-  (n-channel-wave-file-writer "one-channel-wave-file-writer" 1))
-
-(eval-when (:compile-toplevel) 
-  (n-channel-wave-file-writer "two-channel-wave-file-writer" 2))
+(n-channel-wave-file-writer "one-channel-wave-file-writer" 1)
+(n-channel-wave-file-writer "two-channel-wave-file-writer" 2)
 
