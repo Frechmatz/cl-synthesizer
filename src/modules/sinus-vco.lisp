@@ -1,5 +1,5 @@
 
-(in-package :cl-synthesizer-modules)
+(in-package :cl-synthesizer-modules-sinus-vco)
 
 (defun sinus-vco (environment &key (f_0 440) (f_delta 50))
   (declare (optimize (debug 3) (speed 0) (space 0)))

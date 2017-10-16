@@ -1,4 +1,4 @@
-(in-package :cl-synthesizer-modules)
+(in-package :cl-synthesizer-modules-wave-file-writer)
 
 (defun wave-writer-float-to-int16 (value)
   (if (> value 1.0)
@@ -20,7 +20,7 @@
 
 (eval-when (:compile-toplevel) 
   (defun make-wave-writer-symbol (name num)
-    (make-wave-writer-symbol-impl name num "CL-SYNTHESIZER-MODULES")))
+    (make-wave-writer-symbol-impl name num "CL-SYNTHESIZER-MODULES-WAVE-FILE-WRITER")))
 
 (eval-when (:compile-toplevel) 
   (defun make-keyword (name num)
@@ -114,5 +114,9 @@
 (test)
 |#
 
-(n-channel-wave-file-writer "one-channel-wave-file-writer" 1)
-(n-channel-wave-file-writer "two-channel-wave-file-writer" 2)
+(eval-when (:compile-toplevel) 
+  (n-channel-wave-file-writer "one-channel-wave-file-writer" 1))
+
+(eval-when (:compile-toplevel) 
+  (n-channel-wave-file-writer "two-channel-wave-file-writer" 2))
+
