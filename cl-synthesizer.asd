@@ -22,6 +22,7 @@
 				     (:file "macro-util")
 				     (:file "sinus-vco")
 				     (:file "wave-file-writer")
+				     (:file "speaker")
 				     ))
 	       (:module "examples"
 			:serial t

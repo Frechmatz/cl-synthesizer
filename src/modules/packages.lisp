@@ -14,4 +14,10 @@
    :one-channel-wave-file-writer
    :two-channel-wave-file-writer))
 
+(defpackage :cl-synthesizer-modules-speaker
+  (:use :cl)
+  (:export
+   :mono-speaker
+   :stereo-speaker))
+
 
