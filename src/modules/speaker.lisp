@@ -29,7 +29,7 @@
 		  (if (or force (>= buffer-pos (length buffer)))
 		      (progn
 			;;(format t "~%Flushing speaker buffer~%")
-			(cl-out123:play out buffer (+ -1 buffer-pos))
+			(cl-out123:play out buffer buffer-pos)
 			(setf buffer-pos 0)))))
 	   (list
 	    :inputs (lambda () inputs)
