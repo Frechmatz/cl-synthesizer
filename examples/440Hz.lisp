@@ -83,12 +83,12 @@
   "Play two sinus waves in stereo"
   (let ((rack (make-instance 'cl-synthesizer:rack :environment (cl-synthesizer::make-environment))))
     (cl-synthesizer::add-module rack "VCO-1" #'cl-synthesizer-modules-sinus-vco::sinus-vco :f_0 440)
-    (cl-synthesizer::add-module rack "VCO-2" #'cl-synthesizer-modules-sinus-vco::sinus-vco :f_0 1000)
+    (cl-synthesizer::add-module rack "VCO-2" #'cl-synthesizer-modules-sinus-vco::sinus-vco :f_0 442)
     (cl-synthesizer::add-module rack "SPEAKER" #'cl-synthesizer-modules-speaker::stereo-speaker
 				:driver "coreaudio")
     (cl-synthesizer::add-patch rack "VCO-1" :out "SPEAKER" :channel-1)
     (cl-synthesizer::add-patch rack "VCO-2" :out "SPEAKER" :channel-2)
-    (let ((duration-secs 4))
+    (let ((duration-secs 20))
       (format t "~%Ticks: ~a~%" (* duration-secs (getf (slot-value rack 'cl-synthesizer::environment) :sample-rate)))
       (dotimes (i (* duration-secs (getf (slot-value rack 'cl-synthesizer::environment) :sample-rate)))
 	(cl-synthesizer::update-rack rack))

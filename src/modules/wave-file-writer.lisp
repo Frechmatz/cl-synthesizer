@@ -8,6 +8,11 @@
   (let ((i (round (* 32000 value))))
     i))
 
+(defun input-to-wave (f)
+  (wave-writer-float-to-int16
+   ;; convert to -1.0 ... +1.0
+   (/ f cl-synthesizer-modules-constants:+V-PEAK+)))
+
 (defmacro n-channel-wave-file-writer (name channel-count)
   "Generates a factory function for a multiple channel wave-file-writer module. 
    name: Name of the module (name of the generated function).
@@ -48,7 +53,7 @@
 		    ;; update
 		    ,@(let ((c nil))
 			   (dotimes (i channel-count)
-			     (push `(push (wave-writer-float-to-int16
+			     (push `(push (input-to-wave
 					   ,(cl-synthesizer-modules-macro-util::make-package-symbol input-name i)) frames) c)
 			     (push `(setf ,(cl-synthesizer-modules-macro-util::make-package-symbol output-name i)
 					  ,(cl-synthesizer-modules-macro-util::make-package-symbol input-name i)) c))

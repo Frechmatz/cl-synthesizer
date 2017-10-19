@@ -10,7 +10,8 @@
     :depends-on (
 		 ;;:cl-portaudio
 		 ;;:flexi-streams
-		 :lisp-unit
+	         :alexandria
+	         :lisp-unit
 		 :cl-wave
 		 :verbose)
     :components ((:module "src"

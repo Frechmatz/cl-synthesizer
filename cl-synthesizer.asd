@@ -9,6 +9,7 @@
   :long-description "An audio synthesizer"
   :depends-on (
 	       ;;:cl-portaudio
+	       :alexandria
 	       :cl-out123
 	       :cl-wave
 	       :verbose)
@@ -19,6 +20,7 @@
 	       (:module "src/modules"
 			:serial t
 			:components ((:file "packages")
+				     (:file "constants")
 				     (:file "macro-util")
 				     (:file "sinus-vco")
 				     (:file "wave-file-writer")

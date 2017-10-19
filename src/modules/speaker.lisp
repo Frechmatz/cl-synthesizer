@@ -35,6 +35,7 @@
 	    :inputs (lambda () inputs)
 	    :outputs (lambda () nil)
 	    :get-output (lambda (output)
+			  ;; todo: signal error
 			  (declare (ignore output))
 			  nil)
 	    :update (lambda (&key ,@(cl-synthesizer-modules-macro-util::make-param-list input-name channel-count))
@@ -53,7 +54,10 @@
 			       (push `(progn
 					(setf (aref buffer buffer-pos)
 					      (coerce
-					       ,(cl-synthesizer-modules-macro-util::make-package-symbol input-name i)
+					       (/
+						;; convert to -1.0 ... +1.0
+						,(cl-synthesizer-modules-macro-util::make-package-symbol input-name i)
+						cl-synthesizer-modules-constants:+V-PEAK+)
 					       'single-float))
 					(setf buffer-pos (+ 1 buffer-pos))) c))
 			     c)
