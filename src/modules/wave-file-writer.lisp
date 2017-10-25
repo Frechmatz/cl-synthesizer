@@ -85,4 +85,6 @@
 
 (n-channel-wave-file-writer "one-channel-wave-file-writer" 1)
 (n-channel-wave-file-writer "two-channel-wave-file-writer" 2)
+(n-channel-wave-file-writer "three-channel-wave-file-writer" 3)
+(n-channel-wave-file-writer "four-channel-wave-file-writer" 4)
 
