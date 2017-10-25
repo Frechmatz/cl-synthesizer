@@ -23,13 +23,16 @@
 				     (:file "constants")
 				     (:file "macro-util")
 				     (:file "sinus-vco")
+				     (:file "vco")
 				     (:file "wave-file-writer")
 				     (:file "speaker")
 				     ))
 	       (:module "examples"
 			:serial t
 			:components ((:file "packages")
-				     (:file "440Hz"))
+				     (:file "440Hz")
+				     (:file "vcoexample")
+				     )
 			)))
 
 

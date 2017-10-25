@@ -25,4 +25,8 @@
    :mono-speaker
    :stereo-speaker))
 
+(defpackage :cl-synthesizer-modules-vco
+  (:use :cl)
+  (:export
+   :vco))
 
