@@ -30,6 +30,7 @@
 	       (:module "examples"
 			:serial t
 			:components ((:file "packages")
+				     (:file "play")
 				     (:file "440Hz")
 				     (:file "vcoexample")
 				     )
