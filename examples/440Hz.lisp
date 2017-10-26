@@ -12,12 +12,10 @@
 				:filename "/Users/olli/waves/440Hz44100TwoChannelExample.wav")
     (cl-synthesizer::add-patch rack "VCO-1" :out "WAVE-WRITER" :channel-1)
     (cl-synthesizer::add-patch rack "VCO-2" :out "WAVE-WRITER" :channel-2)
-    (let ((duration-secs 2))
-      (dotimes (i (* duration-secs (getf (slot-value rack 'cl-synthesizer::environment) :sample-rate)))
-	(cl-synthesizer::update-rack rack)))
-    (cl-synthesizer::shutdown-rack rack)))
+    rack))
 
-;; (synthesizer-example-440hz-44100-two-channel)
+;; (play-rack (synthesizer-example-440hz-44100-two-channel) 2)
+
 
 
 (defun synthesizer-example-440hz-44100-one-channel ()
@@ -27,13 +25,9 @@
     (cl-synthesizer::add-module rack "WAVE-WRITER" #'cl-synthesizer-modules-wave-file-writer::one-channel-wave-file-writer
 				:filename "/Users/olli/waves/440Hz44100OneChannelExample.wav")
     (cl-synthesizer::add-patch rack "VCO-1" :out "WAVE-WRITER" :channel-1)
-    (let ((duration-secs 2))
-      (format t "~%Ticks: ~a~%" (* duration-secs (getf (slot-value rack 'cl-synthesizer::environment) :sample-rate)))
-      (dotimes (i (* duration-secs (getf (slot-value rack 'cl-synthesizer::environment) :sample-rate)))
-	(cl-synthesizer::update-rack rack))
-      (cl-synthesizer::shutdown-rack rack))))
+    rack))
 
-;; (synthesizer-example-440hz-44100-one-channel)
+;; (play-rack (synthesizer-example-440hz-44100-one-channel) 2)
 
 (defun synthesizer-example-440hz-88100-one-channel ()
   "Write one 440Hz channel"
@@ -42,12 +36,9 @@
     (cl-synthesizer::add-module rack "WAVE-WRITER" #'cl-synthesizer-modules-wave-file-writer::one-channel-wave-file-writer
 				:filename "/Users/olli/waves/440Hz88100OneChannelExample.wav")
     (cl-synthesizer::add-patch rack "VCO-1" :out "WAVE-WRITER" :channel-1)
-    (let ((duration-secs 2))
-      (dotimes (i (* duration-secs (getf (slot-value rack 'cl-synthesizer::environment) :sample-rate)))
-	(cl-synthesizer::update-rack rack))
-      (cl-synthesizer::shutdown-rack rack))))
+    rack))
 
-;; (synthesizer-example-440hz-88100-one-channel)
+;; (play-rack (synthesizer-example-440hz-88100-one-channel) 4)
 
 (defun synthesizer-example-440hz-22000-one-channel ()
   "Write one 440Hz channel"
@@ -56,12 +47,9 @@
     (cl-synthesizer::add-module rack "WAVE-WRITER" #'cl-synthesizer-modules-wave-file-writer::one-channel-wave-file-writer
 				:filename "/Users/olli/waves/440Hz22000OneChannelExample.wav")
     (cl-synthesizer::add-patch rack "VCO-1" :out "WAVE-WRITER" :channel-1)
-    (let ((duration-secs 2))
-      (dotimes (i (* duration-secs (getf (slot-value rack 'cl-synthesizer::environment) :sample-rate)))
-	(cl-synthesizer::update-rack rack))
-      (cl-synthesizer::shutdown-rack rack))))
+    rack))
 
-;; (synthesizer-example-440hz-22000-one-channel)
+;; (play-rack (synthesizer-example-440hz-22000-one-channel) 2)
 
 
 (defun synthesizer-example-440hz-44100-mono-speaker ()
@@ -71,13 +59,9 @@
     (cl-synthesizer::add-module rack "SPEAKER" #'cl-synthesizer-modules-speaker::mono-speaker
 				:driver "coreaudio")
     (cl-synthesizer::add-patch rack "VCO-1" :out "SPEAKER" :channel-1)
-    (let ((duration-secs 4))
-      (format t "~%Ticks: ~a~%" (* duration-secs (getf (slot-value rack 'cl-synthesizer::environment) :sample-rate)))
-      (dotimes (i (* duration-secs (getf (slot-value rack 'cl-synthesizer::environment) :sample-rate)))
-	(cl-synthesizer::update-rack rack))
-      (cl-synthesizer::shutdown-rack rack))))
+    rack))
 
-;; (synthesizer-example-440hz-44100-mono-speaker)
+;; (play-rack (synthesizer-example-440hz-44100-mono-speaker) 4)
 
 (defun synthesizer-example-440hz-44100-stereo-speaker ()
   "Play two sinus waves in stereo"
@@ -88,11 +72,8 @@
 				:driver "coreaudio")
     (cl-synthesizer::add-patch rack "VCO-1" :out "SPEAKER" :channel-1)
     (cl-synthesizer::add-patch rack "VCO-2" :out "SPEAKER" :channel-2)
-    (let ((duration-secs 20))
-      (format t "~%Ticks: ~a~%" (* duration-secs (getf (slot-value rack 'cl-synthesizer::environment) :sample-rate)))
-      (dotimes (i (* duration-secs (getf (slot-value rack 'cl-synthesizer::environment) :sample-rate)))
-	(cl-synthesizer::update-rack rack))
-      (cl-synthesizer::shutdown-rack rack))))
+    rack))
 
-;; (synthesizer-example-440hz-44100-stereo-speaker)
+;; (play-rack (synthesizer-example-440hz-44100-stereo-speaker) 20)
+
 
