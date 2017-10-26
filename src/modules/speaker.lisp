@@ -5,12 +5,12 @@
   "The generated module factory function has the following parameters:
    - environment: Environment that specifies sample rate etc.
    - &key driver: Driver to be used, for example \"coreaudio\"."
-  (let ((input-name "channel") (buf-length-seconds 1))
+  (let ((input-name "channel") (buf-length-samples 10000))
     `(defun ,(cl-synthesizer-modules-macro-util::make-package-symbol name nil) (environment &key driver &allow-other-keys)
        (declare (optimize (debug 3) (speed 0) (space 0)))
        (let ((out nil)
 	     (buffer (make-array
-		      (* ,channel-count ,buf-length-seconds (getf environment :sample-rate))
+		      (* ,channel-count ,buf-length-samples)
 		      :element-type 'single-float :adjustable nil))
 	     (buffer-pos 0)
 	     (inputs (cl-synthesizer-modules-macro-util::make-keyword-list ,input-name ,channel-count)))
