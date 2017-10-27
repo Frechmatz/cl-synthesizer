@@ -28,7 +28,7 @@
 (funcall (getf *fn* :get-cv) 2.5)
 |#
 
-(defun sine-vco-component (&key f-min f-max v-peak sample-rate)
+(defun sine-core (&key f-min f-max v-peak sample-rate)
   "Implements a sine generator with a given frequency range.
    Returns a function with the following parameters:
    - frequency: The current frequency"
@@ -48,7 +48,7 @@
 	 (transfer-function
 	  (transfer-function-linear :cv-min cv-min :cv-max cv-max :f-min f-min :f-max f-max))
 	 (sine-vco
-	  (sine-vco-component :f-min f-min :f-max f-max :v-peak v-peak :sample-rate sample-rate))
+	  (sine-core :f-min f-min :f-max f-max :v-peak v-peak :sample-rate sample-rate))
 	 (inputs (list :cv))
 	 (outputs (list :sine))
 	 (cur-sine-output 1.0)
