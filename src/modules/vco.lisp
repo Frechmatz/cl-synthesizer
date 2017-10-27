@@ -51,10 +51,10 @@
 	  (sine-vco-component :f-min f-min :f-max f-max :v-peak v-peak :sample-rate sample-rate))
 	 (inputs (list :cv))
 	 (outputs (list :sine))
-	 (cur-sine-output 1.0))
+	 (cur-sine-output 1.0)
+	 (cv-offs (funcall (getf transfer-function :get-cv) f-0)))
     (flet ((get-frequency (cv)
-	     (let ((cv-offs (funcall (getf transfer-function :get-cv) f-0)))
-	       (funcall (getf transfer-function :get-frequency) (+ cv cv-offs)))))
+	     (funcall (getf transfer-function :get-frequency) (+ cv cv-offs))))
       (list
        :shutdown
        (lambda () nil)
