@@ -33,17 +33,15 @@
    Returns a function with the following parameters:
    - frequency: The current frequency"
   (declare (ignore f-min f-max))
-  (let ((cur-phi 0)
-	(current-output nil))
+  (let ((cur-phi 0))
     (flet ((get-delta-phi (frequency)
 	     (let ((deltaPhi (/ (* 2 PI frequency) sample-rate)))
 	       deltaPhi)))
       (lambda (frequency)
-	(let ((deltaPhi (get-delta-phi frequency)))
-	  ;; todo: Frequency clipping
-	  (setf current-output (* (sin cur-phi) v-peak))
-	  (setf cur-phi (+ cur-phi deltaPhi)))
-	current-output))))
+	;; todo: Frequency clipping
+	(let ((o (* (sin cur-phi) v-peak)))
+	  (setf cur-phi (+ cur-phi (get-delta-phi frequency)))
+	  o)))))
 
 (defun vco (environment &key (f-0 440) (cv-min -5) (cv-max 5) (f-min 0) (f-max 12000) (v-peak 5))
   (let* ((sample-rate (getf environment :sample-rate))
