@@ -30,18 +30,22 @@
 
 (defun sine-core (&key f-min f-max v-peak sample-rate)
   "Implements a sine generator with a given frequency range.
-   Returns a function with the following parameters:
-   - frequency: The current frequency"
+   Returns two functions: 
+   - tick (frequency)
+   - reset ()"
   (declare (ignore f-min f-max))
   (let ((cur-phi 0))
     (flet ((get-delta-phi (frequency)
 	     (let ((deltaPhi (/ (* 2 PI frequency) sample-rate)))
 	       deltaPhi)))
-      (lambda (frequency)
-	;; todo: Frequency clipping
-	(let ((o (* (sin cur-phi) v-peak)))
-	  (setf cur-phi (+ cur-phi (get-delta-phi frequency)))
-	  o)))))
+      (list
+       :tick (lambda (frequency)
+	       ;; todo: Frequency clipping
+	       (let ((o (* (sin cur-phi) v-peak)))
+		 (setf cur-phi (+ cur-phi (get-delta-phi frequency)))
+		 o))
+       :reset (lambda () (setf cur-phi 0))))))
+
 
 (defun vco (environment &key (f-0 440) (cv-min -5) (cv-max 5) (f-min 0) (f-max 12000) (v-peak 5))
   (let* ((sample-rate (getf environment :sample-rate))
@@ -70,5 +74,5 @@
        :update
        (lambda (&key (cv 0))
 	 (let ((f (get-frequency cv)))
-	   (setf cur-sine-output (funcall sine-vco f))))))))
+	   (setf cur-sine-output (funcall (getf sine-vco :tick) f))))))))
 
