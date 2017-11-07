@@ -1,14 +1,14 @@
 (in-package :cl-synthesizer-examples)
 
 
-(defun example-vco (environment)
-  (cl-synthesizer-modules-vco::vco environment :f-0 440 :cv-min -5 :cv-max 5 :f-min 15 :f-max 8000 :v-peak 5))
+(defun example-vco (environment &key (f-0 440))
+  (cl-synthesizer-modules-vco::vco environment :f-0 f-0 :cv-min -5 :cv-max 5 :f-min 15 :f-max 8000 :v-peak 5))
 
 (defun synthesizer-example-vco-stereo-speaker ()
   "Play two sinus waves in stereo"
   (let ((rack (make-instance 'cl-synthesizer:rack :environment (cl-synthesizer::make-environment))))
-      (cl-synthesizer::add-module rack "VCO-1" #'example-vco)
-      (cl-synthesizer::add-module rack "VCO-2" #'example-vco)
+      (cl-synthesizer::add-module rack "VCO-1" #'example-vco :f-0 440)
+      (cl-synthesizer::add-module rack "VCO-2" #'example-vco :f-0 440)
       (cl-synthesizer::add-module rack "WAVE-WRITER"
 				  #'cl-synthesizer-modules-wave-file-writer::two-channel-wave-file-writer
 				  :filename "/Users/olli/waves/VCOTwoChannelExample.wav")
@@ -54,4 +54,22 @@
       (cl-synthesizer::add-patch rack "WAVE-WRITER-AUDIO" :out-2 "SPEAKER" :channel-2)
       rack))
       
-;;(play-rack (synthesizer-example-vco-lfo-stereo-speaker) 10)
+;;(play-rack (synthesizer-example-vco-lfo-stereo-speaker) 5)
+
+(defun synthesizer-example-vco-triangle ()
+  "Triangle test"
+  (let ((rack (make-instance 'cl-synthesizer:rack :environment (cl-synthesizer::make-environment))))
+      (cl-synthesizer::add-module rack "VCO-1" #'example-vco :f-0 300)
+      (cl-synthesizer::add-module rack "WAVE-WRITER-OSCILLOSCOPE"
+				  #'cl-synthesizer-modules-wave-file-writer::one-channel-wave-file-writer
+				  :filename "/Users/olli/waves/triangle.wav")
+      (cl-synthesizer::add-patch rack "VCO-1" :triangle "WAVE-WRITER-OSCILLOSCOPE" :channel-1)
+      rack))
+      
+;;(play-rack (synthesizer-example-vco-triangle) 3)
+
+
+
+
+
+
