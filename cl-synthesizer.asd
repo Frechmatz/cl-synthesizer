@@ -13,10 +13,15 @@
 	       :cl-out123
 	       :cl-wave
 	       :verbose)
-  :components ((:module "src"
+  :components ((:module "src/synthesizer"
 			:serial t
 			:components ((:file "packages")
-				     (:file "synthesizer")))
+				     (:file "assembly-error")
+				     (:file "environment")
+				     (:file "rack-module")
+				     (:file "rack-module-patch")
+				     (:file "rack")
+				     ))
 	       (:module "src/core"
 			:serial t
 			:components ((:file "packages")
