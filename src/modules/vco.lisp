@@ -1,9 +1,10 @@
 ;;
-;; A VCO supporting multiple wave forms
+;;
+;; A high-level VCO module supporting multiple wave forms, etc.
 ;;
 ;; Work in progress
 ;;
-
+;;
 (in-package :cl-synthesizer-modules-vco)
 
 (defun vco (environment &key (f-0 440) (cv-min -5) (cv-max 5) (f-min 0) (f-max 12000) (v-peak 5))

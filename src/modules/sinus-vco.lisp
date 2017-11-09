@@ -1,4 +1,8 @@
-
+;;
+;;
+;; Stand-alone sine VCO. Does not depend on cl-synthesizer-core
+;; DEPRECATED
+;;
 (in-package :cl-synthesizer-modules-sinus-vco)
 
 (defun sinus-vco (environment &key (f_0 440) (f_delta 50))

@@ -1,4 +1,8 @@
-
+;;
+;;
+;; A Speaker module based on lib123
+;;
+;;
 (in-package :cl-synthesizer-modules-speaker)
 
 (defmacro n-channel-speaker (name channel-count)
@@ -67,21 +71,6 @@
 			(cl-out123:disconnect out)
 			nil)
 	    ))))))
-
-#|
-(defun test ()
-  (let ((w (n-channel-speaker "speaker" 2)))
-    (let ((instance (funcall w (cl-synthesizer::make-environment))))
-      (format t "~%Inputs: ~a~%" (funcall (getf instance :inputs)) )
-      (format t "~%Outputs: ~a~%" (funcall (getf instance :outputs)) )
-      (format t "~%Output 1: ~a~%" (funcall (getf instance :get-output) :out-1) )
-      (funcall (getf instance :update) :channel-1 0.5 :channel-2 0.7)
-      (funcall (getf instance :shutdown))
-
-      )))
-
-(test)
-|#
 
 (n-channel-speaker "mono-speaker" 1)
 (n-channel-speaker "stereo-speaker" 2)

@@ -1,3 +1,8 @@
+;;
+;;
+;; A Wave-File-Writer module
+;;
+;;
 (in-package :cl-synthesizer-modules-wave-file-writer)
 
 (defun wave-writer-float-to-int16 (value)
@@ -67,21 +72,6 @@
 			(cl-wave:close-wave wave)
 			(setf frames nil)))
 	  )))))
-
-#|
-(defun test ()
-  (let ((w (n-channel-wave-file-writer "channel-2" 2)))
-    (let ((instance (funcall w nil)))
-      (format t "~%Inputs: ~a~%" (funcall (getf instance :inputs)) )
-      (format t "~%Outputs: ~a~%" (funcall (getf instance :outputs)) )
-      (format t "~%Output 1: ~a~%" (funcall (getf instance :get-output) :out-1) )
-      (funcall (getf instance :update) :channel-1 0.5 :channel-2 0.7)
-      (format t "~%Updated Output 1 is ~a~%" (funcall (getf instance :get-output) :out-1))
-      (format t "~%Updated Output 2 is ~a~%" (funcall (getf instance :get-output) :out-2))
-      )))
-
-(test)
-|#
 
 (n-channel-wave-file-writer "one-channel-wave-file-writer" 1)
 (n-channel-wave-file-writer "two-channel-wave-file-writer" 2)
