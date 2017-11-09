@@ -10,7 +10,8 @@
 
 (defclass rack ()
   ((modules :initform nil)
-   (environment :initform nil)))
+   (environment :initform nil))
+  (:documentation ""))
 
 (defmethod initialize-instance :after ((r rack) &key environment)
   (declare (optimize (debug 3) (speed 0) (space 0)))
@@ -18,6 +19,13 @@
   (if (not environment)
       (error "Environment must not be nil"))
   (setf (slot-value r 'environment) environment))
+
+(defun assert-is-module-name-available (rack name)
+  (declare (optimize (debug 3) (speed 0) (space 0)))
+  (if (get-module rack name)
+      (signal-assembly-error
+       :format-control "Module name ~a is not available"
+       :format-arguments (list name))))
 
 (defun add-module (rack name module-fn &rest args)
   (declare (optimize (debug 3) (speed 0) (space 0)))
@@ -32,12 +40,6 @@
   (declare (optimize (debug 3) (speed 0) (space 0)))
   (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (slot-value rack 'modules)))
 
-(defun assert-is-module-name-available (rack name)
-  (declare (optimize (debug 3) (speed 0) (space 0)))
-  (if (get-module rack name)
-      (signal-assembly-error
-       :format-control "Module name ~a is not available"
-       :format-arguments (list name))))
 
 (defun set-state (rack state)
   (dolist (m (slot-value rack 'modules))

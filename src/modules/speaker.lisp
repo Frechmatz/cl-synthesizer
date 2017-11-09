@@ -1,6 +1,6 @@
 ;;
 ;;
-;; A Speaker module based on lib123
+;; A Speaker module based on cl-out123
 ;;
 ;;
 (in-package :cl-synthesizer-modules-speaker)
