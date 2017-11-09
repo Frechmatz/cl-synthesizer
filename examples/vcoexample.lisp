@@ -8,7 +8,7 @@
   "Play two sinus waves in stereo"
   (let ((rack (make-instance 'cl-synthesizer:rack :environment (cl-synthesizer::make-environment))))
       (cl-synthesizer::add-module rack "VCO-1" #'example-vco :f-0 440)
-      (cl-synthesizer::add-module rack "VCO-2" #'example-vco :f-0 440)
+      (cl-synthesizer::add-module rack "VCO-2" #'example-vco :f-0 442)
       (cl-synthesizer::add-module rack "WAVE-WRITER"
 				  #'cl-synthesizer-modules-wave-file-writer::two-channel-wave-file-writer
 				  :filename "/Users/olli/waves/VCOTwoChannelExample.wav")

@@ -17,6 +17,14 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "synthesizer")))
+	       (:module "src/core"
+			:serial t
+			:components ((:file "packages")
+				     (:file "linear-converter")
+				     (:file "phase-generator")
+				     (:file "sine-core")
+				     (:file "triangle-core")
+				     ))
 	       (:module "src/modules"
 			:serial t
 			:components ((:file "packages")
