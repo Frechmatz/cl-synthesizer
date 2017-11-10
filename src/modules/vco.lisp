@@ -15,10 +15,16 @@
 	  (cl-synthesizer-core:sine-core :f-min f-min :f-max f-max :v-peak v-peak :sample-rate sample-rate))
 	 (triangle-vco
 	  (cl-synthesizer-core:triangle-core :f-min f-min :f-max f-max :v-peak v-peak :sample-rate sample-rate))
+	 (saw-vco
+	  (cl-synthesizer-core:saw-core :f-min f-min :f-max f-max :v-peak v-peak :sample-rate sample-rate))
+	 (square-vco
+	  (cl-synthesizer-core:square-core :f-min f-min :f-max f-max :v-peak v-peak :sample-rate sample-rate))
 	 (inputs (list :cv))
-	 (outputs (list :sine :triangle))
+	 (outputs (list :sine :triangle :saw :square))
 	 (cur-sine-output 1.0)
 	 (cur-triangle-output 1.0)
+	 (cur-saw-output 1.0)
+	 (cur-square-output 1.0)
 	 (cv-offs (funcall (getf transfer-function :get-cv) f-0)))
     (flet ((get-frequency (cv)
 	     (funcall (getf transfer-function :get-frequency) (+ cv cv-offs))))
@@ -30,10 +36,14 @@
 		     (cond
 		       ((eq output :sine) cur-sine-output)
 		       ((eq output :triangle) cur-triangle-output)
+		       ((eq output :saw) cur-saw-output)
+		       ((eq output :square) cur-square-output)
 		       (t (error (format nil "Unknown input ~a requested from VCO" output)))))
        :update (lambda (&key (cv 0))
 		 (let ((f (get-frequency cv)))
 		   (setf cur-sine-output (funcall (getf sine-vco :tick) f))
 		   (setf cur-triangle-output (funcall (getf triangle-vco :tick) f))
+		   (setf cur-saw-output (funcall (getf saw-vco :tick) f))
+		   (setf cur-square-output (funcall (getf square-vco :tick) f))
 		   ))))))
 

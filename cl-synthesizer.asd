@@ -29,6 +29,8 @@
 				     (:file "phase-generator")
 				     (:file "sine-core")
 				     (:file "triangle-core")
+				     (:file "saw-core")
+				     (:file "square-core")
 				     ))
 	       (:module "src/modules"
 			:serial t

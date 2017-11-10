@@ -83,6 +83,76 @@
       
 ;;(play-rack (synthesizer-example-vco-triangle-sweep) 3)
 
+(defun synthesizer-example-vco-saw ()
+  "Saw test"
+  (let ((rack (make-instance 'cl-synthesizer:rack :environment (cl-synthesizer::make-environment))))
+      (cl-synthesizer::add-module rack "VCO-1" #'example-vco :f-0 300)
+      (cl-synthesizer::add-module rack "WAVE-WRITER-OSCILLOSCOPE"
+				  #'cl-synthesizer-modules-wave-file-writer::one-channel-wave-file-writer
+				  :filename "/Users/olli/waves/saw.wav")
+      (cl-synthesizer::add-patch rack "VCO-1" :saw "WAVE-WRITER-OSCILLOSCOPE" :channel-1)
+      rack))
+      
+;;(play-rack (synthesizer-example-vco-saw) 3)
+
+
+(defun synthesizer-example-vco-saw-sweep ()
+  "Saw test"
+  (let ((rack (make-instance 'cl-synthesizer:rack :environment (cl-synthesizer::make-environment))))
+      (cl-synthesizer::add-module rack "LFO-1" #'example-vco :f-0 0.5)
+      (cl-synthesizer::add-module rack "VCO-1" #'example-vco :f-0 440 :f-min 220 :f-max 660)
+      (cl-synthesizer::add-module rack "WAVE-WRITER-OSCILLOSCOPE"
+				  #'cl-synthesizer-modules-wave-file-writer::one-channel-wave-file-writer
+				  :filename "/Users/olli/waves/sawsweep.wav")
+
+      (cl-synthesizer::add-patch rack "LFO-1" :triangle "VCO-1" :cv)
+      (cl-synthesizer::add-patch rack "VCO-1" :saw "WAVE-WRITER-OSCILLOSCOPE" :channel-1)
+      rack))
+      
+;;(play-rack (synthesizer-example-vco-saw-sweep) 3)
+
+
+(defun synthesizer-example-vco-square ()
+  "Saw test"
+  (let ((rack (make-instance 'cl-synthesizer:rack :environment (cl-synthesizer::make-environment))))
+      (cl-synthesizer::add-module rack "VCO-1" #'example-vco :f-0 300)
+      (cl-synthesizer::add-module rack "WAVE-WRITER-OSCILLOSCOPE"
+				  #'cl-synthesizer-modules-wave-file-writer::one-channel-wave-file-writer
+				  :filename "/Users/olli/waves/square.wav")
+      (cl-synthesizer::add-patch rack "VCO-1" :square "WAVE-WRITER-OSCILLOSCOPE" :channel-1)
+      rack))
+      
+;;(play-rack (synthesizer-example-vco-square) 3)
+
+(defun synthesizer-example-vco-square-sweep ()
+  "Saw test"
+  (let ((rack (make-instance 'cl-synthesizer:rack :environment (cl-synthesizer::make-environment))))
+      (cl-synthesizer::add-module rack "LFO-1" #'example-vco :f-0 0.5)
+      (cl-synthesizer::add-module rack "VCO-1" #'example-vco :f-0 440 :f-min 220 :f-max 660)
+      (cl-synthesizer::add-module rack "WAVE-WRITER-OSCILLOSCOPE"
+				  #'cl-synthesizer-modules-wave-file-writer::one-channel-wave-file-writer
+				  :filename "/Users/olli/waves/squaresweep.wav")
+
+      (cl-synthesizer::add-patch rack "LFO-1" :triangle "VCO-1" :cv)
+      (cl-synthesizer::add-patch rack "VCO-1" :square "WAVE-WRITER-OSCILLOSCOPE" :channel-1)
+      rack))
+      
+;;(play-rack (synthesizer-example-vco-square-sweep) 3)
+
+(defun synthesizer-example-vco-all-waves ()
+  "Saw test"
+  (let ((rack (make-instance 'cl-synthesizer:rack :environment (cl-synthesizer::make-environment))))
+      (cl-synthesizer::add-module rack "VCO-1" #'example-vco :f-0 300)
+      (cl-synthesizer::add-module rack "WAVE-WRITER-OSCILLOSCOPE"
+				  #'cl-synthesizer-modules-wave-file-writer::four-channel-wave-file-writer
+				  :filename "/Users/olli/waves/vcoallwaves.wav")
+      (cl-synthesizer::add-patch rack "VCO-1" :sine "WAVE-WRITER-OSCILLOSCOPE" :channel-1)
+      (cl-synthesizer::add-patch rack "VCO-1" :triangle "WAVE-WRITER-OSCILLOSCOPE" :channel-2)
+      (cl-synthesizer::add-patch rack "VCO-1" :saw "WAVE-WRITER-OSCILLOSCOPE" :channel-3)
+      (cl-synthesizer::add-patch rack "VCO-1" :square "WAVE-WRITER-OSCILLOSCOPE" :channel-4)
+      rack))
+      
+;;(play-rack (synthesizer-example-vco-all-waves) 3)
 
 
 

@@ -4,5 +4,7 @@
    :linear-converter
    :phase-generator
    :sine-core
-   :triangle-core))
+   :triangle-core
+   :saw-core
+   :square-core))
 
