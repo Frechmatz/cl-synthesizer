@@ -31,6 +31,7 @@
 				     (:file "triangle-core")
 				     (:file "saw-core")
 				     (:file "square-core")
+				     (:file "trigger")
 				     ))
 	       (:module "src/modules"
 			:serial t
@@ -41,6 +42,7 @@
 				     (:file "vco")
 				     (:file "wave-file-writer")
 				     (:file "speaker")
+				     (:file "step-sequencer")
 				     ))
 	       (:module "examples"
 			:serial t
@@ -48,6 +50,7 @@
 				     (:file "play")
 				     (:file "440Hz")
 				     (:file "vcoexample")
+				     (:file "sequencerexample")
 				     )
 			)))
 

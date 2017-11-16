@@ -6,5 +6,6 @@
    :sine-core
    :triangle-core
    :saw-core
-   :square-core))
+   :square-core
+   :trigger))
 

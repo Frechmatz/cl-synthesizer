@@ -30,3 +30,7 @@
   (:export
    :vco))
 
+(defpackage :cl-synthesizer-modules-step-sequencer
+  (:use :cl)
+  (:export
+   :step-sequencer))
