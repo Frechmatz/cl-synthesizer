@@ -2,24 +2,30 @@
 ;;
 ;; A component that generates trigger events
 ;;
-;; Work in progress
-;;
 ;;
 
 (in-package :cl-synthesizer-core)
 
-(defun trigger (&key delta)
-  ""
-  (let ((cur-input nil))
+(defun trigger (&key switching-voltage)
+  "A factory function for a trigger component. 
+   The generated function fires a one clock cycle long pulse when input-voltage >= switching-voltage,
+   then stops firing until the input-voltage went below the switching-voltage.
+   Parameters:
+   - switching-voltage: The minimum value of the input voltage in order to fire.
+   See also: cl-synthesizer-core:gate"
+  (let ((is-wait nil))
     (list
-     :is-trigger (lambda (v)
-	     (if (not cur-input)
-		 (progn 
-		   (setf cur-input v)
-		   nil)
-		 (let ((cur-delta (abs (- cur-input v))))
-		   (let ((triggered (if (>= cur-delta delta) t nil)))
-		     (if triggered
-			 (setf cur-input v))
-		     triggered))))
-     :reset (lambda () nil))))
+     :is-firing (lambda (v)
+		   (let ((may-fire (>= v switching-voltage)))
+		     (cond
+		       ((and is-wait may-fire)
+			nil)
+		       (is-wait
+			;; Waiting and voltage is below switching voltage -> reset
+			(setf is-wait nil)
+			nil)
+		       (may-fire
+			(setf is-wait t)
+			t)
+		       (t nil))))
+     :reset (lambda () (setf is-wait nil)))))
