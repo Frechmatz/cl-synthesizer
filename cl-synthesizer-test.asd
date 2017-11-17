@@ -23,10 +23,29 @@
 				     (:file "rack-module")
 				     (:file "rack-module-patch")
 				     (:file "rack")))
+	       (:module "src/core"
+			:serial t
+			:components ((:file "packages")
+				     (:file "linear-converter")
+				     (:file "phase-generator")
+				     (:file "sine-core")
+				     (:file "triangle-core")
+				     (:file "saw-core")
+				     (:file "square-core")
+				     (:file "trigger")))
 	       (:module "test"
 			:serial t
 			:components ((:file "packages")
 				     (:file "test-util")))
+	       (:module "test/core"
+			:serial t
+			:components (
+				     (:file "test-trigger")
+				     (:file "test-sine-core")
+				     (:file "test-square-core")
+				     (:file "test-triangle-core")
+				     (:file "test-saw-core")
+				     ))
 	       (:module "test/synthesizer"
 			:serial t
 			:components ((:file "test-assembly")
