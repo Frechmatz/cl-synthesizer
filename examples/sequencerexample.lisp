@@ -23,7 +23,7 @@
       (cl-synthesizer::add-module rack "SPEAKER" #'cl-synthesizer-modules-speaker::mono-speaker
 				  :driver "coreaudio")
 
-      (cl-synthesizer::add-patch rack "LFO-1" :square "SEQUENCER" :trigger)
+      (cl-synthesizer::add-patch rack "LFO-1" :square "SEQUENCER" :step)
       (cl-synthesizer::add-patch rack "SEQUENCER" :out "VCO-1" :cv)
       (cl-synthesizer::add-patch rack "VCO-1" :sine "WAVE-WRITER-OSCILLOSCOPE" :channel-1)
       (cl-synthesizer::add-patch rack "WAVE-WRITER-OSCILLOSCOPE" :out-1 "SPEAKER" :channel-1)
