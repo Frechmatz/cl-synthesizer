@@ -6,6 +6,6 @@
       (cl-synthesizer::update-rack rack))
     (let ((end (get-internal-real-time)))
       (cl-synthesizer::shutdown-rack rack)
-      (format t "Elapsed time in seconds before shutdown: ~a~%" (/ (- end start) internal-time-units-per-second))))
+      (format t "~%Elapsed time in seconds before shutdown: ~a~%" (/ (- end start) internal-time-units-per-second))))
   "DONE")
 
