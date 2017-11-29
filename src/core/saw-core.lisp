@@ -2,7 +2,7 @@
 
 ;; todo: think about clipping
 ;; todo: implement reset function
-(defun saw-core (&key f-min f-max v-peak sample-rate)
+(defun saw-core (&key f-min f-max sample-rate)
   "Implements a saw generator with a given frequency range.
    Returns two functions: 
    - tick (frequency)
@@ -16,7 +16,5 @@
 	     ;; 0...PI...2*PI -> 1...-1...1 
 	     (let ((phi (funcall generator frequency)))
 	       (let ((normalized (/ phi PI))) ;; 0..2
-		 (let ((y (+ -1 (mod normalized 2))))
-		   (* v-peak y)
-		 ))))
+		 (+ -1 (mod normalized 2)))))
      :reset (lambda () nil))))

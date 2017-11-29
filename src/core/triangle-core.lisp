@@ -2,7 +2,7 @@
 
 ;; todo: think about clipping
 ;; todo: implement reset function
-(defun triangle-core (&key f-min f-max v-peak sample-rate)
+(defun triangle-core (&key f-min f-max sample-rate)
   "Implements a triangle generator with a given frequency range.
    Returns two functions: 
    - tick (frequency)
@@ -17,6 +17,6 @@
 	     (let ((phi (funcall generator frequency)))
 	       (let ((normalized (/ phi PI))) ;; 0..2
 		 (let ((y (+ -1 (* 2 (abs (+ -1 normalized))))))
-		   (* v-peak y)
+		   y
 		 ))))
      :reset (lambda () nil))))

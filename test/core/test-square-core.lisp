@@ -3,7 +3,7 @@
 (define-test test-square-1 ()
 	     "Test the square-core by counting the zero-crossings of the signal"
 	     (let ((trigger (funcall #'cl-synthesizer-test::zero-crossing-trigger))
-		   (square (funcall #'cl-synthesizer-core:square-core :f-min 10 :f-max 100 :v-peak 5 :sample-rate 1000))
+		   (square (funcall #'cl-synthesizer-core:square-core :f-min 10 :f-max 100 :sample-rate 1000))
 		   (trigger-count 0))
 	       (dotimes (i 7250)
 		 (if (funcall trigger (funcall (getf square :tick) 1))

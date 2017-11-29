@@ -3,7 +3,7 @@
 (define-test test-triangle-1 ()
 	     "Test the triangle-core by counting the zero-crossings of the signal"
 	     (let ((trigger (funcall #'cl-synthesizer-test::zero-crossing-trigger))
-		   (triangle (funcall #'cl-synthesizer-core:triangle-core :f-min 10 :f-max 100 :v-peak 5 :sample-rate 1000))
+		   (triangle (funcall #'cl-synthesizer-core:triangle-core :f-min 10 :f-max 100 :sample-rate 1000))
 		   (trigger-count 0))
 	       (dotimes (i 7250)
 		 (if (funcall trigger (funcall (getf triangle :tick) 1))

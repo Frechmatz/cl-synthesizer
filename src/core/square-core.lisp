@@ -3,7 +3,7 @@
 ;; todo: think about clipping
 ;; todo: implement reset function
 ;; todo: Duty cycle
-(defun square-core (&key f-min f-max v-peak sample-rate)
+(defun square-core (&key f-min f-max sample-rate)
   "Implements a square generator with a given frequency range.
    Returns two functions: 
    - tick (frequency)
@@ -16,6 +16,6 @@
 	     (declare (optimize (debug 3) (speed 0) (space 0)))
 	     (let ((phi (funcall generator frequency)))
 		 (let ((y (if (< phi PI) 1 -1)))
-		   (* v-peak y)
+		   y
 		 )))
      :reset (lambda () nil))))

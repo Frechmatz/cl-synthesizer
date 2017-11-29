@@ -2,7 +2,7 @@
 
 ;; todo: think about clipping
 ;; todo: implement reset function
-(defun sine-core (&key f-min f-max v-peak sample-rate)
+(defun sine-core (&key f-min f-max sample-rate)
   "Implements a sine generator with a given frequency range.
    Returns two functions: 
    - tick (frequency)
@@ -11,5 +11,5 @@
   (let ((generator (phase-generator sample-rate)))
     (list
      :tick (lambda (frequency)
-	     (* v-peak (sin (funcall generator frequency))))
+	     (sin (funcall generator frequency)))
      :reset (lambda () nil))))
