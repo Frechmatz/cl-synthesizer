@@ -11,14 +11,7 @@
   (let* ((sample-rate (getf environment :sample-rate))
 	 (transfer-function
 	  (cl-synthesizer-core:linear-converter :cv-min cv-min :cv-max cv-max :f-min f-min :f-max f-max))
-	 (sine-vco
-	  (cl-synthesizer-core:sine-core :f-min f-min :f-max f-max :sample-rate sample-rate))
-	 (triangle-vco
-	  (cl-synthesizer-core:triangle-core :f-min f-min :f-max f-max :sample-rate sample-rate))
-	 (saw-vco
-	  (cl-synthesizer-core:saw-core :f-min f-min :f-max f-max :sample-rate sample-rate))
-	 (square-vco
-	  (cl-synthesizer-core:square-core :f-min f-min :f-max f-max :sample-rate sample-rate))
+	 (phase-generator (cl-synthesizer-core:phase-generator sample-rate))
 	 (inputs (list :cv))
 	 (outputs (list :sine :triangle :saw :square))
 	 (cur-sine-output 1.0)
@@ -40,10 +33,11 @@
 		       ((eq output :square) cur-square-output)
 		       (t (error (format nil "Unknown input ~a requested from VCO" output)))))
        :update (lambda (&key (cv 0))
-		 (let ((f (get-frequency cv)))
-		   (setf cur-sine-output (* v-peak (funcall (getf sine-vco :tick) f)))
-		   (setf cur-triangle-output (* v-peak (funcall (getf triangle-vco :tick) f)))
-		   (setf cur-saw-output (* v-peak (funcall (getf saw-vco :tick) f)))
-		   (setf cur-square-output (* v-peak (funcall (getf square-vco :tick) f)))
+		 (let* ((f (get-frequency cv))
+			(phi (funcall phase-generator f)))
+		   (setf cur-sine-output (* v-peak (cl-synthesizer-core:phase-sine-converter phi)))
+		   (setf cur-triangle-output (* v-peak (cl-synthesizer-core:phase-triangle-converter phi)))
+		   (setf cur-saw-output (* v-peak (cl-synthesizer-core:phase-saw-converter phi)))
+		   (setf cur-square-output (* v-peak (cl-synthesizer-core:phase-square-converter phi)))
 		   ))))))
 

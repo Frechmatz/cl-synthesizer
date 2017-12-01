@@ -26,11 +26,8 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "linear-converter")
+				     (:file "phase-waveform-converter")
 				     (:file "phase-generator")
-				     (:file "sine-core")
-				     (:file "triangle-core")
-				     (:file "saw-core")
-				     (:file "square-core")
 				     (:file "trigger")
 				     ))
 	       (:module "src/modules"

@@ -3,9 +3,10 @@
   (:export
    :linear-converter
    :phase-generator
-   :sine-core
-   :triangle-core
-   :saw-core
-   :square-core
-   :trigger))
+   :trigger
+   :phase-sine-converter
+   :phase-saw-converter
+   :phase-square-converter
+   :phase-triangle-converter
+   ))
 

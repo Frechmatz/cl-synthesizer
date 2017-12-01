@@ -27,11 +27,8 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "linear-converter")
+				     (:file "phase-waveform-converter")
 				     (:file "phase-generator")
-				     (:file "sine-core")
-				     (:file "triangle-core")
-				     (:file "saw-core")
-				     (:file "square-core")
 				     (:file "trigger")))
 	       (:module "test"
 			:serial t
@@ -41,10 +38,7 @@
 			:serial t
 			:components (
 				     (:file "test-trigger")
-				     (:file "test-sine-core")
-				     (:file "test-square-core")
-				     (:file "test-triangle-core")
-				     (:file "test-saw-core")
+				     (:file "test-waveform")
 				     ))
 	       (:module "test/synthesizer"
 			:serial t
