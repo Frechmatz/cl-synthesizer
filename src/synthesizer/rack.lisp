@@ -8,6 +8,10 @@
 ;;
 ;;
 
+(defun print-event (module-name event-name intensity)
+  (declare (ignore intensity))
+  (format t "~a: ~a~%" module-name event-name))
+		    
 (defclass rack ()
   ((modules :initform nil)
    (environment :initform nil))
@@ -30,11 +34,17 @@
 (defun add-module (rack name module-fn &rest args)
   (declare (optimize (debug 3) (speed 0) (space 0)))
   (assert-is-module-name-available rack name)
-  (let ((rm (make-instance 'rack-module)) (m (apply module-fn `(,(slot-value rack 'environment) ,@args))))
-    (setf (slot-value rm 'name) name)
-    (setf (slot-value rm 'module) m)
-    (push rm (slot-value rack 'modules))
-    rm))
+  (let ((module-environment (copy-list (slot-value rack 'environment)))
+	(module-event-logger (event-logger name #'print-event)))
+    (push (getf module-event-logger :register-event-type) module-environment)
+    (push :event-logger-register-event-type module-environment)
+    (push (getf module-event-logger :clear) module-environment)
+    (push :event-logger-clear module-environment)
+    (let ((rm (make-instance 'rack-module)) (m (apply module-fn `(,module-environment ,@args))))
+      (setf (slot-value rm 'name) name)
+      (setf (slot-value rm 'module) m)
+      (push rm (slot-value rack 'modules))
+      rm)))
 
 (defun get-module (rack name)
   (declare (optimize (debug 3) (speed 0) (space 0)))

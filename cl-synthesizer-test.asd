@@ -19,6 +19,7 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "assembly-error")
+				     (:file "event-logger")
 				     (:file "environment")
 				     (:file "rack-module")
 				     (:file "rack-module-patch")
