@@ -8,21 +8,40 @@
 ;;
 ;;
 
+#|
 (defun print-event (module-name event-name intensity)
   (declare (ignore intensity))
   (format t "~a: ~a~%" module-name event-name))
+|#
 		    
 (defclass rack ()
   ((modules :initform nil)
-   (environment :initform nil))
+   (environment :initform nil)
+   (tick-lock :initform (bt:make-lock "rack-lock"))
+   (event-logger :initform (event-logger)))
   (:documentation ""))
 
 (defmethod initialize-instance :after ((r rack) &key environment)
   (declare (optimize (debug 3) (speed 0) (space 0)))
-  ;; todo: why are key params in initialize-instance optional?
   (if (not environment)
       (error "Environment must not be nil"))
   (setf (slot-value r 'environment) environment))
+
+(defun get-events (rack)
+  (let ((events nil))
+    (bt:with-lock-held ((slot-value rack 'tick-lock))
+      (dolist (event (funcall (getf (slot-value rack 'event-logger) :get-events)))
+	(let ((cur-count (funcall (getf event :count))))
+	  (if cur-count
+	      (push (list
+		     (funcall (getf event :module-name))
+		     (funcall (getf event :event-name))
+		     (funcall (getf event :count)))
+		    events))
+	  ))
+      (funcall (getf (slot-value rack 'event-logger) :reset)))
+    events))
+
 
 (defun assert-is-module-name-available (rack name)
   (declare (optimize (debug 3) (speed 0) (space 0)))
@@ -31,15 +50,21 @@
        :format-control "Module name ~a is not available"
        :format-arguments (list name))))
 
+(defun push-alist (alist key value)
+  (push value alist)
+  (push key alist)
+  alist)
+
 (defun add-module (rack name module-fn &rest args)
   (declare (optimize (debug 3) (speed 0) (space 0)))
   (assert-is-module-name-available rack name)
   (let ((module-environment (copy-list (slot-value rack 'environment)))
-	(module-event-logger (event-logger name #'print-event)))
-    (push (getf module-event-logger :register-event-type) module-environment)
-    (push :event-logger-register-event-type module-environment)
-    (push (getf module-event-logger :clear) module-environment)
-    (push :event-logger-clear module-environment)
+	(logger (slot-value rack 'event-logger)))
+    (setf module-environment (push-alist
+     module-environment
+     :register-event
+     (lambda (event-name)
+       (funcall (getf logger :register-event) name event-name))))
     (let ((rm (make-instance 'rack-module)) (m (apply module-fn `(,module-environment ,@args))))
       (setf (slot-value rm 'name) name)
       (setf (slot-value rm 'module) m)
@@ -49,7 +74,6 @@
 (defun get-module (rack name)
   (declare (optimize (debug 3) (speed 0) (space 0)))
   (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (slot-value rack 'modules)))
-
 
 (defun set-state (rack state)
   (dolist (m (slot-value rack 'modules))
@@ -113,49 +137,50 @@
 (defun update-rack (rack)
   "Process a tick" 
   (declare (optimize (debug 3) (speed 0) (space 0)))
-  (set-state rack :PROCESS-TICK)
-  (labels
-      ((update-rm (rm)
-	 ;; Update a module
-	 ;; If module is already updating do nothing
-	 ;; Otherwise update all input modules and then update outputs
-	 (declare (optimize (debug 3) (speed 0) (space 0)))
-	 (let ((state (get-rack-module-state rm)))
-	   (if (not (eq state :PROCESS-TICK))
-	       (progn
-		 ;; module is already processing -> do nothing
-		 ;; (break)
-		 nil)
-	       (progn
-		 (set-rack-module-state rm :PROCESSING-TICK)
-		 ;; update input modules
-		 (dolist (cur-input-socket (get-rack-module-input-sockets rm))
-		   (let ((patch (get-rack-module-input-patch rm cur-input-socket)))
-		     (if patch 
-			 (update-rm (get-rack-patch-module patch)))))
-		 ;; update this
-		 (let ((lambdalist nil))
-		   ;; collect inputs
+  (bt:with-lock-held ((slot-value rack 'tick-lock))
+    (set-state rack :PROCESS-TICK)
+    (labels
+	((update-rm (rm)
+	   ;; Update a module
+	   ;; If module is already updating do nothing
+	   ;; Otherwise update all input modules and then update outputs
+	   (declare (optimize (debug 3) (speed 0) (space 0)))
+	   (let ((state (get-rack-module-state rm)))
+	     (if (not (eq state :PROCESS-TICK))
+		 (progn
+		   ;; module is already processing -> do nothing
+		   ;; (break)
+		   nil)
+		 (progn
+		   (set-rack-module-state rm :PROCESSING-TICK)
+		   ;; update input modules
 		   (dolist (cur-input-socket (get-rack-module-input-sockets rm))
-		     (let ((patch (get-rack-module-input-patch rm cur-input-socket)) (socket-input-value nil))
-		       (if patch
-			   (let* ((source-rm (get-rack-patch-module patch))
-				 (source-rm-socket (get-rack-patch-socket patch))
-				 (output-fn (get-rack-module-output-fn source-rm)))
-			     (setf socket-input-value (funcall output-fn source-rm-socket))))
-		       ;; omit from lambdalist if input is not connected or input-value is undefined
-		       (if socket-input-value
-			   (progn 
-			     (push cur-input-socket lambdalist)
-			     (push socket-input-value lambdalist)))))
-		   ;; call update function on this
-		   ;;(break)
-		   (apply (get-rack-module-update-fn rm) (nreverse lambdalist))
-		   (set-rack-module-state rm :PROCESSED-TICK)
-		   ))))))
-    ;; for all modules
-    (dolist (rm (slot-value rack 'modules))
-      (update-rm rm))))
+		     (let ((patch (get-rack-module-input-patch rm cur-input-socket)))
+		       (if patch 
+			   (update-rm (get-rack-patch-module patch)))))
+		   ;; update this
+		   (let ((lambdalist nil))
+		     ;; collect inputs
+		     (dolist (cur-input-socket (get-rack-module-input-sockets rm))
+		       (let ((patch (get-rack-module-input-patch rm cur-input-socket)) (socket-input-value nil))
+			 (if patch
+			     (let* ((source-rm (get-rack-patch-module patch))
+				    (source-rm-socket (get-rack-patch-socket patch))
+				    (output-fn (get-rack-module-output-fn source-rm)))
+			       (setf socket-input-value (funcall output-fn source-rm-socket))))
+			 ;; omit from lambdalist if input is not connected or input-value is undefined
+			 (if socket-input-value
+			     (progn 
+			       (push cur-input-socket lambdalist)
+			       (push socket-input-value lambdalist)))))
+		     ;; call update function on this
+		     ;;(break)
+		     (apply (get-rack-module-update-fn rm) (nreverse lambdalist))
+		     (set-rack-module-state rm :PROCESSED-TICK)
+		     ))))))
+      ;; for all modules
+      (dolist (rm (slot-value rack 'modules))
+	(update-rm rm)))))
 
 (defun shutdown-rack (rack)
   (dolist (rm (slot-value rack 'modules))

@@ -12,7 +12,8 @@
 	       :alexandria
 	       :cl-out123
 	       :cl-wave
-	       :verbose)
+	       :verbose
+	       :bordeaux-threads)
   :components ((:module "src/synthesizer"
 			:serial t
 			:components ((:file "packages")

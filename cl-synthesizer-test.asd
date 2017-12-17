@@ -13,7 +13,8 @@
 	       :alexandria
 	       :lisp-unit
 	       :cl-wave
-	       :verbose)
+	       :verbose
+	       :bordeaux-threads)
   :components (
 	       (:module "src/synthesizer"
 			:serial t
