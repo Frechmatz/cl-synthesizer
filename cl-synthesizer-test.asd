@@ -14,13 +14,13 @@
 	       :lisp-unit
 	       :cl-wave
 	       :verbose
-	       :bordeaux-threads)
+	       :bordeaux-threads
+	       )
   :components (
 	       (:module "src/synthesizer"
 			:serial t
 			:components ((:file "packages")
 				     (:file "assembly-error")
-				     (:file "event-logger")
 				     (:file "environment")
 				     (:file "rack-module")
 				     (:file "rack-module-patch")
