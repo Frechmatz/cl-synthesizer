@@ -29,4 +29,4 @@
       (cl-synthesizer::add-patch rack "WAVE-WRITER-OSCILLOSCOPE" :out-1 "SPEAKER" :channel-1)
       rack))
       
-;;(play-rack (synthesizer-example-step-sequencer) 10)
+;;(cl-synthesizer-examples::play-rack (cl-synthesizer-examples::synthesizer-example-step-sequencer) 2)
