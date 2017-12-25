@@ -6,14 +6,9 @@
 ;;
 ;; Represents a grid of rack-modules
 ;;
+;; Todo: Re-think shutdown concept
 ;;
 
-#|
-(defun print-event (module-name event-name intensity)
-  (declare (ignore intensity))
-  (format t "~a: ~a~%" module-name event-name))
-|#
-		    
 (defclass rack ()
   ((modules :initform nil)
    (environment :initform nil)
@@ -29,10 +24,15 @@
 
 (defun add-event-listener (rack name event-handler-fn &key (tick-fn nil) (shutdown-fn nil))
   "Add an event listener
-   event-handler-fn -- a callback function being called with
-   --- event-id -- A keyword representing a unique identifier of the event type.
+   event-handler-fn -- a function being called when a module fires an event. Has the 
+   following parameters:
+   --- event-id -- A keyword representing a unique identifier of the event. The event-id
+       is created when a module registers an event.
+       consists of concatenated mdou
    --- module-name 
-   --- event-name"
+   --- event-name
+   tick-fn -- an optional function being called once per update cycle of the rack
+   shutdown-fn -- an optional function being called when the rack is shutting down"
     (if (not name)
 	(error "addEventListener: no name given"))
     (if (not event-handler-fn)
@@ -66,8 +66,7 @@
 (defun add-module (rack module-name module-fn &rest args)
   (declare (optimize (debug 3) (speed 0) (space 0)))
   (assert-is-module-name-available rack module-name)
-  ;; Copy environment and inject function to
-  ;; register an event logger
+  ;; Copy environment and inject function that allows a module to register events
   (let ((module-environment (copy-list (slot-value rack 'environment))))
     (setf module-environment
 	  (push-alist
