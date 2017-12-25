@@ -59,18 +59,19 @@
   
 
 (defun play-rack (rack duration-seconds)
-  (let* ((start (get-internal-real-time))
+  (let ((start (get-internal-real-time))
 	(ticks-to-play (* duration-seconds (getf (slot-value rack 'cl-synthesizer::environment) :sample-rate)))
-	 (console-logger (console-logger rack))
-	 (log (getf console-logger :log))
-	 (tick (getf console-logger :tick)))
+	 (console-logger (console-logger rack)))
     (format t "~%Ticks to play: ~a~%" ticks-to-play)
-    (cl-synthesizer::add-event-listener rack "Console-Logger" log)
+    (cl-synthesizer::add-event-listener
+     rack
+     "Console-Logger"
+     (getf console-logger :log)
+     :tick-fn (getf console-logger :tick)
+     :shutdown-fn (getf console-logger :flush))
     (dotimes (i ticks-to-play)
-      (cl-synthesizer::update-rack rack)
-      (funcall tick))
+      (cl-synthesizer::update-rack rack))
     (cl-synthesizer::shutdown-rack rack)
-    (funcall (getf console-logger :flush)) 
     (let ((end (get-internal-real-time)))
       (format t "~%Elapsed time in seconds after shutdown: ~a~%" (/ (- end start) internal-time-units-per-second))))
   "DONE")

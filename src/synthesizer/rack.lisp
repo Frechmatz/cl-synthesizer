@@ -27,36 +27,29 @@
       (error "Environment must not be nil"))
   (setf (slot-value r 'environment) environment))
 
-(defun add-event-listener (rack name eventFn &key (startTickFn nil) (endTickFn nil))
+(defun add-event-listener (rack name event-handler-fn &key (tick-fn nil) (shutdown-fn nil))
   "Add an event listener
-   eventFn -- a callback function being called with
+   event-handler-fn -- a callback function being called with
    --- event-id -- A keyword representing a unique identifier of the event type.
    --- module-name 
    --- event-name"
     (if (not name)
 	(error "addEventListener: no name given"))
-    (if (not eventFn)
+    (if (not event-handler-fn)
 	(error "addEventListener: no event callback function given"))
     ;; todo: check if listener of given name already exists
-    (if (not startTickFn)
-	(setf startTickFn
-	      (lambda (rack)
-		(declare (ignore rack))
-		nil)))
-    (if (not endTickFn)
-	(setf endTickFn
-	      (lambda (rack)
-		(declare (ignore rack))
-		nil)))
     (push (list
-	   startTickFn
-	   eventFn
-	   endTickFn)
+	   :event-handler-fn event-handler-fn
+	   :tick-fn tick-fn
+	   :shutdown-fn shutdown-fn)
 	  (slot-value rack 'event-listeners)))
 
-(defun notify-event (rack event-id module-name event-name)
-  (dolist (l (slot-value rack 'event-listeners))
-    (funcall (second l) event-id module-name event-name)))
+(defmacro with-event-listeners (rack callback-selector handler &body body)
+  (let ((l (gensym)))
+    `(dolist (,l (slot-value ,rack 'event-listeners))
+       (let ((,handler (getf ,l ,callback-selector)))
+	 (if handler
+	     (progn ,@body))))))
 
 (defun assert-is-module-name-available (rack name)
   (declare (optimize (debug 3) (speed 0) (space 0)))
@@ -84,7 +77,9 @@
 	     (let ((event-id
 		     (intern (format nil "~a-~a" (string-upcase module-name) (string-upcase event-name)) "KEYWORD")))
 	       (lambda ()
-		 (notify-event rack event-id module-name event-name))))))
+		 (with-event-listeners rack :event-handler-fn handler
+		   (funcall handler event-id module-name event-name)))
+	       ))))
     (let ((rm (make-instance 'rack-module)) (m (apply module-fn `(,module-environment ,@args))))
       (setf (slot-value rm 'name) module-name)
       (setf (slot-value rm 'module) m)
@@ -200,9 +195,13 @@
     ;; for all modules
     (dolist (rm (slot-value rack 'modules))
       (update-rm rm))
+    (with-event-listeners rack :tick-fn handler
+      (funcall handler))
     ))
 
 (defun shutdown-rack (rack)
   (dolist (rm (slot-value rack 'modules))
-    (funcall (get-rack-module-shutdown-fn rm))))
+    (funcall (get-rack-module-shutdown-fn rm)))
+  (with-event-listeners rack :shutdown-fn handler
+    (funcall handler)))
   
