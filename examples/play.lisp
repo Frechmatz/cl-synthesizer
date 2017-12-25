@@ -5,7 +5,7 @@
   ;; events: ( (eventId, count, moduleName, eventName) .... )
   (let ((events nil))
     (list
-     :inc
+     :add-event
      (lambda (event-id module-name event-name)
        (let ((l (find-if (lambda (i) (eq event-id (first i))) events)))
 	 (if (not l)
@@ -19,6 +19,16 @@
 		(setf (second e) nil)))
      :get-events (lambda () events))))
 
+(defmacro with-aggregator-events (event-aggregator event-id module-name event-name count &body body)
+  (let ((event (gensym)))
+    `(dolist (,event (funcall (getf ,event-aggregator :get-events)))
+       (if (second ,event)
+	   (let ((,event-id (first ,event))
+		 (,module-name (third ,event))
+		 (,event-name (fourth ,event))
+		 (,count (second ,event)))
+	     ,@body)))))
+
 (defun console-logger (rack)
   (declare (optimize (debug 3) (speed 0) (space 0)))
   (let* ((sample-rate (getf (slot-value rack 'cl-synthesizer::environment) :sample-rate))
@@ -28,15 +38,12 @@
 	 (aggregator (event-aggregator)))
     (labels ((log-event (event-id module-name event-name)
 	       (declare (optimize (debug 3) (speed 0) (space 0)))
-	       (funcall (getf aggregator :inc) event-id module-name event-name))
+	       (funcall (getf aggregator :add-event) event-id module-name event-name))
 	     (flush ()
-	       (dolist (event (funcall (getf aggregator :get-events)))
-		 (if (second event)
-		     (format t "~a: ~a (~a) tickTimestamp: ~a~%"
-			     (third event)
-			     (fourth event)
-			     (second event)
-			     total-ticks)))
+	       (with-aggregator-events
+		   aggregator event-id module-name event-name event-count
+		 (declare (ignore event-id))
+		 (format t "~a: ~a (~a) tickTimestamp: ~a~%" module-name event-name event-count total-ticks))
 	       (funcall (getf aggregator :reset))
 	       (setf cur-tick 0))
 	     (tick ()
