@@ -40,8 +40,6 @@
 		     ;; round robin
 		     (if (<= (length steps) cur-step )
 			 (setf cur-step 0))
-		     (setf current-output (elt steps cur-step))))
-	       (if cur-step
-		   (funcall (elt step-loggers cur-step)))
-	       ))))
+		     (funcall (elt step-loggers cur-step))
+		     (setf current-output (elt steps cur-step))))))))
      
