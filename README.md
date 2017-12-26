@@ -10,7 +10,7 @@ Work In Progress...
 ## Api
 
 A Synthesizer is represented by an instance of Rack. A rack holds instances of Rack-Modules. Each Rack-Module
-is holding a Core-Module and its connections.
+is holding a Core-Module and the connections to other Rack-Modules.
 
 ### Core-Module
 
