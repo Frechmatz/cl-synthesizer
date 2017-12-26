@@ -1,5 +1,5 @@
 # cl-synthesizer
-An experimental synthesizer implemented in Common Lisp
+An experimental audio-synthesizer implemented in Common Lisp
 
 Work In Progress...
 
