@@ -10,7 +10,7 @@ holds a Core-Module and connections to other Rack-Modules.
 
 ### Core-Module
 
-A function that returns the following alist
+A function that returns an alist with the following properties:
 
 - :shutdown -- function that is called when the synthesizer is shutting down.
 - :inputs -- function that returns a list of keywords representing the inputs of the module. 
