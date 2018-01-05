@@ -6,7 +6,7 @@ Work In Progress...
 ## Architecture
 
 A Synthesizer is represented by an instance of Rack. A rack holds instances of Rack-Modules. Each Rack-Module
-is holding a Core-Module and connections to other Rack-Modules.
+holds a Core-Module and connections to other Rack-Modules.
 
 ### Core-Module
 
