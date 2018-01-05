@@ -2,8 +2,6 @@
 ;;
 ;; Step sequencer example
 ;;
-;; Work in progress
-;;
 ;;
 
 (in-package :cl-synthesizer-examples)

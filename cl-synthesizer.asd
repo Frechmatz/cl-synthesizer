@@ -7,14 +7,13 @@
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "An audio synthesizer"
   :long-description "An audio synthesizer"
-  :depends-on (
-	       ;;:cl-portaudio
-	       :alexandria
+  :depends-on (:alexandria
 	       :cl-out123
 	       :cl-wave
 	       :verbose
 	       :bordeaux-threads
-	       )
+	       :coremidi
+	       :queues.simple-cqueue)
   :components ((:module "src/synthesizer"
 			:serial t
 			:components ((:file "packages")
@@ -42,6 +41,7 @@
 				     (:file "wave-file-writer")
 				     (:file "speaker")
 				     (:file "step-sequencer")
+				     (:file "midi-interface")
 				     ))
 	       (:module "examples"
 			:serial t
@@ -50,6 +50,7 @@
 				     (:file "440Hz")
 				     (:file "vcoexample")
 				     (:file "sequencerexample")
+				     (:file "midiexample")
 				     )
 			)))
 

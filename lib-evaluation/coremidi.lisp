@@ -31,7 +31,7 @@
    (midi:get-source 0)
    :cc
    (lambda (chan control value)
-     ;; [CC] Channel: 1  Control: 1  Value: 98
+     ;; [CC] Channel: 1  Control: 1  Value: 98 (Value = 0..127)
      (format t "[CC] Channel: ~d  Control: ~d  Value: ~d~%" chan control value)))
 
   (midi:set-midi-callback

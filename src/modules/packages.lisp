@@ -34,3 +34,9 @@
   (:use :cl)
   (:export
    :step-sequencer))
+
+(defpackage :cl-synthesizer-modules-midi-interface
+  (:use :cl)
+  (:export
+   :midi-interface))
+
