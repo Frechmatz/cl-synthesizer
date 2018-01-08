@@ -40,3 +40,6 @@
   (:export
    :midi-interface))
 
+(defpackage :cl-synthesizer-modules-multiple
+  (:use :cl)
+  (:export :multiple-4))

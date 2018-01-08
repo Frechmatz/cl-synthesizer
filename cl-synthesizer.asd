@@ -38,6 +38,7 @@
 				     (:file "macro-util")
 				     (:file "sinus-vco")
 				     (:file "vco")
+				     (:file "multiple")
 				     (:file "wave-file-writer")
 				     (:file "speaker")
 				     (:file "step-sequencer")
