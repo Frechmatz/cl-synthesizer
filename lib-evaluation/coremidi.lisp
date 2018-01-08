@@ -24,25 +24,27 @@
 
 (ql:quickload "coremidi")
 
+(defparameter *source* 1)
+
 (defun test ()
   (midi:initialize)
   ;; :note
   (midi:set-midi-callback
-   (midi:get-source 0)
+   (midi:get-source *source*)
    :cc
    (lambda (chan control value)
      ;; [CC] Channel: 1  Control: 1  Value: 98 (Value = 0..127)
-     (format t "[CC] Channel: ~d  Control: ~d  Value: ~d~%" chan control value)))
+     (format t "[CC      ] Channel: ~d  Control: ~d  Value: ~d~%" chan control value)))
 
   (midi:set-midi-callback
-   (midi:get-source 0)
+   (midi:get-source *source*)
    :note-on
    (lambda (chan note vel)
      ;; [NOTE-ON] Channel: 1  Notenum: 61  Velocity: 15
-     (format t "[NOTE-ON] Channel: ~d  Notenum: ~d  Velocity: ~d~%" chan note vel)))
+     (format t "[NOTE-ON ] Channel: ~d  Notenum: ~d  Velocity: ~d~%" chan note vel)))
 
   (midi:set-midi-callback
-   (midi:get-source 0)
+   (midi:get-source *source*)
    :note-off
    (lambda (chan note vel)
      ;; [NOTE-OFF] Channel: 1  Notenum: 61  Velocity: 0
