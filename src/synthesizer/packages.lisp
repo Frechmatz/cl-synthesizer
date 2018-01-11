@@ -2,5 +2,8 @@
   (:use :cl)
   (:export
    :rack-module
-   :rack))
+   :rack
+   :create-rack
+   :get-line-out
+   :line-out))
 

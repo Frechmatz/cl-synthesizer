@@ -57,22 +57,34 @@
        :tick #'tick
        :flush #'flush))))
   
-
-(defun play-rack (rack duration-seconds)
-  (let ((start (get-internal-real-time))
-	(ticks-to-play (* duration-seconds (getf (slot-value rack 'cl-synthesizer::environment) :sample-rate)))
+(defun play-rack-impl (rack duration-seconds attach-speaker)
+  (let* ((start (get-internal-real-time))
+	 (environment (slot-value rack 'cl-synthesizer::environment))
+	 (sample-rate (getf environment :sample-rate))
+	 (ticks-to-play (* duration-seconds sample-rate))
 	 (console-logger (console-logger rack)))
     (format t "~%Ticks to play: ~a~%" ticks-to-play)
+    ;; Add event listener
     (cl-synthesizer::add-event-listener
      rack
      "Console-Logger"
      (getf console-logger :log)
      :tick-fn (getf console-logger :tick)
      :shutdown-fn (getf console-logger :flush))
+    ;; Set audio device
+    (if attach-speaker
+	(funcall (getf (cl-synthesizer:get-line-out rack) :set-device)
+		 (cl-synthesizer-device-speaker:stereo-speaker environment :driver "coreaudio")))
     (dotimes (i ticks-to-play)
       (cl-synthesizer::update-rack rack))
     (cl-synthesizer::shutdown-rack rack)
     (let ((end (get-internal-real-time)))
       (format t "~%Elapsed time in seconds after shutdown: ~a~%" (/ (- end start) internal-time-units-per-second))))
   "DONE")
+
+(defun play-rack (rack duration-seconds)
+  (play-rack-impl rack duration-seconds nil))
+
+(defun play-rack-with-audio-output (rack duration-seconds)
+  (play-rack-impl rack duration-seconds t))
 

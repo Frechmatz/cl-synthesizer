@@ -11,20 +11,18 @@
 
 (defun synthesizer-example-step-sequencer ()
   "Step Sequencer example"
-  (let ((rack (make-instance 'cl-synthesizer:rack :environment (cl-synthesizer::make-environment))))
+  (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
       (cl-synthesizer::add-module rack "SEQUENCER" #'cl-synthesizer-modules-step-sequencer:step-sequencer)
       (cl-synthesizer::add-module rack "LFO-1" #'sequencer-example-vco :f-0 0.5)
       (cl-synthesizer::add-module rack "VCO-1" #'example-vco :f-0 440 :f-min 220 :f-max 660)
       (cl-synthesizer::add-module rack "WAVE-WRITER-OSCILLOSCOPE"
 				  #'cl-synthesizer-modules-wave-file-writer::one-channel-wave-file-writer
 				  :filename "/Users/olli/waves/sequencer.wav")
-      (cl-synthesizer::add-module rack "SPEAKER" #'cl-synthesizer-modules-speaker::mono-speaker
-				  :driver "coreaudio")
 
       (cl-synthesizer::add-patch rack "LFO-1" :square "SEQUENCER" :step)
       (cl-synthesizer::add-patch rack "SEQUENCER" :out "VCO-1" :cv)
       (cl-synthesizer::add-patch rack "VCO-1" :sine "WAVE-WRITER-OSCILLOSCOPE" :channel-1)
-      (cl-synthesizer::add-patch rack "WAVE-WRITER-OSCILLOSCOPE" :out-1 "SPEAKER" :channel-1)
+      (cl-synthesizer::add-patch rack "WAVE-WRITER-OSCILLOSCOPE" :out-1 "LINE-OUT" :channel-1)
       rack))
       
-;;(cl-synthesizer-examples::play-rack (cl-synthesizer-examples::synthesizer-example-step-sequencer) 2)
+;;(cl-synthesizer-examples::play-rack-with-audio-output (cl-synthesizer-examples::synthesizer-example-step-sequencer) 10)

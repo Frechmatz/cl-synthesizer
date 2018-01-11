@@ -2,11 +2,11 @@
 
 (defmacro multiple (name output-count)
   (let ((output-name "out"))
-    `(defun ,(cl-synthesizer-modules-macro-util::make-package-symbol name nil) (environment)
+    `(defun ,(cl-synthesizer-macro-util::make-package-symbol name nil) (environment)
        (declare (ignore environment))
        (let ((cur-input nil)
 	     (inputs (list :input))
-	     (outputs (cl-synthesizer-modules-macro-util::make-keyword-list ,output-name ,output-count)))
+	     (outputs (cl-synthesizer-macro-util::make-keyword-list ,output-name ,output-count)))
 	 (list
 	  :inputs (lambda () inputs)
 	  :outputs (lambda () outputs)

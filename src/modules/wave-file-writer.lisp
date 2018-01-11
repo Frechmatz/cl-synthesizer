@@ -28,12 +28,12 @@
    - environment: Environment that specifies sample rate etc.
    - &key filename: Pathname of the wave file."
   (let ((output-name "out") (input-name "channel"))
-    `(defun ,(cl-synthesizer-modules-macro-util::make-package-symbol name nil) (environment &key filename &allow-other-keys)
+    `(defun ,(cl-synthesizer-macro-util::make-package-symbol name nil) (environment &key filename &allow-other-keys)
        ;;(declare (optimize (debug 3) (speed 0) (space 0)))
        (let ((frames nil)
-	     (inputs (cl-synthesizer-modules-macro-util::make-keyword-list ,input-name ,channel-count))
-	     (outputs (cl-synthesizer-modules-macro-util::make-keyword-list ,output-name ,channel-count))
-	     ,@(cl-synthesizer-modules-macro-util::make-let-list output-name channel-count))
+	     (inputs (cl-synthesizer-macro-util::make-keyword-list ,input-name ,channel-count))
+	     (outputs (cl-synthesizer-macro-util::make-keyword-list ,output-name ,channel-count))
+	     ,@(cl-synthesizer-macro-util::make-let-list output-name channel-count))
 	 (list
 	  :inputs (lambda () inputs)
 	  :outputs (lambda () outputs)
@@ -43,25 +43,25 @@
 			  ;; generate if-clauses
 			  ,@(let ((c nil))
 				 (dotimes (o channel-count)
-				   (push `(if (eq ,(cl-synthesizer-modules-macro-util::make-keyword output-name o) output)
-					      (return ,(cl-synthesizer-modules-macro-util::make-package-symbol output-name o))) c))
+				   (push `(if (eq ,(cl-synthesizer-macro-util::make-keyword output-name o) output)
+					      (return ,(cl-synthesizer-macro-util::make-package-symbol output-name o))) c))
 				 c)
 			  (error (format nil "Unknown output ~a requested from channel-wave-file-writer" output))))
-	  :update (lambda (&key ,@(cl-synthesizer-modules-macro-util::make-param-list input-name channel-count))
+	  :update (lambda (&key ,@(cl-synthesizer-macro-util::make-param-list input-name channel-count))
 		    ;; validate inputs
 		    ,@(let ((c nil))
 			   (dotimes (i channel-count)
-			     (push `(if (not ,(cl-synthesizer-modules-macro-util::make-package-symbol input-name i))
+			     (push `(if (not ,(cl-synthesizer-macro-util::make-package-symbol input-name i))
 					(error (format nil "Channel ~a must not be nil"
-						       ,(cl-synthesizer-modules-macro-util::get-socket-number i)))) c))
+						       ,(cl-synthesizer-macro-util::get-socket-number i)))) c))
 			   c)
 		    ;; update
 		    ,@(let ((c nil))
 			   (dotimes (i channel-count)
 			     (push `(push (input-to-wave
-					   ,(cl-synthesizer-modules-macro-util::make-package-symbol input-name i)) frames) c)
-			     (push `(setf ,(cl-synthesizer-modules-macro-util::make-package-symbol output-name i)
-					  ,(cl-synthesizer-modules-macro-util::make-package-symbol input-name i)) c))
+					   ,(cl-synthesizer-macro-util::make-package-symbol input-name i)) frames) c)
+			     (push `(setf ,(cl-synthesizer-macro-util::make-package-symbol output-name i)
+					  ,(cl-synthesizer-macro-util::make-package-symbol input-name i)) c))
 			   c)
 		    nil)
 	  :shutdown (lambda ()

@@ -14,7 +14,11 @@
 	       :bordeaux-threads
 	       :coremidi
 	       :queues.simple-cqueue)
-  :components ((:module "src/synthesizer"
+  :components ((:module "src/util"
+			:serial t
+			:components ((:file "packages")
+				     (:file "macro-util")))
+		(:module "src/synthesizer"
 			:serial t
 			:components ((:file "packages")
 				     (:file "assembly-error")
@@ -22,6 +26,7 @@
 				     (:file "rack-module")
 				     (:file "rack-module-patch")
 				     (:file "rack")
+				     (:file "line-out")
 				     ))
 	       (:module "src/core"
 			:serial t
@@ -35,15 +40,17 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "constants")
-				     (:file "macro-util")
 				     (:file "sinus-vco")
 				     (:file "vco")
 				     (:file "multiple")
 				     (:file "wave-file-writer")
-				     (:file "speaker")
 				     (:file "step-sequencer")
 				     (:file "midi-interface")
 				     ))
+	       (:module "src/device"
+			:serial t
+			:components ((:file "packages")
+				     (:file "speaker")))
 	       (:module "examples"
 			:serial t
 			:components ((:file "packages")

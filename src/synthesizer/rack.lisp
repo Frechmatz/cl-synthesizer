@@ -86,7 +86,6 @@
       rm)))
 
 (defun get-module (rack name)
-  (declare (optimize (debug 3) (speed 0) (space 0)))
   (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (slot-value rack 'modules)))
 
 (defun set-state (rack state)
@@ -204,3 +203,10 @@
   (with-event-listeners rack :shutdown-fn handler
     (funcall handler)))
   
+(defun create-rack (&key environment)
+  (let ((rack (make-instance 'cl-synthesizer:rack :environment environment)))
+    (add-module rack "LINE-OUT" #'cl-synthesizer:line-out)
+    rack))
+
+(defun get-line-out (rack)
+  (slot-value (get-module rack "LINE-OUT") 'module))
