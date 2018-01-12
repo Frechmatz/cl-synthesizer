@@ -11,7 +11,7 @@
 (defun midi-interface (environment)
   (declare (ignore environment))
   (let ((current-output 0)
-	(converter (cl-synthesizer-core:linear-converter :cv-min 0 :cv-max 127 :f-min 0 :f-max 4.9)))
+	(converter (cl-synthesizer-core:linear-converter :input-min 0 :input-max 127 :output-min 0 :output-max 4.9)))
     (list
      :shutdown (lambda () nil)
      :inputs (lambda () '(:midi-event))
@@ -20,5 +20,5 @@
 		   (declare (ignore output))
 		   current-output)
      :update (lambda (&key (midi-event nil))
-	       (if midi-event (setf current-output (funcall (getf converter :get-frequency) (third midi-event))))))))
+	       (if midi-event (setf current-output (funcall (getf converter :input-to-output) (third midi-event))))))))
 

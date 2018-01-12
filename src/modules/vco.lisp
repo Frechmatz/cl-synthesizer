@@ -10,7 +10,7 @@
 (defun vco (environment &key (f-0 440) (cv-min -5) (cv-max 5) (f-min 0) (f-max 12000) (v-peak 5))
   (let* ((sample-rate (getf environment :sample-rate))
 	 (transfer-function
-	  (cl-synthesizer-core:linear-converter :cv-min cv-min :cv-max cv-max :f-min f-min :f-max f-max))
+	  (cl-synthesizer-core:linear-converter :input-min cv-min :input-max cv-max :output-min f-min :output-max f-max))
 	 (phase-generator (cl-synthesizer-core:phase-generator sample-rate))
 	 (inputs (list :cv))
 	 (outputs (list :sine :triangle :saw :square))
@@ -18,9 +18,9 @@
 	 (cur-triangle-output 1.0)
 	 (cur-saw-output 1.0)
 	 (cur-square-output 1.0)
-	 (cv-offs (funcall (getf transfer-function :get-cv) f-0)))
+	 (cv-offs (funcall (getf transfer-function :output-to-input) f-0)))
     (flet ((get-frequency (cv)
-	     (funcall (getf transfer-function :get-frequency) (+ cv cv-offs))))
+	     (funcall (getf transfer-function :input-to-output) (+ cv cv-offs))))
       (list
        :shutdown (lambda () nil)
        :inputs (lambda () inputs)
