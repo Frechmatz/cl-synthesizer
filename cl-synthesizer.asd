@@ -27,6 +27,7 @@
 				     (:file "rack-module-patch")
 				     (:file "rack")
 				     (:file "line-out")
+				     (:file "midi-in")
 				     ))
 	       (:module "src/core"
 			:serial t
@@ -50,7 +51,8 @@
 	       (:module "src/device"
 			:serial t
 			:components ((:file "packages")
-				     (:file "speaker")))
+				     (:file "speaker")
+				     (:file "midi-device")))
 	       (:module "examples"
 			:serial t
 			:components ((:file "packages")

@@ -1,6 +1,6 @@
 ;;
 ;;
-;; A Speaker module based on cl-out123
+;; A Speaker Device based on cl-out123
 ;;
 ;;
 (in-package :cl-synthesizer-device-speaker)

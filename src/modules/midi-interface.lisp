@@ -2,39 +2,23 @@
 
 ;;
 ;;
-;; A Midi Module using CoreMidi
+;; A Midi Rack Module
 ;;
 ;; Work in progress
 ;;
 
 
-(defparameter *source* 1) ;; 0 == VMPK
-
 (defun midi-interface (environment)
-  (declare (optimize (debug 3) (speed 0) (space 0)))
+  (declare (ignore environment))
   (let ((current-output 0)
-	 (event-logger (funcall (getf environment :register-event) (format nil "MIDI-EVENT")))
-	 (event-queue (queues:make-queue :simple-cqueue))
-	 (converter (cl-synthesizer-core:linear-converter :cv-min 0 :cv-max 127 :f-min 0 :f-max 4.9)))
-    (midi:initialize)
-    (midi:set-midi-callback
-     (midi:get-source *source*)
-     :cc ;; for now listen to all control change events
-     (lambda (chan control value)
-       (format t "[CC] Channel: ~d  Control: ~d  Value: ~d~%" chan control value)       
-       (queues:qpush event-queue (list chan control value))
-       (funcall event-logger)))
+	(converter (cl-synthesizer-core:linear-converter :cv-min 0 :cv-max 127 :f-min 0 :f-max 4.9)))
     (list
      :shutdown (lambda () nil)
-     :inputs (lambda () '())
+     :inputs (lambda () '(:midi-event))
      :outputs (lambda () '(:out-1))
      :get-output (lambda (output)
 		   (declare (ignore output))
-		   ;; TODO: Minimize expensive queue calls
-		   (let ((e (queues:qpop event-queue)))
-		     (if e (setf current-output (funcall (getf converter :get-frequency) (third e)))))
 		   current-output)
-     :update (lambda () nil))))
+     :update (lambda (&key (midi-event nil))
+	       (if midi-event (setf current-output (funcall (getf converter :get-frequency) (third midi-event))))))))
 
-
-     

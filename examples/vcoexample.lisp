@@ -18,7 +18,7 @@
       (cl-synthesizer::add-patch rack "WAVE-WRITER" :out-2 "LINE-OUT" :channel-2)
       rack))
   
-;;(play-rack-with-audio-output (synthesizer-example-vco-stereo-speaker) 5)
+;;(play-rack (synthesizer-example-vco-stereo-speaker) 5 :attach-speaker t)
 
 (defun example-lfo (environment)
   (cl-synthesizer-modules-vco::vco environment :f-0 0.2 :cv-min -2.5 :cv-max 2.5 :f-min 0 :f-max 50 :v-peak 5))
@@ -50,7 +50,7 @@
       (cl-synthesizer::add-patch rack "WAVE-WRITER-AUDIO" :out-2 "LINE-OUT" :channel-2)
       rack))
       
-;;(play-rack-with-audio-output (synthesizer-example-vco-lfo-stereo-speaker) 5)
+;;(play-rack (synthesizer-example-vco-lfo-stereo-speaker) 5 :attach-speaker t)
 
 (defun synthesizer-example-vco-triangle ()
   "Triangle test"

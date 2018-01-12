@@ -5,5 +5,7 @@
    :rack
    :create-rack
    :get-line-out
-   :line-out))
+   :get-midi-in
+   :line-out
+   :midi-in))
 

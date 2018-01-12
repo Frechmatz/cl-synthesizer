@@ -4,6 +4,11 @@
    :mono-speaker
    :stereo-speaker))
 
+(defpackage :cl-synthesizer-device-midi
+  (:use :cl)
+  (:export
+   :midi-device))
+
 
 
 

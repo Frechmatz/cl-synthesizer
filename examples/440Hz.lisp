@@ -58,7 +58,7 @@
     (cl-synthesizer::add-patch rack "VCO-1" :out "LINE-OUT" :channel-1)
     rack))
 
-;; (play-rack-with-audio-output (synthesizer-example-440hz-44100-mono-speaker) 4)
+;; (play-rack (synthesizer-example-440hz-44100-mono-speaker) 4 :attach-speaker t)
 
 (defun synthesizer-example-440hz-44100-stereo-speaker ()
   "Play two sinus waves in stereo"
@@ -69,6 +69,6 @@
     (cl-synthesizer::add-patch rack "VCO-2" :out "LINE-OUT" :channel-2)
     rack))
 
-;; (play-rack-with-audio-output (synthesizer-example-440hz-44100-stereo-speaker) 10)
+;; (play-rack(synthesizer-example-440hz-44100-stereo-speaker) 10 :attach-speaker t)
 
 

@@ -1,3 +1,7 @@
+;;
+;; The line-out connector of a rack.
+;;
+
 (in-package :cl-synthesizer)
 
 (defun line-out (environment)

@@ -57,7 +57,7 @@
        :tick #'tick
        :flush #'flush))))
   
-(defun play-rack-impl (rack duration-seconds attach-speaker)
+(defun play-rack (rack duration-seconds &key (attach-speaker nil) (attach-midi nil))
   (let* ((start (get-internal-real-time))
 	 (environment (slot-value rack 'cl-synthesizer::environment))
 	 (sample-rate (getf environment :sample-rate))
@@ -75,6 +75,9 @@
     (if attach-speaker
 	(funcall (getf (cl-synthesizer:get-line-out rack) :set-device)
 		 (cl-synthesizer-device-speaker:stereo-speaker environment :driver "coreaudio")))
+    (if attach-midi
+	(funcall (getf (cl-synthesizer:get-midi-in rack) :set-device)
+		 (cl-synthesizer-device-midi:midi-device environment)))
     (dotimes (i ticks-to-play)
       (cl-synthesizer::update-rack rack))
     (cl-synthesizer::shutdown-rack rack)
@@ -82,9 +85,13 @@
       (format t "~%Elapsed time in seconds after shutdown: ~a~%" (/ (- end start) internal-time-units-per-second))))
   "DONE")
 
+#|
 (defun play-rack (rack duration-seconds)
-  (play-rack-impl rack duration-seconds nil))
+  (play-rack-impl rack duration-seconds :attach-speaker nil :attach-midi nil))
 
 (defun play-rack-with-audio-output (rack duration-seconds)
-  (play-rack-impl rack duration-seconds t))
+  (play-rack-impl rack duration-seconds :attach-speaker t :attach-midi nil))
 
+(defun play-rack-full (rack duration-seconds)
+  (play-rack-impl rack duration-seconds :attach-speaker t :attach-midi t))
+|#

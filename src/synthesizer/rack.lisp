@@ -205,8 +205,13 @@
   
 (defun create-rack (&key environment)
   (let ((rack (make-instance 'cl-synthesizer:rack :environment environment)))
+    ;; Add Device Interfaces
     (add-module rack "LINE-OUT" #'cl-synthesizer:line-out)
+    (add-module rack "MIDI-IN" #'cl-synthesizer:midi-in)
     rack))
 
 (defun get-line-out (rack)
   (slot-value (get-module rack "LINE-OUT") 'module))
+
+(defun get-midi-in (rack)
+  (slot-value (get-module rack "MIDI-IN") 'module))
