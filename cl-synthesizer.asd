@@ -45,6 +45,8 @@
 				     (:file "vco")
 				     (:file "multiple")
 				     (:file "wave-file-writer")
+				     (:file "adsr")
+				     (:file "vca")
 				     (:file "step-sequencer")
 				     (:file "midi-interface")
 				     ))
@@ -61,6 +63,7 @@
 				     (:file "vcoexample")
 				     (:file "sequencerexample")
 				     (:file "midiexample")
+				     (:file "keyboard")
 				     )
 			)))
 
