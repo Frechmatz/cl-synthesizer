@@ -47,7 +47,6 @@
 				     (:file "wave-file-writer")
 				     (:file "adsr")
 				     (:file "vca")
-				     (:file "step-sequencer")
 				     (:file "midi-interface")
 				     ))
 	       (:module "src/device"
@@ -61,7 +60,6 @@
 				     (:file "play")
 				     (:file "440Hz")
 				     (:file "vcoexample")
-				     (:file "sequencerexample")
 				     (:file "midiexample")
 				     (:file "keyboard")
 				     )
