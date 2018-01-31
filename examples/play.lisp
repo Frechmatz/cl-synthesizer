@@ -71,7 +71,6 @@
      (getf console-logger :log)
      :tick-fn (getf console-logger :tick)
      :shutdown-fn (getf console-logger :flush))
-    ;; Set audio device
     (if attach-speaker
 	(funcall (getf (cl-synthesizer:get-line-out rack) :set-device)
 		 (cl-synthesizer-device-speaker:stereo-speaker environment :driver "coreaudio")))
@@ -85,13 +84,3 @@
       (format t "~%Elapsed time in seconds after shutdown: ~a~%" (/ (- end start) internal-time-units-per-second))))
   "DONE")
 
-#|
-(defun play-rack (rack duration-seconds)
-  (play-rack-impl rack duration-seconds :attach-speaker nil :attach-midi nil))
-
-(defun play-rack-with-audio-output (rack duration-seconds)
-  (play-rack-impl rack duration-seconds :attach-speaker t :attach-midi nil))
-
-(defun play-rack-full (rack duration-seconds)
-  (play-rack-impl rack duration-seconds :attach-speaker t :attach-midi t))
-|#
