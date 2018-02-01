@@ -7,5 +7,7 @@
    :get-line-out
    :get-midi-in
    :line-out
-   :midi-in))
+   :midi-in
+   :get-event-logger
+   :get-sample-rate))
 

@@ -10,8 +10,9 @@
    - environment: Environment that specifies sample rate etc.
    - &key driver: Driver to be used, for example \"coreaudio\"."
   (let ((input-name "channel") (buf-length-samples 1000))
-    `(defun ,(cl-synthesizer-macro-util::make-package-symbol name nil) (environment &key driver &allow-other-keys)
+    `(defun ,(cl-synthesizer-macro-util::make-package-symbol name nil) (name environment &key driver &allow-other-keys)
        (declare (optimize (debug 3) (speed 0) (space 0)))
+       (declare (ignore name))
        (let ((out nil)
 	     (buffer (make-array
 		      (* ,channel-count ,buf-length-samples)

@@ -1,8 +1,8 @@
 (in-package :cl-synthesizer-examples)
 
 
-(defun example-vco (environment &key (f-0 440) (f-min 15) (f-max 8000))
-  (cl-synthesizer-modules-vco::vco environment :f-0 f-0 :cv-min -5 :cv-max 5 :f-min f-min :f-max f-max :v-peak 5))
+(defun example-vco (name environment &key (f-0 440) (f-min 15) (f-max 8000))
+  (cl-synthesizer-modules-vco::vco name environment :f-0 f-0 :cv-min -5 :cv-max 5 :f-min f-min :f-max f-max :v-peak 5))
 
 (defun synthesizer-example-vco-stereo-speaker ()
   "Play two sinus waves in stereo"
@@ -20,8 +20,8 @@
   
 ;;(play-rack (synthesizer-example-vco-stereo-speaker) 5 :attach-speaker t)
 
-(defun example-lfo (environment)
-  (cl-synthesizer-modules-vco::vco environment :f-0 0.2 :cv-min -2.5 :cv-max 2.5 :f-min 0 :f-max 50 :v-peak 5))
+(defun example-lfo (name environment)
+  (cl-synthesizer-modules-vco::vco name environment :f-0 0.2 :cv-min -2.5 :cv-max 2.5 :f-min 0 :f-max 50 :v-peak 5))
 
 (defun synthesizer-example-vco-lfo-stereo-speaker ()
   "Modulate sine with sine-lfo"

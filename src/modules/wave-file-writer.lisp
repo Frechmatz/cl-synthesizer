@@ -28,7 +28,7 @@
    - environment: Environment that specifies sample rate etc.
    - &key filename: Pathname of the wave file."
   (let ((output-name "out") (input-name "channel"))
-    `(defun ,(cl-synthesizer-macro-util::make-package-symbol name nil) (environment &key filename &allow-other-keys)
+    `(defun ,(cl-synthesizer-macro-util::make-package-symbol name nil) (name environment &key filename &allow-other-keys)
        ;;(declare (optimize (debug 3) (speed 0) (space 0)))
        (let ((frames nil)
 	     (inputs (cl-synthesizer-macro-util::make-keyword-list ,input-name ,channel-count))
@@ -46,7 +46,7 @@
 				   (push `(if (eq ,(cl-synthesizer-macro-util::make-keyword output-name o) output)
 					      (return ,(cl-synthesizer-macro-util::make-package-symbol output-name o))) c))
 				 c)
-			  (error (format nil "Unknown output ~a requested from channel-wave-file-writer" output))))
+			  (error (format nil "Unknown output ~a requested from ~a" output name))))
 	  :update (lambda (&key ,@(cl-synthesizer-macro-util::make-param-list input-name channel-count))
 		    ;; validate inputs
 		    ,@(let ((c nil))

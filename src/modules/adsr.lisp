@@ -9,7 +9,8 @@
 
 (in-package :cl-synthesizer-modules-adsr)
 
-(defun adsr (environment &key (v-peak 5))
+(defun adsr (name environment &key (v-peak 5))
+  (declare (ignore name))
   (let* ((sample-rate (getf environment :sample-rate))
 	 (inputs (list :gate))
 	 (outputs (list :cv))

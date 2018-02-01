@@ -9,7 +9,8 @@
 
 (defparameter *source* 1) ;; 0 == VMPK
 
-(defun midi-device (environment)
+(defun midi-device (name environment)
+  (declare (ignore name))
   (declare (ignore environment))
   (let ((event-queue (queues:make-queue :simple-cqueue)))
     (midi:initialize)

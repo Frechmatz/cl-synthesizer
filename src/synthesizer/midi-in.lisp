@@ -4,7 +4,8 @@
 
 (in-package :cl-synthesizer)
 
-(defun midi-in (environment)
+(defun midi-in (name environment)
+  (declare (ignore name))
   (declare (ignore environment))
   (let ((device nil))
     (list

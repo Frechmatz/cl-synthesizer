@@ -8,7 +8,8 @@
 ;;
 (in-package :cl-synthesizer-modules-vca)
 
-(defun vca (environment)
+(defun vca (name environment)
+  (declare (ignore name))
   (let* ((sample-rate (getf environment :sample-rate))
 	 (inputs (list :input :cv))
 	 (outputs (list :out))

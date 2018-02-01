@@ -6,9 +6,9 @@
 
 (in-package :cl-synthesizer-examples)
 
-(defun keyboard-example-vco (environment)
+(defun keyboard-example-vco (name environment)
   ;; see also note mapping of midi-ifc
-  (cl-synthesizer-modules-vco::vco environment :f-0 0 :cv-min 0 :cv-max 5 :f-min 0 :f-max 13000 :v-peak 5))
+  (cl-synthesizer-modules-vco::vco name environment :f-0 0 :cv-min 0 :cv-max 5 :f-min 0 :f-max 13000 :v-peak 5))
 
 (defun synthesizer-example-keyboard ()
   "Keyboard"

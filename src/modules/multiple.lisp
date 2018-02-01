@@ -2,8 +2,8 @@
 
 (defmacro multiple (name output-count)
   (let ((output-name "out"))
-    `(defun ,(cl-synthesizer-macro-util::make-package-symbol name nil) (environment)
-       (declare (ignore environment))
+    `(defun ,(cl-synthesizer-macro-util::make-package-symbol name nil) (name environment)
+       (declare (ignore environment name))
        (let ((cur-input nil)
 	     (inputs (list :input))
 	     (outputs (cl-synthesizer-macro-util::make-keyword-list ,output-name ,output-count)))

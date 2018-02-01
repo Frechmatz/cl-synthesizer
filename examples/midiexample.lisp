@@ -6,8 +6,8 @@
 
 (in-package :cl-synthesizer-examples)
 
-(defun midi-example-vco (environment &key (f-0 440) (f-min 440) (f-max 900))
-  (cl-synthesizer-modules-vco::vco environment :f-0 f-0 :cv-min -5 :cv-max 5 :f-min f-min :f-max f-max :v-peak 5))
+(defun midi-example-vco (name environment &key (f-0 440) (f-min 440) (f-max 900))
+  (cl-synthesizer-modules-vco::vco name environment :f-0 f-0 :cv-min -5 :cv-max 5 :f-min f-min :f-max f-max :v-peak 5))
 
 (defun synthesizer-example-midi ()
   "Midi example"

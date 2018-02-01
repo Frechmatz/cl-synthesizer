@@ -18,6 +18,13 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "macro-util")))
+		(:module "src/eventlogger"
+			:serial t
+			:components ((:file "packages")
+				     (:file "event-logger")
+				     (:file "event-aggregator")
+				     (:file "console")
+				     ))
 		(:module "src/synthesizer"
 			:serial t
 			:components ((:file "packages")

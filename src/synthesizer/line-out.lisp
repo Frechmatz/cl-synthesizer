@@ -4,8 +4,9 @@
 
 (in-package :cl-synthesizer)
 
-(defun line-out (environment)
+(defun line-out (name environment)
   (declare (ignore environment))
+  (declare (ignore name))
   (let ((device nil))
     (list
      :set-device (lambda (d) (setf device d))

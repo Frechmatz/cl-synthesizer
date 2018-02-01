@@ -34,13 +34,14 @@
 ;; MIDI Module
 ;;
 
-(defun midi-interface (environment)
-  (declare (ignore environment))
+(defun midi-interface (name environment)
   (let ((current-controller 0)
 	(current-gate 0)
 	(current-cv 0)
 	(note-to-cv-table (frequency-cv-table (note-frequency-table)))
-	(controller-converter (cl-synthesizer-core:linear-converter :input-min 0 :input-max 127 :output-min 0 :output-max 4.9)))
+	(controller-converter (cl-synthesizer-core:linear-converter :input-min 0 :input-max 127 :output-min 0 :output-max 4.9))
+	(gate-on-event (funcall (getf environment :register-event) name "GATE-ON"))
+	(gate-off-event (funcall (getf environment :register-event) name "GATE-OFF")))
     (list
      :shutdown (lambda () nil)
      :inputs (lambda () '(:midi-event))
@@ -50,7 +51,7 @@
 		     ((eq output :gate) current-gate)
 		     ((eq output :cv) current-cv)
 		     ((eq output :out-1) current-controller)
-		     (t (error (format nil "Unknown input ~a requested from MIDI-INTERFACE" output)))))
+		     (t (error (format nil "Unknown input ~a requested from ~a" output name)))))
      :update (lambda (&key (midi-event nil))
 	       (if midi-event
 		   (let ((event-type (first midi-event)))
@@ -59,9 +60,11 @@
 			(setf current-controller
 			      (funcall (getf controller-converter :input-to-output) (fourth midi-event))))
 		       ((eq event-type :note-on)
+			(funcall gate-on-event)
 			(setf current-gate 5.0)
 			(setf current-cv
 			      (elt note-to-cv-table (third midi-event))))
 		       ((eq event-type :note-off)
+			(funcall gate-off-event)
 			(setf current-gate 0)))
 		     (format t "Gate: ~a CV: ~a Controller: ~a~%" current-gate current-cv current-controller)))))))

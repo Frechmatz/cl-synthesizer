@@ -7,7 +7,7 @@
 ;;
 (in-package :cl-synthesizer-modules-vco)
 
-(defun vco (environment &key (f-0 440) (cv-min -5) (cv-max 5) (f-min 0) (f-max 12000) (v-peak 5))
+(defun vco (name environment &key (f-0 440) (cv-min -5) (cv-max 5) (f-min 0) (f-max 12000) (v-peak 5))
   (let* ((sample-rate (getf environment :sample-rate))
 	 (transfer-function
 	  (cl-synthesizer-core:linear-converter :input-min cv-min :input-max cv-max :output-min f-min :output-max f-max))
@@ -31,7 +31,7 @@
 		       ((eq output :triangle) cur-triangle-output)
 		       ((eq output :saw) cur-saw-output)
 		       ((eq output :square) cur-square-output)
-		       (t (error (format nil "Unknown input ~a requested from VCO" output)))))
+		       (t (error (format nil "Unknown input ~a requested from ~a" output name)))))
        :update (lambda (&key (cv 0))
 		 (let* ((f (get-frequency cv))
 			(phi (funcall phase-generator f)))

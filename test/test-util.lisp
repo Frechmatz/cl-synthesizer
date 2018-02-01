@@ -1,8 +1,8 @@
 (in-package :cl-synthesizer-test)
 
-(defun test-module (environment)
+(defun test-module (name environment)
   "Module that mirrors its input"
-  (declare (ignore environment))
+  (declare (ignore environment name))
   (let ((out-1 0) (out-2 0))
     (list
      :shutdown (lambda () nil)
@@ -22,9 +22,9 @@
 		   (setf out-2 cv-2)))
      )))
 
-(defun test-module-counter (environment)
+(defun test-module-counter (name environment)
   "Module that increments its output on each tick"
-  (declare (ignore environment))
+  (declare (ignore environment name))
   (let ((out 0))
     (list
      :shutdown (lambda () nil)
@@ -39,9 +39,9 @@
 	       (setf out (+ 1 out)))
      )))
 
-(defun test-module-multiply-by-two (environment)
+(defun test-module-multiply-by-two (name environment)
   "Module that increments its output on each tick"
-  (declare (ignore environment))
+  (declare (ignore environment name))
   (let ((out 0))
     (list
      :shutdown (lambda () nil)
@@ -56,9 +56,9 @@
 	       (setf out (* 2 in)))
      )))
 
-(defun test-module-adder (environment)
+(defun test-module-adder (name environment)
   "Module that increments its output on each tick"
-  (declare (ignore environment))
+  (declare (ignore environment name))
   (let ((out 0))
     (list
      :shutdown (lambda () nil)
@@ -73,9 +73,9 @@
 	       (setf out (+ in-1 in-2)))
      )))
 
-(defun test-module-multiple-1-2 (environment)
+(defun test-module-multiple-1-2 (name environment)
   ""
-  (declare (ignore environment))
+  (declare (ignore environment name))
   (let ((out 0))
     (list
      :shutdown (lambda () nil)
@@ -112,11 +112,4 @@
 	      (and (< v 0) (< 0 cur-value)))))
 	(setf cur-value v)
 	is-crossing))))
-
-
-
-
-
-
-
 
