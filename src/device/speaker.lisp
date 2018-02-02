@@ -5,6 +5,8 @@
 ;;
 (in-package :cl-synthesizer-device-speaker)
 
+(alexandria:define-constant +V-PEAK+ 5.0)
+
 (defmacro n-channel-speaker (name channel-count)
   "The generated module factory function has the following parameters:
    - environment: Environment that specifies sample rate etc.
@@ -62,7 +64,7 @@
 					       (/
 						;; convert to -1.0 ... +1.0
 						,(cl-synthesizer-macro-util::make-package-symbol input-name i)
-						cl-synthesizer-modules-constants:+V-PEAK+)
+						+V-PEAK+)
 					       'single-float))
 					(setf buffer-pos (+ 1 buffer-pos))) c))
 			     c)

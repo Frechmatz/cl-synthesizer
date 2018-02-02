@@ -47,7 +47,6 @@
 	       (:module "src/modules"
 			:serial t
 			:components ((:file "packages")
-				     (:file "constants")
 				     (:file "sinus-vco")
 				     (:file "vco")
 				     (:file "multiple")

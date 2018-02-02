@@ -1,9 +1,4 @@
 
-(defpackage :cl-synthesizer-modules-constants
-  (:use :cl)
-  (:export
-   :+V-PEAK+))
-
 (defpackage :cl-synthesizer-modules-sinus-vco
   (:use :cl)
   (:export
