@@ -1,9 +1,4 @@
 
-(defpackage :cl-synthesizer-modules-sinus-vco
-  (:use :cl)
-  (:export
-   :sinus-vco))
-
 (defpackage :cl-synthesizer-modules-wave-file-writer
   (:use :cl)
   (:export

@@ -47,7 +47,6 @@
 	       (:module "src/modules"
 			:serial t
 			:components ((:file "packages")
-				     (:file "sinus-vco")
 				     (:file "vco")
 				     (:file "multiple")
 				     (:file "wave-file-writer")
@@ -64,7 +63,6 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "play")
-				     (:file "440Hz")
 				     (:file "vcoexample")
 				     (:file "midiexample")
 				     (:file "keyboard")
