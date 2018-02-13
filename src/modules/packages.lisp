@@ -10,6 +10,11 @@
   (:export
    :vco))
 
+(defpackage :cl-synthesizer-modules-vco-2
+  (:use :cl)
+  (:export
+   :vco-2))
+
 (defpackage :cl-synthesizer-modules-midi-interface
   (:use :cl)
   (:export
@@ -26,3 +31,7 @@
 (defpackage :cl-synthesizer-modules-vca
   (:use :cl)
   (:export :vca))
+
+(defpackage :cl-synthesizer-modules-fixed-output
+  (:use :cl)
+  (:export :fixed-output))

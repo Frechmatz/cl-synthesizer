@@ -30,11 +30,14 @@
 				     (:file "environment")
 				     (:file "rack-module")
 				     (:file "rack-module-patch")
-				     (:file "rack")))
+				     (:file "rack")
+				     (:file "line-out")
+				     (:file "midi-in")))
 	       (:module "src/core"
 			:serial t
 			:components ((:file "packages")
 				     (:file "linear-converter")
+				     (:file "exponential-converter")
 				     (:file "phase-waveform-converter")
 				     (:file "phase-generator")
 				     (:file "trigger")))
@@ -46,6 +49,7 @@
 			:serial t
 			:components (
 				     (:file "test-trigger")
+				     (:file "test-exponential-converter")
 				     (:file "test-waveform")
 				     ))
 	       (:module "test/synthesizer"

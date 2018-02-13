@@ -2,6 +2,7 @@
   (:use :cl)
   (:export
    :linear-converter
+   :exponential-converter
    :phase-generator
    :trigger
    :phase-sine-converter
