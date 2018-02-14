@@ -24,7 +24,7 @@
   (declare (optimize (debug 3) (speed 0) (space 0)))
   (if (get-module rack name)
       (signal-assembly-error
-       :format-control "Module name ~a is not available"
+       :format-control "A module with name ~a has already been added to the rack"
        :format-arguments (list name))))
 
 (defun push-alist (alist key value)

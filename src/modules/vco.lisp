@@ -7,24 +7,34 @@
 ;;
 (in-package :cl-synthesizer-modules-vco)
 
-(defun vco (name environment &key (f-0 440) (cv-min -5) (cv-max 5) (f-min 0) (f-max 12000) (v-peak 5))
+;; CV: exponential input
+(defun vco (name environment &key (footage 440) (cv-max 5) (f-max 12000) (v-peak 5))
   (let* ((sample-rate (getf environment :sample-rate))
-	 (transfer-function
-	  (cl-synthesizer-core:linear-converter :input-min cv-min :input-max cv-max :output-min f-min :output-max f-max))
+	 (transfer-function-exp
+	  (cl-synthesizer-core:exponential-converter :base-value footage))
+	 (transfer-function-lin
+	  (cl-synthesizer-core:linear-converter
+	   ;; resulting frequency is added to frequency of exp converter
+	   :input-min (* -1 cv-max)
+	   :input-max cv-max
+	   :output-min (* -1 f-max)
+	   :output-max f-max))
 	 (phase-generator (cl-synthesizer-core:phase-generator sample-rate))
-	 (inputs (list :cv))
-	 (outputs (list :sine :triangle :saw :square))
 	 (cur-sine-output 1.0)
 	 (cur-triangle-output 1.0)
 	 (cur-saw-output 1.0)
 	 (cur-square-output 1.0)
-	 (cv-offs (funcall (getf transfer-function :output-to-input) f-0)))
-    (flet ((get-frequency (cv)
-	     (funcall (getf transfer-function :input-to-output) (+ cv cv-offs))))
+	 (event-low-frequency (funcall (getf environment :register-event) name "LOW-FREQUENCY"))
+	 )
+    (flet ((get-frequency (cv-exp cv-lin)
+	     (+ 
+	      (funcall (getf transfer-function-exp :input-to-output) cv-exp)
+	      (funcall (getf transfer-function-lin :input-to-output) cv-lin))
+	      ))
       (list
        :shutdown (lambda () nil)
-       :inputs (lambda () inputs)
-       :outputs (lambda () outputs)
+       :inputs (lambda () '(:cv :cv-lin))
+       :outputs (lambda () '(:sine :triangle :saw :square))
        :get-output (lambda (output)
 		     (cond
 		       ((eq output :sine) cur-sine-output)
@@ -32,9 +42,11 @@
 		       ((eq output :saw) cur-saw-output)
 		       ((eq output :square) cur-square-output)
 		       (t (error (format nil "Unknown input ~a requested from ~a" output name)))))
-       :update (lambda (&key (cv 0))
-		 (let* ((f (get-frequency cv))
+       :update (lambda (&key (cv 0) (cv-lin 0))
+		 (let* ((f (get-frequency cv cv-lin))
 			(phi (funcall phase-generator f)))
+		   (if (> 10 f)
+			 (funcall event-low-frequency))
 		   (setf cur-sine-output (* v-peak (cl-synthesizer-core:phase-sine-converter phi)))
 		   (setf cur-triangle-output (* v-peak (cl-synthesizer-core:phase-triangle-converter phi)))
 		   (setf cur-saw-output (* v-peak (cl-synthesizer-core:phase-saw-converter phi)))

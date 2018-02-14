@@ -49,7 +49,6 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "vco")
-				     (:file "vco-2")
 				     (:file "multiple")
 				     (:file "wave-file-writer")
 				     (:file "adsr")
@@ -67,7 +66,6 @@
 			:components ((:file "packages")
 				     (:file "play")
 				     (:file "vcoexample")
-				     (:file "vco-2-example")
 				     (:file "midiexample")
 				     (:file "keyboard")
 				     )

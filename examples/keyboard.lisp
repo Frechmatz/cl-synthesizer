@@ -6,15 +6,14 @@
 
 (in-package :cl-synthesizer-examples)
 
-(defun keyboard-example-vco (name environment)
-  ;; see also note mapping of midi-ifc
-  (cl-synthesizer-modules-vco::vco name environment :f-0 0 :cv-min 0 :cv-max 5 :f-min 0 :f-max 13000 :v-peak 5))
-
 (defun synthesizer-example-keyboard ()
   "Keyboard"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
     (cl-synthesizer::add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface)
-    (cl-synthesizer::add-module rack "VCO-1" #'keyboard-example-vco)
+    ;;(cl-synthesizer::add-module rack "VCO-1" #'keyboard-example-vco)
+    ;; see also note mapping of midi-ifc
+    (cl-synthesizer::add-module rack "VCO-1"
+				#'cl-synthesizer-modules-vco:vco :footage 0 :cv-max 5 :f-max 13000 :v-peak 5)
     (cl-synthesizer::add-module rack "ADSR-1" #'cl-synthesizer-modules-adsr:adsr)
     (cl-synthesizer::add-module rack "VCA-1" #'cl-synthesizer-modules-vca:vca)
     (cl-synthesizer::add-module rack "VCA-OUT-MULTIPLE" #'cl-synthesizer-modules-multiple:multiple-4)
@@ -24,7 +23,7 @@
 
     (cl-synthesizer::add-patch rack "MIDI-IN" :midi-event "MIDI-IFC" :midi-event)
     (cl-synthesizer::add-patch rack "MIDI-IFC" :gate "ADSR-1" :gate)
-    (cl-synthesizer::add-patch rack "MIDI-IFC" :cv "VCO-1" :cv)
+    (cl-synthesizer::add-patch rack "MIDI-IFC" :cv "VCO-1" :cv-lin)
 
     (cl-synthesizer::add-patch rack "ADSR-1" :cv "VCA-1" :cv)
     (cl-synthesizer::add-patch rack "VCO-1" :sine "VCA-1" :input)
