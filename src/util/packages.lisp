@@ -1,2 +1,5 @@
 (defpackage :cl-synthesizer-macro-util
-  (:use :cl))
+  (:use :cl)
+  (:export
+   :make-package-symbol
+   :make-keyword))

@@ -25,6 +25,11 @@
 				     (:file "event-aggregator")
 				     (:file "console")
 				     ))
+		(:module "src/note"
+			:serial t
+			:components ((:file "packages")
+				     (:file "note-table")
+				     ))
 		(:module "src/synthesizer"
 			:serial t
 			:components ((:file "packages")
