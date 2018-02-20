@@ -12,7 +12,8 @@
     (cl-synthesizer::add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface)
     (cl-synthesizer::add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco
-				:footage 8.1758 ;; C0 https://en.wikipedia.org/wiki/Scientific_pitch_notation
+				:footage (cl-synthesizer-midi:get-note-number-frequency 0)
+				;;8.1758 ;; C0 https://en.wikipedia.org/wiki/Scientific_pitch_notation
 				:cv-max 5
 				:f-max 13000
 				:v-peak 5)

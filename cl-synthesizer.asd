@@ -25,10 +25,10 @@
 				     (:file "event-aggregator")
 				     (:file "console")
 				     ))
-		(:module "src/note"
+		(:module "src/midi"
 			:serial t
 			:components ((:file "packages")
-				     (:file "note-table")
+				     (:file "tuning")
 				     ))
 		(:module "src/synthesizer"
 			:serial t
