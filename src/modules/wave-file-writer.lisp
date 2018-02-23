@@ -7,24 +7,6 @@
 
 (alexandria:define-constant +V-PEAK+ 5.0)
 
-#|
-(defun wave-writer-float-to-int16 (value)
-  (if (> value 1.0)
-      (break))
-  (if (< value -1.0)
-      (break))
-  (let ((i (round (* 32000 value))))
-    i))
-|#
-
-
-#|
-(defun input-to-wave (f)
-  (wave-writer-float-to-int16
-   ;; convert to -1.0 ... +1.0
-   (/ f +V-PEAK+)))
-|#
-
 (defmacro n-channel-wave-file-writer (name channel-count)
   "Generates a factory function for a multiple channel wave-file-writer module. 
    name: Name of the module (name of the generated function).

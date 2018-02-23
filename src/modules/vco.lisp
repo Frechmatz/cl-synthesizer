@@ -24,13 +24,11 @@
 	 (cur-triangle-output 1.0)
 	 (cur-saw-output 1.0)
 	 (cur-square-output 1.0)
-	 (event-low-frequency (funcall (getf environment :register-event) name "LOW-FREQUENCY"))
-	 )
+	 (event-low-frequency (funcall (getf environment :register-event) name "LOW-FREQUENCY")))
     (flet ((get-frequency (cv-exp cv-lin)
 	     (+ 
 	      (funcall (getf transfer-function-exp :input-to-output) cv-exp)
-	      (funcall (getf transfer-function-lin :input-to-output) cv-lin))
-	      ))
+	      (funcall (getf transfer-function-lin :input-to-output) cv-lin))))
       (list
        :shutdown (lambda () nil)
        :inputs (lambda () '(:cv :cv-lin))

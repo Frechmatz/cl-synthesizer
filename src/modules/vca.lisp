@@ -25,6 +25,5 @@
 		   (declare (ignore output))
 		   cur-out)
      :update (lambda (&key (cv 0) (input 0))
-	       (setf cur-out (* input (funcall fn cv))))
-     )))
+	       (setf cur-out (* input (funcall fn cv)))))))
   

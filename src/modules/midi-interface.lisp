@@ -7,10 +7,6 @@
 ;; Work in progress
 ;;
 
-;;
-;; MIDI Module
-;;
-
 (defun midi-interface (name environment)
   (let ((current-controller 0)
 	(current-gate 0)

@@ -1,5 +1,11 @@
 (in-package :cl-synthesizer-midi)
 
+;;
+;;
+;; midi note to frequency mapping
+;; Midi note 69 -> 440Hz
+;;
+
 (defparameter *TUNING-TABLE*
   ;; http://subsynth.sourceforge.net/midinote2freq.html
   (let ((arr (make-array 128))
