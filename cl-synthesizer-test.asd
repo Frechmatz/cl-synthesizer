@@ -41,6 +41,10 @@
 				     (:file "phase-waveform-converter")
 				     (:file "phase-generator")
 				     (:file "trigger")))
+	       (:module "src/modules"
+			:serial t
+			:components ((:file "packages")
+				     (:file "midi-interface")))
 	       (:module "test"
 			:serial t
 			:components ((:file "packages")
@@ -51,6 +55,11 @@
 				     (:file "test-trigger")
 				     (:file "test-exponential-converter")
 				     (:file "test-waveform")
+				     ))
+	       (:module "test/modules"
+			:serial t
+			:components (
+				     (:file "test-midi-interface")
 				     ))
 	       (:module "test/synthesizer"
 			:serial t
