@@ -13,20 +13,40 @@
 (defgeneric push-note (voice note))
 (defgeneric remove-note (voice note))
 (defgeneric get-note (voice))
+(defgeneric is-note (voice note))
 
+(defmethod is-note ((cur-voice voice) note)
+  (find note (slot-value cur-voice 'notes) :test #'eq))
+
+;;
+;; Push a note
+;; Duplicates will be bounced
+;;
 (defmethod push-note ((cur-voice voice) note)
-  (push note (slot-value cur-voice 'notes)))
+  (if (is-note cur-voice note)
+      :VOICE-NOTE-ALREADY-PRESENT
+      (progn
+	(push note (slot-value cur-voice 'notes))
+	(if (> (length (slot-value cur-voice 'notes)) 1)
+	    :VOICE-NOTE-OVERWRITE
+	    :VOICE-NOTE-INIT))))
 
 (defmethod get-note ((cur-voice voice))
   (first (slot-value cur-voice 'notes)))
 
+;;
+;; Removes a note from the stack
+;;
 (defmethod remove-note ((cur-voice voice) note)
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (setf (slot-value cur-voice 'notes)
 	(remove
 	 note
 	 (slot-value cur-voice 'notes)
-	 :test #'eq)))
+	 :test #'eq))
+  (if (= (length (slot-value cur-voice 'notes)) 0)
+      :VOICE-NOTE-STACK-EMPTY
+      :VOICE-NOTE-STACK-NOT-EMPTY))
 
 (defclass voice-manager ()
   ((voices :initform nil)
@@ -41,6 +61,7 @@
 (defgeneric push-note (voice-manager note))
 (defgeneric remove-note (voice-manager note))
 (defgeneric get-voice-note (voice-manager voice-number))
+(defgeneric find-voice-index-by-note (voice-manager note))
 
 (defmethod initialize-instance :after ((mgr voice-manager) &key voice-count)
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
@@ -50,21 +71,38 @@
   (dotimes (i voice-count)
     (setf (aref (slot-value mgr 'voices) i) (make-instance 'voice))))
 
+(defmethod find-voice-index-by-note ((cur-voice-manager voice-manager) note)
+  (let ((found-index nil))
+    (with-slots (voices) cur-voice-manager
+      ;; todo: break out of dotimes when matching voice has been found
+      (dotimes (i (length voices))
+	(let ((v (elt voices i)))
+	  (if (is-note v note)
+	      (setf found-index i)))))
+    found-index))
+
 (defmethod push-note ((cur-voice-manager voice-manager) note)
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (with-slots (voices next-voice-index) cur-voice-manager
-    (let ((cur-voice (elt voices next-voice-index)))
-      (push-note cur-voice note)
-      (setf next-voice-index (+ 1 next-voice-index))
-      (if (>= next-voice-index (length voices))
-	  (setf next-voice-index 0)))))
+    (let ((updated-voice-index next-voice-index))
+      (let ((cur-voice (elt voices next-voice-index)))
+	(let ((updated-voice-state (push-note cur-voice note)))
+	  (setf next-voice-index (+ 1 next-voice-index))
+	  (if (>= next-voice-index (length voices))
+	      (setf next-voice-index 0))
+	  (values updated-voice-index updated-voice-state))))))
 
+;;
+;; Returns index and state of voice where note has been removed or (nil nil)
+;;
 (defmethod remove-note ((cur-voice-manager voice-manager) note)
-  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (with-slots (voices) cur-voice-manager
-    (dotimes (i (length voices))
-      (remove-note (elt voices i) note))))
-
+    (let ((voice-index (find-voice-index-by-note cur-voice-manager note))
+	  (voice-state nil))
+      (if voice-index
+	  (setf voice-state (remove-note (elt voices voice-index) note)))
+      (values voice-index voice-state))))
+	  
 (defmethod get-voice-note ((cur-voice-manager voice-manager) voice-number)
   (with-slots (voices) cur-voice-manager
     (if (>= voice-number (length voices))
