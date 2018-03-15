@@ -7,61 +7,48 @@
 ;; Work in progress
 ;;
 
+
+;;
+;; Voice
+;;
+
 (defclass voice ()
   ((notes :initform nil)))
 
-(defgeneric push-note (voice note))
-(defgeneric remove-note (voice note))
-(defgeneric get-note (voice))
-(defgeneric is-note (voice note))
-
-(defmethod is-note ((cur-voice voice) note)
+(defun voice-is-note (cur-voice note)
   (find note (slot-value cur-voice 'notes) :test #'eq))
 
-;;
-;; Push a note
-;; Duplicates will be bounced
-;;
-(defmethod push-note ((cur-voice voice) note)
-  (if (is-note cur-voice note)
-      :VOICE-NOTE-ALREADY-PRESENT
-      (progn
-	(push note (slot-value cur-voice 'notes))
-	(if (> (length (slot-value cur-voice 'notes)) 1)
-	    :VOICE-NOTE-OVERWRITE
-	    :VOICE-NOTE-INIT))))
-
-(defmethod get-note ((cur-voice voice))
-  (first (slot-value cur-voice 'notes)))
-
-;;
-;; Removes a note from the stack
-;;
-(defmethod remove-note ((cur-voice voice) note)
-  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
+;; Removes a note from the stack. Returns the current note or nil
+(defun voice-remove-note (cur-voice note)
   (setf (slot-value cur-voice 'notes)
 	(remove
 	 note
 	 (slot-value cur-voice 'notes)
 	 :test #'eq))
-  (if (= (length (slot-value cur-voice 'notes)) 0)
-      :VOICE-NOTE-STACK-EMPTY
-      :VOICE-NOTE-STACK-NOT-EMPTY))
+  (first (slot-value cur-voice 'notes)))
+
+;; Pushes a note. Returns the current note and the current stack size
+(defun voice-push-note (cur-voice note)
+  (if (voice-is-note cur-voice note)
+      ;; if note exists, move it to top
+      (voice-remove-note cur-voice note))
+  (progn
+    (push note (slot-value cur-voice 'notes))
+    (values (first (slot-value cur-voice 'notes))
+	    (length (slot-value cur-voice 'notes)))))
+
+;;
+;; Voice-Manager
+;;
 
 (defclass voice-manager ()
   ((voices :initform nil)
    (next-voice-index :initform 0))
   (:documentation
-   "The voice-manager controls the assignment of note-events to voices. A voice represents "
-   "a specific CV/Gate output of the Midi interface. "
+   "The voice-manager controls the assignment of note-events to voices. "
    "The allocation algorithm maximizes the time before a given voice is being assigned "
    "to a new note in order to not cut ('steal') the release phase of the audio output. "
-   "Voices are assigned round-robin. Each voice has a stack of currently playing notes."))
-
-(defgeneric push-note (voice-manager note))
-(defgeneric remove-note (voice-manager note))
-(defgeneric get-voice-note (voice-manager voice-number))
-(defgeneric find-voice-index-by-note (voice-manager note))
+   "Therefore voices are assigned round-robin. Each voice has a stack of currently playing notes."))
 
 (defmethod initialize-instance :after ((mgr voice-manager) &key voice-count)
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
@@ -71,44 +58,42 @@
   (dotimes (i voice-count)
     (setf (aref (slot-value mgr 'voices) i) (make-instance 'voice))))
 
-(defmethod find-voice-index-by-note ((cur-voice-manager voice-manager) note)
+(defun voice-manager-find-voice-index-by-note (cur-voice-manager note)
   (let ((found-index nil))
     (with-slots (voices) cur-voice-manager
       ;; todo: break out of dotimes when matching voice has been found
       (dotimes (i (length voices))
 	(let ((v (elt voices i)))
-	  (if (is-note v note)
+	  (if (voice-is-note v note)
 	      (setf found-index i)))))
     found-index))
 
-(defmethod push-note ((cur-voice-manager voice-manager) note)
+;; Pushes a note.
+;; Returns voice index, current voice note and the current stack size
+(defun voice-manager-push-note (cur-voice-manager note)
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (with-slots (voices next-voice-index) cur-voice-manager
     (let ((updated-voice-index next-voice-index))
       (let ((cur-voice (elt voices next-voice-index)))
-	(let ((updated-voice-state (push-note cur-voice note)))
+	(multiple-value-bind (current-voice-note voice-note-stack-size)
+	    (voice-push-note cur-voice note)
 	  (setf next-voice-index (+ 1 next-voice-index))
 	  (if (>= next-voice-index (length voices))
 	      (setf next-voice-index 0))
-	  (values updated-voice-index updated-voice-state))))))
+	  (values updated-voice-index current-voice-note voice-note-stack-size))))))
+
+;; Removes a note.
+;; Returns voice index and current note of voice or nil, nil.
+(defun voice-manager-remove-note (cur-voice-manager note)
+  (with-slots (voices) cur-voice-manager
+    (let ((voice-index (voice-manager-find-voice-index-by-note cur-voice-manager note)))
+      (if (not voice-index)
+	  (values nil nil nil)
+	  (values voice-index (voice-remove-note (elt voices voice-index) note))))))
 
 ;;
-;; Returns index and state of voice where note has been removed or (nil nil)
+;; MIDI Interface
 ;;
-(defmethod remove-note ((cur-voice-manager voice-manager) note)
-  (with-slots (voices) cur-voice-manager
-    (let ((voice-index (find-voice-index-by-note cur-voice-manager note))
-	  (voice-state nil))
-      (if voice-index
-	  (setf voice-state (remove-note (elt voices voice-index) note)))
-      (values voice-index voice-state))))
-	  
-(defmethod get-voice-note ((cur-voice-manager voice-manager) voice-number)
-  (with-slots (voices) cur-voice-manager
-    (if (>= voice-number (length voices))
-	nil
-	(let ((voice (elt voices voice-number)))
-	  (get-note voice)))))
 
 (defun midi-interface (name environment)
   (let ((current-controller 0)
