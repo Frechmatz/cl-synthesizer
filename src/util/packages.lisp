@@ -2,4 +2,5 @@
   (:use :cl)
   (:export
    :make-package-symbol
-   :make-keyword))
+   :make-keyword
+   :make-keyword-list))
