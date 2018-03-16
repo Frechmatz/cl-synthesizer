@@ -27,6 +27,7 @@
     (nreverse l)))
 
 (defun make-keyword-list (name count)
+  "Returns list of keywords ordered by sequence number"
   (let ((l nil))
     (dotimes (i count)
       (push (make-keyword name i) l))
