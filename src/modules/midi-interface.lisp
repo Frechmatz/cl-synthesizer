@@ -83,35 +83,83 @@
 	  (values updated-voice-index current-voice-note voice-note-stack-size))))))
 
 ;; Removes a note.
-;; Returns voice index and current note of voice or nil, nil.
+;; Returns voice index, current voice note and nil.
 (defun voice-manager-remove-note (cur-voice-manager note)
   (with-slots (voices) cur-voice-manager
     (let ((voice-index (voice-manager-find-voice-index-by-note cur-voice-manager note)))
       (if (not voice-index)
 	  (values nil nil nil)
-	  (values voice-index (voice-remove-note (elt voices voice-index) note))))))
+	  (values voice-index (voice-remove-note (elt voices voice-index) note) nil)))))
 
 ;;
 ;; MIDI Interface
 ;;
 
-(defun midi-interface (name environment)
-  (let ((current-controller 0)
-	(current-gate 0)
-	(current-cv-oct 0)
-	(controller-converter (cl-synthesizer-core:linear-converter :input-min 0 :input-max 127 :output-min 0 :output-max 4.9))
-	(gate-on-event (funcall (getf environment :register-event) name "GATE-ON"))
-	(gate-off-event (funcall (getf environment :register-event) name "GATE-OFF")))
+(defconstant +voice-state-cv+ 0)
+(defconstant +voice-state-gate+ 1)
+(defconstant +voice-state-gate-on-logger+ 2)
+(defconstant +voice-state-gate-off-logger+ 3)
+(defconstant +voice-state-gate-trigger+ 4)
+
+(defparameter +voice-states+
+  '(+voice-state-cv+
+    +voice-state-gate+
+    +voice-state-gate-on-logger+
+    +voice-state-gate-off-logger+
+    +voice-state-gate-trigger+))
+
+(defun make-voice-state (name environment voice-number)
+  (let ((voice-state (make-array (length +voice-states+))))
+    (setf (elt voice-state +voice-state-cv+) 0)
+    (setf (elt voice-state +voice-state-gate+) 0)
+    (setf (elt voice-state +voice-state-gate-on-logger+)
+	  (funcall (getf environment :register-event) name (format nil "GATE-~a-ON" voice-number)))
+    (setf (elt voice-state +voice-state-gate-off-logger+)
+	  (funcall (getf environment :register-event) name (format nil "GATE-~a-OFF" voice-number)))
+    (setf (elt voice-state +voice-state-gate-trigger+) nil)
+    voice-state))
+
+(defun midi-interface (name environment &key (voice-count 1))
+  (let* ((current-controller 0)
+	 (voice-states (make-array voice-count))
+	 (output-socket-lookup-table (make-hash-table :test #'eq))
+	 (voice-manager (make-instance 'voice-manager :voice-count voice-count))
+	 (cv-keywords (cl-synthesizer-macro-util:make-keyword-list "CV" voice-count))
+	 (gate-keywords (cl-synthesizer-macro-util:make-keyword-list "GATE" voice-count))
+	 (controller-converter (cl-synthesizer-core:linear-converter
+			       :input-min 0 :input-max 127 :output-min 0 :output-max 4.9))
+	 (outputs (concatenate 'list '(:controller-1) cv-keywords gate-keywords)))
+    (dotimes (i voice-count)
+      (setf (elt voice-states i) (make-voice-state name environment i)))
+    ;; Init Property Lookup Table
+    (let ((i 0))
+      (dolist (item cv-keywords)
+	(setf (gethash item output-socket-lookup-table) (list i :CV))
+	(setf i (+ 1 i))))
+    (let ((i 0))
+      (dolist (item gate-keywords)
+	(setf (gethash item output-socket-lookup-table) (list i :GATE))
+	(setf i (+ 1 i))))
+    (setf (gethash :controller-1 output-socket-lookup-table) (list nil :CONTROLLER))
     (list
      :shutdown (lambda () nil)
      :inputs (lambda () '(:midi-event))
-     :outputs (lambda () '(:gate :cv-oct :out-1))
+     :outputs (lambda () outputs)
      :get-output (lambda (output)
-		   (cond
-		     ((eq output :gate) current-gate)
-		     ((eq output :cv-oct) current-cv-oct)
-		     ((eq output :out-1) current-controller)
-		     (t (error (format nil "Unknown input ~a requested from ~a" output name)))))
+		   (let ((index (gethash output output-socket-lookup-table)))
+		     (if (not index)
+			 (error (format nil "Unknown input ~a requested from ~a" output name)))
+		     (cond
+		       ((eq :CONTROLLER (second index))
+			current-controller)
+		       ((eq :CV (second index))
+			(elt (elt voice-states (first index)) +voice-state-cv+))
+		       ((eq :GATE (second index))
+			(elt (elt voice-states (first index)) +voice-state-gate+))
+		       (t (error (format
+				  nil
+				  "Internal server error. Dont know how to handle input ~a requested from ~a"
+				  output name))))))
      :update (lambda (&key (midi-event nil))
 	       (if midi-event
 		   (let ((event-type (first midi-event)))
@@ -120,14 +168,26 @@
 			(setf current-controller
 			      (funcall (getf controller-converter :input-to-output) (fourth midi-event))))
 		       ((eq event-type :note-on)
-			(funcall gate-on-event)
-			(setf current-gate 5.0)
-			(let ((note-number (third midi-event)))
-			  (setf current-cv-oct (/ note-number 12))
-			  (format t "cv-oct: ~a~%" current-cv-oct)
-			  )
-			)
+			(multiple-value-bind (voice-index voice-note stack-size)
+			    (voice-manager-push-note voice-manager (third midi-event))
+			  (let ((voice-state (elt voice-states voice-index)))
+			    (if (= 1 stack-size)
+				(progn
+				  (funcall (elt voice-state +voice-state-gate-on-logger+))
+				  (setf (elt voice-state +voice-state-gate+) 5.0)))
+			    (setf (elt voice-state +voice-state-cv+) (/ voice-note 12))
+			    (format t "cv-oct: ~a~%" (elt voice-state +voice-state-cv+)))))
 		       ((eq event-type :note-off)
-			(funcall gate-off-event)
-			(setf current-gate 0)))
-		     (format t "Gate: ~a CV-Oct: ~a Controller: ~a~%" current-gate current-cv-oct current-controller)))))))
+			(multiple-value-bind (voice-index voice-note)
+			    (voice-manager-remove-note voice-manager (third midi-event))
+			  (if voice-index
+			      (let ((voice-state (elt voice-states voice-index)))
+				(if (not voice-note)
+				    (progn
+				      (funcall (elt voice-state +voice-state-gate-off-logger+))
+				      (setf (elt voice-state +voice-state-gate+) 0))
+				    (progn
+				      (setf (elt voice-state +voice-state-cv+) (/ voice-note 12))
+				    ))
+			      (format t "cv-oct: ~a~%" (elt voice-state +voice-state-cv+))))))
+			  )))))))

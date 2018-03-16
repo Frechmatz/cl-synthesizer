@@ -24,8 +24,8 @@
 				:filename "/Users/olli/waves/lineout.wav")
 
     (cl-synthesizer::add-patch rack "MIDI-IN" :midi-event "MIDI-IFC" :midi-event)
-    (cl-synthesizer::add-patch rack "MIDI-IFC" :gate "ADSR-1" :gate)
-    (cl-synthesizer::add-patch rack "MIDI-IFC" :cv-oct "VCO-1" :cv)
+    (cl-synthesizer::add-patch rack "MIDI-IFC" :gate-1 "ADSR-1" :gate)
+    (cl-synthesizer::add-patch rack "MIDI-IFC" :cv-1 "VCO-1" :cv)
 
     (cl-synthesizer::add-patch rack "ADSR-1" :cv "VCA-1" :cv)
     (cl-synthesizer::add-patch rack "VCO-1" :sine "VCA-1" :input)
