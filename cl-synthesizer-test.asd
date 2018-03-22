@@ -14,9 +14,12 @@
 	       :lisp-unit
 	       :cl-wave
 	       :verbose
-	       :bordeaux-threads
-	       )
-  :components ((:module "src/eventlogger"
+	       :bordeaux-threads)
+  :components ((:module "src/util"
+			:serial t
+			:components ((:file "packages")
+				     (:file "macro-util")))
+	       (:module "src/eventlogger"
 			:serial t
 			:components ((:file "packages")
 				     (:file "event-logger")
