@@ -124,23 +124,21 @@
 	 (voice-states (make-array voice-count))
 	 (output-socket-lookup-table (make-hash-table :test #'eq))
 	 (voice-manager (make-instance 'voice-manager :voice-count voice-count))
-	 (cv-keywords (cl-synthesizer-macro-util:make-keyword-list "CV" voice-count))
-	 (gate-keywords (cl-synthesizer-macro-util:make-keyword-list "GATE" voice-count))
 	 (controller-converter (cl-synthesizer-core:linear-converter
 			       :input-min 0 :input-max 127 :output-min 0 :output-max 4.9))
-	 (outputs (concatenate 'list '(:controller-1) cv-keywords gate-keywords)))
+	 (outputs (concatenate 'list
+			       '(:controller-1)
+			       (cl-synthesizer-macro-util:make-keyword-list "CV" voice-count)
+			       (cl-synthesizer-macro-util:make-keyword-list "GATE" voice-count))))
     (dotimes (i voice-count)
-      (setf (elt voice-states i) (make-voice-state name environment i)))
-    ;; Init Property Lookup Table
-    (let ((i 0))
-      (dolist (item cv-keywords)
-	(setf (gethash item output-socket-lookup-table) (list i :CV))
-	(setf i (+ 1 i))))
-    (let ((i 0))
-      (dolist (item gate-keywords)
-	(setf (gethash item output-socket-lookup-table) (list i :GATE))
-	(setf i (+ 1 i))))
-    (setf (gethash :controller-1 output-socket-lookup-table) (list nil :CONTROLLER))
+      (setf (elt voice-states i) (make-voice-state name environment i))
+      (let ((cur-i i)) ;; new context for the lambdas
+	(setf (gethash (cl-synthesizer-macro-util:make-keyword "CV" cur-i) output-socket-lookup-table)
+	      (lambda () (elt (elt voice-states cur-i) +voice-state-cv+)))
+	(setf (gethash (cl-synthesizer-macro-util:make-keyword "GATE" cur-i) output-socket-lookup-table)
+	      (lambda () (elt (elt voice-states cur-i) +voice-state-gate+)))))
+    (setf (gethash :controller-1 output-socket-lookup-table)
+	  (lambda () current-controller))
     (list
      :shutdown (lambda () nil)
      :inputs (lambda () '(:midi-event))
@@ -149,17 +147,7 @@
 		   (let ((index (gethash output output-socket-lookup-table)))
 		     (if (not index)
 			 (error (format nil "Unknown input ~a requested from ~a" output name)))
-		     (cond
-		       ((eq :CONTROLLER (second index))
-			current-controller)
-		       ((eq :CV (second index))
-			(elt (elt voice-states (first index)) +voice-state-cv+))
-		       ((eq :GATE (second index))
-			(elt (elt voice-states (first index)) +voice-state-gate+))
-		       (t (error (format
-				  nil
-				  "Internal server error. Dont know how to handle input ~a requested from ~a"
-				  output name))))))
+		     (funcall index)))
      :update (lambda (&key (midi-event nil))
 	       (if midi-event
 		   (let ((event-type (first midi-event)))
