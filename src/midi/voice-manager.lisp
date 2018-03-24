@@ -8,25 +8,27 @@
   ((notes :initform nil)))
 
 (defun voice-is-note (cur-voice note)
-  (find note (slot-value cur-voice 'notes) :test #'eq))
+  (find-if
+   (lambda (i) (eq (first i) note))
+   (slot-value cur-voice 'notes)))
 
 ;; Removes a note from the stack. Returns the current note or nil
 (defun voice-remove-note (cur-voice note)
   (setf (slot-value cur-voice 'notes)
-	(remove
-	 note
-	 (slot-value cur-voice 'notes)
-	 :test #'eq))
-  (first (slot-value cur-voice 'notes)))
+	(remove-if
+	 (lambda (i) (eq (first i) note))
+	 (slot-value cur-voice 'notes)))
+  ;; return top note-number
+  (first (first (slot-value cur-voice 'notes))))
 
 ;; Pushes a note. Returns the current note and the current stack size
-(defun voice-push-note (cur-voice note)
+(defun voice-push-note (cur-voice note &key (tick 0))
   (if (voice-is-note cur-voice note)
       ;; if note exists, move it to top
       (voice-remove-note cur-voice note))
   (progn
-    (push note (slot-value cur-voice 'notes))
-    (values (first (slot-value cur-voice 'notes))
+    (push (list note tick) (slot-value cur-voice 'notes))
+    (values (first (first (slot-value cur-voice 'notes)))
 	    (length (slot-value cur-voice 'notes)))))
 
 ;;
