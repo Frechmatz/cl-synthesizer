@@ -144,10 +144,10 @@
      :inputs (lambda () '(:midi-event))
      :outputs (lambda () outputs)
      :get-output (lambda (output)
-		   (let ((index (gethash output output-socket-lookup-table)))
-		     (if (not index)
+		   (let ((handler (gethash output output-socket-lookup-table)))
+		     (if (not handler)
 			 (error (format nil "Unknown input ~a requested from ~a" output name)))
-		     (funcall index)))
+		     (funcall handler)))
      :update (lambda (&key (midi-event nil))
 	       (if midi-event
 		   (let ((event-type (first midi-event)))
