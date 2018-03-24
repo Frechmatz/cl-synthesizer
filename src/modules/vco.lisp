@@ -27,8 +27,8 @@
 	 (event-low-frequency (funcall (getf environment :register-event) name "LOW-FREQUENCY")))
     (flet ((get-frequency (cv-exp cv-lin)
 	     (+ 
-	      (funcall (getf transfer-function-exp :input-to-output) cv-exp)
-	      (funcall (getf transfer-function-lin :input-to-output) cv-lin))))
+	      (funcall (getf transfer-function-exp :get-y) cv-exp)
+	      (funcall (getf transfer-function-lin :get-y) cv-lin))))
       (list
        :shutdown (lambda () nil)
        :inputs (lambda () '(:cv :cv-lin))

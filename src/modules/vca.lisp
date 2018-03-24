@@ -15,7 +15,7 @@
 	 (outputs (list :out))
 	 (cur-out 0)
 	 (converter (cl-synthesizer-core:linear-converter :input-min 0 :input-max 5.0 :output-min 0 :output-max 1))
-	 (fn (getf converter :input-to-output)))
+	 (fn (getf converter :get-y)))
     (declare (ignore sample-rate))
     (list
      :shutdown (lambda () nil)

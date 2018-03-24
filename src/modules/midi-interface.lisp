@@ -153,7 +153,7 @@
 		   (cond
 		     ((cl-synthesizer-midi-event:control-change-eventp midi-event)
 		      (setf current-controller
-			    (funcall (getf controller-converter :input-to-output)
+			    (funcall (getf controller-converter :get-y)
 				     (cl-synthesizer-midi-event:get-control-value midi-event))))
 		     ((cl-synthesizer-midi-event:note-on-eventp midi-event)
 		      (multiple-value-bind (voice-index voice-note stack-size)
