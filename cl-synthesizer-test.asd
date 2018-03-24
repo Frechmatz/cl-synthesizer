@@ -69,6 +69,7 @@
 	       (:module "test/midi"
 			:serial t
 			:components (
+				     (:file "test-voice-manager-voice")
 				     (:file "test-voice-manager")
 				     ))
 	       (:module "test/synthesizer"
