@@ -26,6 +26,12 @@
 				     (:file "event-aggregator")
 				     (:file "console")
 				     ))
+		(:module "src/midi"
+			:serial t
+			:components ((:file "packages")
+				     (:file "tuning")
+				     (:file "midi-event")
+				     ))
 	       (:module "src/synthesizer"
 			:serial t
 			:components ((:file "packages")

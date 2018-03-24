@@ -150,32 +150,32 @@
 		     (funcall handler)))
      :update (lambda (&key (midi-event nil))
 	       (if midi-event
-		   (let ((event-type (first midi-event)))
-		     (cond
-		       ((eq event-type :cc)
-			(setf current-controller
-			      (funcall (getf controller-converter :input-to-output) (fourth midi-event))))
-		       ((eq event-type :note-on)
-			(multiple-value-bind (voice-index voice-note stack-size)
-			    (voice-manager-push-note voice-manager (third midi-event))
-			  (let ((voice-state (elt voice-states voice-index)))
-			    (if (= 1 stack-size)
-				(progn
-				  (funcall (elt voice-state +voice-state-gate-on-logger+))
-				  (setf (elt voice-state +voice-state-gate+) 5.0)))
-			    (setf (elt voice-state +voice-state-cv+) (/ voice-note 12))
-			    (format t "cv-oct: ~a~%" (elt voice-state +voice-state-cv+)))))
-		       ((eq event-type :note-off)
-			(multiple-value-bind (voice-index voice-note)
-			    (voice-manager-remove-note voice-manager (third midi-event))
-			  (if voice-index
-			      (let ((voice-state (elt voice-states voice-index)))
-				(if (not voice-note)
-				    (progn
-				      (funcall (elt voice-state +voice-state-gate-off-logger+))
-				      (setf (elt voice-state +voice-state-gate+) 0))
-				    (progn
-				      (setf (elt voice-state +voice-state-cv+) (/ voice-note 12))
+		   (cond
+		     ((cl-synthesizer-midi-event:control-change-eventp midi-event)
+		      (setf current-controller
+			    (funcall (getf controller-converter :input-to-output)
+				     (cl-synthesizer-midi-event:get-control-value midi-event))))
+		     ((cl-synthesizer-midi-event:note-on-eventp midi-event)
+		      (multiple-value-bind (voice-index voice-note stack-size)
+			  (voice-manager-push-note voice-manager (cl-synthesizer-midi-event:get-note-number midi-event))
+			(let ((voice-state (elt voice-states voice-index)))
+			  (if (= 1 stack-size)
+			      (progn
+				(funcall (elt voice-state +voice-state-gate-on-logger+))
+				(setf (elt voice-state +voice-state-gate+) 5.0)))
+			  (setf (elt voice-state +voice-state-cv+) (/ voice-note 12))
+			  (format t "cv-oct: ~a~%" (elt voice-state +voice-state-cv+)))))
+		     ((cl-synthesizer-midi-event:note-off-eventp midi-event)
+		      (multiple-value-bind (voice-index voice-note)
+			  (voice-manager-remove-note voice-manager (cl-synthesizer-midi-event:get-note-number midi-event))
+			(if voice-index
+			    (let ((voice-state (elt voice-states voice-index)))
+			      (if (not voice-note)
+				  (progn
+				    (funcall (elt voice-state +voice-state-gate-off-logger+))
+				    (setf (elt voice-state +voice-state-gate+) 0))
+				  (progn
+				    (setf (elt voice-state +voice-state-cv+) (/ voice-note 12))
 				    ))
 			      (format t "cv-oct: ~a~%" (elt voice-state +voice-state-cv+))))))
-			  )))))))
+		     ))))))
