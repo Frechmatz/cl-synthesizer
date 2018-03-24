@@ -31,6 +31,7 @@
 			:components ((:file "packages")
 				     (:file "tuning")
 				     (:file "midi-event")
+				     (:file "voice-manager")
 				     ))
 	       (:module "src/synthesizer"
 			:serial t
@@ -65,10 +66,10 @@
 				     (:file "test-exponential-converter")
 				     (:file "test-waveform")
 				     ))
-	       (:module "test/modules"
+	       (:module "test/midi"
 			:serial t
 			:components (
-				     (:file "test-midi-voice-manager")
+				     (:file "test-voice-manager")
 				     ))
 	       (:module "test/synthesizer"
 			:serial t

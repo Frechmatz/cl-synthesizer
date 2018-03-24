@@ -30,6 +30,7 @@
 			:components ((:file "packages")
 				     (:file "tuning")
 				     (:file "midi-event")
+				     (:file "voice-manager")
 				     ))
 		(:module "src/synthesizer"
 			:serial t
