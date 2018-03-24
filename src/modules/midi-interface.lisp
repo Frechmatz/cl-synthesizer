@@ -37,7 +37,9 @@
     (setf (elt voice-state +voice-state-gate-trigger+) nil)
     voice-state))
 
-(defun midi-interface (name environment &key (voice-count 1))
+(defun midi-interface (name environment &key
+					  (voice-count 1)
+					  (note-number-to-cv (lambda (note-number) (/ note-number 12))))
   (let* ((voice-states (make-array voice-count))
 	 (output-socket-lookup-table (make-hash-table :test #'eq))
 	 (voice-manager (make-instance 'cl-synthesizer-midi-voice-manager:voice-manager :voice-count voice-count))
@@ -71,7 +73,7 @@
 			      (progn
 				(funcall (elt voice-state +voice-state-gate-on-logger+))
 				(setf (elt voice-state +voice-state-gate+) 5.0)))
-			  (setf (elt voice-state +voice-state-cv+) (/ voice-note 12))
+			  (setf (elt voice-state +voice-state-cv+) (funcall note-number-to-cv voice-note))
 			  (format t "cv-oct: ~a~%" (elt voice-state +voice-state-cv+)))))
 		     ((cl-synthesizer-midi-event:note-off-eventp midi-event)
 		      (multiple-value-bind (voice-index voice-note)
@@ -83,7 +85,7 @@
 				    (funcall (elt voice-state +voice-state-gate-off-logger+))
 				    (setf (elt voice-state +voice-state-gate+) 0))
 				  (progn
-				    (setf (elt voice-state +voice-state-cv+) (/ voice-note 12))
+				    (setf (elt voice-state +voice-state-cv+) (funcall note-number-to-cv voice-note))
 				    ))
 			      (format t "cv-oct: ~a~%" (elt voice-state +voice-state-cv+))))))
 		     ))))))
