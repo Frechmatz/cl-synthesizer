@@ -62,19 +62,23 @@
 	      (setf found-index i)))))
     found-index))
 
+(defun voice-manager-allocate-voice-index (cur-voice-manager)
+  (with-slots (voices next-voice-index) cur-voice-manager
+    (let ((result next-voice-index))
+      (setf next-voice-index (+ 1 next-voice-index))
+      (if (>= next-voice-index (length voices))
+	  (setf next-voice-index 0))
+      result)))
+
 ;; Pushes a note.
 ;; Returns voice index, current voice note and the current stack size
 (defun push-note (cur-voice-manager note)
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-  (with-slots (voices next-voice-index) cur-voice-manager
-    (let ((updated-voice-index next-voice-index))
-      (let ((cur-voice (elt voices next-voice-index)))
-	(multiple-value-bind (current-voice-note voice-note-stack-size)
-	    (voice-push-note cur-voice note)
-	  (setf next-voice-index (+ 1 next-voice-index))
-	  (if (>= next-voice-index (length voices))
-	      (setf next-voice-index 0))
-	  (values updated-voice-index current-voice-note voice-note-stack-size))))))
+  (let ((voice-index (voice-manager-allocate-voice-index cur-voice-manager)))
+    (let ((cur-voice (elt (slot-value cur-voice-manager 'voices) voice-index)))
+      (multiple-value-bind (current-voice-note voice-note-stack-size)
+	  (voice-push-note cur-voice note)
+	  (values voice-index current-voice-note voice-note-stack-size)))))
 
 ;; Removes a note.
 ;; Returns voice index, current voice note and nil.
