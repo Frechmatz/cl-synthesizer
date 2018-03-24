@@ -7,6 +7,10 @@
 
 (in-package :cl-synthesizer-examples)
 
+;; Controller support has been temporarily removed from Midi-Interface
+;; until a concept is in place how to proper define/handle such events
+#|
+
 (defun synthesizer-example-midi ()
   "Midi example: Modulate frequency via Controller"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
@@ -44,3 +48,4 @@
       
 ;;(cl-synthesizer-examples::play-rack (cl-synthesizer-examples::synthesizer-example-midi-2) 10 :attach-speaker t :attach-midi t)
 
+|#

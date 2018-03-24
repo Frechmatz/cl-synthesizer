@@ -38,14 +38,10 @@
     voice-state))
 
 (defun midi-interface (name environment &key (voice-count 1))
-  (let* ((current-controller 0)
-	 (voice-states (make-array voice-count))
+  (let* ((voice-states (make-array voice-count))
 	 (output-socket-lookup-table (make-hash-table :test #'eq))
 	 (voice-manager (make-instance 'cl-synthesizer-midi-voice-manager:voice-manager :voice-count voice-count))
-	 (controller-converter (cl-synthesizer-core:linear-converter
-			       :input-min 0 :input-max 127 :output-min 0 :output-max 4.9))
 	 (outputs (concatenate 'list
-			       '(:controller-1)
 			       (cl-synthesizer-macro-util:make-keyword-list "CV" voice-count)
 			       (cl-synthesizer-macro-util:make-keyword-list "GATE" voice-count))))
     (dotimes (i voice-count)
@@ -55,8 +51,6 @@
 	      (lambda () (elt (elt voice-states cur-i) +voice-state-cv+)))
 	(setf (gethash (cl-synthesizer-macro-util:make-keyword "GATE" cur-i) output-socket-lookup-table)
 	      (lambda () (elt (elt voice-states cur-i) +voice-state-gate+)))))
-    (setf (gethash :controller-1 output-socket-lookup-table)
-	  (lambda () current-controller))
     (list
      :shutdown (lambda () nil)
      :inputs (lambda () '(:midi-event))
@@ -69,10 +63,6 @@
      :update (lambda (&key (midi-event nil))
 	       (if midi-event
 		   (cond
-		     ((cl-synthesizer-midi-event:control-change-eventp midi-event)
-		      (setf current-controller
-			    (funcall (getf controller-converter :get-y)
-				     (cl-synthesizer-midi-event:get-control-value midi-event))))
 		     ((cl-synthesizer-midi-event:note-on-eventp midi-event)
 		      (multiple-value-bind (voice-index voice-note stack-size)
 			  (cl-synthesizer-midi-voice-manager:push-note voice-manager (cl-synthesizer-midi-event:get-note-number midi-event))
