@@ -29,7 +29,7 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "tuning")
-				     (:file "midi-event")
+				     (:file "event")
 				     (:file "voice-manager")
 				     ))
 		(:module "src/synthesizer"
