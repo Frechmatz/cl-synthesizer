@@ -4,39 +4,63 @@
 ;; Voice
 ;;
 
+(defparameter *tick* 0)
+
+(defun next-tick ()
+  (setf *tick* (+ 1 *tick*))
+  *tick*)
+
 (defclass voice ()
-  ((notes :initform nil)))
+  ((notes :initform nil)
+   (tick :initform 0)))
+
+;; Todo: Lisp forces me to declare a rest param. Why?
+(defmethod initialize-instance :after ((v voice) &rest args)
+  (declare (ignore args))
+  (setf (slot-value v 'tick) (next-tick)))
+
+(defun voice-format (voice)
+  (with-slots (notes tick) voice
+    (format nil "Stacksize: ~a Tick: ~a" (length notes) tick)))
 
 (defun voice-is-note (cur-voice note)
   (find-if
-   (lambda (i) (eq (first i) note))
+   (lambda (i) (eq i note))
    (slot-value cur-voice 'notes)))
 
 ;; Removes a note from the stack. Returns the current note or nil
 (defun voice-remove-note (cur-voice note)
+  (setf (slot-value cur-voice 'tick) (next-tick))
   (setf (slot-value cur-voice 'notes)
 	(remove-if
-	 (lambda (i) (eq (first i) note))
+	 (lambda (i) (eq i note))
 	 (slot-value cur-voice 'notes)))
   ;; return top note-number
-  (first (first (slot-value cur-voice 'notes))))
+  (first (slot-value cur-voice 'notes)))
 
 ;; Pushes a note. Returns the current note and the current stack size
-(defun voice-push-note (cur-voice note &key (tick 0))
+(defun voice-push-note (cur-voice note)
+  (setf (slot-value cur-voice 'tick) (next-tick))
   (if (voice-is-note cur-voice note)
       ;; if note exists, move it to top
       (voice-remove-note cur-voice note))
   (progn
-    (push (list note tick) (slot-value cur-voice 'notes))
-    (values (first (first (slot-value cur-voice 'notes)))
+    (push note (slot-value cur-voice 'notes))
+    (values (first (slot-value cur-voice 'notes))
 	    (length (slot-value cur-voice 'notes)))))
+
+(defun voice-get-tick (cur-voice)
+  (slot-value cur-voice 'tick))
+
+(defun voice-get-stack-size (cur-voice)
+  (length (slot-value cur-voice 'notes)))
 
 ;;
 ;; Voice-Manager
 ;;
 
 (defclass voice-manager ()
-  ((voices :initform nil)
+  ((voices :initform nil) ;; list of (index voice)
    (next-voice-index :initform 0))
   (:documentation
    "The voice-manager controls the assignment of note-events to voices. "
@@ -44,48 +68,94 @@
    "to a new note in order to not cut ('steal') the release phase of the audio output. "
    "Therefore notes are assigned to voices round-robin. Each voice has a stack of currently playing notes."))
 
+(defun make-voice-manager-voice (index)
+  (list index (make-instance 'voice)))
+
+(defun get-voice-manager-voice-index (voice)
+  (first voice))
+
+(defun get-voice-manager-voice-voice (voice)
+  (second voice))
+
+(defun format-voices (voices)
+  (let ((a (apply 'concatenate ;; concatenate wants rest params, not a list
+		  'string
+		  (mapcar
+		   (lambda (v)
+		     (format nil " Index: ~a Voice: ~a "
+			     (get-voice-manager-voice-index v)
+			     (voice-format (get-voice-manager-voice-voice v))
+			     ))
+		   voices))))
+    a))
+
 (defmethod initialize-instance :after ((mgr voice-manager) &key voice-count)
-  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (if (eq 0 voice-count)
-      (error "voice-mamager: voice-count must be greater zero"))
-  (setf (slot-value mgr 'voices) (make-array voice-count))
+      (error "voice-manager: voice-count must be greater zero"))
   (dotimes (i voice-count)
-    (setf (aref (slot-value mgr 'voices) i) (make-instance 'voice))))
+    (push (make-voice-manager-voice i) (slot-value mgr 'voices))))
 
-(defun voice-manager-find-voice-index-by-note (cur-voice-manager note)
-  (let ((found-index nil))
+(defun voice-manager-find-voice-by-note (cur-voice-manager note)
+  (let ((found-voice nil))
     (with-slots (voices) cur-voice-manager
-      ;; todo: break out of dotimes when matching voice has been found
-      (dotimes (i (length voices))
-	(let ((v (elt voices i)))
-	  (if (voice-is-note v note)
-	      (setf found-index i)))))
-    found-index))
+      ;; todo: break out of dolist when matching voice has been found
+      (dolist (v voices)
+	(if (voice-is-note (get-voice-manager-voice-voice v) note)
+	    (setf found-voice v))))
+    found-voice))
 
-(defun voice-manager-allocate-voice-index (cur-voice-manager)
-  (with-slots (voices next-voice-index) cur-voice-manager
-    (let ((result next-voice-index))
-      (setf next-voice-index (+ 1 next-voice-index))
-      (if (>= next-voice-index (length voices))
-	  (setf next-voice-index 0))
-      result)))
+(defun voice-manager-get-unassigned-voice (cur-voice-manager)
+  (with-slots (voices) cur-voice-manager
+    ;;(format t "Going to get unassigned voices from sequence ~a~%" (format-voices voices))
+    (let ((unassigned-voices
+	   (remove-if
+	    (lambda (v)
+	      (< 0 (voice-get-stack-size (get-voice-manager-voice-voice v))))
+	    voices)))
+      ;;(format t "Found sequence of unassigned voices: ~a~%" (format-voices unassigned-voices))
+      ;;(format t "Going to sort sequence ~a~%" (format-voices unassigned-voices))
+      (let ((sorted-voices
+	     (sort unassigned-voices
+		   (lambda (v1 v2)
+		     ;; If the first argument is greater than or equal to the second (in the appropriate sense),
+		     ;; then the predicate should return false.
+		     ;; Sort order is descending here
+		     (<
+		      (voice-get-tick (get-voice-manager-voice-voice v1))
+		      (voice-get-tick (get-voice-manager-voice-voice v2)))))))
+	;;(format t "Sorted sequence: ~a~%" (format-voices sorted-voices))
+	(first sorted-voices)))))
+
+(defun voice-manager-allocate-voice (cur-voice-manager)
+  (let ((v (voice-manager-get-unassigned-voice cur-voice-manager)))
+    v))
+
+(defun voice-manager-next-tick (cur-voice-manager)
+  (with-slots (tick) cur-voice-manager
+    (setf tick (+ tick 1))
+    tick))
 
 ;; Pushes a note.
 ;; Returns voice index, current voice note and the current stack size
 (defun push-note (cur-voice-manager note)
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-  (let ((voice-index (voice-manager-allocate-voice-index cur-voice-manager)))
-    (let ((cur-voice (elt (slot-value cur-voice-manager 'voices) voice-index)))
-      (multiple-value-bind (current-voice-note voice-note-stack-size)
-	  (voice-push-note cur-voice note)
-	  (values voice-index current-voice-note voice-note-stack-size)))))
+  (let ((cur-voice (voice-manager-allocate-voice cur-voice-manager)))
+    (multiple-value-bind (current-voice-note voice-note-stack-size)
+	(voice-push-note (second cur-voice) note)
+      (values
+       (get-voice-manager-voice-index cur-voice)
+       current-voice-note
+       voice-note-stack-size))))
 
 ;; Removes a note.
 ;; Returns voice index, current voice note and nil.
 (defun remove-note (cur-voice-manager note)
   (with-slots (voices) cur-voice-manager
-    (let ((voice-index (voice-manager-find-voice-index-by-note cur-voice-manager note)))
-      (if (not voice-index)
+    (let ((voice (voice-manager-find-voice-by-note cur-voice-manager note)))
+      (if (not voice)
 	  (values nil nil nil)
-	  (values voice-index (voice-remove-note (elt voices voice-index) note) nil)))))
+	  (values
+	   (get-voice-manager-voice-index voice)
+	   (voice-remove-note (get-voice-manager-voice-voice voice) note)
+	   (voice-get-stack-size (get-voice-manager-voice-voice voice)))))))
 

@@ -4,197 +4,148 @@
 ;; voice-manager tests
 ;;
 
-(define-test test-voice-manager-mgr-0 ()
-	     (let ((mgr (make-instance 'cl-synthesizer-midi-voice-manager::voice-manager :voice-count 1)))
-	       (cl-synthesizer-midi-voice-manager:push-note mgr 11)
-	       (assert-equal 0 (cl-synthesizer-midi-voice-manager::voice-manager-find-voice-index-by-note mgr 11))))
 
-(define-test test-voice-manager-mgr-2 ()
-	     (let ((mgr (make-instance 'cl-synthesizer-midi-voice-manager::voice-manager :voice-count 1)))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 11)
-		 (assert-equal 0 voice-number)
-		 (assert-equal 1 voice-note-stack-size)
-		 (assert-equal 11 current-voice-note))))
+(defun run-test-case (test-case)
+  (let ((mgr (make-instance 'cl-synthesizer-midi-voice-manager::voice-manager :voice-count (getf test-case :voice-count))))
+    (dolist (test-case (getf test-case :test-cases))
+      (let ((cmd (first test-case))
+	    (cmd-arg (second test-case))
+	    (expected-voice-number (getf test-case :expected-voice-number))
+	    (expected-note (getf test-case :expected-note))
+	    (expected-stack-size (getf test-case :expected-stack-size)))
+	(format t "Expected Number: ~a Expected Note: ~a Expected Stacksize: ~a~%"
+		expected-voice-number expected-note expected-stack-size)
+	(multiple-value-bind (resulting-voice-number resulting-note resulting-stack-size)
+	    (if (eq cmd :push)
+		(cl-synthesizer-midi-voice-manager:push-note mgr cmd-arg)
+		(if (eq cmd :remove)
+		    (cl-synthesizer-midi-voice-manager:remove-note mgr cmd-arg)
+		    (error "STOP")))
+	  (format t "Number: ~a Note: ~a Stacksize: ~a~%" resulting-voice-number resulting-note resulting-stack-size)
+	  (assert-equal expected-voice-number resulting-voice-number)
+	  (assert-equal expected-note resulting-note)
+	  (assert-equal expected-stack-size resulting-stack-size))))))
 
-(define-test test-voice-manager-mgr-3 ()
-	     (let ((mgr (make-instance 'cl-synthesizer-midi-voice-manager::voice-manager :voice-count 1)))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 11)
-		 (assert-equal 0 voice-number)
-		 (assert-equal 1 voice-note-stack-size)
-		 (assert-equal 11 current-voice-note))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 22)
-		 (assert-equal 22 current-voice-note))))
 
-(define-test test-voice-manager-mgr-4 ()
-	     (let ((mgr (make-instance 'cl-synthesizer-midi-voice-manager::voice-manager :voice-count 1)))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 11)
-		 (assert-equal 0 voice-number)
-		 (assert-equal 1 voice-note-stack-size)
-		 (assert-equal 11 current-voice-note))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 22)
-		 (assert-equal 0 voice-number)
-		 (assert-true (< 1 voice-note-stack-size))
-		 (assert-equal 22 current-voice-note))
-	       (multiple-value-bind (voice-number current-voice-note)
-		   (cl-synthesizer-midi-voice-manager:remove-note mgr 22)
-		 (assert-equal 0 voice-number)
-		 (assert-equal 11 current-voice-note))))
+;;
+;;
+;; Tests, where no voice overloading takes place
+;;
 
-(define-test test-voice-manager-mgr-5 ()
-	     (let ((mgr (make-instance 'cl-synthesizer-midi-voice-manager::voice-manager :voice-count 1)))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 11)
-		 (assert-equal 0 voice-number)
-		 (assert-equal 1 voice-note-stack-size))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 22)
-		 (assert-equal 0 voice-number)
-		 (assert-true (< 1 voice-note-stack-size)))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 22)
-		 (assert-equal 0 voice-number)
-		 (assert-equal 22 current-voice-note)
-		 (assert-true (< 1 voice-note-stack-size)))
-	       (multiple-value-bind (voice-number current-voice-note)
-		   (cl-synthesizer-midi-voice-manager:remove-note mgr 22)
-		 (assert-equal 0 voice-number)
-		 (assert-equal 11 current-voice-note))))
+;; test that A and B are allocated to voices 0 and 1
+(define-test test-voice-manager-mgr-no-overload-0 ()
+	     (let ((test
+		    '(:voice-count 2
+		      :test-cases
+		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
+		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)))))
+	     (run-test-case test)))
 
-(define-test test-voice-manager-mgr-6 ()
-	     (let ((mgr (make-instance 'cl-synthesizer-midi-voice-manager::voice-manager :voice-count 2)))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 11)
-		 (assert-equal 0 voice-number)
-		 (assert-equal 1 voice-note-stack-size)
-		 (assert-equal 11 current-voice-note))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 22)
-		 (assert-equal 1 voice-number)
-		 (assert-equal 1 voice-note-stack-size)
-		 (assert-equal 22 current-voice-note))))
+;; test that A is removed from voice 0
+(define-test test-voice-manager-mgr-no-overload-1 ()
+	     (let ((test
+		    '(:voice-count 2
+		      :test-cases
+		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
+		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
+		       (:remove "A" :expected-voice-number 0 :expected-note nil :expected-stack-size 0)
+		       ))))
+	     (run-test-case test)))
 
-(define-test test-voice-manager-mgr-7 ()
-	     (let ((mgr (make-instance 'cl-synthesizer-midi-voice-manager::voice-manager :voice-count 2)))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 11)
-		 (assert-equal 0 voice-number)
-		 (assert-equal 1 voice-note-stack-size)
-		 (assert-equal 11 current-voice-note))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 22)
-		 (assert-equal 1 voice-number)
-		 (assert-equal 1 voice-note-stack-size)
-		 (assert-equal 22 current-voice-note))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 33)
-		 (assert-equal 0 voice-number)
-		 (assert-equal 33 current-voice-note)
-		 (assert-true (< 1 voice-note-stack-size)))))
+;; Test that C is allocated to previously released slot of A
+(define-test test-voice-manager-mgr-no-overload-2 ()
+	     (let ((test
+		    '(:voice-count 2
+		      :test-cases
+		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
+		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
+		       (:remove "A" :expected-voice-number 0 :expected-note nil :expected-stack-size 0)
+		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 1)
+		       ))))
+	     (run-test-case test)))
 
-(define-test test-voice-manager-mgr-8 ()
-	     (let ((mgr (make-instance 'cl-synthesizer-midi-voice-manager::voice-manager :voice-count 2)))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 11)
-		 (assert-equal 0 voice-number)
-		 (assert-equal 11 current-voice-note)
-		 (assert-equal 1 voice-note-stack-size))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 22)
-		 (assert-equal 1 voice-number)
-		 (assert-equal 22 current-voice-note)
-		 (assert-equal 1 voice-note-stack-size))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 33)
-		 (assert-equal 0 voice-number)
-		 (assert-equal 33 current-voice-note)
-		 (assert-true (< 1 voice-note-stack-size)))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 44)
-		 (assert-equal 1 voice-number)
-		 (assert-equal 44 current-voice-note)
-		 (assert-true (< 1 voice-note-stack-size)))))
+;; Test that C is allocated to previously released slot of B
+(define-test test-voice-manager-mgr-no-overload-3 ()
+	     (let ((test
+		    '(:voice-count 2
+		      :test-cases
+		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
+		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
+		       (:remove "B" :expected-voice-number 1 :expected-note nil :expected-stack-size 0)
+		       (:push "C" :expected-voice-number 1 :expected-note "C" :expected-stack-size 1)
+		       ))))
+	     (run-test-case test)))
 
-(define-test test-voice-manager-mgr-9 ()
-	     (let ((mgr (make-instance 'cl-synthesizer-midi-voice-manager::voice-manager :voice-count 2)))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 11) ;; 0 -> 11
-		 (assert-equal 0 voice-number)
-		 (assert-equal 11 current-voice-note)
-		 (assert-equal 1 voice-note-stack-size))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 22) ;; 1 -> 22
-		 (assert-equal 1 voice-number)
-		 (assert-equal 22 current-voice-note)
-		 (assert-equal 1 voice-note-stack-size))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 33) ;; 0 -> 33
-		 (assert-equal 0 voice-number)
-		 (assert-equal 33 current-voice-note)
-		 (assert-true (< 1 voice-note-stack-size)))
-	       (multiple-value-bind (voice-number current-voice-note)
-		   (cl-synthesizer-midi-voice-manager:remove-note mgr 33) ;; 0 -> 11
-		 (assert-equal 0 voice-number)
-		 (assert-equal 11 current-voice-note))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 44) ;; 1 -> 44
-		 (assert-equal 44 current-voice-note))))
+;; Test that A (voice 0) is playing after multiple adds/removes to voice 1
+(define-test test-voice-manager-mgr-no-overload-4 ()
+	     (let ((test
+		    '(:voice-count 2
+		      :test-cases
+		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
+		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
+		       (:remove "B" :expected-voice-number 1 :expected-note nil :expected-stack-size 0)
+		       (:push "C" :expected-voice-number 1 :expected-note "C" :expected-stack-size 1)
+		       (:remove "C" :expected-voice-number 1 :expected-note nil :expected-stack-size 0)
+		       (:push "D" :expected-voice-number 1 :expected-note "D" :expected-stack-size 1)
+		       ))))
+	     (run-test-case test)))
 
-(define-test test-voice-manager-mgr-10 ()
-	     (let ((mgr (make-instance 'cl-synthesizer-midi-voice-manager::voice-manager :voice-count 2)))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 11) ;; 0 -> 11
-		 (assert-equal 0 voice-number)
-		 (assert-equal 11 current-voice-note)
-		 (assert-equal 1 voice-note-stack-size))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 22) ;; 1 -> 22
-		 (assert-equal 1 voice-number)
-		 (assert-equal 22 current-voice-note)
-		 (assert-equal 1 voice-note-stack-size))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 33) ;; 0 -> 33
-		 (assert-equal 0 voice-number)
-		 (assert-equal 33 current-voice-note)
-		 (assert-true (< 1 voice-note-stack-size)))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 44) ;; 1 -> 44
-		 (assert-equal 1 voice-number)
-		 (assert-equal 44 current-voice-note)
-		 (assert-true (< 1 voice-note-stack-size)))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 55) ;; 0 -> 55
-		 (assert-equal 0 voice-number)
-		 (assert-equal 55 current-voice-note)
-		 (assert-true (< 1 voice-note-stack-size)))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 66) ;; 1 -> 66
-		 (assert-equal 1 voice-number)
-		 (assert-equal 66 current-voice-note)
-		 (assert-true (< 1 voice-note-stack-size)))
-	       (multiple-value-bind (voice-number current-voice-note)
-		   (cl-synthesizer-midi-voice-manager:remove-note mgr 66)
-		 (assert-equal 1 voice-number)
-		 (assert-equal 44 current-voice-note))
-	       (multiple-value-bind (voice-number current-voice-note voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:push-note mgr 77) ;; 0 -> 77
-		 (assert-equal 0 voice-number)
-		 (assert-equal 77 current-voice-note)
-		 (assert-true (< 1 voice-note-stack-size)))))
+(define-test test-voice-manager-mgr-no-overload-5 ()
+	     (let ((test
+		    '(:voice-count 2
+		      :test-cases
+		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
+		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
+		       (:remove "A" :expected-voice-number 0 :expected-note nil :expected-stack-size 0)
+		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 1)
 
-(define-test test-voice-manager-mgr-11 ()
-	     (let ((mgr (make-instance 'cl-synthesizer-midi-voice-manager::voice-manager :voice-count 1)))
-	       (cl-synthesizer-midi-voice-manager:push-note mgr 11) ;; 0 -> 11
-	       (multiple-value-bind (voice-number voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:remove-note mgr 11)
-		 (assert-equal 0 voice-number)
-		 (assert-nil voice-note-stack-size))
-	       (multiple-value-bind (voice-number voice-note-stack-size)
-		   (cl-synthesizer-midi-voice-manager:remove-note mgr 11)
-		 (assert-nil voice-number)
-		 (assert-nil voice-note-stack-size))))
+		       ))))
+	     (run-test-case test)))
+
+;; both voices played and released, next note will be assigned to first released voice
+(define-test test-voice-manager-mgr-no-overload-6 ()
+	     (let ((test
+		    '(:voice-count 2
+		      :test-cases
+		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
+		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
+		       (:remove "A" :expected-voice-number 0 :expected-note nil :expected-stack-size 0)
+		       (:remove "B" :expected-voice-number 1 :expected-note nil :expected-stack-size 0)
+		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 1)
+		       ))))
+	     (run-test-case test)))
+
+;; both voices played and released, next note will be assigned to first released voice
+(define-test test-voice-manager-mgr-no-overload-7 ()
+	     (let ((test
+		    '(:voice-count 2
+		      :test-cases
+		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
+		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
+		       (:remove "B" :expected-voice-number 1 :expected-note nil :expected-stack-size 0)
+		       (:remove "A" :expected-voice-number 0 :expected-note nil :expected-stack-size 0)
+		       (:push "C" :expected-voice-number 1 :expected-note "C" :expected-stack-size 1)
+		       ))))
+	     (run-test-case test)))
+
+;;
+;;
+;; Tests, where voice overloading takes place
+;; Test cases where all voices are occupied and new notes are to be pushed
+;;
+;;
+
+#|
+(define-test test-voice-manager-mgr-overload-0 ()
+	     (let ((test
+		    '(:voice-count 2
+		      :test-cases
+		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
+		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
+		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 2)
+		       ))))
+	     (run-test-case test)))
+|#
+
+
 
