@@ -89,7 +89,6 @@ test-case '(:voice-count 2
 		       ))))
 	       (run-test-case-midi-ifc test)))
 
-#|
 ;; die mittlere Note wegnehmen
 (define-test test-midi-interface-4 ()
 	     (let ((test
@@ -111,14 +110,13 @@ test-case '(:voice-count 2
 					 (:GATE-1 5.0)
 					 (:CV-2 48000)
 					 (:GATE-2 5.0)))
-		       (:event ,(cl-synthesizer-midi-event:make-note-off-event 1 48 0)
-			       :outputs ((:CV-1 32000)
-					 (:GATE-1 5.0)
-					 (:CV-2 48000)
-					 (:GATE-2 5.0)))
-
 		       
+		       (:event ,(cl-synthesizer-midi-event:make-note-off-event 1 48 0)
+			       :outputs ((:CV-1 64000)
+					 (:GATE-1 5.0)
+					 (:CV-2 48000) ;; CV keeps frequency but Gate goes down
+					 (:GATE-2 0)))
+		       		       
 		       ))))
 	       (run-test-case-midi-ifc test)))
-|#
 

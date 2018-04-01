@@ -57,6 +57,8 @@
 (defun voice-get-stack-size (cur-voice)
   (length (slot-value cur-voice 'notes)))
 
+(defun voice-clear (cur-voice)
+  (setf (slot-value cur-voice 'notes) nil))
 
 ;;
 ;; Voice-Manager
@@ -107,49 +109,43 @@
 	    (setf found-voice v))))
     found-voice))
 
-(defun voice-manager-allocate-voice (cur-voice-manager)
+
+;;
+;; ORDER BY Stack-Length ASC, Tick ASC
+;; 
+(defun voice-manager-get-least-recently-used-voice (cur-voice-manager)
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-  ;;(format t "~%Allocating voice~%")
-  (with-slots (voices) cur-voice-manager
-    (let ((free-voices nil)
-	  (playing-voices nil))
-      (dolist (v voices)
-	(if (= 0 (voice-get-stack-size (get-voice-manager-voice-voice v)))
-	    (push v free-voices)
-	    (push v playing-voices)))
-      ;;(format t "Free voices ~a~%" (format-voices free-voices))
-      ;;(format t "Playing voices ~a~%" (format-voices playing-voices))
-      (let ((sorted-voices
-	     (if free-voices
-		 ;; From the free voices choose the one which has least recently being played in order
-		 ;; to minimize stealing of release cycles.
-		 ;; ORDER BY Tick ASC
-		 (sort free-voices
-		       (lambda (v1 v2)
-			 ;; If the first argument is greater than or equal to the second then the predicate should return false.
+  (let ((voices (copy-list (slot-value cur-voice-manager 'voices))))
+    (let ((sorted-voices
+	   (sort voices
+		 (lambda (v1 v2)
+		   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
+		   ;; If the first argument is greater than or equal to the second then the predicate should return false.
+		   (let ((sl1 (voice-get-stack-size (get-voice-manager-voice-voice v1)))
+			 (sl2 (voice-get-stack-size (get-voice-manager-voice-voice v2))))
+		     (if (eq sl1 sl2)
 			 (if (> (voice-get-tick (get-voice-manager-voice-voice v1))
 				(voice-get-tick (get-voice-manager-voice-voice v2)))
 			     nil
-			     t)))
-		 ;; From the playing voices choose the one with minimum stack size and minimum index
-		 ;; We ignore Tick here because this would result in unexpected behaviour when
-		 ;; for example a note is played and released in rapid order when all voices are
-		 ;; already playing. In this case the note will always be assigned to the same index
-		 ;; (and its release cycle will be quit)
-		 ;; ORDER BY Stack-Size ASC, Index ASC
-		 (sort playing-voices
-		       (lambda (v1 v2)
-			 ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-			 ;; If the first argument is greater than or equal to the second then the predicate should return false.
-			 (let ((sl1 (voice-get-stack-size (get-voice-manager-voice-voice v1)))
-			       (sl2 (voice-get-stack-size (get-voice-manager-voice-voice v2))))
-			   (if (eq sl1 sl2)
-			       (if (> (get-voice-manager-voice-index v1) (get-voice-manager-voice-index v2))
-				   nil
-				   t)
-			       (if (> sl1 sl2) nil t))))))))
-	;;(format t "Sorted Playing voices ~a~%" (format-voices playing-voices))
-	(first sorted-voices)))))
+			     t)
+			 (if (> sl1 sl2) nil t)))))))
+      ;;(format t "Sorted voices ~a~%" (format-voices playing-voices))
+      (first sorted-voices))))
+
+(defun voice-manager-is-mono (cur-voice-manager)
+  (if (= 1 (length (slot-value cur-voice-manager 'voices)))
+      t
+      nil))
+
+
+(defun voice-manager-allocate-voice (cur-voice-manager)
+  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
+  ;;(format t "~%Allocating voice~%")
+  (if (voice-manager-is-mono cur-voice-manager)
+      (first (slot-value cur-voice-manager 'voices))
+      (let ((v (voice-manager-get-least-recently-used-voice cur-voice-manager)))
+	(voice-clear (get-voice-manager-voice-voice v))
+	v)))
     
 (defun voice-manager-next-tick (cur-voice-manager)
   (with-slots (tick) cur-voice-manager

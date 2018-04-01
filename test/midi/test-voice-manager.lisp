@@ -141,10 +141,10 @@
 		      :test-cases
 		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
 		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
-		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 2)
-		       (:push "D" :expected-voice-number 1 :expected-note "D" :expected-stack-size 2)
-		       (:push "E" :expected-voice-number 0 :expected-note "E" :expected-stack-size 3)
-		       (:push "F" :expected-voice-number 1 :expected-note "F" :expected-stack-size 3)
+		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 1)
+		       (:push "D" :expected-voice-number 1 :expected-note "D" :expected-stack-size 1)
+		       (:push "E" :expected-voice-number 0 :expected-note "E" :expected-stack-size 1)
+		       (:push "F" :expected-voice-number 1 :expected-note "F" :expected-stack-size 1)
 		       ))))
 	     (run-test-case test)))
 
@@ -155,9 +155,9 @@
 		      :test-cases
 		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
 		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
-		       (:push "TRILLER-C" :expected-voice-number 0 :expected-note "TRILLER-C" :expected-stack-size 2)
-		       (:remove "TRILLER-C" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
-		       (:push "TRILLER-D" :expected-voice-number 0 :expected-note "TRILLER-D" :expected-stack-size 2)
+		       (:push "TRILLER-C" :expected-voice-number 0 :expected-note "TRILLER-C" :expected-stack-size 1)
+		       (:remove "TRILLER-C" :expected-voice-number 0 :expected-note nil :expected-stack-size 0)
+		       (:push "TRILLER-D" :expected-voice-number 0 :expected-note "TRILLER-D" :expected-stack-size 1)
 		       ))))
 	     (run-test-case test)))
 
@@ -168,10 +168,10 @@
 		      :test-cases
 		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
 		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
-		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 2)
-		       (:push "TRILLER-D" :expected-voice-number 1 :expected-note "TRILLER-D" :expected-stack-size 2)
-		       (:remove "TRILLER-D" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
-		       (:push "TRILLER-D" :expected-voice-number 1 :expected-note "TRILLER-D" :expected-stack-size 2)
+		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 1)
+		       (:push "TRILLER-D" :expected-voice-number 1 :expected-note "TRILLER-D" :expected-stack-size 1)
+		       (:remove "TRILLER-D" :expected-voice-number 1 :expected-note nil :expected-stack-size 0)
+		       (:push "TRILLER-D" :expected-voice-number 1 :expected-note "TRILLER-D" :expected-stack-size 1)
 		       ))))
 	     (run-test-case test)))
 
@@ -181,7 +181,8 @@
 		      :test-cases
 		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
 		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
-		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 2)
+		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 1)
 		       (:remove "B" :expected-voice-number 1 :expected-note nil :expected-stack-size 0)
 		       ))))
 	     (run-test-case test)))
+
