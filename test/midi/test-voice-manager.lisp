@@ -135,7 +135,6 @@
 ;;
 ;;
 
-#|
 (define-test test-voice-manager-mgr-overload-0 ()
 	     (let ((test
 		    '(:voice-count 2
@@ -145,7 +144,31 @@
 		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 2)
 		       ))))
 	     (run-test-case test)))
-|#
 
+;; Arpeggio when all voices are playing. Current note should be consecutively assigned to same voice index
+(define-test test-voice-manager-mgr-overload-1 ()
+	     (let ((test
+		    '(:voice-count 2
+		      :test-cases
+		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
+		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
+		       (:push "ARP-C" :expected-voice-number 0 :expected-note "ARP-C" :expected-stack-size 2)
+		       (:remove "ARP-C" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
+		       (:push "ARP-D" :expected-voice-number 0 :expected-note "ARP-D" :expected-stack-size 2)
+		       ))))
+	     (run-test-case test)))
 
+;; Arpeggio when all voices are playing. Current note should be consecutively assigned to same voice index
+(define-test test-voice-manager-mgr-overload-2 ()
+	     (let ((test
+		    '(:voice-count 2
+		      :test-cases
+		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
+		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
+		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 2)
+		       (:push "ARP-D" :expected-voice-number 1 :expected-note "ARP-D" :expected-stack-size 2)
+		       ;;(:remove "ARP-D" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
+		       ;;(:push "ARP-D" :expected-voice-number 1 :expected-note "ARP-D" :expected-stack-size 2)
+		       ))))
+	     (run-test-case test)))
 

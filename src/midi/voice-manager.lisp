@@ -14,7 +14,6 @@
   ((notes :initform nil)
    (tick :initform 0)))
 
-;; Todo: Lisp forces me to declare a rest param. Why?
 (defmethod initialize-instance :after ((v voice) &rest args)
   (declare (ignore args))
   (setf (slot-value v 'tick) (next-tick)))
@@ -82,7 +81,7 @@
 		  'string
 		  (mapcar
 		   (lambda (v)
-		     (format nil " Index: ~a Voice: ~a "
+		     (format nil " Index: ~a Voice: (~a) "
 			     (get-voice-manager-voice-index v)
 			     (voice-format (get-voice-manager-voice-voice v))
 			     ))
@@ -113,7 +112,7 @@
 	      (< 0 (voice-get-stack-size (get-voice-manager-voice-voice v))))
 	    voices)))
       ;;(format t "Found sequence of unassigned voices: ~a~%" (format-voices unassigned-voices))
-      ;;(format t "Going to sort sequence ~a~%" (format-voices unassigned-voices))
+      ;;(format t "Going to sort by timestamp sequence ~a~%" (format-voices unassigned-voices))
       (let ((sorted-voices
 	     (sort unassigned-voices
 		   (lambda (v1 v2)
@@ -126,8 +125,34 @@
 	;;(format t "Sorted sequence: ~a~%" (format-voices sorted-voices))
 	(first sorted-voices)))))
 
+(defun voice-manager-get-playing-voice (cur-voice-manager)
+  (with-slots (voices) cur-voice-manager
+    (format t "Going to get playing voices from sequence ~a~%" (format-voices voices))
+    (let ((assigned-voices
+	   (remove-if
+	    (lambda (v)
+	      (= 0 (voice-get-stack-size (get-voice-manager-voice-voice v))))
+	    voices)))
+      (format t "Found sequence of playing voices: ~a~%" (format-voices assigned-voices))
+      (format t "Going to sort by stack-length ASC, index ASC sequence ~a~%" (format-voices assigned-voices))
+      (let ((sorted-voices
+	     (sort assigned-voices
+		   (lambda (v1 v2)
+		     ;; If the first argument is greater than or equal to the second (in the appropriate sense),
+		     ;; then the predicate should return false.
+		     (if (> (voice-get-stack-size (get-voice-manager-voice-voice v1))
+			    (voice-get-stack-size (get-voice-manager-voice-voice v2)))
+			 nil
+			 (if (> (get-voice-manager-voice-index v1) (get-voice-manager-voice-index v2))
+			     nil
+			     t))))))
+	(format t "Sorted sequence: ~a~%" (format-voices sorted-voices))
+	(first sorted-voices)))))
+
 (defun voice-manager-allocate-voice (cur-voice-manager)
   (let ((v (voice-manager-get-unassigned-voice cur-voice-manager)))
+    (if (not v)
+	(setf v (voice-manager-get-playing-voice cur-voice-manager)))
     v))
 
 (defun voice-manager-next-tick (cur-voice-manager)
