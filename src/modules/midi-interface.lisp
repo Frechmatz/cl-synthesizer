@@ -63,6 +63,8 @@
 			 (error (format nil "Unknown input ~a requested from ~a" output name)))
 		     (funcall handler)))
      :update (lambda (&key (midi-event nil))
+	       (declare (optimize (debug 3) (speed 0) (space 0)))
+	       ;;(break)
 	       (if midi-event
 		   (cond
 		     ((cl-synthesizer-midi-event:note-on-eventp midi-event)
