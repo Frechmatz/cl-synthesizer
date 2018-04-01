@@ -142,23 +142,26 @@
 		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
 		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
 		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 2)
+		       (:push "D" :expected-voice-number 1 :expected-note "D" :expected-stack-size 2)
+		       (:push "E" :expected-voice-number 0 :expected-note "E" :expected-stack-size 3)
+		       (:push "F" :expected-voice-number 1 :expected-note "F" :expected-stack-size 3)
 		       ))))
 	     (run-test-case test)))
 
-;; Arpeggio when all voices are playing. Current note should be consecutively assigned to same voice index
+;; Triller when all voices are playing. Current note should be consecutively assigned to same voice index
 (define-test test-voice-manager-mgr-overload-1 ()
 	     (let ((test
 		    '(:voice-count 2
 		      :test-cases
 		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
 		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
-		       (:push "ARP-C" :expected-voice-number 0 :expected-note "ARP-C" :expected-stack-size 2)
-		       (:remove "ARP-C" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
-		       (:push "ARP-D" :expected-voice-number 0 :expected-note "ARP-D" :expected-stack-size 2)
+		       (:push "TRILLER-C" :expected-voice-number 0 :expected-note "TRILLER-C" :expected-stack-size 2)
+		       (:remove "TRILLER-C" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
+		       (:push "TRILLER-D" :expected-voice-number 0 :expected-note "TRILLER-D" :expected-stack-size 2)
 		       ))))
 	     (run-test-case test)))
 
-;; Arpeggio when all voices are playing. Current note should be consecutively assigned to same voice index
+;; Triller when all voices are playing. Current note should be consecutively assigned to same voice index
 (define-test test-voice-manager-mgr-overload-2 ()
 	     (let ((test
 		    '(:voice-count 2
@@ -166,9 +169,19 @@
 		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
 		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
 		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 2)
-		       (:push "ARP-D" :expected-voice-number 1 :expected-note "ARP-D" :expected-stack-size 2)
-		       ;;(:remove "ARP-D" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
-		       ;;(:push "ARP-D" :expected-voice-number 1 :expected-note "ARP-D" :expected-stack-size 2)
+		       (:push "TRILLER-D" :expected-voice-number 1 :expected-note "TRILLER-D" :expected-stack-size 2)
+		       (:remove "TRILLER-D" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
+		       (:push "TRILLER-D" :expected-voice-number 1 :expected-note "TRILLER-D" :expected-stack-size 2)
 		       ))))
 	     (run-test-case test)))
 
+(define-test test-voice-manager-mgr-overload-3 ()
+	     (let ((test
+		    '(:voice-count 2
+		      :test-cases
+		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
+		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
+		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 2)
+		       (:remove "B" :expected-voice-number 1 :expected-note nil :expected-stack-size 0)
+		       ))))
+	     (run-test-case test)))
