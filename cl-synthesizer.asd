@@ -32,6 +32,11 @@
 				     (:file "event")
 				     (:file "voice-manager")
 				     ))
+		(:module "src/vendor"
+			:serial t
+			:components ((:file "packages")
+				     (:file "arturiaminilabmk2")
+				     ))
 		(:module "src/synthesizer"
 			:serial t
 			:components ((:file "packages")
