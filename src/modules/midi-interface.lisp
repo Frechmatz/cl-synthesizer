@@ -60,39 +60,40 @@
 	      (lambda () (elt (elt voice-states cur-i) +voice-state-gate+)))))
     (list
      :shutdown (lambda () nil)
-     :inputs (lambda () '(:midi-event))
+     :inputs (lambda () '(:midi-events))
      :outputs (lambda () outputs)
      :get-output (lambda (output)
 		   (let ((handler (gethash output output-socket-lookup-table)))
 		     (if (not handler)
 			 (error (format nil "Unknown input ~a requested from ~a" output name)))
 		     (funcall handler)))
-     :update (lambda (&key (midi-event nil))
+     :update (lambda (&key (midi-events nil))
 	       ;;(declare (optimize (debug 3) (speed 0) (space 0)))
 	       ;;(break)
-	       (if midi-event
-		   (cond
-		     ((cl-synthesizer-midi-event:note-on-eventp midi-event)
-		      (multiple-value-bind (voice-index voice-note stack-size)
-			  (cl-synthesizer-midi-voice-manager:push-note voice-manager (cl-synthesizer-midi-event:get-note-number midi-event))
-			(let ((voice-state (elt voice-states voice-index)))
-			  (if (= 1 stack-size)
-			      (progn
-				(funcall (elt voice-state +voice-state-gate-on-logger+))
-				(setf (elt voice-state +voice-state-gate+) 5.0)))
-			  (setf (elt voice-state +voice-state-cv+) (funcall note-number-to-cv voice-note))
-			  (format t "cv-oct: ~a~%" (elt voice-state +voice-state-cv+)))))
-		     ((cl-synthesizer-midi-event:note-off-eventp midi-event)
-		      (multiple-value-bind (voice-index voice-note)
-			  (cl-synthesizer-midi-voice-manager:remove-note voice-manager (cl-synthesizer-midi-event:get-note-number midi-event))
-			(if voice-index
-			    (let ((voice-state (elt voice-states voice-index)))
-			      (if (not voice-note)
-				  (progn
-				    (funcall (elt voice-state +voice-state-gate-off-logger+))
-				    (setf (elt voice-state +voice-state-gate+) 0))
-				  (progn
-				    (setf (elt voice-state +voice-state-cv+) (funcall note-number-to-cv voice-note))
-				    ))
-			      (format t "cv-oct: ~a~%" (elt voice-state +voice-state-cv+))))))
-		     ))))))
+	       (dolist (midi-event midi-events)
+		 (if midi-event
+		     (cond
+		       ((cl-synthesizer-midi-event:note-on-eventp midi-event)
+			(multiple-value-bind (voice-index voice-note stack-size)
+			    (cl-synthesizer-midi-voice-manager:push-note voice-manager (cl-synthesizer-midi-event:get-note-number midi-event))
+			  (let ((voice-state (elt voice-states voice-index)))
+			    (if (= 1 stack-size)
+				(progn
+				  (funcall (elt voice-state +voice-state-gate-on-logger+))
+				  (setf (elt voice-state +voice-state-gate+) 5.0)))
+			    (setf (elt voice-state +voice-state-cv+) (funcall note-number-to-cv voice-note))
+			    (format t "cv-oct: ~a~%" (elt voice-state +voice-state-cv+)))))
+		       ((cl-synthesizer-midi-event:note-off-eventp midi-event)
+			(multiple-value-bind (voice-index voice-note)
+			    (cl-synthesizer-midi-voice-manager:remove-note voice-manager (cl-synthesizer-midi-event:get-note-number midi-event))
+			  (if voice-index
+			      (let ((voice-state (elt voice-states voice-index)))
+				(if (not voice-note)
+				    (progn
+				      (funcall (elt voice-state +voice-state-gate-off-logger+))
+				      (setf (elt voice-state +voice-state-gate+) 0))
+				    (progn
+				      (setf (elt voice-state +voice-state-cv+) (funcall note-number-to-cv voice-note))
+				      ))
+				(format t "cv-oct: ~a~%" (elt voice-state +voice-state-cv+))))))
+		       )))))))

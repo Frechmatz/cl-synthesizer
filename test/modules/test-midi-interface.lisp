@@ -11,8 +11,8 @@
 (defun test-midi-interface-get-output (ifc output)
   (funcall (getf ifc :get-output) output))
 
-(defun test-midi-interface-update (ifc event)
-  (funcall (getf ifc :update) :midi-event event))
+(defun test-midi-interface-update (ifc events)
+  (funcall (getf ifc :update) :midi-events events))
 
 #|
 test-case '(:voice-count 2
@@ -24,7 +24,7 @@ test-case '(:voice-count 2
 (defun run-test-case-midi-ifc (test-case)
   (let ((ifc (test-midi-interface-make-midi-interface (getf test-case :voice-count) :play-mode (getf test-case :play-mode))))
     (dolist (cur-test-case (getf test-case :test-cases))
-      (test-midi-interface-update ifc (getf cur-test-case :event))
+      (test-midi-interface-update ifc (getf cur-test-case :events))
       (dolist (cur-output (getf cur-test-case :outputs))
 	(assert-equal (second cur-output) (test-midi-interface-get-output ifc (first cur-output)))))))
 
@@ -32,14 +32,14 @@ test-case '(:voice-count 2
 	     (let ((test
 		    '(:voice-count 2 :play-mode :PLAY-MODE-POLY
 		      :test-cases
-		      ((:event nil :outputs ((:CV-1 0) (:CV-2 0) (:GATE-1 0) (:GATE-2 0)))))))
+		      ((:events nil :outputs ((:CV-1 0) (:CV-2 0) (:GATE-1 0) (:GATE-2 0)))))))
 	       (run-test-case-midi-ifc test)))
 
 (define-test test-midi-interface-2 ()
 	     (let ((test
 		    `(:voice-count 2 :play-mode :PLAY-MODE-POLY
 		      :test-cases
-		      ((:event ,(cl-synthesizer-midi-event:make-note-on-event 1 64 0)
+		      ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
 			       :outputs ((:CV-1 64000)
 					 (:GATE-1 5.0)
 					 (:CV-2 0)
@@ -52,12 +52,12 @@ test-case '(:voice-count 2
 		    `(:voice-count 2 :play-mode :PLAY-MODE-POLY
 		      :test-cases
 		      (
-		       (:event ,(cl-synthesizer-midi-event:make-note-on-event 1 64 0)
+		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
 			       :outputs ((:CV-1 64000)
 					 (:GATE-1 5.0)
 					 (:CV-2 0)
 					 (:GATE-2 0)))
-		       (:event ,(cl-synthesizer-midi-event:make-note-on-event 1 32 0)
+		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
 			       :outputs ((:CV-1 64000)
 					 (:GATE-1 5.0)
 					 (:CV-2 32000)
@@ -72,17 +72,17 @@ test-case '(:voice-count 2
 		    `(:voice-count 2 :play-mode :PLAY-MODE-POLY
 		      :test-cases
 		      (
-		       (:event ,(cl-synthesizer-midi-event:make-note-on-event 1 32 0)
+		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
 			       :outputs ((:CV-1 32000)
 					 (:GATE-1 5.0)
 					 (:CV-2 0)
 					 (:GATE-2 0)))
-		       (:event ,(cl-synthesizer-midi-event:make-note-on-event 1 48 0)
+		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 48 0))
 			       :outputs ((:CV-1 32000)
 					 (:GATE-1 5.0)
 					 (:CV-2 48000)
 					 (:GATE-2 5.0)))
-		       (:event ,(cl-synthesizer-midi-event:make-note-on-event 1 64 0)
+		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
 			       :outputs ((:CV-1 64000)
 					 (:GATE-1 5.0)
 					 (:CV-2 48000)
@@ -96,23 +96,23 @@ test-case '(:voice-count 2
 		    `(:voice-count 2 :play-mode :PLAY-MODE-POLY
 		      :test-cases
 		      (
-		       (:event ,(cl-synthesizer-midi-event:make-note-on-event 1 32 0)
+		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
 			       :outputs ((:CV-1 32000)
 					 (:GATE-1 5.0)
 					 (:CV-2 0)
 					 (:GATE-2 0)))
-		       (:event ,(cl-synthesizer-midi-event:make-note-on-event 1 48 0)
+		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 48 0))
 			       :outputs ((:CV-1 32000)
 					 (:GATE-1 5.0)
 					 (:CV-2 48000)
 					 (:GATE-2 5.0)))
-		       (:event ,(cl-synthesizer-midi-event:make-note-on-event 1 64 0)
+		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
 			       :outputs ((:CV-1 64000)
 					 (:GATE-1 5.0)
 					 (:CV-2 48000)
 					 (:GATE-2 5.0)))
 		       
-		       (:event ,(cl-synthesizer-midi-event:make-note-off-event 1 48 0)
+		       (:events (,(cl-synthesizer-midi-event:make-note-off-event 1 48 0))
 			       :outputs ((:CV-1 64000)
 					 (:GATE-1 5.0)
 					 (:CV-2 48000) ;; CV keeps frequency but Gate goes down
@@ -129,12 +129,12 @@ test-case '(:voice-count 2
 		    `(:voice-count 2 :play-mode :PLAY-MODE-UNISONO
 		      :test-cases
 		      (
-		       (:event ,(cl-synthesizer-midi-event:make-note-on-event 1 64 0)
+		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
 			       :outputs ((:CV-1 64000)
 					 (:GATE-1 5.0)
 					 (:CV-2 64000)
 					 (:GATE-2 5.0)))
-		       (:event ,(cl-synthesizer-midi-event:make-note-on-event 1 32 0)
+		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
 			       :outputs ((:CV-1 32000)
 					 (:GATE-1 5.0)
 					 (:CV-2 32000)
@@ -147,17 +147,17 @@ test-case '(:voice-count 2
 		    `(:voice-count 2 :play-mode :PLAY-MODE-UNISONO
 		      :test-cases
 		      (
-		       (:event ,(cl-synthesizer-midi-event:make-note-on-event 1 64 0)
+		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
 			       :outputs ((:CV-1 64000)
 					 (:GATE-1 5.0)
 					 (:CV-2 64000)
 					 (:GATE-2 5.0)))
-		       (:event ,(cl-synthesizer-midi-event:make-note-on-event 1 32 0)
+		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
 			       :outputs ((:CV-1 32000)
 					 (:GATE-1 5.0)
 					 (:CV-2 32000)
 					 (:GATE-2 5.0)))
-		       (:event ,(cl-synthesizer-midi-event:make-note-off-event 1 32 0)
+		       (:events (,(cl-synthesizer-midi-event:make-note-off-event 1 32 0))
 			       :outputs ((:CV-1 64000)
 					 (:GATE-1 5.0)
 					 (:CV-2 64000)
@@ -171,26 +171,72 @@ test-case '(:voice-count 2
 		    `(:voice-count 2 :play-mode :PLAY-MODE-UNISONO
 		      :test-cases
 		      (
-		       (:event ,(cl-synthesizer-midi-event:make-note-on-event 1 64 0)
+		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
 			       :outputs ((:CV-1 64000)
 					 (:GATE-1 5.0)
 					 (:CV-2 64000)
 					 (:GATE-2 5.0)))
-		       (:event ,(cl-synthesizer-midi-event:make-note-on-event 1 32 0)
+		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
 			       :outputs ((:CV-1 32000)
 					 (:GATE-1 5.0)
 					 (:CV-2 32000)
 					 (:GATE-2 5.0)))
-		       (:event ,(cl-synthesizer-midi-event:make-note-off-event 1 64 0)
+		       (:events (,(cl-synthesizer-midi-event:make-note-off-event 1 64 0))
 			       :outputs ((:CV-1 32000)
 					 (:GATE-1 5.0)
 					 (:CV-2 32000)
 					 (:GATE-2 5.0)))
-		       (:event ,(cl-synthesizer-midi-event:make-note-off-event 1 32 0)
+		       (:events (,(cl-synthesizer-midi-event:make-note-off-event 1 32 0))
 			       :outputs ((:CV-1 32000)
 					 (:GATE-1 0)
 					 (:CV-2 32000)
 					 (:GATE-2 0)))
 		       
+		       ))))
+	       (run-test-case-midi-ifc test)))
+
+;;
+;; tests for update with multiple midi-events
+;;
+(define-test test-midi-interface-multiple-events-1 ()
+	     (let ((test
+		    `(:voice-count 2 :play-mode :PLAY-MODE-POLY
+		      :test-cases
+		      (
+		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0)
+				  ,(cl-synthesizer-midi-event:make-note-off-event 1 64 0))
+			       :outputs ((:CV-1 64000)
+					 (:GATE-1 0)
+					 (:CV-2 0)
+					 (:GATE-2 0)))
+		       ))))
+	       (run-test-case-midi-ifc test)))
+
+(define-test test-midi-interface-multiple-events-2 ()
+	     (let ((test
+		    `(:voice-count 2 :play-mode :PLAY-MODE-POLY
+		      :test-cases
+		      (
+		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0)
+				  ,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
+			       :outputs ((:CV-1 64000)
+					 (:GATE-1 5.0)
+					 (:CV-2 32000)
+					 (:GATE-2 5.0)))
+		       ))))
+	       (run-test-case-midi-ifc test)))
+
+(define-test test-midi-interface-multiple-events-3 ()
+	     (let ((test
+		    `(:voice-count 2 :play-mode :PLAY-MODE-POLY
+		      :test-cases
+		      (
+		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0)
+				  ,(cl-synthesizer-midi-event:make-note-on-event 1 32 0)
+				  ,(cl-synthesizer-midi-event:make-note-off-event 1 64 0))
+			       :outputs ((:CV-1 64000)
+					 (:GATE-1 0)
+					 (:CV-2 32000)
+					 (:GATE-2 5.0)))
 		       ))))
 	       (run-test-case-midi-ifc test)))

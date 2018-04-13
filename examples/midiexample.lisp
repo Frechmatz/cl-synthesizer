@@ -18,7 +18,7 @@
     (cl-synthesizer::add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco :footage 440 :cv-max 5 :f-max 900 :v-peak 5)
 
-    (cl-synthesizer::add-patch rack "MIDI-IN" :midi-event "MIDI-IFC" :midi-event)
+    (cl-synthesizer::add-patch rack "MIDI-IN" :midi-events "MIDI-IFC" :midi-events)
     (cl-synthesizer::add-patch rack "MIDI-IFC" :controller-1 "VCO-1" :cv-lin)
     (cl-synthesizer::add-patch rack "VCO-1" :sine "LINE-OUT" :channel-1)
     (cl-synthesizer::add-patch rack "VCO-1" :triangle "LINE-OUT" :channel-2)
@@ -38,7 +38,7 @@
 
     (cl-synthesizer::add-module rack "MULTIPLE-1" #'cl-synthesizer-modules-multiple::multiple-4)
 
-    (cl-synthesizer::add-patch rack "MIDI-IN" :midi-event "MIDI-IFC" :midi-event)
+    (cl-synthesizer::add-patch rack "MIDI-IN" :midi-events "MIDI-IFC" :midi-events)
     (cl-synthesizer::add-patch rack "MIDI-IFC" :controller-1 "MULTIPLE-1" :input)
     (cl-synthesizer::add-patch rack "MULTIPLE-1" :out-1 "VCO-1" :cv-lin)
     (cl-synthesizer::add-patch rack "MULTIPLE-1" :out-2 "VCO-2" :cv-lin)

@@ -15,7 +15,7 @@
      "MIDI-IFC"
      #'cl-synthesizer-modules-midi-interface:midi-interface
      :voice-count 2)
-    (cl-synthesizer::add-patch rack "MIDI-IN" :midi-event "MIDI-IFC" :midi-event)
+    (cl-synthesizer::add-patch rack "MIDI-IN" :midi-events "MIDI-IFC" :midi-events)
     (flet ((add-voice (prefix voice-number)
 	     (flet ((make-module-name (name)
 		       (format nil "~a-~a-~a" prefix voice-number name)))
@@ -63,5 +63,7 @@
 	rack)))
     
 ;;(cl-synthesizer-examples::play-rack (cl-synthesizer-examples::synthesizer-example-keyboard) 20 :attach-speaker t :attach-midi t)
+
+
 
 

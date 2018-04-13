@@ -39,8 +39,15 @@
      :inputs (lambda () '())
      :outputs (lambda () '(:midi-output))
      :get-output (lambda (output)
+		   "Returns list of MIDI-Events where the oldest one is the first entry of the list"
 		   (declare (ignore output))
-		   (queues:qpop event-queue))
+		   (let ((events nil))
+		     (loop
+			(let ((e (queues:qpop event-queue)))
+			  (if (not e)
+			      (return)
+			      (setf events (push e events)))))
+		     (nreverse events)))
      :update (lambda () nil))))
 
 
