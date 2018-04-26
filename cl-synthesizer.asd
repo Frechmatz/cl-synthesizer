@@ -71,6 +71,8 @@
 	       (:module "src/vendor"
 			:serial t
 			:components ((:file "packages")
+				     (:file "vendor")
+				     (:file "cc-handler")
 				     (:file "arturiaminilabmk2")))
 	       (:module "examples"
 			:serial t
