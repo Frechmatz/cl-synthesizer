@@ -81,6 +81,7 @@
 	       (:module "test/modules"
 			:serial t
 			:components ((:file "test-midi-interface")
+				     (:file "test-midi-interface-cc")
 				     ))
 	       (:module "test/vendor"
 			:serial t

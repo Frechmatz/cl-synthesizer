@@ -1,6 +1,7 @@
 (defpackage :cl-synthesizer
   (:use :cl)
   (:export
+   :signal-assembly-error
    :rack-module
    :rack
    :create-rack

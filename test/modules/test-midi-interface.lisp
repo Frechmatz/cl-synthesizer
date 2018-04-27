@@ -14,13 +14,6 @@
 (defun test-midi-interface-update (ifc events)
   (funcall (getf ifc :update) :midi-events events))
 
-#|
-test-case '(:voice-count 2
-   :test-cases
-   ((:event event :outputs ((:cv-1 1000 :gate-1 5)))))
-
-|#
-
 (defun run-test-case-midi-ifc (test-case)
   (let ((ifc (test-midi-interface-make-midi-interface (getf test-case :voice-count) :play-mode (getf test-case :play-mode))))
     (dolist (cur-test-case (getf test-case :test-cases))

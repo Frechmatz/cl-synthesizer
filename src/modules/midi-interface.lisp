@@ -37,11 +37,15 @@
     (setf (elt voice-state +voice-state-gate-retrigger+) nil)
     voice-state))
 
+;; controller-handler
+;; (list (list output-keyword handler))
 (defun midi-interface (name environment &key
 					  (voice-count 1)
 					  (note-number-to-cv (lambda (note-number) (/ note-number 12)))
-					  (play-mode :PLAY-MODE-POLY))
+					  (play-mode :PLAY-MODE-POLY)
+					  (controller-handler nil))
   "play-mode: :PLAY-MODE-POLY, :PLAY-MODE-UNISONO"
+  (declare (optimize (debug 3) (speed 0) (space 0)))
   (let* ((voice-states (make-array voice-count))
 	 (output-socket-lookup-table (make-hash-table :test #'eq))
 	 (voice-manager (make-instance 'cl-synthesizer-midi-voice-manager:voice-manager
@@ -49,6 +53,22 @@
 	 (outputs (concatenate 'list
 			       (cl-synthesizer-macro-util:make-keyword-list "CV" voice-count)
 			       (cl-synthesizer-macro-util:make-keyword-list "GATE" voice-count))))
+    ;; append controller handlers to outputs
+    (setf outputs (concatenate 'list
+			       outputs
+			       (mapcar (lambda (i)
+					 (let ((output-keyword (first i)))
+					   (if (not (keywordp output-keyword))
+					       (cl-synthesizer:signal-assembly-error
+						:format-control "Module ~a: Controller handler output identifier ~a must be a keyword"
+						:format-arguments (list name output-keyword)))
+					   (if (find output-keyword outputs)
+					       (cl-synthesizer:signal-assembly-error
+						:format-control "Module ~a: Controller handler output identifier ~a is not available"
+						:format-arguments (list name output-keyword)))
+					   output-keyword))
+				       controller-handler)))
+
     (dotimes (i voice-count)
       (if (or (eq 0 i) (not (eq play-mode :PLAY-MODE-UNISONO)))
 	  (setf (elt voice-states i) (make-voice-state name environment i))
@@ -58,6 +78,23 @@
 	      (lambda () (elt (elt voice-states cur-i) +voice-state-cv+)))
 	(setf (gethash (cl-synthesizer-macro-util:make-keyword "GATE" cur-i) output-socket-lookup-table)
 	      (lambda () (elt (elt voice-states cur-i) +voice-state-gate+)))))
+    ;; add controller handlers to lookup table
+    (dolist (cc-handler controller-handler)
+      (let ((cur-cc-handler cc-handler)) ;; new context
+	  (if (or (not (listp (second cur-cc-handler))) (eq 0 (length (second cur-cc-handler))))
+	      (cl-synthesizer:signal-assembly-error
+	       :format-control "Module ~a: Controller handler object ~a must be a non-empty list"
+	       :format-arguments (list name (first cur-cc-handler))))
+	  (if (not (getf (second cur-cc-handler) :get-output))
+	      (cl-synthesizer:signal-assembly-error
+	       :format-control "Module ~a: Controller handler object ~a must provide a 'get-output' function property"
+	       :format-arguments (list name (first cur-cc-handler))))
+	  (if (not (getf (second cur-cc-handler) :update))
+	      (cl-synthesizer:signal-assembly-error
+	       :format-control "Module ~a: Controller handler object ~a must provide a 'update' function property"
+	       :format-arguments (list name (first cur-cc-handler))))
+	  (setf (gethash (first cur-cc-handler) output-socket-lookup-table)
+		(lambda () (funcall (getf (second cur-cc-handler) :get-output))))))
     (list
      :shutdown (lambda () nil)
      :inputs (lambda () '(:midi-events))
@@ -70,6 +107,10 @@
      :update (lambda (&key (midi-events nil))
 	       ;;(declare (optimize (debug 3) (speed 0) (space 0)))
 	       ;;(break)
+	       ;; Update controllers
+	       (dolist (c controller-handler)
+		 (funcall (getf (second c) :update) midi-events))
+	       ;; Update voices
 	       (dolist (midi-event midi-events)
 		 (if midi-event
 		     (cond
