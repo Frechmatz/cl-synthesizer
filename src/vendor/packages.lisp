@@ -1,7 +1,7 @@
 (defpackage :cl-synthesizer-vendor
   (:use :cl)
   (:export
-   :get-control-number
+   :get-controller-number
    :get-controller-value-offset))
 
 (defpackage :cl-synthesizer-vendor-arturia-minilab-mk2

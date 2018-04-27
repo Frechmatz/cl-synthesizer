@@ -16,8 +16,8 @@
    :get-channel
    :get-note-number
    :get-velocity
-   :get-control-number
-   :get-control-value
+   :get-controller-number
+   :get-controller-value
    ))
 
 (defpackage :cl-synthesizer-midi-voice-manager

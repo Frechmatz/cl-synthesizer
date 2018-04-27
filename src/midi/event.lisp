@@ -22,10 +22,10 @@
 (defun get-channel (event)
   (second event))
 
-(defun get-control-number (event)
+(defun get-controller-number (event)
   (third event))
 
-(defun get-control-value (event)
+(defun get-controller-value (event)
   (fourth event))
 
 (defun get-note-number (event)
