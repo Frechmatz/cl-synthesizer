@@ -68,10 +68,7 @@
   ((voices :initform nil) ;; list of (index voice)
    (next-voice-index :initform 0))
   (:documentation
-   "The voice-manager controls the assignment of note-events to voices. "
-   "The allocation algorithm maximizes the time before a given voice is being assigned "
-   "to a new note in order to not cut ('steal') the release phase of the audio output. "
-   "Therefore notes are assigned to voices round-robin. Each voice has a stack of currently playing notes."))
+   "The voice-manager controls the assignment of note-events to voices."))
 
 (defun make-voice-manager-voice (index)
   (list index (make-instance 'voice)))
@@ -109,10 +106,6 @@
 	    (setf found-voice v))))
     found-voice))
 
-
-;;
-;; ORDER BY Stack-Length ASC, Tick ASC
-;; 
 (defun voice-manager-get-least-recently-used-voice (cur-voice-manager)
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((voices (copy-list (slot-value cur-voice-manager 'voices))))
