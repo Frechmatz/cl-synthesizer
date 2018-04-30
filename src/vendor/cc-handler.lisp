@@ -108,10 +108,8 @@
 		  (if found
 		      (progn
 			(setf cur-value (controller-state-to-cv))
-			(format t "~%Updated controller state. CV is ~a" cur-value)
-			)
-		      
-		      )))
+			;;(format t "~%Updated controller state. CV is ~a" cur-value)
+			))))
 	      :get-output
 	      (lambda ()
 		cur-value))))))
