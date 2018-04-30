@@ -1,8 +1,7 @@
 (in-package :cl-synthesizer-vendor)
 
-(defun get-controller-number (vendor id)
-  (declare (optimize (debug 3) (speed 0) (space 0)))
-  (let ((encoder-list (getf vendor :ENCODER-CONTROLLER-NUMBERS)))
+(defun get-controller-number (device-settings id)
+  (let ((encoder-list (getf device-settings :ENCODER-CONTROLLER-NUMBERS)))
     (let ((encoder (getf encoder-list id)))
       (let ((controller-number (getf encoder :CONTROLLER-NUMBER)))
 	(if (not controller-number)
@@ -10,5 +9,5 @@
 	controller-number))))
 
 
-(defun get-controller-value-offset (vendor controller-value)
-  (funcall (getf vendor :RELATIVE-ENCODER-OFFSET) controller-value))
+(defun get-controller-value-offset (device-settings controller-value)
+  (funcall (getf device-settings :RELATIVE-ENCODER-OFFSET) controller-value))

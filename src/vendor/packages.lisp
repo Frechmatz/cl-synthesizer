@@ -7,7 +7,7 @@
 (defpackage :cl-synthesizer-vendor-arturia-minilab-mk2
   (:use :cl)
   (:export
-   :*CONTROL-TABLE*))
+   :get-device-settings))
 
 (defpackage :cl-synthesizer-vendor-cc-handler
   (:use :cl)

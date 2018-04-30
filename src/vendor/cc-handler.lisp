@@ -16,9 +16,9 @@
      0)
     (t v)))
 
-(defun 7-bit-relative (vendor controller-id &key (cv-initial 2.5) (cv-min 0) (cv-max 5))
+(defun 7-bit-relative (device-settings controller-id &key (cv-initial 2.5) (cv-min 0) (cv-max 5))
   (declare (optimize (debug 3) (speed 0) (space 0)))
-  (let* ((controller-number (cl-synthesizer-vendor:get-controller-number vendor controller-id)) 
+  (let* ((controller-number (cl-synthesizer-vendor:get-controller-number device-settings controller-id)) 
 	 (converter (cl-synthesizer-core:linear-converter
 		     :input-min 0
 		     :input-max 127
@@ -28,7 +28,7 @@
 	 (cur-value cv-initial))
     (if (not controller-number)
 	(cl-synthesizer:signal-assembly-error
-	 :format-control "~%Controller id not supported by vendor" 
+	 :format-control "~%Controller id not supported by device-settings" 
 	 :format-arguments (list controller-id)))
     (list
      :update 
@@ -45,7 +45,7 @@
 		       (+
 			controller-state
 			(cl-synthesizer-vendor:get-controller-value-offset
-			 vendor
+			 device-settings
 			 (cl-synthesizer-midi-event:get-controller-value midi-event)))))))
 	 (if found
 	     (progn
@@ -59,10 +59,10 @@
      (lambda ()
        cur-value))))
 
-(defun 14-bit-relative (vendor &key controller-id-msb controller-id-lsb (cv-initial 2.5) (cv-min 0) (cv-max 5))
+(defun 14-bit-relative (device-settings &key controller-id-msb controller-id-lsb (cv-initial 2.5) (cv-min 0) (cv-max 5))
   (declare (optimize (debug 3) (speed 0) (space 0)))
-  (let* ((controller-number-msb (cl-synthesizer-vendor:get-controller-number vendor controller-id-msb))
-	 (controller-number-lsb (cl-synthesizer-vendor:get-controller-number vendor controller-id-lsb))
+  (let* ((controller-number-msb (cl-synthesizer-vendor:get-controller-number device-settings controller-id-msb))
+	 (controller-number-lsb (cl-synthesizer-vendor:get-controller-number device-settings controller-id-lsb))
 	 (converter (cl-synthesizer-core:linear-converter
 		     :input-min 0
 		     :input-max (+ (* 128 128) -1)
@@ -71,11 +71,11 @@
 	 (controller-state (funcall (getf converter :get-x) cv-initial)))
     (if (not controller-number-msb)
 	(cl-synthesizer:signal-assembly-error
-	 :format-control "Controller id not supported by vendor" 
+	 :format-control "Controller id not supported by device-settings" 
 	 :format-arguments (list controller-id-msb)))
     (if (not controller-number-lsb)
 	(cl-synthesizer:signal-assembly-error
-	 :format-control "Controller id not supported by vendor" 
+	 :format-control "Controller id not supported by device-settings" 
 	 :format-arguments (list controller-id-lsb)))
     (if (eq controller-number-msb controller-number-lsb)
 	(cl-synthesizer:signal-assembly-error
@@ -85,7 +85,7 @@
 	     (clip-16383 (funcall (getf converter :get-y) controller-state)))
 	   (get-event-offset (midi-event)
 	     (cl-synthesizer-vendor:get-controller-value-offset
-	      vendor
+	      device-settings
 	      (cl-synthesizer-midi-event:get-controller-value midi-event))))
 	   (let ((cur-value (controller-state-to-cv)))
 	     (list

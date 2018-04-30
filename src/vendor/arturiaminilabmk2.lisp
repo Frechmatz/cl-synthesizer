@@ -30,3 +30,5 @@
        ((eq 67 controller-value) 5)
        (t 0)))))
 
+(defun get-device-settings ()
+  *CONTROL-TABLE*)

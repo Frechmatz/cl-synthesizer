@@ -15,7 +15,7 @@
 				(list
 				 (list :controller-1
 				       (cl-synthesizer-vendor-cc-handler:7-bit-relative
-					cl-synthesizer-vendor-arturia-minilab-mk2:*CONTROL-TABLE*
+					(cl-synthesizer-vendor-arturia-minilab-mk2:get-device-settings)
 					:ENCODER-1
 					:cv-initial 2.5
 					:cv-min 0
@@ -43,7 +43,7 @@
 				(list
 				 (list :controller-1
 				       (cl-synthesizer-vendor-cc-handler:14-bit-relative
-					cl-synthesizer-vendor-arturia-minilab-mk2:*CONTROL-TABLE*
+					(cl-synthesizer-vendor-arturia-minilab-mk2:get-device-settings)
 					:controller-id-lsb :ENCODER-1
 					:controller-id-msb :ENCODER-9
 					:cv-initial 2.5
@@ -72,7 +72,7 @@
 				(list
 				 (list :controller-1
 				       (cl-synthesizer-vendor-cc-handler:7-bit-relative
-					cl-synthesizer-vendor-arturia-minilab-mk2:*CONTROL-TABLE*
+					(cl-synthesizer-vendor-arturia-minilab-mk2:get-device-settings)
 					:ENCODER-1
 					:cv-initial 2.5
 					:cv-min 0
