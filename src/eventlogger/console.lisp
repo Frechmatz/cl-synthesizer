@@ -1,6 +1,7 @@
 (in-package :cl-synthesizer-event-logger)
 
 (defun console (environment)
+  "A logger transaport printing to the console"
   (let* ((sample-rate (getf environment :sample-rate))
 	 (every-ticks (/ sample-rate 5))
 	 (cur-tick 0)
