@@ -12,7 +12,8 @@
 (defpackage :cl-synthesizer-vendor-cc-handler
   (:use :cl)
   (:export
-   :7-bit-relative))
+   :7-bit-relative
+   :14-bit-relative))
 
 
 

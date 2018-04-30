@@ -86,6 +86,7 @@
 	       (:module "test/vendor"
 			:serial t
 			:components ((:file "test-cc")
+				     (:file "test-cc-14")
 				     ))
 	       (:module "test/synthesizer"
 			:serial t
