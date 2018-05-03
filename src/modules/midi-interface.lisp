@@ -37,14 +37,14 @@
     (setf (elt voice-state +voice-state-gate-retrigger+) nil)
     voice-state))
 
-;; controller-handler
-;; (list (list output-keyword handler))
 (defun midi-interface (name environment &key
 					  (voice-count 1)
 					  (note-number-to-cv (lambda (note-number) (/ note-number 12)))
 					  (play-mode :PLAY-MODE-POLY)
 					  (controller-handler nil))
-  "play-mode: :PLAY-MODE-POLY, :PLAY-MODE-UNISONO"
+  "play-mode: :PLAY-MODE-POLY, :PLAY-MODE-UNISONO
+   controller-handler: A list of controller handlers. Each entry consists of a list of
+   <output-keyword> (list :update lambda (midi-events) () :get-output :lambda ()())"
   (declare (optimize (debug 3) (speed 0) (space 0)))
   (let* ((voice-states (make-array voice-count))
 	 (output-socket-lookup-table (make-hash-table :test #'eq))
@@ -68,7 +68,6 @@
 						:format-arguments (list name output-keyword)))
 					   output-keyword))
 				       controller-handler)))
-
     (dotimes (i voice-count)
       (if (or (eq 0 i) (not (eq play-mode :PLAY-MODE-UNISONO)))
 	  (setf (elt voice-states i) (make-voice-state name environment i))

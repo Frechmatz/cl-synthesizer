@@ -148,20 +148,20 @@
 		       ))))
 	     (run-test-case test)))
 
-;; Triller when all voices are playing. Current note should be consecutively assigned to same voice index
+;; Fast ON/OFF of notes when all voices are playing. Current note should be consecutively assigned to same voice index
 (define-test test-voice-manager-mgr-overload-1 ()
 	     (let ((test
 		    '(:voice-count 2
 		      :test-cases
 		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
 		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
-		       (:push "TRILLER-C" :expected-voice-number 0 :expected-note "TRILLER-C" :expected-stack-size 1)
-		       (:remove "TRILLER-C" :expected-voice-number 0 :expected-note nil :expected-stack-size 0)
-		       (:push "TRILLER-D" :expected-voice-number 0 :expected-note "TRILLER-D" :expected-stack-size 1)
+		       (:push "C-ON" :expected-voice-number 0 :expected-note "C-ON" :expected-stack-size 1)
+		       (:remove "C-ON" :expected-voice-number 0 :expected-note nil :expected-stack-size 0)
+		       (:push "D-ON" :expected-voice-number 0 :expected-note "D-ON" :expected-stack-size 1)
 		       ))))
 	     (run-test-case test)))
 
-;; Triller when all voices are playing. Current note should be consecutively assigned to same voice index
+;; Fast ON/OFF of notes when all voices are playing. Current note should be consecutively assigned to same voice index
 (define-test test-voice-manager-mgr-overload-2 ()
 	     (let ((test
 		    '(:voice-count 2
@@ -169,9 +169,9 @@
 		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
 		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
 		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 1)
-		       (:push "TRILLER-D" :expected-voice-number 1 :expected-note "TRILLER-D" :expected-stack-size 1)
-		       (:remove "TRILLER-D" :expected-voice-number 1 :expected-note nil :expected-stack-size 0)
-		       (:push "TRILLER-D" :expected-voice-number 1 :expected-note "TRILLER-D" :expected-stack-size 1)
+		       (:push "D-ON" :expected-voice-number 1 :expected-note "D-ON" :expected-stack-size 1)
+		       (:remove "D-ON" :expected-voice-number 1 :expected-note nil :expected-stack-size 0)
+		       (:push "D-ON" :expected-voice-number 1 :expected-note "D-ON" :expected-stack-size 1)
 		       ))))
 	     (run-test-case test)))
 
