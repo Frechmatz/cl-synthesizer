@@ -9,6 +9,11 @@
   (:export
    :midi-device))
 
+(defpackage :cl-synthesizer-device-midi-sequencer
+  (:use :cl)
+  (:export
+   :midi-sequencer))
+
 
 
 

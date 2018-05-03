@@ -1,6 +1,6 @@
 (in-package :cl-synthesizer-examples)
 
-(defun play-rack (rack duration-seconds &key (attach-speaker nil) (attach-midi nil))
+(defun play-rack (rack duration-seconds &key (attach-speaker nil) (attach-midi nil) (midi-device nil))
   (let* ((start (get-internal-real-time))
 	 (environment (slot-value rack 'cl-synthesizer::environment))
 	 (sample-rate (getf environment :sample-rate))
@@ -13,9 +13,11 @@
     (if attach-speaker
 	(funcall (getf (cl-synthesizer:get-line-out rack) :set-device)
 		 (cl-synthesizer-device-speaker:stereo-speaker "SPEAKER" environment :driver "coreaudio")))
-    (if attach-midi
-	(funcall (getf (cl-synthesizer:get-midi-in rack) :set-device)
-		 (cl-synthesizer-device-midi:midi-device "MIDI" environment)))
+    (if midi-device
+	(funcall (getf (cl-synthesizer:get-midi-in rack) :set-device) midi-device)
+	(if attach-midi
+	    (funcall (getf (cl-synthesizer:get-midi-in rack) :set-device)
+		     (cl-synthesizer-device-midi:midi-device "MIDI" environment))))
     (dotimes (i ticks-to-play)
       (cl-synthesizer::update-rack rack))
     (cl-synthesizer::shutdown-rack rack)

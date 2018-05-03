@@ -67,7 +67,8 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "speaker")
-				     (:file "midi-device")))
+				     (:file "midi-device")
+				     (:file "midi-sequencer")))
 	       (:module "src/vendor"
 			:serial t
 			:components ((:file "packages")
@@ -81,6 +82,7 @@
 				     (:file "vcoexample")
 				     (:file "midiexample")
 				     (:file "keyboard")
+				     (:file "adsrexample")
 				     )
 			)))
 
