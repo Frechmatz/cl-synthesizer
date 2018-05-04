@@ -57,6 +57,7 @@
       rack
       )))
 
+
 #|
 
 (cl-synthesizer-util:play-rack
@@ -66,12 +67,13 @@
  :midi-device (cl-synthesizer-device-midi-sequencer:midi-sequencer
 	       "Midi-Device"
 	       *adsr-environment*
-	       :events (list (list 20
-				   (list
-				    (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
-			     (list 1020
-				   (list
-				    (cl-synthesizer-midi-event:make-note-off-event 1 69 100))))
+	       :events (list 
+			(list :timestamp-milli-seconds 20
+			      :midi-events (list
+					    (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+			(list :timestamp-milli-seconds 1020
+			      :midi-events (list
+					    (cl-synthesizer-midi-event:make-note-off-event 1 69 100))))
 	       ))
 
 |#

@@ -8,14 +8,14 @@
 (in-package :cl-synthesizer-device-midi-sequencer)
 
 (defun midi-sequencer (name environment &key events)
-  "events: List of (time-ms (list midi-event))"
+  "events: List of (:timestamp-milli-seconds time-ms :midi-events (list midi-event))"
   (declare (ignore name))
   (let ((lookup-hash (make-hash-table :test #'eq))
 	(ticks-per-milli-second (/ (getf environment :sample-rate) 1000))
 	(cur-tick -1))
     (dolist (evt events)
-      (let ((tick (floor (* ticks-per-milli-second (first evt)))))
-	(setf (gethash tick lookup-hash) (second evt))))
+      (let ((tick (floor (* ticks-per-milli-second (getf evt :timestamp-milli-seconds)))))
+	(setf (gethash tick lookup-hash) (getf evt :midi-events))))
     (list
      :shutdown (lambda () nil)
      :inputs (lambda () '())
