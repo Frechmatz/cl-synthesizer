@@ -8,10 +8,10 @@
 (in-package :cl-synthesizer-modules-vco)
 
 ;; CV: exponential input
-(defun vco (name environment &key (footage 440) (cv-max 5) (f-max 12000) (v-peak 5))
+(defun vco (name environment &key (base-frequency 440) (cv-max 5) (f-max 12000) (v-peak 5))
   (let* ((sample-rate (getf environment :sample-rate))
 	 (transfer-function-exp
-	  (cl-synthesizer-core:exponential-converter :base-value footage))
+	  (cl-synthesizer-core:exponential-converter :base-value base-frequency))
 	 (transfer-function-lin
 	  (cl-synthesizer-core:linear-converter
 	   ;; resulting frequency is added to frequency of exp converter

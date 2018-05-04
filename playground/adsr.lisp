@@ -26,7 +26,7 @@
 	       (cl-synthesizer::add-module
 		rack (make-module-name "VCO")
 		#'cl-synthesizer-modules-vco:vco
-		:footage (cl-synthesizer-midi:get-note-number-frequency 0)
+		:base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
 		:cv-max 5
 		:f-max 13000
 		:v-peak 5)

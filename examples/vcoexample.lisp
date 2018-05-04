@@ -8,9 +8,9 @@
   "Play two sinus waves in stereo"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
     (cl-synthesizer::add-module rack "VCO-1"
-				#'cl-synthesizer-modules-vco:vco :footage 440 :cv-max 5 :f-max 8000 :v-peak 5)
+				#'cl-synthesizer-modules-vco:vco :base-frequency 440 :cv-max 5 :f-max 8000 :v-peak 5)
     (cl-synthesizer::add-module rack "VCO-2"
-				#'cl-synthesizer-modules-vco:vco :footage 442 :cv-max 5 :f-max 8000 :v-peak 5)
+				#'cl-synthesizer-modules-vco:vco :base-frequency 442 :cv-max 5 :f-max 8000 :v-peak 5)
     (cl-synthesizer::add-module rack "WAVE-WRITER"
 				#'cl-synthesizer-modules-wave-file-writer::two-channel-wave-file-writer
 				:filename "/Users/olli/waves/VCOTwoChannelExample.wav")
@@ -26,13 +26,13 @@
   "Modulate sine with sine-lfo"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
     (cl-synthesizer::add-module rack "LFO-1"
-				#'cl-synthesizer-modules-vco::vco :footage 0.2 :v-peak 5)
+				#'cl-synthesizer-modules-vco::vco :base-frequency 0.2 :v-peak 5)
     (cl-synthesizer::add-module rack "LFO-2"
-				#'cl-synthesizer-modules-vco::vco :footage 0.2 :v-peak 5)
+				#'cl-synthesizer-modules-vco::vco :base-frequency 0.2 :v-peak 5)
     (cl-synthesizer::add-module rack "VCO-1"
-				#'cl-synthesizer-modules-vco:vco :footage 440 :cv-max 5 :f-max 8000 :v-peak 5)
+				#'cl-synthesizer-modules-vco:vco :base-frequency 440 :cv-max 5 :f-max 8000 :v-peak 5)
     (cl-synthesizer::add-module rack "VCO-2"
-				#'cl-synthesizer-modules-vco:vco :footage 440 :cv-max 5 :f-max 8000 :v-peak 5)
+				#'cl-synthesizer-modules-vco:vco :base-frequency 440 :cv-max 5 :f-max 8000 :v-peak 5)
     
     (cl-synthesizer::add-module rack "WAVE-WRITER-AUDIO"
 				#'cl-synthesizer-modules-wave-file-writer::two-channel-wave-file-writer
@@ -60,7 +60,7 @@
   "Triangle test"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
     (cl-synthesizer::add-module rack "VCO-1"
-				#'cl-synthesizer-modules-vco:vco :footage 300 :cv-max 5 :f-max 8000 :v-peak 5)
+				#'cl-synthesizer-modules-vco:vco :base-frequency 300 :cv-max 5 :f-max 8000 :v-peak 5)
     (cl-synthesizer::add-module rack "WAVE-WRITER-OSCILLOSCOPE"
 				#'cl-synthesizer-modules-wave-file-writer::one-channel-wave-file-writer
 				:filename "/Users/olli/waves/triangle.wav")
@@ -73,9 +73,9 @@
   "Triangle test"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
     (cl-synthesizer::add-module rack "LFO-1"
-				#'cl-synthesizer-modules-vco::vco :footage 0.5 :v-peak 5)
+				#'cl-synthesizer-modules-vco::vco :base-frequency 0.5 :v-peak 5)
     (cl-synthesizer::add-module rack "VCO-1"
-				#'cl-synthesizer-modules-vco:vco :footage 400 :cv-max 5 :f-max 660 :v-peak 5)
+				#'cl-synthesizer-modules-vco:vco :base-frequency 400 :cv-max 5 :f-max 660 :v-peak 5)
     (cl-synthesizer::add-module rack "WAVE-WRITER-OSCILLOSCOPE"
 				#'cl-synthesizer-modules-wave-file-writer::one-channel-wave-file-writer
 				:filename "/Users/olli/waves/triangle.wav")
@@ -90,7 +90,7 @@
   "Saw test"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
     (cl-synthesizer::add-module rack "VCO-1"
-				#'cl-synthesizer-modules-vco:vco :footage 300 :cv-max 5 :f-max 8000 :v-peak 5)
+				#'cl-synthesizer-modules-vco:vco :base-frequency 300 :cv-max 5 :f-max 8000 :v-peak 5)
     (cl-synthesizer::add-module rack "WAVE-WRITER-OSCILLOSCOPE"
 				#'cl-synthesizer-modules-wave-file-writer::one-channel-wave-file-writer
 				:filename "/Users/olli/waves/saw.wav")
@@ -104,9 +104,9 @@
   "Saw test"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
     (cl-synthesizer::add-module rack "LFO-1"
-				#'cl-synthesizer-modules-vco::vco :footage 0.5 :v-peak 5)
+				#'cl-synthesizer-modules-vco::vco :base-frequency 0.5 :v-peak 5)
     (cl-synthesizer::add-module rack "VCO-1"
-				#'cl-synthesizer-modules-vco:vco :footage 440 :cv-max 5 :f-max 660 :v-peak 5)
+				#'cl-synthesizer-modules-vco:vco :base-frequency 440 :cv-max 5 :f-max 660 :v-peak 5)
     (cl-synthesizer::add-module rack "WAVE-WRITER-OSCILLOSCOPE"
 				#'cl-synthesizer-modules-wave-file-writer::one-channel-wave-file-writer
 				:filename "/Users/olli/waves/sawsweep.wav")
@@ -122,7 +122,7 @@
   "Saw test"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
     (cl-synthesizer::add-module rack "VCO-1"
-				#'cl-synthesizer-modules-vco:vco :footage 300 :cv-max 5 :v-peak 5)
+				#'cl-synthesizer-modules-vco:vco :base-frequency 300 :cv-max 5 :v-peak 5)
     (cl-synthesizer::add-module rack "WAVE-WRITER-OSCILLOSCOPE"
 				#'cl-synthesizer-modules-wave-file-writer::one-channel-wave-file-writer
 				:filename "/Users/olli/waves/square.wav")
@@ -135,9 +135,9 @@
   "Saw test"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
     (cl-synthesizer::add-module rack "LFO-1"
-				#'cl-synthesizer-modules-vco::vco :footage 0.5 :v-peak 5)
+				#'cl-synthesizer-modules-vco::vco :base-frequency 0.5 :v-peak 5)
     (cl-synthesizer::add-module rack "VCO-1"
-				#'cl-synthesizer-modules-vco:vco :footage 440 :cv-max 5 :v-peak 5)
+				#'cl-synthesizer-modules-vco:vco :base-frequency 440 :cv-max 5 :v-peak 5)
     (cl-synthesizer::add-module rack "WAVE-WRITER-OSCILLOSCOPE"
 				#'cl-synthesizer-modules-wave-file-writer::one-channel-wave-file-writer
 				:filename "/Users/olli/waves/squaresweep.wav")
@@ -152,7 +152,7 @@
   "Saw test"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
     (cl-synthesizer::add-module rack "VCO-1"
-				#'cl-synthesizer-modules-vco:vco :footage 300 :cv-max 5 :v-peak 5)
+				#'cl-synthesizer-modules-vco:vco :base-frequency 300 :cv-max 5 :v-peak 5)
     (cl-synthesizer::add-module rack "WAVE-WRITER-OSCILLOSCOPE"
 				#'cl-synthesizer-modules-wave-file-writer::four-channel-wave-file-writer
 				:filename "/Users/olli/waves/vcoallwaves.wav")
@@ -168,7 +168,7 @@
   "TODO: Is this example redundant?"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
     (cl-synthesizer::add-module rack "VCO-1"
-				#'cl-synthesizer-modules-vco:vco :footage 440 :cv-max 5 :f-max 8000 :v-peak 5)
+				#'cl-synthesizer-modules-vco:vco :base-frequency 440 :cv-max 5 :f-max 8000 :v-peak 5)
     (cl-synthesizer::add-module rack "WAVE-WRITER"
 				#'cl-synthesizer-modules-wave-file-writer::one-channel-wave-file-writer
 				:filename "/Users/olli/waves/out.wav")
@@ -183,7 +183,7 @@
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
     (cl-synthesizer::add-module rack "FIXED" #'cl-synthesizer-modules-fixed-output:fixed-output :value 1)
     (cl-synthesizer::add-module rack "VCO-1"
-				#'cl-synthesizer-modules-vco:vco :footage 500 :cv-max 5 :f-max 10000 :v-peak 5)
+				#'cl-synthesizer-modules-vco:vco :base-frequency 500 :cv-max 5 :f-max 10000 :v-peak 5)
     (cl-synthesizer::add-module rack "WAVE-WRITER"
 				#'cl-synthesizer-modules-wave-file-writer::one-channel-wave-file-writer
 				:filename "/Users/olli/waves/out.wav")

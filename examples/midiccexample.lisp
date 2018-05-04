@@ -21,7 +21,7 @@
 					:cv-max 5))))
     (cl-synthesizer::add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco
-				:footage 440
+				:base-frequency 440
 				:cv-max 5
 				:f-max 900
 				:v-peak 5)
@@ -50,7 +50,7 @@
 					:cv-max 5))))
     (cl-synthesizer::add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco
-				:footage 440
+				:base-frequency 440
 				:cv-max 5
 				:f-max 900
 				:v-peak 5)
@@ -77,9 +77,9 @@
 					:cv-min 0
 					:cv-max 5))))
     (cl-synthesizer::add-module rack "VCO-1"
-				#'cl-synthesizer-modules-vco:vco :footage 440 :cv-max 5 :f-max 900 :v-peak 5)
+				#'cl-synthesizer-modules-vco:vco :base-frequency 440 :cv-max 5 :f-max 900 :v-peak 5)
     (cl-synthesizer::add-module rack "VCO-2"
-				#'cl-synthesizer-modules-vco:vco :footage 442 :cv-max 5 :f-max 900 :v-peak 5)
+				#'cl-synthesizer-modules-vco:vco :base-frequency 442 :cv-max 5 :f-max 900 :v-peak 5)
 
     (cl-synthesizer::add-module rack "MULTIPLE-1" #'cl-synthesizer-modules-multiple::multiple-4)
 
