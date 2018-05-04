@@ -4,7 +4,10 @@
 ;;
 ;;
 
-(in-package :cl-synthesizer-playground)
+(defpackage :cl-synthesizer-playground-adsr
+  (:use :cl))
+
+(in-package :cl-synthesizer-playground-adsr)
 
 (defparameter *adsr-environment* (cl-synthesizer::make-environment))
 
@@ -57,25 +60,25 @@
       rack
       )))
 
+(defun play ()
+  (cl-synthesizer-util:play-rack
+   (synthesizer-playground-adsr)
+   5 
+   :attach-speaker t 
+   :midi-device
+   (cl-synthesizer-device-midi-sequencer:midi-sequencer
+    "Midi-Device"
+    *adsr-environment*
+    :events
+    (list 
+     (list :timestamp-milli-seconds 20
+	   :midi-events (list
+			 (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+     (list :timestamp-milli-seconds 1020
+	   :midi-events (list
+			 (cl-synthesizer-midi-event:make-note-off-event 1 69 100))))
+    )))
 
-#|
-
-(cl-synthesizer-util:play-rack
- (synthesizer-playground-adsr)
- 5 
- :attach-speaker t 
- :midi-device (cl-synthesizer-device-midi-sequencer:midi-sequencer
-	       "Midi-Device"
-	       *adsr-environment*
-	       :events (list 
-			(list :timestamp-milli-seconds 20
-			      :midi-events (list
-					    (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
-			(list :timestamp-milli-seconds 1020
-			      :midi-events (list
-					    (cl-synthesizer-midi-event:make-note-off-event 1 69 100))))
-	       ))
-
-|#
+;; (play)
 
 
