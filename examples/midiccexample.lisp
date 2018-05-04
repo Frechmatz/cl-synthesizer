@@ -1,9 +1,8 @@
 ;;
 ;;
-;; Midi example
+;; Midi CC examples
 ;;
-;; TODO: Make sweeps less steppy
-;;
+
 
 (in-package :cl-synthesizer-examples)
 

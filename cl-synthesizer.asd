@@ -83,7 +83,7 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "vcoexample")
-				     (:file "midiexample")
+				     (:file "midiccexample")
 				     (:file "keyboard")
 				     )
 			)))

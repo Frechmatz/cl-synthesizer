@@ -1,3 +1,7 @@
+;;
+;; VCO Examples
+;;
+
 (in-package :cl-synthesizer-examples)
 
 (defun synthesizer-example-vco-stereo-speaker ()

@@ -1,6 +1,6 @@
 ;;
 ;;
-;; A Keyboard Instrument
+;; A MIDI Keyboard Instrument
 ;;
 ;;
 
