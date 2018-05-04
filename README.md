@@ -17,7 +17,7 @@ A Module is the basic component of a synthesizer. All signals of a synthesizer a
 does not know anything about other modules or the Rack. It just provides a couple of functions.
 
 Modules are defined as constructor functions to which a name, an environment and arbitrary additional parameters as required 
-by the constructor are passed. The environment provides settings such as the sample rate of the Rack or Event-Logging hooks.
+by the constructor are passed. The environment provides settings such as the sample rate of the Rack and Event-Logging hooks.
 The constructor function returns an alist with the following properties:
 
 - :shutdown -- function that is called when the Rack is shutting down.
