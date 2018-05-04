@@ -17,7 +17,8 @@
     (t v)))
 
 (defun 7-bit-relative (device-settings controller-id &key (cv-initial 2.5) (cv-min 0) (cv-max 5))
-  (declare (optimize (debug 3) (speed 0) (space 0)))
+  "Handler for a 7 Bit relative Controller. Uses a linear converter function to calculate CV."
+  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let* ((controller-number (cl-synthesizer-vendor:get-controller-number device-settings controller-id)) 
 	 (converter (cl-synthesizer-core:linear-converter
 		     :input-min 0
@@ -33,7 +34,7 @@
     (list
      :update 
      (lambda (midi-events)
-       (declare (optimize (debug 3) (speed 0) (space 0)))
+       ;;(declare (optimize (debug 3) (speed 0) (space 0)))
        (let ((found nil))
 	 (dolist (midi-event midi-events)
 	   (if (and midi-event
@@ -51,16 +52,20 @@
 	     (progn
 	       (setf controller-state (clip-127 controller-state))
 	       (setf cur-value (funcall (getf converter :get-y) controller-state))
-	       (format t "~%Updated controller state. CV is ~a" cur-value)
-	       )
-	     
-	     )))
+	       ;;(format t "~%Updated controller state. CV is ~a" cur-value)
+	       ))))
        :get-output
      (lambda ()
        cur-value))))
 
 (defun 14-bit-relative (device-settings &key controller-id-msb controller-id-lsb (cv-initial 2.5) (cv-min 0) (cv-max 5))
-  (declare (optimize (debug 3) (speed 0) (space 0)))
+  "Handler that combines two 7 Bit relative Controllers into a 14 Bit one. 
+Uses a linear converter function to calculate CV.
+The LSB controller increments/decrements the controller state by the offset as defined by the 
+device settings.
+The MSB controller increments/decrements the controller state by the offset as defined by the
+device settings multiplied by 128."
+  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let* ((controller-number-msb (cl-synthesizer-vendor:get-controller-number device-settings controller-id-msb))
 	 (controller-number-lsb (cl-synthesizer-vendor:get-controller-number device-settings controller-id-lsb))
 	 (converter (cl-synthesizer-core:linear-converter
@@ -91,7 +96,7 @@
 	     (list
 	      :update 
 	      (lambda (midi-events)
-		(declare (optimize (debug 3) (speed 0) (space 0)))
+		;;(declare (optimize (debug 3) (speed 0) (space 0)))
 		(let ((found nil))
 		  (dolist (midi-event midi-events)
 		    (if (and midi-event (cl-synthesizer-midi-event:control-change-eventp midi-event))
@@ -103,7 +108,6 @@
 			   ((eq controller-number-msb (cl-synthesizer-midi-event:get-controller-number midi-event))
 			    (progn
 			      (setf found t)
-			      ;;(break)
 			      (setf controller-state (+ controller-state (* 128 (get-event-offset midi-event)))))))))
 		  (if found
 		      (progn
