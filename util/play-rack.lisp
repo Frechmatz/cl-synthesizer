@@ -1,4 +1,4 @@
-(in-package :cl-synthesizer-examples)
+(in-package :cl-synthesizer-util)
 
 (defun play-rack (rack duration-seconds &key (attach-speaker nil) (attach-midi nil) (midi-device nil))
   (let* ((start (get-internal-real-time))

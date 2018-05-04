@@ -62,7 +62,7 @@
 	(cl-synthesizer::add-patch rack "MULTIPLE-2" :out-2 "WAVE-WRITER" :channel-2))
 	rack)))
     
-;;(cl-synthesizer-examples::play-rack (cl-synthesizer-examples::synthesizer-example-keyboard) 20 :attach-speaker t :attach-midi t)
+;;(cl-synthesizer-util:play-rack (cl-synthesizer-examples::synthesizer-example-keyboard) 20 :attach-speaker t :attach-midi t)
 
 
 

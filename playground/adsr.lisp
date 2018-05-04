@@ -59,7 +59,7 @@
 
 #|
 
-(cl-synthesizer-examples::play-rack
+(cl-synthesizer-util:play-rack
  (synthesizer-playground-adsr)
  5 
  :attach-speaker t 

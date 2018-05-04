@@ -16,7 +16,7 @@
     (cl-synthesizer::add-patch rack "WAVE-WRITER" :out-2 "LINE-OUT" :channel-2)
     rack))
   
-;;(play-rack (synthesizer-example-vco-stereo-speaker) 5 :attach-speaker t)
+;;(cl-synthesizer-util:play-rack (synthesizer-example-vco-stereo-speaker) 5 :attach-speaker t)
 
 (defun synthesizer-example-vco-lfo-stereo-speaker ()
   "Modulate sine with sine-lfo"
@@ -50,7 +50,7 @@
     (cl-synthesizer::add-patch rack "WAVE-WRITER-AUDIO" :out-2 "LINE-OUT" :channel-2)
     rack))
       
-;;(play-rack (synthesizer-example-vco-lfo-stereo-speaker) 5 :attach-speaker t)
+;;(cl-synthesizer-util:play-rack (synthesizer-example-vco-lfo-stereo-speaker) 5 :attach-speaker t)
 
 (defun synthesizer-example-vco-triangle ()
   "Triangle test"
@@ -63,7 +63,7 @@
     (cl-synthesizer::add-patch rack "VCO-1" :triangle "WAVE-WRITER-OSCILLOSCOPE" :channel-1)
     rack))
       
-;;(play-rack (synthesizer-example-vco-triangle) 3)
+;;(cl-synthesizer-util:play-rack (synthesizer-example-vco-triangle) 3)
 
 (defun synthesizer-example-vco-triangle-sweep ()
   "Triangle test"
@@ -80,7 +80,7 @@
     (cl-synthesizer::add-patch rack "VCO-1" :triangle "WAVE-WRITER-OSCILLOSCOPE" :channel-1)
     rack))
       
-;;(play-rack (synthesizer-example-vco-triangle-sweep) 3)
+;;(cl-synthesizer-util:play-rack (synthesizer-example-vco-triangle-sweep) 3)
 
 (defun synthesizer-example-vco-saw ()
   "Saw test"
@@ -93,7 +93,7 @@
     (cl-synthesizer::add-patch rack "VCO-1" :saw "WAVE-WRITER-OSCILLOSCOPE" :channel-1)
     rack))
       
-;;(play-rack (synthesizer-example-vco-saw) 3)
+;;(cl-synthesizer-util:play-rack (synthesizer-example-vco-saw) 3)
 
 
 (defun synthesizer-example-vco-saw-sweep ()
@@ -111,7 +111,7 @@
     (cl-synthesizer::add-patch rack "VCO-1" :saw "WAVE-WRITER-OSCILLOSCOPE" :channel-1)
     rack))
       
-;;(play-rack (synthesizer-example-vco-saw-sweep) 3)
+;;(cl-synthesizer-util:play-rack (synthesizer-example-vco-saw-sweep) 3)
 
 
 (defun synthesizer-example-vco-square ()
@@ -125,7 +125,7 @@
     (cl-synthesizer::add-patch rack "VCO-1" :square "WAVE-WRITER-OSCILLOSCOPE" :channel-1)
     rack))
       
-;;(play-rack (synthesizer-example-vco-square) 3)
+;;(cl-synthesizer-util:play-rack (synthesizer-example-vco-square) 3)
 
 (defun synthesizer-example-vco-square-sweep ()
   "Saw test"
@@ -142,7 +142,7 @@
     (cl-synthesizer::add-patch rack "VCO-1" :square "WAVE-WRITER-OSCILLOSCOPE" :channel-1)
     rack))
       
-;;(play-rack (synthesizer-example-vco-square-sweep) 3)
+;;(cl-synthesizer-util:play-rack (synthesizer-example-vco-square-sweep) 3)
 
 (defun synthesizer-example-vco-all-waves ()
   "Saw test"
@@ -158,7 +158,7 @@
     (cl-synthesizer::add-patch rack "VCO-1" :square "WAVE-WRITER-OSCILLOSCOPE" :channel-4)
     rack))
       
-;;(play-rack (synthesizer-example-vco-all-waves) 3)
+;;(cl-synthesizer-util:play-rack (synthesizer-example-vco-all-waves) 3)
 
 (defun synthesizer-example-vco-2-mono()
   "TODO: Is this example redundant?"
@@ -172,7 +172,7 @@
     (cl-synthesizer::add-patch rack "WAVE-WRITER" :out-1 "LINE-OUT" :channel-1)
     rack))
   
-;;(play-rack (synthesizer-example-vco-2-mono) 5 :attach-speaker t)
+;;(cl-synthesizer-util:play-rack (synthesizer-example-vco-2-mono) 5 :attach-speaker t)
 
 (defun synthesizer-example-vco-2-fixed-lin-mono()
   "Expected output frequency is 500 + (10000 / 5) = 2500"
@@ -188,5 +188,5 @@
     (cl-synthesizer::add-patch rack "WAVE-WRITER" :out-1 "LINE-OUT" :channel-1)
     rack))
   
-;;(play-rack (synthesizer-example-vco-2-fixed-lin-mono) 5 :attach-speaker t)
+;;(cl-synthesizer-util:play-rack (synthesizer-example-vco-2-fixed-lin-mono) 5 :attach-speaker t)
 

@@ -33,7 +33,7 @@
     (cl-synthesizer::add-patch rack "VCO-1" :triangle "LINE-OUT" :channel-2)
     rack))
       
-;;(cl-synthesizer-examples::play-rack (cl-synthesizer-examples::synthesizer-example-midi-7-bit-controller) 10 :attach-speaker t :attach-midi t)
+;;(cl-synthesizer-util:play-rack (cl-synthesizer-examples::synthesizer-example-midi-7-bit-controller) 10 :attach-speaker t :attach-midi t)
 
 (defun synthesizer-example-midi-14-bit-controller ()
   "Midi example: Modulate frequency via Controller"
@@ -62,9 +62,9 @@
     (cl-synthesizer::add-patch rack "VCO-1" :triangle "LINE-OUT" :channel-2)
     rack))
       
-;;(cl-synthesizer-examples::play-rack (cl-synthesizer-examples::synthesizer-example-midi-14-bit-controller) 60 :attach-speaker t :attach-midi t)
+;;(cl-synthesizer-util:play-rack (cl-synthesizer-examples::synthesizer-example-midi-14-bit-controller) 60 :attach-speaker t :attach-midi t)
 
-(defun synthesizer-example-midi-2 ()
+(defun synthesizer-example-midi-7-bit-controller-2 ()
   "Midi example: Modulate frequency via Controller"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
     (cl-synthesizer::add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
@@ -92,5 +92,5 @@
     (cl-synthesizer::add-patch rack "VCO-2" :triangle "LINE-OUT" :channel-2)
     rack))
       
-;;(cl-synthesizer-examples::play-rack (cl-synthesizer-examples::synthesizer-example-midi-2) 60 :attach-speaker t :attach-midi t)
+;;(cl-synthesizer-util:play-rack (cl-synthesizer-examples::synthesizer-example-midi-7-bit-controller) 60 :attach-speaker t :attach-midi t)
 

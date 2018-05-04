@@ -75,10 +75,13 @@
 				     (:file "vendor")
 				     (:file "cc-handler")
 				     (:file "arturiaminilabmk2")))
+	       (:module "util"
+			:serial t
+			:components ((:file "packages")
+				     (:file "play-rack")))
 	       (:module "examples"
 			:serial t
 			:components ((:file "packages")
-				     (:file "play")
 				     (:file "vcoexample")
 				     (:file "midiexample")
 				     (:file "keyboard")
