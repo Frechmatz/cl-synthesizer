@@ -82,7 +82,6 @@
 				     (:file "vcoexample")
 				     (:file "midiexample")
 				     (:file "keyboard")
-				     (:file "adsrexample")
 				     )
 			)))
 

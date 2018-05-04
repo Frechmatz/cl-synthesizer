@@ -1,16 +1,16 @@
 ;;
 ;;
-;; ADSR Example
+;; ADSR Playground
 ;;
 ;;
 
-(in-package :cl-synthesizer-examples)
+(in-package :cl-synthesizer-playground)
 
-(defparameter *synthesizer-example-adsrexample-environment* (cl-synthesizer::make-environment))
+(defparameter *adsr-environment* (cl-synthesizer::make-environment))
 
-(defun synthesizer-example-adsrexample ()
+(defun synthesizer-playground-adsr ()
   "ADSR-Example"
-  (let ((rack (cl-synthesizer:create-rack :environment *synthesizer-example-adsrexample-environment*)))
+  (let ((rack (cl-synthesizer:create-rack :environment *adsr-environment*)))
     (cl-synthesizer::add-module
      rack
      "MIDI-IFC"
@@ -60,12 +60,12 @@
 #|
 
 (cl-synthesizer-examples::play-rack
- (synthesizer-example-adsrexample)
+ (synthesizer-playground-adsr)
  5 
  :attach-speaker t 
  :midi-device (cl-synthesizer-device-midi-sequencer:midi-sequencer
 	       "Midi-Device"
-	       *synthesizer-example-adsrexample-environment*
+	       *adsr-environment*
 	       :events (list (list 20
 				   (list
 				    (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
