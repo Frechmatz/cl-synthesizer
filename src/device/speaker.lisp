@@ -19,8 +19,7 @@
 	     (buffer (make-array
 		      (* ,channel-count ,buf-length-samples)
 		      :element-type 'single-float :adjustable nil))
-	     (buffer-pos 0)
-	     (inputs (cl-synthesizer-macro-util::make-keyword-list ,input-name ,channel-count)))
+	     (buffer-pos 0))
 	 (flet ((init-out ()
 		  (if (not out)
 		      (progn
@@ -39,7 +38,7 @@
 			(cl-out123:play out buffer buffer-pos)
 			(setf buffer-pos 0)))))
 	   (list
-	    :inputs (lambda () inputs)
+	    :inputs (lambda () (cl-synthesizer-macro-util::make-keyword-list ,input-name ,channel-count))
 	    :outputs (lambda () nil)
 	    :update (lambda (&key ,@(cl-synthesizer-macro-util::make-param-list input-name channel-count))
 		      (init-out)

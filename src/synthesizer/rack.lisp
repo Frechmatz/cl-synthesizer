@@ -36,9 +36,9 @@
   (declare (optimize (debug 3) (speed 0) (space 0)))
   (assert-is-module-name-available rack module-name)
   (let ((environment (slot-value rack 'environment)))
-    (let ((rm (make-instance 'rack-module)) (m (apply module-fn `(,module-name ,environment ,@args))))
-      (setf (slot-value rm 'name) module-name)
-      (setf (slot-value rm 'module) m)
+    (let ((rm (make-instance 'rack-module
+			     :module (apply module-fn `(,module-name ,environment ,@args))
+			     :name module-name)))
       (push rm (slot-value rack 'modules))
       rm)))
 

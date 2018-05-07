@@ -20,12 +20,9 @@
     `(defun ,(cl-synthesizer-macro-util::make-package-symbol name nil) (name environment &key filename &allow-other-keys)
        ;;(declare (optimize (debug 3) (speed 0) (space 0)))
        (let ((frames nil)
-	     (inputs (cl-synthesizer-macro-util::make-keyword-list ,input-name ,channel-count))
-	     (outputs (cl-synthesizer-macro-util::make-keyword-list ,output-name ,channel-count))
 	     ,@(cl-synthesizer-macro-util::make-let-list output-name channel-count)
 	     (amplitude-clipped-top-event (funcall (getf environment :register-event) ,name "SIGNAL-CLIPPED-TOP"))
-	     (amplitude-clipped-bottom-event (funcall (getf environment :register-event) ,name "SIGNAL-CLIPPED-BOTTOM"))
-	     )
+	     (amplitude-clipped-bottom-event (funcall (getf environment :register-event) ,name "SIGNAL-CLIPPED-BOTTOM")))
 	 (labels (
 		(wave-writer-float-to-int16 (value)
 		  (cond
@@ -42,8 +39,8 @@
 		   ;; convert to -1.0 ... +1.0
 		   (/ f +V-PEAK+))))
 	   (list
-	    :inputs (lambda () inputs)
-	    :outputs (lambda () outputs)
+	    :inputs (lambda () (cl-synthesizer-macro-util::make-keyword-list ,input-name ,channel-count))
+	    :outputs (lambda () (cl-synthesizer-macro-util::make-keyword-list ,output-name ,channel-count))
 	    :get-output (lambda (output)
 			  ;; TODO: Realize with cond. Did not get this to work :(
 			  (block nil
