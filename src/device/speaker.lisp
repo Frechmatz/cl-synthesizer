@@ -41,10 +41,6 @@
 	   (list
 	    :inputs (lambda () inputs)
 	    :outputs (lambda () nil)
-	    :get-output (lambda (output)
-			  ;; todo: signal error
-			  (declare (ignore output))
-			  nil)
 	    :update (lambda (&key ,@(cl-synthesizer-macro-util::make-param-list input-name channel-count))
 		      (init-out)
 		      ;; validate inputs
