@@ -9,7 +9,6 @@
 	     (progn ,@body))))))
 
 (defun event-logger ()
-  (declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((transports nil))
     (list
      :add-transport 
@@ -22,7 +21,6 @@
        (let ((event-id
 	      (intern (format nil "~a-~a" (string-upcase component-name) (string-upcase event-name)) "KEYWORD")))
 	 (lambda ()
-	   (declare (optimize (debug 3) (speed 0) (space 0)))
 	   (with-transports :log handler
 	     (funcall handler event-id)))))
      :tick
