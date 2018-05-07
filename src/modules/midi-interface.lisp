@@ -95,7 +95,6 @@
 	  (setf (gethash (first cur-cc-handler) output-socket-lookup-table)
 		(lambda () (funcall (getf (second cur-cc-handler) :get-output))))))
     (list
-     :shutdown (lambda () nil)
      :inputs (lambda () '(:midi-events))
      :outputs (lambda () outputs)
      :get-output (lambda (output)

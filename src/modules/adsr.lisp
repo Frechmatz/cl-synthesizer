@@ -18,7 +18,6 @@
 	 (cur-cv 0))
     (declare (ignore sample-rate))
     (list
-     :shutdown (lambda () nil)
      :inputs (lambda () inputs)
      :outputs (lambda () outputs)
      :get-output (lambda (output)

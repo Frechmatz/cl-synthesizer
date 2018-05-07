@@ -35,7 +35,6 @@
        (format t "[NOTE-OFF] Channel: ~d  Notenum: ~d  Velocity: ~d~%" chan note vel)
        (queues:qpush event-queue (cl-synthesizer-midi-event:make-note-off-event chan note vel))))
     (list
-     :shutdown (lambda () nil)
      :inputs (lambda () '())
      :outputs (lambda () '(:midi-output))
      :get-output (lambda (output)

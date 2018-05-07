@@ -5,7 +5,6 @@
   (declare (ignore environment name))
   (let ((out-1 0) (out-2 0))
     (list
-     :shutdown (lambda () nil)
      :inputs (lambda () (list :cv-1 :cv-2))
      :outputs (lambda () (list :out-1 :out-2))
      :get-output (lambda (output)
@@ -27,7 +26,6 @@
   (declare (ignore environment name))
   (let ((out 0))
     (list
-     :shutdown (lambda () nil)
      :inputs (lambda () nil)
      :outputs (lambda () (list :out))
      :get-output (lambda (output)
@@ -44,7 +42,6 @@
   (declare (ignore environment name))
   (let ((out 0))
     (list
-     :shutdown (lambda () nil)
      :inputs (lambda () (list :in))
      :outputs (lambda () (list :out))
      :get-output (lambda (output)
@@ -61,7 +58,6 @@
   (declare (ignore environment name))
   (let ((out 0))
     (list
-     :shutdown (lambda () nil)
      :inputs (lambda () (list :in-1 :in-2))
      :outputs (lambda () (list :out))
      :get-output (lambda (output)
@@ -78,7 +74,6 @@
   (declare (ignore environment name))
   (let ((out 0))
     (list
-     :shutdown (lambda () nil)
      :inputs (lambda () (list :in))
      :outputs (lambda () (list :out-1 :out-2))
      :get-output (lambda (output)

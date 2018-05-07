@@ -11,7 +11,6 @@
 (defun fixed-output (name environment &key value)
   (declare (ignore name environment))
   (list
-   :shutdown (lambda () nil)
    :inputs (lambda () nil)
    :outputs (lambda () '(:out))
    :get-output (lambda (output)

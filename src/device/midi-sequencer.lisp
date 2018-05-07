@@ -17,7 +17,6 @@
       (let ((tick (floor (* ticks-per-milli-second (getf evt :timestamp-milli-seconds)))))
 	(setf (gethash tick lookup-hash) (getf evt :midi-events))))
     (list
-     :shutdown (lambda () nil)
      :inputs (lambda () '())
      :outputs (lambda () '(:midi-output))
      :get-output (lambda (output)

@@ -1,6 +1,7 @@
 (in-package :cl-synthesizer-modules-multiple)
 
 (defmacro multiple (name output-count)
+  "A multiple with n outputs and one input 'input'"
   (let ((output-name "out"))
     `(defun ,(cl-synthesizer-macro-util::make-package-symbol name nil) (name environment)
        (declare (ignore environment name))

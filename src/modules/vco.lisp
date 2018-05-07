@@ -30,7 +30,6 @@
 	      (funcall (getf transfer-function-exp :get-y) cv-exp)
 	      (funcall (getf transfer-function-lin :get-y) cv-lin))))
       (list
-       :shutdown (lambda () nil)
        :inputs (lambda () '(:cv :cv-lin))
        :outputs (lambda () '(:sine :triangle :saw :square))
        :get-output (lambda (output)
