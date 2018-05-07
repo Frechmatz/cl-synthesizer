@@ -23,6 +23,5 @@
      :get-output (lambda (output)
 		   (declare (ignore output))
 		   (setf cur-tick (+ 1 cur-tick))
-		   (gethash cur-tick lookup-hash))
-     :update (lambda () nil))))
+		   (gethash cur-tick lookup-hash)))))
 

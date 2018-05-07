@@ -47,8 +47,7 @@
 			  (if (not e)
 			      (return)
 			      (setf events (push e events)))))
-		     (nreverse events)))
-     :update (lambda () nil))))
+		     (nreverse events))))))
 
 
      
