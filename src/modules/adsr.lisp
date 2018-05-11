@@ -74,7 +74,7 @@
 				;;(break)
 				:CONTINUE)
 			      (progn
-				(setf cur-cv (* v-peak (funcall (getf transfer-fn :get-y) elapsed-ticks)))
+				(setf cur-cv (funcall (getf transfer-fn :get-y) elapsed-ticks))
 				:DONE)))))
 	       ;; r
 	       (let ((total-ticks nil) (elapsed-ticks nil))
@@ -87,7 +87,7 @@
 			  (if (has-segment-completed elapsed-ticks total-ticks nil)
 			      :CONTINUE
 			      (progn
-				(setf cur-cv (* 0.5 v-peak))
+				(setf cur-cv 0.5)
 				:DONE)))))
 	       ))))
 	(labels ((activate-segment (segment-index)
@@ -121,7 +121,7 @@
 	   :outputs (lambda () '(:cv))
 	   :get-output (lambda (output)
 			 (declare (ignore output))
-			 cur-cv)
+			 (* v-peak cur-cv))
 	   :update (lambda (&key (gate 0))
 		     (declare (optimize (debug 3) (speed 0) (space 0)))
 		     (let ((previous-gate is-gate))
