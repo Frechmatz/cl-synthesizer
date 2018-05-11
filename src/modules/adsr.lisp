@@ -36,7 +36,7 @@
 
 ;; TODO Find better keyword for decay target voltage :decay-v
 (defun adsr2 (name environment &key (v-peak 5) (attack-ms 1000) (decay-ms 1000) (decay-v 3) (release-ms 1000))  
-  (declare (ignore name decay-ms decay-v))
+  (declare (ignore name ))
   (declare (optimize (debug 3) (speed 0) (space 0)))
   (let* ((sample-rate (getf environment :sample-rate))
 	 (is-gate nil)
@@ -53,7 +53,7 @@
 		       nil))))
       (let ((segments
 	     (make-array
-	      2
+	      4
 	      :initial-contents
 	      (list
 	       ;; a
@@ -76,18 +76,53 @@
 			      (progn
 				(setf cur-cv (funcall (getf transfer-fn :get-y) elapsed-ticks))
 				:DONE)))))
-	       ;; r
-	       (let ((total-ticks nil) (elapsed-ticks nil))
+
+	       ;; d
+	       (let ((total-ticks nil) (elapsed-ticks nil) (transfer-fn nil))
 		 (list
 		  :init (lambda ()
-			  (setf total-ticks (* ticks-per-ms release-ms))
-			  (setf elapsed-ticks -1))
+			  (setf total-ticks (* ticks-per-ms decay-ms))
+			  (setf elapsed-ticks -1)
+			  (setf transfer-fn (cl-synthesizer-core:linear-converter
+					:input-min 0
+					:input-max total-ticks
+					:output-min cur-cv
+					:output-max (/ decay-v v-peak))))
+		  :tick (lambda()
+			  (setf elapsed-ticks (+ 1 elapsed-ticks))
+			  (if (has-segment-completed elapsed-ticks total-ticks t)
+			      (progn
+				;;(break)
+				:CONTINUE)
+			      (progn
+				(setf cur-cv (funcall (getf transfer-fn :get-y) elapsed-ticks))
+				:DONE)))))
+	       ;; s
+	       (list
+		:init (lambda ())
+		:tick (lambda()
+			(if (has-segment-completed nil nil t)
+			    :CONTINUE
+			    :DONE)))
+	       ;; r
+	       (let ((total-ticks nil) (elapsed-ticks nil) (transfer-fn nil))
+		 (list
+		  :init (lambda ()
+			  (setf total-ticks (* ticks-per-ms attack-ms))
+			  (setf elapsed-ticks -1)
+			  (setf transfer-fn (cl-synthesizer-core:linear-converter
+					:input-min 0
+					:input-max total-ticks
+					:output-min cur-cv
+					:output-max 0)))
 		  :tick (lambda()
 			  (setf elapsed-ticks (+ 1 elapsed-ticks))
 			  (if (has-segment-completed elapsed-ticks total-ticks nil)
-			      :CONTINUE
 			      (progn
-				(setf cur-cv 0.5)
+				;;(break)
+				:CONTINUE)
+			      (progn
+				(setf cur-cv (funcall (getf transfer-fn :get-y) elapsed-ticks))
 				:DONE)))))
 	       ))))
 	(labels ((activate-segment (segment-index)

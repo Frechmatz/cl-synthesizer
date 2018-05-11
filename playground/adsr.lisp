@@ -65,6 +65,36 @@
   (cl-synthesizer-util:play-rack
    (synthesizer-playground-adsr)
    10 
+;;   :attach-speaker t
+   :midi-device
+   (cl-synthesizer-device-midi-sequencer:midi-sequencer
+    "Midi-Device"
+    *adsr-environment*
+    :events
+    (list 
+     (list :timestamp-milli-seconds 20
+	   :midi-events (list
+			 (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+     (list :timestamp-milli-seconds 2020
+	   :midi-events (list
+			 (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
+
+     (list :timestamp-milli-seconds 3020
+	   :midi-events (list
+			 (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+     (list :timestamp-milli-seconds 3520
+	   :midi-events (list
+			 (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
+     
+     ))))
+
+;; (play)
+
+
+(defun play2 ()
+  (cl-synthesizer-util:play-rack
+   (synthesizer-playground-adsr)
+   10 
    :attach-speaker t
    :midi-device
    (cl-synthesizer-device-midi-sequencer:midi-sequencer
@@ -75,19 +105,35 @@
      (list :timestamp-milli-seconds 20
 	   :midi-events (list
 			 (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
-     (list :timestamp-milli-seconds 520
+     (list :timestamp-milli-seconds 4020
 	   :midi-events (list
 			 (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
 
-     (list :timestamp-milli-seconds 2020
-	   :midi-events (list
-			 (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
-     (list :timestamp-milli-seconds 2520
-	   :midi-events (list
-			 (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
-     
      ))))
 
-;; (play)
+;; (play2)
+
+
+(defun play3 ()
+  (cl-synthesizer-util:play-rack
+   (synthesizer-playground-adsr)
+   10 
+   :attach-speaker t
+   :midi-device
+   (cl-synthesizer-device-midi-sequencer:midi-sequencer
+    "Midi-Device"
+    *adsr-environment*
+    :events
+    (list 
+     (list :timestamp-milli-seconds 20
+	   :midi-events (list
+			 (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+     (list :timestamp-milli-seconds 700
+	   :midi-events (list
+			 (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
+
+     ))))
+
+;; (play3)
 
 
