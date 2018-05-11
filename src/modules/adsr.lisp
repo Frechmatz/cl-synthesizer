@@ -57,11 +57,16 @@
 	      :initial-contents
 	      (list
 	       ;; a
-	       (let ((total-ticks nil) (elapsed-ticks nil))
+	       (let ((total-ticks nil) (elapsed-ticks nil) (transfer-fn nil))
 		 (list
 		  :init (lambda ()
 			  (setf total-ticks (* ticks-per-ms attack-ms))
-			  (setf elapsed-ticks -1))
+			  (setf elapsed-ticks -1)
+			  (setf transfer-fn (cl-synthesizer-core:linear-converter
+					:input-min 0
+					:input-max total-ticks
+					:output-min 0
+					:output-max 1.0)))
 		  :tick (lambda()
 			  (setf elapsed-ticks (+ 1 elapsed-ticks))
 			  (if (has-segment-completed elapsed-ticks total-ticks t)
@@ -69,7 +74,7 @@
 				;;(break)
 				:CONTINUE)
 			      (progn
-				(setf cur-cv (* 1.0 v-peak))
+				(setf cur-cv (* v-peak (funcall (getf transfer-fn :get-y) elapsed-ticks)))
 				:DONE)))))
 	       ;; r
 	       (let ((total-ticks nil) (elapsed-ticks nil))
