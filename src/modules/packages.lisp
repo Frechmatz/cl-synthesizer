@@ -23,7 +23,8 @@
   (:use :cl)
   (:export
    :adsr
-   :adsr2))
+   :adsr2
+   :adsr3))
 
 (defpackage :cl-synthesizer-modules-vca
   (:use :cl)

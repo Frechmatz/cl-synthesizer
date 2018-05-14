@@ -65,7 +65,7 @@
   (cl-synthesizer-util:play-rack
    (synthesizer-playground-adsr)
    10 
-;;   :attach-speaker t
+   :attach-speaker t
    :midi-device
    (cl-synthesizer-device-midi-sequencer:midi-sequencer
     "Midi-Device"
@@ -94,7 +94,7 @@
 (defun play2 ()
   (cl-synthesizer-util:play-rack
    (synthesizer-playground-adsr)
-   10 
+   7 
    :attach-speaker t
    :midi-device
    (cl-synthesizer-device-midi-sequencer:midi-sequencer
