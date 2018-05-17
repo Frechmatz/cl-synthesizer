@@ -29,7 +29,7 @@
     (cl-synthesizer::add-module rack "ADSR" #'cl-synthesizer-modules-adsr:adsr2
 				:attack-ms 1000
 				:decay-ms 1000
-				:decay-v 3
+				:decay-cv 3
 				:release-ms 1000)
     (cl-synthesizer::add-module rack "VCA" #'cl-synthesizer-modules-vca:vca)
 
