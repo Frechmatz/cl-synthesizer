@@ -86,14 +86,14 @@ The function returns the current segment index or nil."
   `(list
     :init (lambda ()
 	    (format t "~%Initializing segment ~a~%" ,segment-name))
-   :update (lambda()
-	     (if (has-segment-completed nil nil ,requires-gate)
-		 :CONTINUE
-		 :DONE))))
+    :update (lambda()
+	      (if (has-segment-completed nil nil ,requires-gate)
+		  :CONTINUE
+		  :DONE))))
 
 (defmacro slope ((&key segment-name requires-gate target-cv time-ms))
-  "Generates a segment whose output will start at cur-cv and descends/ascends to the given target
-voltage within the given time interval. Depending on the requires-gate parameter the segment
+  "Generates a segment whose output starts at cur-cv and descends/ascends to the given target
+voltage within the given time interval. Depending on the 'requires-gate' parameter the segment
 terminates when the gate drops to 0."
   `(let ((total-ticks nil) (elapsed-ticks nil) (transfer-fn nil))
     (list
