@@ -22,9 +22,7 @@
 (defpackage :cl-synthesizer-modules-adsr
   (:use :cl)
   (:export
-   :adsr
-   :adsr2
-   :adsr3))
+   :adsr))
 
 (defpackage :cl-synthesizer-modules-vca
   (:use :cl)

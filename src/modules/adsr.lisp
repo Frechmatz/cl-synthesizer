@@ -9,31 +9,6 @@
 
 (in-package :cl-synthesizer-modules-adsr)
 
-;;
-;; A dummy ADSR implementation
-;;
-
-(defun adsr (name environment &key (v-peak 5))
-  (declare (ignore name))
-  (let* ((sample-rate (getf environment :sample-rate))
-	 (is-gate nil)
-	 (cur-cv 0))
-    (declare (ignore sample-rate))
-    (list
-     :inputs (lambda () '(:gate))
-     :outputs (lambda () '(:cv))
-     :get-output (lambda (output)
-		   (declare (ignore output))
-		   cur-cv)
-     :update (lambda (&key (gate 0))
-	       (setf is-gate (>= gate 4.9))
-	       (setf cur-cv (if is-gate v-peak 0))))))
-
-
-;;
-;; New ADSR implementation
-;;
-
 (defun segments-controller (segments)
   "Manages a list of segments that define an envelope. A segment is defined 
 as a plist with the following properties:
@@ -114,7 +89,7 @@ terminates when the gate drops to 0."
 		     (setf cur-cv (funcall (getf transfer-fn :get-y) elapsed-ticks))
 		     :DONE))))))
   
-(defun adsr2 (name environment &key (attack-ms 1000) (attack-cv 5) (decay-ms 1000) (decay-cv 3) (release-ms 1000))  
+(defun adsr (name environment &key (attack-ms 1000) (attack-cv 5) (decay-ms 1000) (decay-cv 3) (release-ms 1000))  
   (declare (ignore name))
   (declare (optimize (debug 3) (speed 0) (space 0)))
   (let* ((sample-rate (getf environment :sample-rate))

@@ -12,7 +12,7 @@
 (defparameter *adsr-environment* (cl-synthesizer::make-environment))
 
 (defun synthesizer-playground-adsr ()
-  "ADSR2-Example"
+  "ADSR-Example"
   (let ((rack (cl-synthesizer:create-rack :environment *adsr-environment*)))
 
     ;; Set up MIDI Interface and connect it to the MIDI input of the Rack
@@ -26,7 +26,7 @@
 				:cv-max 5
 				:f-max 13000
 				:v-peak 5)
-    (cl-synthesizer::add-module rack "ADSR" #'cl-synthesizer-modules-adsr:adsr2
+    (cl-synthesizer::add-module rack "ADSR" #'cl-synthesizer-modules-adsr:adsr
 				:attack-ms 1000
 				:attack-cv 5
 				:decay-ms 1000
