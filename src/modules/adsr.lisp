@@ -114,8 +114,8 @@ terminates when the gate drops to 0."
 		     (setf cur-cv (funcall (getf transfer-fn :get-y) elapsed-ticks))
 		     :DONE))))))
   
-(defun adsr2 (name environment &key (v-peak 5) (attack-ms 1000) (decay-ms 1000) (decay-cv 3) (release-ms 1000))  
-  (declare (ignore name ))
+(defun adsr2 (name environment &key (attack-ms 1000) (attack-cv 5) (decay-ms 1000) (decay-cv 3) (release-ms 1000))  
+  (declare (ignore name))
   (declare (optimize (debug 3) (speed 0) (space 0)))
   (let* ((sample-rate (getf environment :sample-rate))
 	 (is-gate nil)
@@ -129,7 +129,7 @@ terminates when the gate drops to 0."
 		   (and elapsed-ticks total-ticks (>= elapsed-ticks total-ticks)))))
       (let ((controller (segments-controller
 		   (list
-		    (slope (:segment-name "Attack" :requires-gate t :target-cv v-peak :time-ms attack-ms))
+		    (slope (:segment-name "Attack" :requires-gate t :target-cv attack-cv :time-ms attack-ms))
 		    (slope (:segment-name "Decay" :requires-gate t :target-cv decay-cv :time-ms decay-ms))
 		    (hold (:segment-name "Sustain" :requires-gate t))
 		    (slope (:segment-name "Release" :requires-gate nil :target-cv 0 :time-ms release-ms))))))

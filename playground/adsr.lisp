@@ -28,6 +28,7 @@
 				:v-peak 5)
     (cl-synthesizer::add-module rack "ADSR" #'cl-synthesizer-modules-adsr:adsr2
 				:attack-ms 1000
+				:attack-cv 5
 				:decay-ms 1000
 				:decay-cv 3
 				:release-ms 1000)
