@@ -42,6 +42,9 @@
 (defun get-rack-module-output-fn (rm)
   (getf (slot-value rm 'module) :get-output))
 
+(defun get-rack-module-output (rm socket)
+  (funcall (getf (slot-value rm 'module) :get-output) socket))
+
 (defun get-rack-module-shutdown-fn (rm)
   (let ((f (getf (slot-value rm 'module) :shutdown)))
     (if f f (lambda() ()))))

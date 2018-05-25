@@ -11,6 +11,7 @@
 
 (defclass rack ()
   ((modules :initform nil)
+   (monitors :initform nil)
    (environment :initform nil))
   (:documentation ""))
 
@@ -158,7 +159,9 @@
   (dolist (rm (slot-value rack 'modules))
     (funcall (get-rack-module-shutdown-fn rm)))
   (let ((environment (slot-value rack 'environment)))
-    (funcall (getf (getf environment :event-logger) :shutdown))))
+    (funcall (getf (getf environment :event-logger) :shutdown)))
+  (dolist (m (slot-value rack 'monitors))
+    (funcall (getf m :shutdown))))
   
 (defun create-rack (&key environment)
   (let ((rack (make-instance 'cl-synthesizer:rack :environment environment)))
@@ -172,3 +175,50 @@
 
 (defun get-midi-in (rack)
   (slot-value (get-module rack "MIDI-IN") 'module))
+
+;; Adds a monitor to the rack
+;; Later to be replaced by a macro
+;; outputs: List of (:output :adsr-gate :module "ADSR" :socket (:input :gate))
+(defun register-monitor (rack name &key update-fn (shutdown-fn (lambda() nil)) outputs)
+  (declare (optimize (debug 3) (speed 0) (space 0)))
+  ;; TODO check uniqueness of output keywords
+  ;; check if monitor with given name already exists
+  (if (find-if (lambda (m) (eql name (getf m :name))) (slot-value rack 'monitors))
+      (signal-assembly-error
+       :format-control "Monitor ~a has already been registered"
+       :format-arguments (list name)))
+  (let ((lambda-list-prototype nil))
+    (dolist (output outputs)
+      (let* ((module-name (getf output :module))
+	     (socket (getf output :socket))
+	     (rm (get-module rack module-name)))
+	(if (not rm)
+	    (signal-assembly-error
+	     :format-control "Cannot find module ~a"
+	     :format-arguments (list module-name)))
+	(let ((closure-rm rm) (closure-socket socket))
+	  (cond
+	    ((eq :output (first socket))
+	     (assert-is-module-output-socket rm (second socket))
+	     (push (lambda () (cl-synthesizer::get-rack-module-output closure-rm (second closure-socket))) lambda-list-prototype)
+	     (push (getf output :output) lambda-list-prototype))
+	    ((eq :input (first socket))
+	     (assert-is-module-input-socket rm (second socket))
+	     (signal-assembly-error
+	      :format-control "Monitor: Socket type :input not implemented yet"
+	      :format-arguments nil))
+	    (t (signal-assembly-error
+		:format-control "Monitor: Invalid socket type: ~a Must be one of :input, :output"
+		:format-arguments (list (first socket))))))))
+    (labels ((make-lambda-list ()
+	       (mapcar (lambda (e)
+			 (if (keywordp e)
+			     e
+			     (funcall e)))
+		       lambda-list-prototype)))
+      (push (list
+	     :shutdown shutdown-fn
+	     :update (lambda()
+		       (apply update-fn (make-lambda-list)))
+	     :name name)
+	    (slot-value rack 'monitors)))))

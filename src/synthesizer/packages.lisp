@@ -10,5 +10,7 @@
    :line-out
    :midi-in
    :get-event-logger
-   :get-sample-rate))
+   :get-sample-rate
+   :register-monitor
+   ))
 

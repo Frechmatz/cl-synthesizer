@@ -60,6 +60,13 @@
     (cl-synthesizer::add-patch rack "MULTIPLE-ADSR-OUT" :out-1 "VCA" :cv)
     (cl-synthesizer::add-patch rack "MULTIPLE-ADSR-OUT" :out-2 "WAVE-WRITER" :channel-2)
 
+    (cl-synthesizer:register-monitor
+     rack
+     "My Monitor"
+     :update-fn (lambda() nil)
+     :shutdown-fn (lambda() (format t "Shutdown signalled to monitor"))
+     :outputs '((:output :adsr-gate :module "ADSR" :socket (:output :cv))))
+        
     rack))
 
 (defun play ()
