@@ -152,7 +152,10 @@
       ;; for all modules
       (dolist (rm (slot-value rack 'modules))
 	(update-rm rm))
-      (funcall (getf (getf environment :event-logger) :tick)) 
+      ;; for all monitors
+      (dolist (m (slot-value rack 'monitors))
+	(funcall (getf m :update)))
+      (funcall (getf (getf environment :event-logger) :tick))
       )))
 
 (defun shutdown-rack (rack)
