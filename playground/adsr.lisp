@@ -60,14 +60,23 @@
     (cl-synthesizer::add-patch rack "MULTIPLE-ADSR-OUT" :out-1 "VCA" :cv)
     (cl-synthesizer::add-patch rack "MULTIPLE-ADSR-OUT" :out-2 "WAVE-WRITER" :channel-2)
 
-    (cl-synthesizer:register-monitor
-     rack
-     "My Monitor"
-     :update-fn (lambda() nil)
-     :shutdown-fn (lambda() (format t "Shutdown signalled to monitor"))
-     :outputs '((:output :adsr-gate :module "ADSR" :socket (:output :cv))))
-        
-    rack))
+    ;;
+    ;; Add LINE-OUT Monitor
+    ;;
+
+    (let ((wave-file-writer
+	   (cl-synthesizer-modules-wave-file-writer::one-channel-wave-file-writer
+	    "Wave-File-Writer"
+	    *adsr-environment*
+	    :filename "/Users/olli/waves/monitor.wav")))
+      (cl-synthesizer:register-monitor
+       rack
+       "My Monitor"
+       :update-fn (getf wave-file-writer :update)
+       :shutdown-fn (getf wave-file-writer :shutdown)
+       :outputs '((:output :channel-1 :module "MULTIPLE-VCA-OUT" :socket (:output :out-1)))))
+      
+      rack))
 
 (defun play ()
   (cl-synthesizer-util:play-rack
