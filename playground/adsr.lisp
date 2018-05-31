@@ -75,7 +75,7 @@
        rack
        "My Monitor"
        monitor-backend-ctor
-       '((:output :channel-1 :module "MULTIPLE-VCA-OUT" :socket (:output :out-1)))
+       '((:channel-1 "MULTIPLE-VCA-OUT" :output-socket :out-1))
        :filename "/Users/olli/waves/monitor.wav"))
 
     rack))

@@ -179,62 +179,86 @@
 (defun get-midi-in (rack)
   (slot-value (get-module rack "MIDI-IN") 'module))
 
-;; Adds a monitor to the rack
-;; Later to be replaced by a macro
-;; outputs: List of (:output :adsr-gate :module "ADSR" :socket (:input :gate))
 (defun register-monitor (rack name ctor outputs &rest additional-ctor-args)
-  (declare (optimize (debug 3) (speed 0) (space 0)))
-  ;; TODO check uniqueness of output keywords
-  ;; check if monitor with given name already exists
+  "Adds a monitor to the rack. A monitor is basically a function that is called after
+   each tick of the rack and to which the values of arbitrary sockets are passed.
+   Monitors can for example be used to record inputs and outputs of specific
+   rack modules into wave-files for debugging/analysis purposes.
+   - rack: The rack
+   - name: Unique name of the monitor
+   - ctor: Monitor backend constructor function. After validation of the request 
+     this function is called in order to instantiate the monitor backend. The 
+     constructor function is called with the following lambda list: 
+     (name environment output-keywords additional-ctor-args).
+     The constructor function must return a property list which provides 
+     the actual callback function and an optional shutdown callback.
+     -- :shutdown An optional rack shutdown callback function.
+     -- :update A mandatory function that is called after each tick.
+     The update function is called with the following lambda list:
+     (:output-key-1 value :output-key-2 value ...) 
+     Output keys whose value is not defined are omitted from the callback.
+   - outputs: List of output-def
+     output-def := <key> <module-name> <socket>
+     socket := :input-socket <input-socket-key> | :output-socket <output-socket-key>
+     Example: '((:channel-1 \"ADSR\" :output-socket :cv)
+                (:channel-2 \"LINE-OUT\" :input-socket :channel-1))
+     For the given output declaration the update function will be
+     called as follows (update-fn :channel-1 <value> :channel-2 <value>)"
+  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (if (find-if (lambda (m) (eql name (getf m :name))) (slot-value rack 'monitors))
       (signal-assembly-error
        :format-control "Monitor ~a has already been registered"
        :format-arguments (list name)))
-  (let ((lambda-list-prototype nil)
-	(output-keys nil))
+  (let ((lambda-list-prototype nil) ;; list of (keyword lambda) 
+	(keys nil))
     (dolist (output outputs)
-      (push (getf output :output) output-keys) 
-      (let* ((module-name (getf output :module))
-	     (socket (getf output :socket))
-	     (rm (get-module rack module-name)))
-	(if (not rm)
+      (let ((key (first output))
+	    (module-name (second output))
+	    (socket-type (third output))
+	    (socket-key (fourth output)))
+	(if (find key keys :test #'eq)
 	    (signal-assembly-error
-	     :format-control "Cannot find module ~a"
-	     :format-arguments (list module-name)))
-	(let ((closure-rm rm) (closure-socket socket))
+	     :format-control "Monitor: Key already used ~a"
+	     :format-arguments (list key)))
+	(push key keys) 
+	(let ((rm (get-module rack module-name)))
+	  (if (not rm)
+	      (signal-assembly-error
+	       :format-control "Monitor: Cannot find module ~a"
+	       :format-arguments (list module-name)))
 	  (cond
-	    ((eq :output (first socket))
-	     (assert-is-module-output-socket rm (second socket))
-	     (push (lambda () (cl-synthesizer::get-rack-module-output closure-rm (second closure-socket))) lambda-list-prototype)
-	     (push (getf output :output) lambda-list-prototype))
-	    ((eq :input (first socket))
-	     (assert-is-module-input-socket rm (second socket))
+	    ((eq :output-socket socket-type)
+	     (assert-is-module-output-socket rm socket-key)
+	     (let ((closure-rm rm) (closure-socket-key socket-key))
+	       (push (list
+		      key
+		      (lambda () (cl-synthesizer::get-rack-module-output closure-rm closure-socket-key)) lambda-list-prototype)
+		   lambda-list-prototype)))
+	    ((eq :input-socket socket-type)
+	     (assert-is-module-input-socket rm socket-key)
 	     (signal-assembly-error
 	      :format-control "Monitor: Socket type :input not implemented yet"
 	      :format-arguments nil))
 	    (t (signal-assembly-error
-		:format-control "Monitor: Invalid socket type: ~a Must be one of :input, :output"
-		:format-arguments (list (first socket))))))))
-    (labels ((make-lambda-list ()
-	       (mapcar (lambda (e)
-			 (if (keywordp e)
-			     e
-			     (funcall e)))
-		       lambda-list-prototype)))
-      (let* ((backend (apply
-		       ctor
-		       name
-		       (slot-value rack 'environment)
-		       (list output-keys)
-		       additional-ctor-args))
-	     (update-fn (getf backend :update))
-	     (shutdown-fn (getf backend :shutdown)))
-	(push (list 
-	       :shutdown (lambda ()
-			   (if shutdown-fn
-			       (funcall shutdown-fn)))
-	       :update (lambda()
-			 (apply update-fn (make-lambda-list)))
-	       :name name)
-	      (slot-value rack 'monitors))))))
-  
+		:format-control "Monitor: Invalid socket type: ~a Must be one of :input-socket, :output-socket"
+		:format-arguments (list socket-type)))))))
+    ;; Instantiate the monitor backend
+    (let* ((backend (apply ctor name (slot-value rack 'environment) (list keys) additional-ctor-args))
+	   (update-fn (getf backend :update))
+	   (shutdown-fn (if (getf backend :shutdown) (getf backend :shutdown) (lambda() nil))))
+      ;; Wrap callbacks and add to rack
+      (push (list 
+	     :shutdown (lambda ()
+			 (funcall shutdown-fn))
+	     :update (lambda()
+		       (let ((params nil))
+			 (dolist (p lambda-list-prototype)
+			   (let ((v (funcall (second p))))
+			     (if v ;; Omit from monitor callback if not defined
+				 (progn
+				   (push v params)
+				   (push (first p) params)))))
+			 (apply update-fn params)))
+	     :name name)
+	    (slot-value rack 'monitors)))))
+
