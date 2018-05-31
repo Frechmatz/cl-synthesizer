@@ -182,7 +182,7 @@
 ;; Adds a monitor to the rack
 ;; Later to be replaced by a macro
 ;; outputs: List of (:output :adsr-gate :module "ADSR" :socket (:input :gate))
-(defun register-monitor (rack name &key update-fn (shutdown-fn (lambda() nil)) outputs)
+(defun register-monitor (rack name ctor outputs &rest additional-ctor-args)
   (declare (optimize (debug 3) (speed 0) (space 0)))
   ;; TODO check uniqueness of output keywords
   ;; check if monitor with given name already exists
@@ -190,8 +190,10 @@
       (signal-assembly-error
        :format-control "Monitor ~a has already been registered"
        :format-arguments (list name)))
-  (let ((lambda-list-prototype nil))
+  (let ((lambda-list-prototype nil)
+	(output-keys nil))
     (dolist (output outputs)
+      (push (getf output :output) output-keys) 
       (let* ((module-name (getf output :module))
 	     (socket (getf output :socket))
 	     (rm (get-module rack module-name)))
@@ -219,9 +221,20 @@
 			     e
 			     (funcall e)))
 		       lambda-list-prototype)))
-      (push (list
-	     :shutdown shutdown-fn
-	     :update (lambda()
-		       (apply update-fn (make-lambda-list)))
-	     :name name)
-	    (slot-value rack 'monitors)))))
+      (let* ((backend (apply
+		       ctor
+		       name
+		       (slot-value rack 'environment)
+		       (list output-keys)
+		       additional-ctor-args))
+	     (update-fn (getf backend :update))
+	     (shutdown-fn (getf backend :shutdown)))
+	(push (list 
+	       :shutdown (lambda ()
+			   (if shutdown-fn
+			       (funcall shutdown-fn)))
+	       :update (lambda()
+			 (apply update-fn (make-lambda-list)))
+	       :name name)
+	      (slot-value rack 'monitors))))))
+  

@@ -77,8 +77,43 @@
 			  (setf frames nil)))
 	    ))))))
 
+;; http://clhs.lisp.se/Body/s_eval_w.htm#eval-when
 (n-channel-wave-file-writer "one-channel-wave-file-writer" 1)
 (n-channel-wave-file-writer "two-channel-wave-file-writer" 2)
 (n-channel-wave-file-writer "three-channel-wave-file-writer" 3)
 (n-channel-wave-file-writer "four-channel-wave-file-writer" 4)
+(n-channel-wave-file-writer "five-channel-wave-file-writer" 5)
+(n-channel-wave-file-writer "six-channel-wave-file-writer" 6)
+(n-channel-wave-file-writer "seven-channel-wave-file-writer" 7)
+(n-channel-wave-file-writer "eight-channel-wave-file-writer" 8)
 
+;;
+;; The following code is a bit crazy and needs some rework :)
+;;
+
+(defparameter *wave-file-writers*
+  (make-array
+   8
+   :initial-contents
+   (list
+    #'one-channel-wave-file-writer
+    #'two-channel-wave-file-writer
+    #'three-channel-wave-file-writer
+    #'four-channel-wave-file-writer
+    #'five-channel-wave-file-writer
+    #'six-channel-wave-file-writer
+    #'seven-channel-wave-file-writer
+    #'eight-channel-wave-file-writer)))
+
+(defun get-n-channel-wave-file-writer (channel-count)
+  "Returns a creator function for a wave-writer with given number of channels
+   - channel-count: Number of channels"
+  (if (<= channel-count 0)
+      (cl-synthesizer:signal-assembly-error
+       :format-control "channel-count must be greater than 0: ~a"
+       :format-arguments (list channel-count)))
+  (if (> channel-count (length *wave-file-writers*))
+      (cl-synthesizer:signal-assembly-error
+       :format-control "channel-count must be smaller than ~a: ~a"
+       :format-arguments (list (length *wave-file-writers*) channel-count)))
+  (elt *wave-file-writers* (- channel-count 1)))

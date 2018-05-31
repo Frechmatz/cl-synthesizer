@@ -63,20 +63,22 @@
     ;;
     ;; Add LINE-OUT Monitor
     ;;
-
-    (let ((wave-file-writer
-	   (cl-synthesizer-modules-wave-file-writer::one-channel-wave-file-writer
-	    "Wave-File-Writer"
-	    *adsr-environment*
-	    :filename "/Users/olli/waves/monitor.wav")))
+    (let ((monitor-backend-ctor
+	   (lambda (name environment outputs &rest additional-ctor-args)
+	     ;;(declare (optimize (debug 3) (speed 0) (space 0)))
+	     ;;(break)
+	     (apply (cl-synthesizer-modules-wave-file-writer:get-n-channel-wave-file-writer (length outputs))
+		    name
+		    environment
+		    additional-ctor-args))))
       (cl-synthesizer:register-monitor
        rack
        "My Monitor"
-       :update-fn (getf wave-file-writer :update)
-       :shutdown-fn (getf wave-file-writer :shutdown)
-       :outputs '((:output :channel-1 :module "MULTIPLE-VCA-OUT" :socket (:output :out-1)))))
-      
-      rack))
+       monitor-backend-ctor
+       '((:output :channel-1 :module "MULTIPLE-VCA-OUT" :socket (:output :out-1)))
+       :filename "/Users/olli/waves/monitor.wav"))
+
+    rack))
 
 (defun play ()
   (cl-synthesizer-util:play-rack
@@ -102,11 +104,9 @@
      (list :timestamp-milli-seconds 3520
 	   :midi-events (list
 			 (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
-     
      ))))
 
 ;; (play)
-
 
 (defun play2 ()
   (cl-synthesizer-util:play-rack
