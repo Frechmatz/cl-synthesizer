@@ -2,9 +2,11 @@
 (in-package :cl-synthesizer-monitor)
 
 (defun wave-file-handler (name environment outputs &rest rest &key filename)
-  "Monitor handler which writes its input into a Wave file. For now the outputs
-   must be supported as input keywords by Wave writer module (channel-1 ... channel-n). 
-   More features to come such as mapping of input-keys."
+  "Monitor handler which writes its input into a Wave file. For now the keys
+   declared by the outputs list must match the input keys as defined by the 
+   wave writer module (channel-1 ... channel-n). If there is a mismatch
+   an assembly error is signalled. More features to come such as mapping 
+   of keys."
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   ;;(break)
   (let ((handler 
