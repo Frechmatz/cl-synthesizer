@@ -216,6 +216,10 @@
 	    (module-name (second output))
 	    (socket-type (third output))
 	    (socket-key (fourth output)))
+	(if (not (keywordp key))
+	    (signal-assembly-error
+	     :format-control "Monitor: Key must be a keyword ~a"
+	     :format-arguments (list key)))
 	(if (find key keys :test #'eq)
 	    (signal-assembly-error
 	     :format-control "Monitor: Key already used ~a"
@@ -236,12 +240,22 @@
 		   lambda-list-prototype)))
 	    ((eq :input-socket socket-type)
 	     (assert-is-module-input-socket rm socket-key)
-	     (signal-assembly-error
-	      :format-control "Monitor: Socket type :input not implemented yet"
-	      :format-arguments nil))
-	    (t (signal-assembly-error
-		:format-control "Monitor: Invalid socket type: ~a Must be one of :input-socket, :output-socket"
-		:format-arguments (list socket-type)))))))
+	     (let ((patch (cl-synthesizer::get-rack-module-input-patch rm socket-key)))
+	       (if (not patch)
+		   ;; we do not allow to monitor un-patched inputs to avoid cumbersome debugging
+		   (signal-assembly-error
+		    :format-control "Monitor: Input socket ~a of module ~a is not connected with a module"
+		    :format-arguments (list socket-key module-name )))
+	       (push (list key (lambda() nil)) lambda-list-prototype)
+	       (let ((source-rm (cl-synthesizer::get-rack-patch-module patch))
+		     (source-socket-key (cl-synthesizer::get-rack-patch-socket patch)))
+		 (push (list
+			key
+			(lambda () (cl-synthesizer::get-rack-module-output source-rm source-socket-key)))
+		       lambda-list-prototype))))
+	  (t (signal-assembly-error
+	      :format-control "Monitor: Invalid socket type: ~a Must be one of :input-socket, :output-socket"
+	      :format-arguments (list socket-type)))))))
     ;; Instantiate the monitor handler
     (let* ((handler (apply ctor name (slot-value rack 'environment) keys additional-ctor-args))
 	   (update-fn (getf handler :update))
