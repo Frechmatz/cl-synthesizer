@@ -243,7 +243,7 @@
 		:format-control "Monitor: Invalid socket type: ~a Must be one of :input-socket, :output-socket"
 		:format-arguments (list socket-type)))))))
     ;; Instantiate the monitor handler
-    (let* ((handler (apply ctor name (slot-value rack 'environment) (list keys) additional-ctor-args))
+    (let* ((handler (apply ctor name (slot-value rack 'environment) keys additional-ctor-args))
 	   (update-fn (getf handler :update))
 	   (shutdown-fn (if (getf handler :shutdown) (getf handler :shutdown) (lambda() nil))))
       ;; Wrap callbacks and add to rack
