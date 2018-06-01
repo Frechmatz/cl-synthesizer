@@ -63,7 +63,7 @@
     ;;
     ;; Add LINE-OUT Monitor
     ;;
-    (let ((monitor-backend-ctor
+    (let ((monitor-handler-ctor
 	   (lambda (name environment outputs &rest additional-ctor-args)
 	     ;;(declare (optimize (debug 3) (speed 0) (space 0)))
 	     ;;(break)
@@ -74,7 +74,7 @@
       (cl-synthesizer:register-monitor
        rack
        "My Monitor"
-       monitor-backend-ctor
+       monitor-handler-ctor
        '((:channel-1 "MULTIPLE-VCA-OUT" :output-socket :out-1))
        :filename "/Users/olli/waves/monitor.wav"))
 

@@ -186,9 +186,9 @@
    rack modules into wave-files for debugging/analysis purposes.
    - rack: The rack
    - name: Unique name of the monitor
-   - ctor: Monitor backend constructor function. After validation of the request 
-     this function is called in order to instantiate the monitor backend. The 
-     constructor function is called with the following lambda list: 
+   - ctor: Monitor handler constructor function. After validation of the request 
+     this function is called in order to instantiate the monitor handler. 
+     It is called with the following lambda list: 
      (name environment output-keywords additional-ctor-args).
      The constructor function must return a property list which provides 
      the actual callback function and an optional shutdown callback.
@@ -242,10 +242,10 @@
 	    (t (signal-assembly-error
 		:format-control "Monitor: Invalid socket type: ~a Must be one of :input-socket, :output-socket"
 		:format-arguments (list socket-type)))))))
-    ;; Instantiate the monitor backend
-    (let* ((backend (apply ctor name (slot-value rack 'environment) (list keys) additional-ctor-args))
-	   (update-fn (getf backend :update))
-	   (shutdown-fn (if (getf backend :shutdown) (getf backend :shutdown) (lambda() nil))))
+    ;; Instantiate the monitor handler
+    (let* ((handler (apply ctor name (slot-value rack 'environment) (list keys) additional-ctor-args))
+	   (update-fn (getf handler :update))
+	   (shutdown-fn (if (getf handler :shutdown) (getf handler :shutdown) (lambda() nil))))
       ;; Wrap callbacks and add to rack
       (push (list 
 	     :shutdown (lambda ()
