@@ -60,24 +60,14 @@
     (cl-synthesizer::add-patch rack "MULTIPLE-ADSR-OUT" :out-1 "VCA" :cv)
     (cl-synthesizer::add-patch rack "MULTIPLE-ADSR-OUT" :out-2 "WAVE-WRITER" :channel-2)
 
-    ;;
-    ;; Add LINE-OUT Monitor
-    ;;
-    (let ((monitor-handler-ctor
-	   (lambda (name environment outputs &rest additional-ctor-args)
-	     ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-	     ;;(break)
-	     (apply (cl-synthesizer-modules-wave-file-writer:get-n-channel-wave-file-writer (length outputs))
-		    name
-		    environment
-		    additional-ctor-args))))
-      (cl-synthesizer:register-monitor
-       rack
-       "My Monitor"
-       monitor-handler-ctor
-       '((:channel-1 "MULTIPLE-VCA-OUT" :output-socket :out-1))
-       :filename "/Users/olli/waves/monitor.wav"))
-
+    ;; Add VCA output monitor
+    (cl-synthesizer:register-monitor
+     rack
+     "My Monitor"
+     #'cl-synthesizer-monitor:wave-file-handler
+     '((:channel-1 "MULTIPLE-VCA-OUT" :output-socket :out-1))
+     :filename "/Users/olli/waves/monitor.wav")
+  
     rack))
 
 (defun play ()

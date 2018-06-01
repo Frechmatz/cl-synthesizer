@@ -69,6 +69,10 @@
 				     (:file "speaker")
 				     (:file "midi-device")
 				     (:file "midi-sequencer")))
+	       (:module "src/monitor"
+			:serial t
+			:components ((:file "packages")
+				     (:file "wave-file-handler")))
 	       (:module "src/vendor"
 			:serial t
 			:components ((:file "packages")
