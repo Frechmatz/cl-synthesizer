@@ -23,8 +23,7 @@
 	 (cur-sine-output 1.0)
 	 (cur-triangle-output 1.0)
 	 (cur-saw-output 1.0)
-	 (cur-square-output 1.0)
-	 (event-low-frequency (funcall (getf environment :register-event) name "LOW-FREQUENCY")))
+	 (cur-square-output 1.0))
     (flet ((get-frequency (cv-exp cv-lin)
 	     (+ 
 	      (funcall (getf transfer-function-exp :get-y) cv-exp)
@@ -42,8 +41,6 @@
        :update (lambda (&key (cv 0) (cv-lin 0))
 		 (let* ((f (get-frequency cv cv-lin))
 			(phi (funcall phase-generator f)))
-		   (if (> 10 f)
-			 (funcall event-low-frequency))
 		   (setf cur-sine-output (* v-peak (cl-synthesizer-core:phase-sine-converter phi)))
 		   (setf cur-triangle-output (* v-peak (cl-synthesizer-core:phase-triangle-converter phi)))
 		   (setf cur-saw-output (* v-peak (cl-synthesizer-core:phase-saw-converter phi)))

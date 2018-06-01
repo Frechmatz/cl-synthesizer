@@ -109,60 +109,55 @@
   "Process a tick" 
   ;; (declare (optimize (debug 3) (speed 0) (space 0)))
   (set-state rack :PROCESS-TICK)
-  (let ((environment (slot-value rack 'environment)))
-    (labels
-	((update-rm (rm)
-	   ;; Update a module
-	   ;; If module is already updating do nothing
-	   ;; Otherwise update all input modules and then update outputs
-	   (declare (optimize (debug 3) (speed 0) (space 0)))
-	   (let ((state (get-rack-module-state rm)))
-	     (if (not (eq state :PROCESS-TICK))
-		 (progn
-		   ;; module is already processing -> do nothing
-		   ;; (break)
-		   nil)
-		 (progn
-		   (set-rack-module-state rm :PROCESSING-TICK)
-		   ;; update input modules
+  (labels
+      ((update-rm (rm)
+	 ;; Update a module
+	 ;; If module is already updating do nothing
+	 ;; Otherwise update all input modules and then update outputs
+	 (declare (optimize (debug 3) (speed 0) (space 0)))
+	 (let ((state (get-rack-module-state rm)))
+	   (if (not (eq state :PROCESS-TICK))
+	       (progn
+		 ;; module is already processing -> do nothing
+		 ;; (break)
+		 nil)
+	       (progn
+		 (set-rack-module-state rm :PROCESSING-TICK)
+		 ;; update input modules
+		 (dolist (cur-input-socket (get-rack-module-input-sockets rm))
+		   (let ((patch (get-rack-module-input-patch rm cur-input-socket)))
+		     (if patch 
+			 (update-rm (get-rack-patch-module patch)))))
+		 ;; update this
+		 (let ((lambdalist nil))
+		   ;; collect inputs
 		   (dolist (cur-input-socket (get-rack-module-input-sockets rm))
-		     (let ((patch (get-rack-module-input-patch rm cur-input-socket)))
-		       (if patch 
-			   (update-rm (get-rack-patch-module patch)))))
-		   ;; update this
-		   (let ((lambdalist nil))
-		     ;; collect inputs
-		     (dolist (cur-input-socket (get-rack-module-input-sockets rm))
-		       (let ((patch (get-rack-module-input-patch rm cur-input-socket)) (socket-input-value nil))
-			 (if patch
-			     (let* ((source-rm (get-rack-patch-module patch))
-				    (source-rm-socket (get-rack-patch-socket patch))
-				    (output-fn (get-rack-module-output-fn source-rm)))
-			       (setf socket-input-value (funcall output-fn source-rm-socket))))
-			 ;; omit from lambdalist if input is not connected or input-value is undefined
-			 (if socket-input-value
-			     (progn 
-			       (push cur-input-socket lambdalist)
-			       (push socket-input-value lambdalist)))))
-		     ;; call update function on this
-		     ;;(break)
-		     (apply (get-rack-module-update-fn rm) (nreverse lambdalist))
-		     (set-rack-module-state rm :PROCESSED-TICK)
-		     ))))))
-      ;; for all modules
-      (dolist (rm (slot-value rack 'modules))
-	(update-rm rm))
-      ;; for all monitors
-      (dolist (m (slot-value rack 'monitors))
-	(funcall (getf m :update)))
-      (funcall (getf (getf environment :event-logger) :tick))
-      )))
+		     (let ((patch (get-rack-module-input-patch rm cur-input-socket)) (socket-input-value nil))
+		       (if patch
+			   (let* ((source-rm (get-rack-patch-module patch))
+				  (source-rm-socket (get-rack-patch-socket patch))
+				  (output-fn (get-rack-module-output-fn source-rm)))
+			     (setf socket-input-value (funcall output-fn source-rm-socket))))
+		       ;; omit from lambdalist if input is not connected or input-value is undefined
+		       (if socket-input-value
+			   (progn 
+			     (push cur-input-socket lambdalist)
+			     (push socket-input-value lambdalist)))))
+		   ;; call update function on this
+		   ;;(break)
+		   (apply (get-rack-module-update-fn rm) (nreverse lambdalist))
+		   (set-rack-module-state rm :PROCESSED-TICK)
+		   ))))))
+    ;; for all modules
+    (dolist (rm (slot-value rack 'modules))
+      (update-rm rm))
+    ;; for all monitors
+    (dolist (m (slot-value rack 'monitors))
+      (funcall (getf m :update)))))
 
 (defun shutdown-rack (rack)
   (dolist (rm (slot-value rack 'modules))
     (funcall (get-rack-module-shutdown-fn rm)))
-  (let ((environment (slot-value rack 'environment)))
-    (funcall (getf (getf environment :event-logger) :shutdown)))
   (dolist (m (slot-value rack 'monitors))
     (funcall (getf m :shutdown))))
   

@@ -6,10 +6,6 @@
 	 (sample-rate (getf environment :sample-rate))
 	 (ticks-to-play (* duration-seconds sample-rate)))
     (format t "~%Ticks to play: ~a~%" ticks-to-play)
-    ;; Attach console logger
-    (funcall (getf (cl-synthesizer:get-event-logger environment) :add-transport)
-	     "CONSOLE"
-	     (cl-synthesizer-event-logger:console environment))
     (if attach-speaker
 	(funcall (getf (cl-synthesizer:get-line-out rack) :set-device)
 		 (cl-synthesizer-device-speaker:stereo-speaker "SPEAKER" environment :driver "coreaudio")))

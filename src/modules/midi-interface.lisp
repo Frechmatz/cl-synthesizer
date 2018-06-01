@@ -15,25 +15,18 @@
 
 (defconstant +voice-state-cv+ 0)
 (defconstant +voice-state-gate+ 1)
-(defconstant +voice-state-gate-on-logger+ 2)
-(defconstant +voice-state-gate-off-logger+ 3)
-(defconstant +voice-state-gate-retrigger+ 4)
+(defconstant +voice-state-gate-retrigger+ 2)
 
 (defparameter +voice-states+
   '(+voice-state-cv+
     +voice-state-gate+
-    +voice-state-gate-on-logger+
-    +voice-state-gate-off-logger+
     +voice-state-gate-retrigger+))
 
 (defun make-voice-state (name environment voice-number)
+  (declare (ignore name environment voice-number))
   (let ((voice-state (make-array (length +voice-states+))))
     (setf (elt voice-state +voice-state-cv+) 0)
     (setf (elt voice-state +voice-state-gate+) 0)
-    (setf (elt voice-state +voice-state-gate-on-logger+)
-	  (funcall (getf environment :register-event) name (format nil "GATE-~a-ON" voice-number)))
-    (setf (elt voice-state +voice-state-gate-off-logger+)
-	  (funcall (getf environment :register-event) name (format nil "GATE-~a-OFF" voice-number)))
     (setf (elt voice-state +voice-state-gate-retrigger+) nil)
     voice-state))
 
@@ -120,7 +113,6 @@
 			  (let ((voice-state (elt voice-states voice-index)))
 			    (if (= 1 stack-size)
 				(progn
-				  (funcall (elt voice-state +voice-state-gate-on-logger+))
 				  (setf (elt voice-state +voice-state-gate+) 5.0)))
 			    (setf (elt voice-state +voice-state-cv+) (funcall note-number-to-cv voice-note))
 			    (format t "cv-oct: ~a~%" (elt voice-state +voice-state-cv+)))))
@@ -133,7 +125,6 @@
 			      (let ((voice-state (elt voice-states voice-index)))
 				(if (not voice-note)
 				    (progn
-				      (funcall (elt voice-state +voice-state-gate-off-logger+))
 				      (setf (elt voice-state +voice-state-gate+) 0))
 				    (progn
 				      (setf (elt voice-state +voice-state-cv+) (funcall note-number-to-cv voice-note))

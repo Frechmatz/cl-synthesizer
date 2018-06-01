@@ -9,7 +9,6 @@
    :get-midi-in
    :line-out
    :midi-in
-   :get-event-logger
    :get-sample-rate
    :register-monitor
    ))

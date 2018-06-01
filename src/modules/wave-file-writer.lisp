@@ -20,17 +20,13 @@
     `(defun ,(cl-synthesizer-macro-util::make-package-symbol name nil) (name environment &key filename &allow-other-keys)
        ;;(declare (optimize (debug 3) (speed 0) (space 0)))
        (let ((frames nil)
-	     ,@(cl-synthesizer-macro-util::make-let-list output-name channel-count)
-	     (amplitude-clipped-top-event (funcall (getf environment :register-event) ,name "SIGNAL-CLIPPED-TOP"))
-	     (amplitude-clipped-bottom-event (funcall (getf environment :register-event) ,name "SIGNAL-CLIPPED-BOTTOM")))
+	     ,@(cl-synthesizer-macro-util::make-let-list output-name channel-count))
 	 (labels (
 		(wave-writer-float-to-int16 (value)
 		  (cond
 		    ((> value 1.0)
-		     (funcall amplitude-clipped-top-event)
 		     1)
 		    ((< value -1.0)
-		     (funcall amplitude-clipped-bottom-event)
 		     -1)
 		    (t
 		    (round (* 32000 value)))))
