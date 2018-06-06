@@ -1,20 +1,36 @@
 (in-package :cl-synthesizer-test)
 
-(defparameter *CC-14-TEST-VENDOR*
+(defparameter *control-table-cc-14*
   (list
    :ENCODER-CONTROLLER-NUMBERS
    (list :ENCODER-1 (list :CONTROLLER-NUMBER 112)
 	 :ENCODER-2 (list :CONTROLLER-NUMBER 74))
-   :RELATIVE-ENCODER-OFFSET
+	  :RELATIVE-ENCODER-OFFSET
+	  (lambda (controller-value)
+	    (cond
+	      ((eq 61 controller-value) -5)
+	      ((eq 62 controller-value) -3)
+	      ((eq 63 controller-value) -1)
+	      ((eq 65 controller-value) 1)
+	      ((eq 66 controller-value) 3)
+	      ((eq 67 controller-value) 5)
+	      (t 0)))))
+
+(defparameter *CC-14-TEST-VENDOR*
+  (list
+   :get-controller-number
+   (lambda (id)
+     (let ((encoder-list (getf *control-table-cc-14* :ENCODER-CONTROLLER-NUMBERS)))
+       (let ((encoder (getf encoder-list id)))
+	   (let ((controller-number (getf encoder :CONTROLLER-NUMBER)))
+	     (if (not controller-number)
+		 (format t "Controller not found: ~a" id))
+	     controller-number))))
+   :get-controller-value-offset
    (lambda (controller-value)
-     (cond
-       ((eq 61 controller-value) -5)
-       ((eq 62 controller-value) -3)
-       ((eq 63 controller-value) -1)
-       ((eq 65 controller-value) 1)
-       ((eq 66 controller-value) 3)
-       ((eq 67 controller-value) 5)
-       (t 0)))))
+     (funcall (getf *control-table-cc-14* :RELATIVE-ENCODER-OFFSET) controller-value))))
+
+  
 
 (defparameter *CC-14-HANDLER-INITIAL-CV* 50)
 
@@ -23,15 +39,15 @@
 
 (defmacro with-cc-14-handler (&body body)
   `(let* ((vendor *CC-14-TEST-VENDOR*)
-	   (handler (funcall #' cl-synthesizer-vendor-cc-handler:14-bit-relative
+	   (handler (funcall #' cl-synthesizer-midi:14-bit-relative
 				vendor
 				:controller-id-msb *MSB-CONTROLLER*
 				:controller-id-lsb *LSB-CONTROLLER*
 				:cv-initial *CC-14-HANDLER-INITIAL-CV*
 				:cv-min 0
 				:cv-max 16383)))
-     (let ((controller-number-lsb (cl-synthesizer-vendor:get-controller-number vendor *LSB-CONTROLLER*))
-	   (controller-number-msb (cl-synthesizer-vendor:get-controller-number vendor *MSB-CONTROLLER*))
+     (let ((controller-number-lsb (funcall (getf vendor :get-controller-number) *LSB-CONTROLLER*))
+	   (controller-number-msb (funcall (getf vendor :get-controller-number) *MSB-CONTROLLER*))
 	   (update-fn (getf handler :update))
 	    (output-fn (getf handler :get-output)))
 	,@body)))

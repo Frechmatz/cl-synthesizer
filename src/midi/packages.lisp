@@ -2,7 +2,9 @@
 (defpackage :cl-synthesizer-midi
   (:use :cl)
   (:export
-   :get-note-number-frequency))
+   :get-note-number-frequency
+   :7-bit-relative
+   :14-bit-relative))
 
 (defpackage :cl-synthesizer-midi-event
   (:use :cl)
@@ -17,14 +19,12 @@
    :get-note-number
    :get-velocity
    :get-controller-number
-   :get-controller-value
-   ))
+   :get-controller-value))
 
 (defpackage :cl-synthesizer-midi-voice-manager
   (:use :cl)
   (:export
    :voice-manager
    :push-note
-   :remove-note
-      ))
+   :remove-note))
 

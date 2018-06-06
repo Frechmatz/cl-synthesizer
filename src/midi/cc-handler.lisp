@@ -1,4 +1,4 @@
-(in-package :cl-synthesizer-vendor-cc-handler)
+(in-package :cl-synthesizer-midi)
 
 (defun clip-127 (v)
   (cond
@@ -16,10 +16,10 @@
      0)
     (t v)))
 
-(defun 7-bit-relative (device-settings controller-id &key (cv-initial 2.5) (cv-min 0) (cv-max 5))
+(defun 7-bit-relative (midi-controller controller-id &key (cv-initial 2.5) (cv-min 0) (cv-max 5))
   "Handler for a 7 Bit relative Controller. Uses a linear converter function to calculate CV."
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-  (let* ((controller-number (cl-synthesizer-vendor:get-controller-number device-settings controller-id)) 
+  (let* ((controller-number (funcall (getf midi-controller :get-controller-number) controller-id)) 
 	 (converter (cl-synthesizer-core:linear-converter
 		     :input-min 0
 		     :input-max 127
@@ -29,7 +29,7 @@
 	 (cur-value cv-initial))
     (if (not controller-number)
 	(cl-synthesizer:signal-assembly-error
-	 :format-control "~%Controller id not supported by device-settings" 
+	 :format-control "~%Controller id not supported by midi-controller" 
 	 :format-arguments (list controller-id)))
     (list
      :update 
@@ -45,8 +45,7 @@
 		 (setf controller-state
 		       (+
 			controller-state
-			(cl-synthesizer-vendor:get-controller-value-offset
-			 device-settings
+			(funcall (getf midi-controller :get-controller-value-offset)
 			 (cl-synthesizer-midi-event:get-controller-value midi-event)))))))
 	 (if found
 	     (progn
@@ -58,7 +57,7 @@
      (lambda ()
        cur-value))))
 
-(defun 14-bit-relative (device-settings &key controller-id-msb controller-id-lsb (cv-initial 2.5) (cv-min 0) (cv-max 5))
+(defun 14-bit-relative (midi-controller &key controller-id-msb controller-id-lsb (cv-initial 2.5) (cv-min 0) (cv-max 5))
   "Handler that combines two 7 Bit relative Controllers into a 14 Bit one. 
 Uses a linear converter function to calculate CV.
 The LSB controller increments/decrements the controller state by the offset as defined by the 
@@ -66,8 +65,8 @@ device settings.
 The MSB controller increments/decrements the controller state by the offset as defined by the
 device settings multiplied by 128."
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-  (let* ((controller-number-msb (cl-synthesizer-vendor:get-controller-number device-settings controller-id-msb))
-	 (controller-number-lsb (cl-synthesizer-vendor:get-controller-number device-settings controller-id-lsb))
+  (let* ((controller-number-msb (funcall (getf midi-controller :get-controller-number) controller-id-msb))
+	 (controller-number-lsb (funcall (getf midi-controller :get-controller-number) controller-id-lsb))
 	 (converter (cl-synthesizer-core:linear-converter
 		     :input-min 0
 		     :input-max (+ (* 128 128) -1)
@@ -76,11 +75,11 @@ device settings multiplied by 128."
 	 (controller-state (funcall (getf converter :get-x) cv-initial)))
     (if (not controller-number-msb)
 	(cl-synthesizer:signal-assembly-error
-	 :format-control "Controller id not supported by device-settings" 
+	 :format-control "Controller id not supported by midi-controller" 
 	 :format-arguments (list controller-id-msb)))
     (if (not controller-number-lsb)
 	(cl-synthesizer:signal-assembly-error
-	 :format-control "Controller id not supported by device-settings" 
+	 :format-control "Controller id not supported by midi-controller" 
 	 :format-arguments (list controller-id-lsb)))
     (if (eq controller-number-msb controller-number-lsb)
 	(cl-synthesizer:signal-assembly-error
@@ -89,8 +88,7 @@ device settings multiplied by 128."
     (flet ((controller-state-to-cv ()
 	     (clip-16383 (funcall (getf converter :get-y) controller-state)))
 	   (get-event-offset (midi-event)
-	     (cl-synthesizer-vendor:get-controller-value-offset
-	      device-settings
+	     (funcall (getf midi-controller :get-controller-value-offset)
 	      (cl-synthesizer-midi-event:get-controller-value midi-event))))
 	   (let ((cur-value (controller-state-to-cv)))
 	     (list

@@ -77,7 +77,7 @@
 
 
 	     
-(defparameter *MIDI-IFC-TEST-VENDOR*
+(defparameter *MIDI-IFC-TEST-VENDOR-CONTROL-TABLE*
   (list
    :ENCODER-CONTROLLER-NUMBERS
    (list :ENCODER-1 (list :CONTROLLER-NUMBER 112)
@@ -93,6 +93,21 @@
        ((eq 67 controller-value) 5)
        (t 0)))))
 
+(defparameter *MIDI-IFC-TEST-VENDOR*
+    (list
+     :get-controller-number
+     (lambda (id)
+       (let ((encoder-list (getf *MIDI-IFC-TEST-VENDOR-CONTROL-TABLE* :ENCODER-CONTROLLER-NUMBERS)))
+	 (let ((encoder (getf encoder-list id)))
+	   (let ((controller-number (getf encoder :CONTROLLER-NUMBER)))
+	     (if (not controller-number)
+		 (format t "Controller not found: ~a" id))
+	     controller-number))))
+     :get-controller-value-offset
+     (lambda (controller-value)
+       (funcall (getf *MIDI-IFC-TEST-VENDOR-CONTROL-TABLE* :RELATIVE-ENCODER-OFFSET) controller-value))))
+
+
 (defparameter *MIDI-IFC-TEST-CC-HANDLER-INITIAL-CV* 50)
 
 (define-test test-midi-interface-cc-3 ()
@@ -103,7 +118,7 @@
 		     :voice-count 1
 		     :controller-handler (list (list
 						:my-controller
-						(cl-synthesizer-vendor-cc-handler:7-bit-relative
+						(cl-synthesizer-midi:7-bit-relative
 							 *MIDI-IFC-TEST-VENDOR*
 							 :ENCODER-2
 							 :cv-initial *MIDI-IFC-TEST-CC-HANDLER-INITIAL-CV*
@@ -114,7 +129,7 @@
 			(list
 			 (cl-synthesizer-midi-event:make-control-change-event
 			  1
-			  (cl-synthesizer-vendor:get-controller-number *MIDI-IFC-TEST-VENDOR* :ENCODER-2)
+			  (funcall (getf *MIDI-IFC-TEST-VENDOR* :get-controller-number) :ENCODER-2)
 			  65)))
 	       (assert-equal (+ *MIDI-IFC-TEST-CC-HANDLER-INITIAL-CV* 10)
 			     (funcall (getf ifc :get-output) :my-controller))))

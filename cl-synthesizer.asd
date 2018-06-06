@@ -18,13 +18,6 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "macro-util")))
-		(:module "src/midi"
-			:serial t
-			:components ((:file "packages")
-				     (:file "tuning")
-				     (:file "event")
-				     (:file "voice-manager")
-				     ))
 		(:module "src/synthesizer"
 			:serial t
 			:components ((:file "packages")
@@ -45,6 +38,13 @@
 				     (:file "phase-generator")
 				     (:file "trigger")
 				     ))
+		(:module "src/midi"
+			:serial t
+			:components ((:file "packages")
+				     (:file "tuning")
+				     (:file "event")
+				     (:file "cc-handler")
+				     (:file "voice-manager")))
 	       (:module "src/modules"
 			:serial t
 			:components ((:file "packages")
@@ -69,8 +69,6 @@
 	       (:module "src/vendor"
 			:serial t
 			:components ((:file "packages")
-				     (:file "vendor")
-				     (:file "cc-handler")
 				     (:file "arturiaminilabmk2")))
 	       (:module "util"
 			:serial t
