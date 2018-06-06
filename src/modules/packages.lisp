@@ -1,11 +1,4 @@
 
-(defpackage :cl-synthesizer-modules-wave-file-writer
-  (:use :cl)
-  (:export
-   :one-channel-wave-file-writer
-   :two-channel-wave-file-writer
-   :get-n-channel-wave-file-writer))
-
 (defpackage :cl-synthesizer-modules-vco
   (:use :cl)
   (:export

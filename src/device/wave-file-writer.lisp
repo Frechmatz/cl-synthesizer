@@ -3,7 +3,7 @@
 ;; A Wave-File-Writer module
 ;;
 ;;
-(in-package :cl-synthesizer-modules-wave-file-writer)
+(in-package :cl-synthesizer-device-wave-file-writer)
 
 (alexandria:define-constant +V-PEAK+ 5.0)
 
@@ -84,7 +84,7 @@
 (n-channel-wave-file-writer "eight-channel-wave-file-writer" 8)
 
 ;;
-;; The following code is a bit crazy and needs some rework :)
+;; The following code is a bit crazy and needs rework :)
 ;;
 
 (defparameter *wave-file-writers*

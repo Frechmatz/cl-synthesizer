@@ -10,7 +10,7 @@
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   ;;(break)
   (let ((handler 
-	 (apply (cl-synthesizer-modules-wave-file-writer:get-n-channel-wave-file-writer (length outputs))
+	 (apply (cl-synthesizer-device-wave-file-writer:get-n-channel-wave-file-writer (length outputs))
 		name
 		environment
 		:filename filename

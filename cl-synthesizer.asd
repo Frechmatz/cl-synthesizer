@@ -50,7 +50,6 @@
 			:components ((:file "packages")
 				     (:file "vco")
 				     (:file "multiple")
-				     (:file "wave-file-writer")
 				     (:file "adsr")
 				     (:file "vca")
 				     (:file "midi-interface")
@@ -60,6 +59,7 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "speaker")
+				     (:file "wave-file-writer")
 				     (:file "midi-device")
 				     (:file "midi-sequencer")))
 	       (:module "src/monitor"
