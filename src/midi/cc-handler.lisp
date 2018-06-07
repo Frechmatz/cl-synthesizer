@@ -1,117 +1,39 @@
 (in-package :cl-synthesizer-midi)
 
-(defun clip-127 (v)
-  (cond
-    ((<= 127 v)
-     127)
-    ((> 0 v)
-     0)
-    (t v)))
-
-(defun clip-16383 (v)
-  (cond
-    ((<= 16383 v)
-     16383)
-    ((> 0 v)
-     0)
-    (t v)))
-
-(defun 7-bit-relative (midi-controller controller-id &key (cv-initial 2.5) (cv-min 0) (cv-max 5))
-  "Handler for a 7 Bit relative Controller. Uses a linear converter function to calculate CV."
-  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-  (let* ((controller-number (funcall (getf midi-controller :get-controller-number) controller-id)) 
-	 (converter (cl-synthesizer-core:linear-converter
-		     :input-min 0
-		     :input-max 127
-		     :output-min cv-min
-		     :output-max cv-max))
-	 (controller-state (funcall (getf converter :get-x) cv-initial))
-	 (cur-value cv-initial))
-    (if (not controller-number)
-	(cl-synthesizer:signal-assembly-error
-	 :format-control "~%Controller id not supported by midi-controller" 
-	 :format-arguments (list controller-id)))
+(defun relative-cc-handler (midi-controller inputs &key (cv-initial 2.5) (cv-min 0) (cv-max 5))
+  "Handler that converts relative MIDI CC-Events to control voltages. Can combine 
+   the events of multiple controller ids.
+   - midi-controller: The MIDI controller. Defines keywords for controller-ids and
+     knows how to interpret relative CC events.
+   - inputs: (list (:controller-id id :factor-percent factor-percent)) where factor-percent
+     defines how much the control-voltage will be increased/decreased when the controller
+     signals an increment/decrement. The value is relative to the total control voltage range
+     as defined by cv-min and cv-max. The controller id is a keyword that must be supported
+     by the given midi-controller, for example :encoder-1"
+  (let ((input-handlers nil) (cur-cv cv-initial) (cv-range (abs (- cv-max cv-min))))
+    (dolist (input inputs)
+      (let ((ctrl-id (funcall (getf midi-controller :get-controller-number) (getf input :controller-id)))
+	    (delta (* cv-range (getf input :factor-percent))))
+	(push (lambda (midi-event-controller-id midi-event-controller-offset)
+		(if (eq midi-event-controller-id ctrl-id)
+		    (* delta midi-event-controller-offset)
+		    0))
+	      input-handlers)))
     (list
-     :update 
-     (lambda (midi-events)
-       ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-       (let ((found nil))
-	 (dolist (midi-event midi-events)
-	   (if (and midi-event
-		    (cl-synthesizer-midi-event:control-change-eventp midi-event)
-		    (eq controller-number (cl-synthesizer-midi-event:get-controller-number midi-event)))
-	       (progn
-		 (setf found t)
-		 (setf controller-state
-		       (+
-			controller-state
-			(funcall (getf midi-controller :get-controller-value-offset)
-			 (cl-synthesizer-midi-event:get-controller-value midi-event)))))))
-	 (if found
-	     (progn
-	       (setf controller-state (clip-127 controller-state))
-	       (setf cur-value (funcall (getf converter :get-y) controller-state))
-	       ;;(format t "~%Updated controller state. CV is ~a" cur-value)
-	       ))))
-       :get-output
-     (lambda ()
-       cur-value))))
-
-(defun 14-bit-relative (midi-controller &key controller-id-msb controller-id-lsb (cv-initial 2.5) (cv-min 0) (cv-max 5))
-  "Handler that combines two 7 Bit relative Controllers into a 14 Bit one. 
-Uses a linear converter function to calculate CV.
-The LSB controller increments/decrements the controller state by the offset as defined by the 
-device settings.
-The MSB controller increments/decrements the controller state by the offset as defined by the
-device settings multiplied by 128."
-  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-  (let* ((controller-number-msb (funcall (getf midi-controller :get-controller-number) controller-id-msb))
-	 (controller-number-lsb (funcall (getf midi-controller :get-controller-number) controller-id-lsb))
-	 (converter (cl-synthesizer-core:linear-converter
-		     :input-min 0
-		     :input-max (+ (* 128 128) -1)
-		     :output-min cv-min
-		     :output-max cv-max))
-	 (controller-state (funcall (getf converter :get-x) cv-initial)))
-    (if (not controller-number-msb)
-	(cl-synthesizer:signal-assembly-error
-	 :format-control "Controller id not supported by midi-controller" 
-	 :format-arguments (list controller-id-msb)))
-    (if (not controller-number-lsb)
-	(cl-synthesizer:signal-assembly-error
-	 :format-control "Controller id not supported by midi-controller" 
-	 :format-arguments (list controller-id-lsb)))
-    (if (eq controller-number-msb controller-number-lsb)
-	(cl-synthesizer:signal-assembly-error
-	 :format-control "Controllers must be assigned to different controller numbers: %s %s" 
-	 :format-arguments (list controller-id-msb controller-id-lsb)))
-    (flet ((controller-state-to-cv ()
-	     (clip-16383 (funcall (getf converter :get-y) controller-state)))
-	   (get-event-offset (midi-event)
-	     (funcall (getf midi-controller :get-controller-value-offset)
-	      (cl-synthesizer-midi-event:get-controller-value midi-event))))
-	   (let ((cur-value (controller-state-to-cv)))
-	     (list
-	      :update 
-	      (lambda (midi-events)
-		;;(declare (optimize (debug 3) (speed 0) (space 0)))
-		(let ((found nil))
-		  (dolist (midi-event midi-events)
-		    (if (and midi-event (cl-synthesizer-midi-event:control-change-eventp midi-event))
-			(cond
-			  ((eq controller-number-lsb (cl-synthesizer-midi-event:get-controller-number midi-event))
-			   (progn
-			     (setf found t)
-			     (setf controller-state (+ controller-state (get-event-offset midi-event)))))
-			   ((eq controller-number-msb (cl-synthesizer-midi-event:get-controller-number midi-event))
-			    (progn
-			      (setf found t)
-			      (setf controller-state (+ controller-state (* 128 (get-event-offset midi-event)))))))))
-		  (if found
-		      (progn
-			(setf cur-value (controller-state-to-cv))
-			;;(format t "~%Updated controller state. CV is ~a" cur-value)
-			))))
-	      :get-output
-	      (lambda ()
-		cur-value))))))
+     :update (lambda (midi-events)
+	       (let ((delta 0))
+		 (dolist (midi-event midi-events)
+		   (if (cl-synthesizer-midi-event:control-change-eventp midi-event)
+		       (let ((controller-number (cl-synthesizer-midi-event:get-controller-number midi-event))
+			     (offset (funcall (getf midi-controller :get-controller-value-offset)
+					    (cl-synthesizer-midi-event:get-controller-value midi-event))))
+			 (dolist (input-handler input-handlers)
+			   (setf delta (+ delta (funcall input-handler controller-number offset)))))))
+		 (let ((tmp (+ cur-cv delta)))
+		   ;; apply clipping
+		   (if (> cv-min tmp) ;; tmp < cv-min
+		       (setf cur-cv cv-min)
+		       (if (< cv-max tmp) ;; tmp > cv-max
+			   (setf cur-cv cv-max)
+			   (setf cur-cv tmp))))))
+     :get-output (lambda () cur-cv))))

@@ -3,8 +3,7 @@
   (:use :cl)
   (:export
    :get-note-number-frequency
-   :7-bit-relative
-   :14-bit-relative))
+   :relative-cc-handler))
 
 (defpackage :cl-synthesizer-midi-event
   (:use :cl)

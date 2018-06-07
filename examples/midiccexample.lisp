@@ -6,16 +6,16 @@
 
 (in-package :cl-synthesizer-examples)
 
-(defun synthesizer-example-midi-7-bit-controller ()
+(defun synthesizer-example-midi-single-controller ()
   "Midi example: Modulate frequency via Controller"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
     (cl-synthesizer::add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
 				:controller-handler
 				(list
 				 (list :controller-1
-				       (cl-synthesizer-midi:7-bit-relative
+				       (cl-synthesizer-midi:relative-cc-handler
 					(cl-synthesizer-vendor:arturia-minilab-mk2)
-					:ENCODER-1
+					(list (list :controller-id :ENCODER-1 :factor-percent 0.01))
 					:cv-initial 2.5
 					:cv-min 0
 					:cv-max 5))))
@@ -32,19 +32,19 @@
     (cl-synthesizer::add-patch rack "VCO-1" :triangle "LINE-OUT" :channel-2)
     rack))
       
-;;(cl-synthesizer-util:play-rack (cl-synthesizer-examples::synthesizer-example-midi-7-bit-controller) 10 :attach-speaker t :attach-midi t)
+;;(cl-synthesizer-util:play-rack (cl-synthesizer-examples::synthesizer-example-midi-singlecontroller) 10 :attach-speaker t :attach-midi t)
 
-(defun synthesizer-example-midi-14-bit-controller ()
+(defun synthesizer-example-midi-chained-controllers ()
   "Midi example: Modulate frequency via Controller"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
     (cl-synthesizer::add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
 				:controller-handler
 				(list
 				 (list :controller-1
-				       (cl-synthesizer-midi:14-bit-relative
+				       (cl-synthesizer-midi:relative-cc-handler
 					(cl-synthesizer-vendor:arturia-minilab-mk2)
-					:controller-id-lsb :ENCODER-1
-					:controller-id-msb :ENCODER-9
+					(list (list :controller-id :ENCODER-1 :factor-percent 0.005)
+					      (list :controller-id :ENCODER-9 :factor-percent 0.02))
 					:cv-initial 2.5
 					:cv-min 0
 					:cv-max 5))))
@@ -61,18 +61,18 @@
     (cl-synthesizer::add-patch rack "VCO-1" :triangle "LINE-OUT" :channel-2)
     rack))
       
-;;(cl-synthesizer-util:play-rack (cl-synthesizer-examples::synthesizer-example-midi-14-bit-controller) 60 :attach-speaker t :attach-midi t)
+;;(cl-synthesizer-util:play-rack (cl-synthesizer-examples::synthesizer-example-midi-chained-controllers) 30 :attach-speaker t :attach-midi t)
 
-(defun synthesizer-example-midi-7-bit-controller-2 ()
+(defun synthesizer-example-midi-single-controller-2 ()
   "Midi example: Modulate frequency via Controller"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
     (cl-synthesizer::add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
 				:controller-handler
 				(list
 				 (list :controller-1
-				       (cl-synthesizer-midi:7-bit-relative
+				       (cl-synthesizer-midi:relative-cc-handler
 					(cl-synthesizer-vendor:arturia-minilab-mk2)
-					:ENCODER-1
+					(list (list :controller-id :ENCODER-1 :factor-percent :0.01))
 					:cv-initial 2.5
 					:cv-min 0
 					:cv-max 5))))
@@ -91,5 +91,5 @@
     (cl-synthesizer::add-patch rack "VCO-2" :triangle "LINE-OUT" :channel-2)
     rack))
       
-;;(cl-synthesizer-util:play-rack (cl-synthesizer-examples::synthesizer-example-midi-7-bit-controller) 60 :attach-speaker t :attach-midi t)
+;;(cl-synthesizer-util:play-rack (cl-synthesizer-examples::synthesizer-example-midi-single-controller-2) 30 :attach-speaker t :attach-midi t)
 

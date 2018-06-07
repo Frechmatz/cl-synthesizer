@@ -108,31 +108,31 @@
        (funcall (getf *MIDI-IFC-TEST-VENDOR-CONTROL-TABLE* :RELATIVE-ENCODER-OFFSET) controller-value))))
 
 
-(defparameter *MIDI-IFC-TEST-CC-HANDLER-INITIAL-CV* 50)
+(defparameter *MIDI-IFC-TEST-CC-HANDLER-INITIAL-CV* 50.0)
 
 (define-test test-midi-interface-cc-3 ()
-	     (let ((ifc
-		    (cl-synthesizer-modules-midi-interface:midi-interface
-		     "Test-Midi-Interface"
-		     (cl-synthesizer::make-environment)
-		     :voice-count 1
-		     :controller-handler (list (list
-						:my-controller
-						(cl-synthesizer-midi:7-bit-relative
-							 *MIDI-IFC-TEST-VENDOR*
-							 :ENCODER-2
-							 :cv-initial *MIDI-IFC-TEST-CC-HANDLER-INITIAL-CV*
-							 :cv-min 0
-							 :cv-max 1270))))))
-	       (funcall (getf ifc :update)
-			:midi-events
-			(list
-			 (cl-synthesizer-midi-event:make-control-change-event
-			  1
-			  (funcall (getf *MIDI-IFC-TEST-VENDOR* :get-controller-number) :ENCODER-2)
-			  65)))
-	       (assert-equal (+ *MIDI-IFC-TEST-CC-HANDLER-INITIAL-CV* 10)
-			     (funcall (getf ifc :get-output) :my-controller))))
+  (let ((ifc
+	 (cl-synthesizer-modules-midi-interface:midi-interface
+	  "Test-Midi-Interface"
+	  (cl-synthesizer::make-environment)
+	  :voice-count 1
+	  :controller-handler (list (list
+				     :my-controller
+				     (cl-synthesizer-midi:relative-cc-handler
+				      *MIDI-IFC-TEST-VENDOR*
+				      (list (list :controller-id :ENCODER-2 :factor-percent 0.1))
+				      :cv-initial *MIDI-IFC-TEST-CC-HANDLER-INITIAL-CV*
+				      :cv-min 0
+				      :cv-max 100))))))
+    (funcall (getf ifc :update)
+	     :midi-events
+	     (list
+	      (cl-synthesizer-midi-event:make-control-change-event
+	       1
+	       (funcall (getf *MIDI-IFC-TEST-VENDOR* :get-controller-number) :ENCODER-2)
+	       65)))
+    (assert-equal (+ *MIDI-IFC-TEST-CC-HANDLER-INITIAL-CV* 10)
+		  (funcall (getf ifc :get-output) :my-controller))))
 
 
 
