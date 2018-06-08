@@ -15,5 +15,6 @@
    :add-module
    :add-patch
    :update-rack
+   :shutdown-rack
    ))
 
