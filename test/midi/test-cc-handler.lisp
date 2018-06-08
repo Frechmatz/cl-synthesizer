@@ -175,4 +175,31 @@
    :call-update-count 100
    :result -3))
 
+(define-test test-cc-invalid-cv-1 ()
+	     (expect-assembly-exception 
+	       (run-cc-ng-testcase
+		:cc-setup (list (list :ENCODER-1 0.01))
+		:cv-min 5
+		:cv-max -5
+		:cv-initial 2
+		:events (list (list :ENCODER-1 63))
+		:result -3)))
 
+(define-test test-cc-invalid-initial-cv-1 ()
+	     (expect-assembly-exception 
+	       (run-cc-ng-testcase
+		:cc-setup (list (list :ENCODER-1 0.01))
+		:cv-min -5
+		:cv-max 5
+		:cv-initial 20
+		:events (list (list :ENCODER-1 63))
+		:result -3)))
+
+(define-test test-cc-equal-min-max-cv-1 ()
+	     (run-cc-ng-testcase
+	      :cc-setup (list (list :ENCODER-1 0.01))
+	      :cv-min 3
+	      :cv-max 3
+	      :cv-initial 3
+	      :events (list (list :ENCODER-1 63))
+	      :result 3.0))

@@ -8,7 +8,7 @@
    The handler can work with multiple encoders, where each encoder has a \"weight\" which
    defines how strongly the control voltage will be changed.
    Arguments:
-   - midi-controller: A property list that defines the following properties:
+   - midi-controller: A property list with the following properties:
      -- :get-controller-number: A function that is called with a keyword that identifies 
          the controller, for example :ENCODER-1 and returns the controller number, 
          for example 112.
@@ -25,6 +25,14 @@
         Example: (:turn-speed (lambda (offs) 1))
     Input example 1: '((:controller-id :ENCODER-1 :delta-percent 0.01) (:controller-id :ENCODER-2 :delta-percent 0.10))
     Input example 2: '((:controller-id :ENCODER-1 :delta-percent 0.01 :turn-speed (lambda(offs) 1)))"
+  (if (< cv-max cv-min)
+      (cl-synthesizer:signal-assembly-error
+       :format-control "cv-min greater than cv-max ~a ~a"
+       :format-arguments (list cv-min cv-max)))
+  (if (or (< cv-max cv-initial) (> cv-min cv-initial))
+      (cl-synthesizer:signal-assembly-error
+       :format-control "Initial value ~a not in CV range ~a - ~a"
+       :format-arguments (list cv-initial cv-min cv-max)))
   (let ((input-handlers nil) (cur-cv cv-initial) (cv-range (abs (- cv-max cv-min))))
     (dolist (input inputs)
       (let ((ctrl-id (funcall (getf midi-controller :get-controller-number) (getf input :controller-id)))
