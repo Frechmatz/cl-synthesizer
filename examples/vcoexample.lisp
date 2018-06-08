@@ -30,9 +30,9 @@
   "Modulate sine with sine-lfo"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module rack "LFO-1"
-				#'cl-synthesizer-modules-vco::vco :base-frequency 0.2 :v-peak 5)
+				#'cl-synthesizer-modules-vco:vco :base-frequency 0.2 :v-peak 5)
     (cl-synthesizer:add-module rack "LFO-2"
-				#'cl-synthesizer-modules-vco::vco :base-frequency 0.2 :v-peak 5)
+				#'cl-synthesizer-modules-vco:vco :base-frequency 0.2 :v-peak 5)
     (cl-synthesizer:add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco :base-frequency 440 :cv-max 5 :f-max 8000 :v-peak 5)
     (cl-synthesizer:add-module rack "VCO-2"
@@ -70,7 +70,7 @@
   "Triangle test"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module rack "LFO-1"
-				#'cl-synthesizer-modules-vco::vco :base-frequency 0.5 :v-peak 5)
+				#'cl-synthesizer-modules-vco:vco :base-frequency 0.5 :v-peak 5)
     (cl-synthesizer:add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco :base-frequency 400 :cv-max 5 :f-max 660 :v-peak 5)
     (cl-synthesizer:add-patch rack "LFO-1" :triangle "VCO-1" :cv)
@@ -110,7 +110,7 @@
   "Saw test"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module rack "LFO-1"
-				#'cl-synthesizer-modules-vco::vco :base-frequency 0.5 :v-peak 5)
+				#'cl-synthesizer-modules-vco:vco :base-frequency 0.5 :v-peak 5)
     (cl-synthesizer:add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco :base-frequency 440 :cv-max 5 :f-max 660 :v-peak 5)
     (cl-synthesizer:add-patch rack "LFO-1" :triangle "VCO-1" :cv-lin)
@@ -149,7 +149,7 @@
   "Saw test"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module rack "LFO-1"
-				#'cl-synthesizer-modules-vco::vco :base-frequency 0.5 :v-peak 5)
+				#'cl-synthesizer-modules-vco:vco :base-frequency 0.5 :v-peak 5)
     (cl-synthesizer:add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco :base-frequency 440 :cv-max 5 :v-peak 5)
 
