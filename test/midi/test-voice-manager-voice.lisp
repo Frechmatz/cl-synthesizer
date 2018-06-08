@@ -13,7 +13,6 @@
 		 (assert-true (cl-synthesizer-midi-voice-manager::voice-is-note v 1))
 		 (assert-nil (cl-synthesizer-midi-voice-manager::voice-is-note v 99)))))
 
-#|
 (define-test test-voice-manager-voice-3 ()
 	     (let ((v (make-instance 'cl-synthesizer-midi-voice-manager::voice)))
 	       (multiple-value-bind (current-voice-note voice-note-stack-size)
@@ -95,4 +94,3 @@
 		 (assert-equal 1 current-voice-note))
 	       (assert-nil (cl-synthesizer-midi-voice-manager::voice-remove-note v 1))))
 
-|#
