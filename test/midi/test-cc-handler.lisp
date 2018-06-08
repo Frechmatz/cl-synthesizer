@@ -18,10 +18,18 @@
 
 (defparameter *CC-HANDLER-NG-INITIAL-CV* 5.0)
 
-(defun run-cc-ng-testcase (&key (cc-setup nil) (events nil) (duplicate-event-count 1) (call-update-count 1) result)
+(defun run-cc-ng-testcase (&key
+			     (cc-setup nil)
+			     (events nil)
+			     (duplicate-event-count 1)
+			     (call-update-count 1)
+			     (cv-min 0)
+			     (cv-max 100)
+			     (cv-initial *CC-HANDLER-NG-INITIAL-CV*)
+			     result)
   ":cc-setup -- (list (list :ENCODER-2 0.01) (list :ENCODER-3 0.1))
    :duplicate-events 1
-   :repeat-updates 1
+   :call-update-count 1
    :events -- (list (list :ENCODER-1 67) (list :ENCODER-2 68))
    :result *CC-HANDLER-NG-INITIAL-CV*"
   (let ((handler (funcall
@@ -31,7 +39,7 @@
 		   (lambda (setup-entry)
 		     (list :controller-id (first setup-entry) :delta-percent (second setup-entry)))
 		   cc-setup)
-		  :cv-initial *CC-HANDLER-NG-INITIAL-CV* :cv-min 0 :cv-max 100)))
+		  :cv-initial cv-initial :cv-min cv-min :cv-max cv-max)))
     (let ((midi-events nil))
       (dotimes (i duplicate-event-count)
 	(dolist (evt events)
@@ -138,4 +146,33 @@
    :cc-setup (list (list :ENCODER-1 0.01) (list :ENCODER-2 0.1))
    :events (list (list :ENCODER-1 65) (list :ENCODER-2 65))
    :result (+ 11 *CC-HANDLER-NG-INITIAL-CV*)))
+
+(define-test test-cc-negative-cv-min-1 ()
+  (run-cc-ng-testcase
+   :cc-setup (list (list :ENCODER-1 0.01))
+   :cv-min -5
+   :cv-max 5
+   :cv-initial 2
+   :events (list (list :ENCODER-1 65))
+   :result 2.1))
+
+(define-test test-cc-negative-cv-min-2 ()
+  (run-cc-ng-testcase
+   :cc-setup (list (list :ENCODER-1 0.01))
+   :cv-min -3
+   :cv-max 7
+   :cv-initial 2
+   :events (list (list :ENCODER-1 65))
+   :result 2.1))
+
+(define-test test-cc-negative-cv-min-3 ()
+  (run-cc-ng-testcase
+   :cc-setup (list (list :ENCODER-1 0.01))
+   :cv-min -3
+   :cv-max 7
+   :cv-initial 2
+   :events (list (list :ENCODER-1 63))
+   :call-update-count 100
+   :result -3))
+
 
