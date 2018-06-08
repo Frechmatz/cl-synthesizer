@@ -11,5 +11,6 @@
    :midi-in
    :get-sample-rate
    :register-monitor
+   :add-module
    ))
 

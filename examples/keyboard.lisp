@@ -10,7 +10,7 @@
   "Keyboard"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
     ;; two voices assigned to left/right of line out due to absence of a mixer module
-    (cl-synthesizer::add-module
+    (cl-synthesizer:add-module
      rack
      "MIDI-IFC"
      #'cl-synthesizer-modules-midi-interface:midi-interface
@@ -20,15 +20,15 @@
 	     (declare (optimize (debug 3) (speed 0) (space 0)))
 	     (flet ((make-module-name (name)
 		       (format nil "~a-~a-~a" prefix voice-number name)))
-	       (cl-synthesizer::add-module
+	       (cl-synthesizer:add-module
 		rack (make-module-name "VCO")
 		#'cl-synthesizer-modules-vco:vco
 		:base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
 		:cv-max 5
 		:f-max 13000
 		:v-peak 5)
-	       (cl-synthesizer::add-module rack (make-module-name "ADSR") #'cl-synthesizer-modules-adsr:adsr)
-	       (cl-synthesizer::add-module rack (make-module-name "VCA") #'cl-synthesizer-modules-vca:vca)
+	       (cl-synthesizer:add-module rack (make-module-name "ADSR") #'cl-synthesizer-modules-adsr:adsr)
+	       (cl-synthesizer:add-module rack (make-module-name "VCA") #'cl-synthesizer-modules-vca:vca)
 	       (cl-synthesizer::add-patch rack (make-module-name "VCO") :sine (make-module-name "VCA") :input)
 	       (cl-synthesizer::add-patch rack (make-module-name "ADSR") :cv (make-module-name "VCA") :cv)
 	       ;; Connect with midi-interface

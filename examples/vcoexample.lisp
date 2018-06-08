@@ -7,9 +7,9 @@
 (defun synthesizer-example-vco-stereo-speaker ()
   "Play two sinus waves in stereo"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
-    (cl-synthesizer::add-module rack "VCO-1"
+    (cl-synthesizer:add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco :base-frequency 440 :cv-max 5 :f-max 8000 :v-peak 5)
-    (cl-synthesizer::add-module rack "VCO-2"
+    (cl-synthesizer:add-module rack "VCO-2"
 				#'cl-synthesizer-modules-vco:vco :base-frequency 442 :cv-max 5 :f-max 8000 :v-peak 5)
     (cl-synthesizer::add-patch rack "VCO-1" :sine "LINE-OUT" :channel-1)
     (cl-synthesizer::add-patch rack "VCO-2" :sine "LINE-OUT" :channel-2)
@@ -29,13 +29,13 @@
 (defun synthesizer-example-vco-lfo-stereo-speaker ()
   "Modulate sine with sine-lfo"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
-    (cl-synthesizer::add-module rack "LFO-1"
+    (cl-synthesizer:add-module rack "LFO-1"
 				#'cl-synthesizer-modules-vco::vco :base-frequency 0.2 :v-peak 5)
-    (cl-synthesizer::add-module rack "LFO-2"
+    (cl-synthesizer:add-module rack "LFO-2"
 				#'cl-synthesizer-modules-vco::vco :base-frequency 0.2 :v-peak 5)
-    (cl-synthesizer::add-module rack "VCO-1"
+    (cl-synthesizer:add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco :base-frequency 440 :cv-max 5 :f-max 8000 :v-peak 5)
-    (cl-synthesizer::add-module rack "VCO-2"
+    (cl-synthesizer:add-module rack "VCO-2"
 				#'cl-synthesizer-modules-vco:vco :base-frequency 440 :cv-max 5 :f-max 8000 :v-peak 5)
     
     (cl-synthesizer::add-patch rack "LFO-1" :sine "VCO-1" :cv-lin)
@@ -69,9 +69,9 @@
 (defun synthesizer-example-vco-triangle-sweep ()
   "Triangle test"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
-    (cl-synthesizer::add-module rack "LFO-1"
+    (cl-synthesizer:add-module rack "LFO-1"
 				#'cl-synthesizer-modules-vco::vco :base-frequency 0.5 :v-peak 5)
-    (cl-synthesizer::add-module rack "VCO-1"
+    (cl-synthesizer:add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco :base-frequency 400 :cv-max 5 :f-max 660 :v-peak 5)
     (cl-synthesizer::add-patch rack "LFO-1" :triangle "VCO-1" :cv)
 
@@ -90,7 +90,7 @@
 (defun synthesizer-example-vco-saw ()
   "Saw test"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
-    (cl-synthesizer::add-module rack "VCO-1"
+    (cl-synthesizer:add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco :base-frequency 300 :cv-max 5 :f-max 8000 :v-peak 5)
 
     ;; Add Oscilloscope Monitor
@@ -109,9 +109,9 @@
 (defun synthesizer-example-vco-saw-sweep ()
   "Saw test"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
-    (cl-synthesizer::add-module rack "LFO-1"
+    (cl-synthesizer:add-module rack "LFO-1"
 				#'cl-synthesizer-modules-vco::vco :base-frequency 0.5 :v-peak 5)
-    (cl-synthesizer::add-module rack "VCO-1"
+    (cl-synthesizer:add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco :base-frequency 440 :cv-max 5 :f-max 660 :v-peak 5)
     (cl-synthesizer::add-patch rack "LFO-1" :triangle "VCO-1" :cv-lin)
 
@@ -131,7 +131,7 @@
 (defun synthesizer-example-vco-square ()
   "Saw test"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
-    (cl-synthesizer::add-module rack "VCO-1"
+    (cl-synthesizer:add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco :base-frequency 300 :cv-max 5 :v-peak 5)
     ;; Add Oscilloscope Monitor
     (cl-synthesizer:register-monitor
@@ -148,9 +148,9 @@
 (defun synthesizer-example-vco-square-sweep ()
   "Saw test"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
-    (cl-synthesizer::add-module rack "LFO-1"
+    (cl-synthesizer:add-module rack "LFO-1"
 				#'cl-synthesizer-modules-vco::vco :base-frequency 0.5 :v-peak 5)
-    (cl-synthesizer::add-module rack "VCO-1"
+    (cl-synthesizer:add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco :base-frequency 440 :cv-max 5 :v-peak 5)
 
     (cl-synthesizer::add-patch rack "LFO-1" :triangle "VCO-1" :cv-lin)
@@ -170,7 +170,7 @@
 (defun synthesizer-example-vco-all-waves ()
   "Saw test"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
-    (cl-synthesizer::add-module rack "VCO-1"
+    (cl-synthesizer:add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco :base-frequency 300 :cv-max 5 :v-peak 5)
 
     ;; Add Oscilloscope Monitor
@@ -191,8 +191,8 @@
 (defun synthesizer-example-vco-2-fixed-lin-mono()
   "Expected output frequency is 500 + (10000 / 5) = 2500"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
-    (cl-synthesizer::add-module rack "FIXED" #'cl-synthesizer-modules-fixed-output:fixed-output :value 1)
-    (cl-synthesizer::add-module rack "VCO-1"
+    (cl-synthesizer:add-module rack "FIXED" #'cl-synthesizer-modules-fixed-output:fixed-output :value 1)
+    (cl-synthesizer:add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco :base-frequency 500 :cv-max 5 :f-max 10000 :v-peak 5)
     (cl-synthesizer::add-patch rack "FIXED" :out "VCO-1" :cv-lin)
 

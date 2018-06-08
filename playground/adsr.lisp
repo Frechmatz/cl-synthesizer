@@ -16,23 +16,23 @@
   (let ((rack (cl-synthesizer:create-rack :environment *adsr-environment*)))
 
     ;; Set up MIDI Interface and connect it to the MIDI input of the Rack
-    (cl-synthesizer::add-module rack "MIDI-IFC"
+    (cl-synthesizer:add-module rack "MIDI-IFC"
 				#'cl-synthesizer-modules-midi-interface:midi-interface :voice-count 1)
     (cl-synthesizer::add-patch rack "MIDI-IN" :midi-events "MIDI-IFC" :midi-events)
 
     ;; Add VCO, ADSR, VCA
-    (cl-synthesizer::add-module rack "VCO" #'cl-synthesizer-modules-vco:vco
+    (cl-synthesizer:add-module rack "VCO" #'cl-synthesizer-modules-vco:vco
 				:base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
 				:cv-max 5
 				:f-max 13000
 				:v-peak 5)
-    (cl-synthesizer::add-module rack "ADSR" #'cl-synthesizer-modules-adsr:adsr
+    (cl-synthesizer:add-module rack "ADSR" #'cl-synthesizer-modules-adsr:adsr
 				:attack-ms 1000
 				:attack-cv 5
 				:decay-ms 1000
 				:decay-cv 3
 				:release-ms 1000)
-    (cl-synthesizer::add-module rack "VCA" #'cl-synthesizer-modules-vca:vca)
+    (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:vca)
 
     (cl-synthesizer::add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv)
     (cl-synthesizer::add-patch rack "MIDI-IFC" :gate-1 "ADSR" :gate)
