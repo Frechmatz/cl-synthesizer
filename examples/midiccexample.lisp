@@ -15,7 +15,8 @@
 				 (list :controller-1
 				       (cl-synthesizer-midi:relative-cc-handler
 					cl-synthesizer-vendor:*arturia-minilab-mk2*
-					(list (list :controller-id :ENCODER-1 :factor-percent 0.01))
+					(list (list :controller-id :ENCODER-1 :delta-percent 0.01
+						    :turn-speed (lambda(offs) (declare (ignore offs)) 1)))
 					:cv-initial 2.5
 					:cv-min 0
 					:cv-max 5))))
@@ -43,8 +44,8 @@
 				 (list :controller-1
 				       (cl-synthesizer-midi:relative-cc-handler
 					cl-synthesizer-vendor:*arturia-minilab-mk2*
-					(list (list :controller-id :ENCODER-1 :factor-percent 0.005)
-					      (list :controller-id :ENCODER-9 :factor-percent 0.02))
+					(list (list :controller-id :ENCODER-1 :delta-percent 0.005)
+					      (list :controller-id :ENCODER-9 :delta-percent 0.02))
 					:cv-initial 2.5
 					:cv-min 0
 					:cv-max 5))))
@@ -72,7 +73,7 @@
 				 (list :controller-1
 				       (cl-synthesizer-midi:relative-cc-handler
 					cl-synthesizer-vendor:*arturia-minilab-mk2*
-					(list (list :controller-id :ENCODER-1 :factor-percent 0.01))
+					(list (list :controller-id :ENCODER-1 :delta-percent 0.01))
 					:cv-initial 2.5
 					:cv-min 0
 					:cv-max 5))))
