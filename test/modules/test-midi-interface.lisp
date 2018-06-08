@@ -3,7 +3,7 @@
 (defun test-midi-interface-make-midi-interface (voice-count &key (play-mode :PLAY-MODE-POLY))
   (cl-synthesizer-modules-midi-interface:midi-interface
    "Test-Midi-Interface"
-   (cl-synthesizer::make-environment)
+   (cl-synthesizer:make-environment)
    :voice-count voice-count
    :note-number-to-cv (lambda (n) (* 1000 n))
    :play-mode play-mode))

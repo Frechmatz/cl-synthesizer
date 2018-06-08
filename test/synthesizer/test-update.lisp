@@ -2,7 +2,7 @@
 (in-package :cl-synthesizer-test)
 
 (defun create-test-rack-simple ()
-  (let ((rack (make-instance 'cl-synthesizer:rack :environment (cl-synthesizer::make-environment))))
+  (let ((rack (make-instance 'cl-synthesizer:rack :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module rack "Counter" #'cl-synthesizer-test::test-module-counter)
     (cl-synthesizer:add-module rack "Multiplier" #'cl-synthesizer-test::test-module-multiply-by-two)
     (assert-eq 2 (length (slot-value rack 'cl-synthesizer::modules)))
@@ -34,7 +34,7 @@
 
 
 (defun create-test-rack-adder ()
-  (let ((rack (make-instance 'cl-synthesizer:rack :environment (cl-synthesizer::make-environment))))
+  (let ((rack (make-instance 'cl-synthesizer:rack :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module rack "Counter 1" #'cl-synthesizer-test::test-module-counter)
     (cl-synthesizer:add-module rack "Counter 2" #'cl-synthesizer-test::test-module-counter)
     (cl-synthesizer:add-module rack "Adder" #'cl-synthesizer-test::test-module-adder)
@@ -78,7 +78,7 @@
 
 (defun create-test-rack-recursive ()
   "Input of adder is connected with one of its outputs"
-  (let ((rack (make-instance 'cl-synthesizer:rack :environment (cl-synthesizer::make-environment))))
+  (let ((rack (make-instance 'cl-synthesizer:rack :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module rack "Counter" #'cl-synthesizer-test::test-module-counter)
     (cl-synthesizer:add-module rack "Adder" #'cl-synthesizer-test::test-module-adder)
     (assert-eq 2 (length (slot-value rack 'cl-synthesizer::modules)))

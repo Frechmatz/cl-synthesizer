@@ -9,7 +9,7 @@
 
 (in-package :cl-synthesizer-playground-adsr)
 
-(defparameter *adsr-environment* (cl-synthesizer::make-environment))
+(defparameter *adsr-environment* (cl-synthesizer:make-environment))
 
 (defun synthesizer-playground-adsr ()
   "ADSR-Example"

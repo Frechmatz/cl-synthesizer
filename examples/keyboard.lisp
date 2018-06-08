@@ -8,7 +8,7 @@
 
 (defun synthesizer-example-keyboard ()
   "Keyboard"
-  (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer::make-environment))))
+  (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer:make-environment))))
     ;; two voices assigned to left/right of line out due to absence of a mixer module
     (cl-synthesizer:add-module
      rack

@@ -2,7 +2,7 @@
 (in-package :cl-synthesizer-test)
 
 (defun create-test-rack ()
-  (let ((rack (make-instance 'cl-synthesizer:rack :environment (cl-synthesizer::make-environment))))
+  (let ((rack (make-instance 'cl-synthesizer:rack :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module rack "Module 1" #'cl-synthesizer-test::test-module)
     (cl-synthesizer:add-module rack "Module 2" #'cl-synthesizer-test::test-module)
     (assert-eq 2 (length (slot-value rack 'cl-synthesizer::modules)))

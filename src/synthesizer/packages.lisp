@@ -2,6 +2,7 @@
   (:use :cl)
   (:export
    :signal-assembly-error
+   :make-environment
    :rack-module
    :rack
    :create-rack

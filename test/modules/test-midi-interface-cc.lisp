@@ -5,7 +5,7 @@
 	     (expect-assembly-exception
 	       (cl-synthesizer-modules-midi-interface:midi-interface
 		"Test-Midi-Interface"
-		(cl-synthesizer::make-environment)
+		(cl-synthesizer:make-environment)
 		:voice-count 1
 		:controller-handler (list
 				     (list :CV-1 nil)))))
@@ -14,7 +14,7 @@
 	     (expect-assembly-exception
 	       (cl-synthesizer-modules-midi-interface:midi-interface
 		"Test-Midi-Interface"
-		(cl-synthesizer::make-environment)
+		(cl-synthesizer:make-environment)
 		:voice-count 1
 		:controller-handler (list
 				     (list "CV-1" nil)))))
@@ -23,7 +23,7 @@
 	     (expect-assembly-exception
 	       (cl-synthesizer-modules-midi-interface:midi-interface
 		"Test-Midi-Interface"
-		(cl-synthesizer::make-environment)
+		(cl-synthesizer:make-environment)
 		:voice-count 1
 		:controller-handler (list
 				     (list :my-controller nil)))))
@@ -33,7 +33,7 @@
 	     (expect-assembly-exception
 	       (cl-synthesizer-modules-midi-interface:midi-interface
 		"Test-Midi-Interface"
-		(cl-synthesizer::make-environment)
+		(cl-synthesizer:make-environment)
 		:voice-count 1
 		:controller-handler (list
 				     (list :my-controller (list :update (lambda () nil)))))))
@@ -43,7 +43,7 @@
 	     (expect-assembly-exception
 	       (cl-synthesizer-modules-midi-interface:midi-interface
 		"Test-Midi-Interface"
-		(cl-synthesizer::make-environment)
+		(cl-synthesizer:make-environment)
 		:voice-count 1
 		:controller-handler (list
 				     (list :my-controller (list :get-output (lambda () nil)))))))
@@ -53,7 +53,7 @@
 	     (let ((ifc
 		    (cl-synthesizer-modules-midi-interface:midi-interface
 		     "Test-Midi-Interface"
-		     (cl-synthesizer::make-environment)
+		     (cl-synthesizer:make-environment)
 		     :voice-count 1
 		     :controller-handler (list (list
 						:my-controller
@@ -66,7 +66,7 @@
 	     (let ((ifc
 		    (cl-synthesizer-modules-midi-interface:midi-interface
 		     "Test-Midi-Interface"
-		     (cl-synthesizer::make-environment)
+		     (cl-synthesizer:make-environment)
 		     :voice-count 1
 		     :controller-handler (list (list
 						:my-controller
@@ -97,7 +97,7 @@
   (let ((ifc
 	 (cl-synthesizer-modules-midi-interface:midi-interface
 	  "Test-Midi-Interface"
-	  (cl-synthesizer::make-environment)
+	  (cl-synthesizer:make-environment)
 	  :voice-count 1
 	  :controller-handler (list (list
 				     :my-controller
