@@ -14,5 +14,6 @@
    :register-monitor
    :add-module
    :add-patch
+   :update-rack
    ))
 
