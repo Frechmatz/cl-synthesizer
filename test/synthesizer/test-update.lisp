@@ -18,7 +18,7 @@
 	     (let ((rack (create-test-rack-simple)))
 	       (let ((counter (cl-synthesizer::get-module rack "Counter"))
 		     (multiplier (cl-synthesizer::get-module rack "Multiplier")))
-		 (cl-synthesizer::add-patch
+		 (cl-synthesizer:add-patch
 		  rack
 		  "Counter" :out
 		  "Multiplier" :in)
@@ -55,11 +55,11 @@
 	       (let ((counter-1 (cl-synthesizer::get-module rack "Counter 1"))
 		     (counter-2 (cl-synthesizer::get-module rack "Counter 2"))
 		     (adder (cl-synthesizer::get-module rack "Adder")))
-		 (cl-synthesizer::add-patch
+		 (cl-synthesizer:add-patch
 		  rack
 		  "Counter 1" :out
 		  "Adder" :in-1)
-		 (cl-synthesizer::add-patch
+		 (cl-synthesizer:add-patch
 		  rack
 		  "Counter 2" :out
 		  "Adder" :in-2)
@@ -94,11 +94,11 @@
 	     (let ((rack (create-test-rack-recursive)))
 	       (let ((counter (cl-synthesizer::get-module rack "Counter"))
 		     (adder (cl-synthesizer::get-module rack "Adder")))
-		 (cl-synthesizer::add-patch
+		 (cl-synthesizer:add-patch
 		  rack
 		  "Counter" :out
 		  "Adder" :in-1)
-		 (cl-synthesizer::add-patch
+		 (cl-synthesizer:add-patch
 		  rack
 		  "Adder" :out
 		  "Adder" :in-2)

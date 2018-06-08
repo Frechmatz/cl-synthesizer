@@ -18,7 +18,7 @@
     ;; Set up MIDI Interface and connect it to the MIDI input of the Rack
     (cl-synthesizer:add-module rack "MIDI-IFC"
 				#'cl-synthesizer-modules-midi-interface:midi-interface :voice-count 1)
-    (cl-synthesizer::add-patch rack "MIDI-IN" :midi-events "MIDI-IFC" :midi-events)
+    (cl-synthesizer:add-patch rack "MIDI-IN" :midi-events "MIDI-IFC" :midi-events)
 
     ;; Add VCO, ADSR, VCA
     (cl-synthesizer:add-module rack "VCO" #'cl-synthesizer-modules-vco:vco
@@ -34,11 +34,11 @@
 				:release-ms 1000)
     (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:vca)
 
-    (cl-synthesizer::add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv)
-    (cl-synthesizer::add-patch rack "MIDI-IFC" :gate-1 "ADSR" :gate)
-    (cl-synthesizer::add-patch rack "VCO" :sine "VCA" :input)
-    (cl-synthesizer::add-patch rack "VCA" :out "LINE-OUT" :channel-1)
-    (cl-synthesizer::add-patch rack "ADSR" :cv "VCA" :cv)
+    (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv)
+    (cl-synthesizer:add-patch rack "MIDI-IFC" :gate-1 "ADSR" :gate)
+    (cl-synthesizer:add-patch rack "VCO" :sine "VCA" :input)
+    (cl-synthesizer:add-patch rack "VCA" :out "LINE-OUT" :channel-1)
+    (cl-synthesizer:add-patch rack "ADSR" :cv "VCA" :cv)
 
     ;; Add ADSR-Output and VCA-Output monitor
     (cl-synthesizer:register-monitor

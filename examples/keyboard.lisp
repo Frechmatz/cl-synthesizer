@@ -15,7 +15,7 @@
      "MIDI-IFC"
      #'cl-synthesizer-modules-midi-interface:midi-interface
      :voice-count 2)
-    (cl-synthesizer::add-patch rack "MIDI-IN" :midi-events "MIDI-IFC" :midi-events)
+    (cl-synthesizer:add-patch rack "MIDI-IN" :midi-events "MIDI-IFC" :midi-events)
     (flet ((add-voice (prefix voice-number)
 	     (declare (optimize (debug 3) (speed 0) (space 0)))
 	     (flet ((make-module-name (name)
@@ -29,15 +29,15 @@
 		:v-peak 5)
 	       (cl-synthesizer:add-module rack (make-module-name "ADSR") #'cl-synthesizer-modules-adsr:adsr)
 	       (cl-synthesizer:add-module rack (make-module-name "VCA") #'cl-synthesizer-modules-vca:vca)
-	       (cl-synthesizer::add-patch rack (make-module-name "VCO") :sine (make-module-name "VCA") :input)
-	       (cl-synthesizer::add-patch rack (make-module-name "ADSR") :cv (make-module-name "VCA") :cv)
+	       (cl-synthesizer:add-patch rack (make-module-name "VCO") :sine (make-module-name "VCA") :input)
+	       (cl-synthesizer:add-patch rack (make-module-name "ADSR") :cv (make-module-name "VCA") :cv)
 	       ;; Connect with midi-interface
-	       (cl-synthesizer::add-patch
+	       (cl-synthesizer:add-patch
 		rack
 		"MIDI-IFC"
 		(cl-synthesizer-macro-util:make-keyword "CV" voice-number)
 		(make-module-name "VCO") :cv)
-	       (cl-synthesizer::add-patch
+	       (cl-synthesizer:add-patch
 		rack
 		"MIDI-IFC"
 		(cl-synthesizer-macro-util:make-keyword "GATE" voice-number)
@@ -47,9 +47,9 @@
       ;; TODO: Numbering is confusing. When will number be incremented by one and when not?
       ;;
       (add-voice "VOICE" 0)
-      (cl-synthesizer::add-patch rack "VOICE-0-VCA" :out "LINE-OUT" :channel-1)
+      (cl-synthesizer:add-patch rack "VOICE-0-VCA" :out "LINE-OUT" :channel-1)
       (add-voice "VOICE" 1)
-      (cl-synthesizer::add-patch rack "VOICE-1-VCA" :out "LINE-OUT" :channel-2)
+      (cl-synthesizer:add-patch rack "VOICE-1-VCA" :out "LINE-OUT" :channel-2)
       
       ;; Add LINE-OUT Monitor
       (cl-synthesizer:register-monitor

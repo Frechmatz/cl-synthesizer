@@ -12,5 +12,6 @@
    :get-sample-rate
    :register-monitor
    :add-module
+   :add-patch
    ))
 
