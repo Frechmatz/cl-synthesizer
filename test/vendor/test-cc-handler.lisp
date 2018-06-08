@@ -1,11 +1,11 @@
 (in-package :cl-synthesizer-test)
 
-(defparameter *control-table-cc-handler*
+(defparameter *CC-HANDLER-TEST-VENDOR*
   (list
-   :ENCODER-CONTROLLER-NUMBERS
-   (list :ENCODER-1 (list :CONTROLLER-NUMBER 112)
-	 :ENCODER-2 (list :CONTROLLER-NUMBER 74))
-   :RELATIVE-ENCODER-OFFSET
+   :get-controller-number
+   (lambda (id)
+     (getf '(:ENCODER-1 112 :ENCODER-2 74) id))
+   :get-controller-value-offset
    (lambda (controller-value)
      (cond
        ((eq 61 controller-value) -5)
@@ -15,20 +15,6 @@
        ((eq 66 controller-value) 3)
        ((eq 67 controller-value) 5)
        (t 0)))))
-
-(defparameter *CC-HANDLER-TEST-VENDOR*
-    (list
-     :get-controller-number
-     (lambda (id)
-       (let ((encoder-list (getf *control-table-cc-handler* :ENCODER-CONTROLLER-NUMBERS)))
-	 (let ((encoder (getf encoder-list id)))
-	   (let ((controller-number (getf encoder :CONTROLLER-NUMBER)))
-	     (if (not controller-number)
-		 (format t "Controller not found: ~a" id))
-	     controller-number))))
-     :get-controller-value-offset
-     (lambda (controller-value)
-       (funcall (getf *control-table-cc-handler* :RELATIVE-ENCODER-OFFSET) controller-value))))
 
 (defparameter *CC-HANDLER-NG-INITIAL-CV* 5.0)
 

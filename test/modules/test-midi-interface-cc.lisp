@@ -74,16 +74,14 @@
 						 :get-output (lambda () 99)
 						 :update (lambda (midi-events) nil)))))))
 	       (assert-equal 99 (funcall (getf ifc :get-output) :my-controller))))
-
-
 	     
-(defparameter *MIDI-IFC-TEST-VENDOR-CONTROL-TABLE*
-  (list
-   :ENCODER-CONTROLLER-NUMBERS
-   (list :ENCODER-1 (list :CONTROLLER-NUMBER 112)
-	 :ENCODER-2 (list :CONTROLLER-NUMBER 74))
-   :RELATIVE-ENCODER-OFFSET
-   (lambda (controller-value)
+(defparameter *MIDI-IFC-TEST-VENDOR*
+    (list
+     :get-controller-number
+     (lambda (id)
+       (getf '(:ENCODER-1 112 :ENCODER-2 74) id))
+     :get-controller-value-offset
+     (lambda (controller-value)
      (cond
        ((eq 61 controller-value) -5)
        ((eq 62 controller-value) -3)
@@ -92,21 +90,6 @@
        ((eq 66 controller-value) 3)
        ((eq 67 controller-value) 5)
        (t 0)))))
-
-(defparameter *MIDI-IFC-TEST-VENDOR*
-    (list
-     :get-controller-number
-     (lambda (id)
-       (let ((encoder-list (getf *MIDI-IFC-TEST-VENDOR-CONTROL-TABLE* :ENCODER-CONTROLLER-NUMBERS)))
-	 (let ((encoder (getf encoder-list id)))
-	   (let ((controller-number (getf encoder :CONTROLLER-NUMBER)))
-	     (if (not controller-number)
-		 (format t "Controller not found: ~a" id))
-	     controller-number))))
-     :get-controller-value-offset
-     (lambda (controller-value)
-       (funcall (getf *MIDI-IFC-TEST-VENDOR-CONTROL-TABLE* :RELATIVE-ENCODER-OFFSET) controller-value))))
-
 
 (defparameter *MIDI-IFC-TEST-CC-HANDLER-INITIAL-CV* 50.0)
 
