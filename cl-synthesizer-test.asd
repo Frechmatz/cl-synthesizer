@@ -48,10 +48,6 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "midi-interface")))
-	       (:module "src/vendor"
-			:serial t
-			:components ((:file "packages")
-				     (:file "arturiaminilabmk2")))
 	       (:module "test"
 			:serial t
 			:components ((:file "packages")
@@ -68,15 +64,12 @@
 			:components (
 				     (:file "test-voice-manager-voice")
 				     (:file "test-voice-manager")
+				     (:file "test-cc-handler")
 				     ))
 	       (:module "test/modules"
 			:serial t
 			:components ((:file "test-midi-interface")
 				     (:file "test-midi-interface-cc")
-				     ))
-	       (:module "test/vendor"
-			:serial t
-			:components ((:file "test-cc-handler")
 				     ))
 	       (:module "test/synthesizer"
 			:serial t

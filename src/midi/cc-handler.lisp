@@ -8,8 +8,12 @@
    The handler can work with multiple encoders, where each encoder has a \"weight\" which
    defines how strongly the control voltage will be changed.
    Arguments:
-   - midi-controller: The MIDI controller. Defines keywords for controller-ids and
-     maps CC events to relative changes.
+   - midi-controller: A property list that defines the following properties:
+     -- :get-controller-number: A function that is called with a keyword that identifies 
+         the controller, for example :ENCODER-1 and returns the controller number, 
+         for example 112.
+     -- :get-controller-value-offset A function that is called with the value of a 
+         CC event, for example 62, and returns a positive or negative offset, for example -3.
    - inputs: (list (:controller-id <id> :delta-percent <delta-percent> :turn-speed <speed>)) 
      -- <controller-id>: A keyword that identifies an encoder of the midi-controller, for example :encoder-1
      -- <delta-percent>: Defines how much the control-voltage will be increased/decreased when the controller
