@@ -100,26 +100,26 @@ terminates when the gate drops to 0."
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let* ((is-gate nil)
 	 (cur-cv 0)
-	 (ticks-per-ms (floor (/ (getf environment :sample-rate) 1000))))
-    (let ((controller
-	   (segments-controller
-	    (list
-	     (ramp (:segment-name "Attack" :requires-gate t :target-cv attack-cv :time-ms attack-ms))
-	     (ramp (:segment-name "Decay" :requires-gate t :target-cv decay-cv :time-ms decay-ms))
-	     (hold (:segment-name "Sustain"))
-	     (ramp (:segment-name "Release" :requires-gate nil :target-cv 0 :time-ms release-ms))))))
-      (list
-       :inputs (lambda () '(:gate))
-       :outputs (lambda () '(:cv))
-       :get-output (lambda (output)
-		     (declare (ignore output))
-		     cur-cv)
-       :update (lambda (&key (gate 0))
-		 ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-		 (let ((previous-gate is-gate) (restart nil))
-		   (setf is-gate (if (>= gate 4.9) t nil))
-		   (setf restart (and is-gate (not previous-gate)))
-		   (if restart
-		       (setf cur-cv 0))
-		   (funcall controller restart)))))))
+	 (ticks-per-ms (floor (/ (getf environment :sample-rate) 1000)))
+	 (controller
+	  (segments-controller
+	   (list
+	    (ramp (:segment-name "Attack" :requires-gate t :target-cv attack-cv :time-ms attack-ms))
+	    (ramp (:segment-name "Decay" :requires-gate t :target-cv decay-cv :time-ms decay-ms))
+	    (hold (:segment-name "Sustain"))
+	    (ramp (:segment-name "Release" :requires-gate nil :target-cv 0 :time-ms release-ms))))))
+    (list
+     :inputs (lambda () '(:gate))
+     :outputs (lambda () '(:cv))
+     :get-output (lambda (output)
+		   (declare (ignore output))
+		   cur-cv)
+     :update (lambda (&key (gate 0))
+	       ;;(declare (optimize (debug 3) (speed 0) (space 0)))
+	       (let ((previous-gate is-gate) (restart nil))
+		 (setf is-gate (if (>= gate 4.9) t nil))
+		 (setf restart (and is-gate (not previous-gate)))
+		 (if restart
+		     (setf cur-cv 0))
+		 (funcall controller restart))))))
 
