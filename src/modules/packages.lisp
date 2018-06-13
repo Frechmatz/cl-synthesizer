@@ -16,7 +16,8 @@
 (defpackage :cl-synthesizer-modules-adsr
   (:use :cl)
   (:export
-   :adsr))
+   :adsr
+   :envelope))
 
 (defpackage :cl-synthesizer-modules-vca
   (:use :cl)

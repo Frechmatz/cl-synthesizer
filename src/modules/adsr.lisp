@@ -72,6 +72,8 @@ The function returns the current segment index or nil."
   "Generates a segment whose output starts at cur-cv and descends/ascends to the given target
 voltage within the given time interval. Depending on the 'requires-gate' parameter the segment
 terminates when the gate drops to 0."
+  (declare (ignore segment-name))
+  ;;(format t "~%RAMP Macro called~%")
   `(let ((total-ticks nil) (elapsed-ticks nil) (transfer-fn nil))
      (flet ((has-segment-completed (elapsed-ticks total-ticks requires-gate)
 	      (if (and requires-gate (not is-gate))
@@ -79,7 +81,6 @@ terminates when the gate drops to 0."
 		  (and elapsed-ticks total-ticks (>= elapsed-ticks total-ticks)))))
        (list
 	:init (lambda ()
-		(format t "~%Initializing segment ~a~%" ,segment-name)
 		(setf total-ticks (* ticks-per-ms ,time-ms))
 		(setf elapsed-ticks -1)
 		(setf transfer-fn (cl-synthesizer-core:linear-converter
@@ -122,4 +123,50 @@ terminates when the gate drops to 0."
 		 (if restart
 		     (setf cur-cv 0))
 		 (funcall controller restart))))))
+
+(defmacro envelope (segments)
+  (let ((segment-def nil))
+    ;; compile segments
+    (dolist (segment segments)
+      (cond
+	((eq :ramp (getf segment :type))
+	 (push `(ramp
+		 (:segment-name
+		  ,(getf segment :segment-name)
+		  :requires-gate
+		  ,(getf segment :requires-gate)
+		  :target-cv
+		  ,(getf segment :target-cv)
+		  :time-ms
+		  ,(getf segment :time-ms)))
+	       segment-def))
+	((eq :hold (getf segment :type))
+	 (push `(hold
+		 (:segment-name
+		  ,(getf segment :segment-name)))
+	       segment-def))
+	(t (cl-synthesizer:signal-assembly-error
+	    :format-control "Unsupported segment type: ~a"
+	    :format-arguments (list (getf segment :type))))))
+    (setf segment-def (reverse segment-def))
+    ;;(format t "~%Compiled segments: ~a~%" segment-def)
+    `(lambda(name environment)
+       (declare (ignore name))
+       (let* ((is-gate nil)
+	      (cur-cv 0)
+	      (ticks-per-ms (floor (/ (getf environment :sample-rate) 1000)))
+	      (controller (segments-controller (list ,@segment-def))))
+	 (list
+	  :inputs (lambda () '(:gate))
+	  :outputs (lambda () '(:cv))
+	  :get-output (lambda (output)
+			(declare (ignore output))
+			cur-cv)
+	  :update (lambda (&key (gate 0))
+		    (let ((previous-gate is-gate) (restart nil))
+		      (setf is-gate (if (>= gate 4.9) t nil))
+		      (setf restart (and is-gate (not previous-gate)))
+		      (if restart
+			  (setf cur-cv 0))
+		      (funcall controller restart))))))))
 
