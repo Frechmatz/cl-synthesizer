@@ -51,6 +51,7 @@
 				     (:file "vco")
 				     (:file "multiple")
 				     (:file "adsr")
+				     (:file "envelope")
 				     (:file "vca")
 				     (:file "midi-interface")
 				     (:file "fixed-output")

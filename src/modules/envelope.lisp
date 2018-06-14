@@ -1,13 +1,13 @@
 ;;
 ;;
-;; ADSR Envelope Generator
-;;
+;; Generic Envelope Generator
+;; Will replace the ADSR module
 ;;
 ;; Work in progress
 ;;
 ;;
 
-(in-package :cl-synthesizer-modules-adsr)
+(in-package :cl-synthesizer-modules-envelope)
 
 (defun segments-controller (segments)
   "Manages a list of segments that define an envelope. A segment is defined 
@@ -96,31 +96,49 @@ terminates when the gate drops to 0."
 			(setf cur-cv (funcall (getf transfer-fn :get-y) elapsed-ticks))
 			:DONE)))))))
   
-(defun adsr (name environment &key (attack-ms 1000) (attack-cv 5) (decay-ms 1000) (decay-cv 3) (release-ms 1000))  
-  (declare (ignore name))
-  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-  (let* ((is-gate nil)
-	 (cur-cv 0)
-	 (ticks-per-ms (floor (/ (getf environment :sample-rate) 1000)))
-	 (controller
-	  (segments-controller
-	   (list
-	    (ramp (:segment-name "Attack" :requires-gate t :target-cv attack-cv :time-ms attack-ms))
-	    (ramp (:segment-name "Decay" :requires-gate t :target-cv decay-cv :time-ms decay-ms))
-	    (hold (:segment-name "Sustain"))
-	    (ramp (:segment-name "Release" :requires-gate nil :target-cv 0 :time-ms release-ms))))))
-    (list
-     :inputs (lambda () '(:gate))
-     :outputs (lambda () '(:cv))
-     :get-output (lambda (output)
-		   (declare (ignore output))
-		   cur-cv)
-     :update (lambda (&key (gate 0))
-	       ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-	       (let ((previous-gate is-gate) (restart nil))
-		 (setf is-gate (if (>= gate 4.9) t nil))
-		 (setf restart (and is-gate (not previous-gate)))
-		 (if restart
-		     (setf cur-cv 0))
-		 (funcall controller restart))))))
+(defmacro envelope (segments)
+  (let ((segment-def nil))
+    ;; compile segments
+    (dolist (segment segments)
+      (cond
+	((eq :ramp (getf segment :type))
+	 (push `(ramp
+		 (:segment-name
+		  ,(getf segment :segment-name)
+		  :requires-gate
+		  ,(getf segment :requires-gate)
+		  :target-cv
+		  ,(getf segment :target-cv)
+		  :time-ms
+		  ,(getf segment :time-ms)))
+	       segment-def))
+	((eq :hold (getf segment :type))
+	 (push `(hold
+		 (:segment-name
+		  ,(getf segment :segment-name)))
+	       segment-def))
+	(t (cl-synthesizer:signal-assembly-error
+	    :format-control "Unsupported segment type: ~a"
+	    :format-arguments (list (getf segment :type))))))
+    (setf segment-def (reverse segment-def))
+    ;;(format t "~%Compiled segments: ~a~%" segment-def)
+    `(lambda(name environment)
+       (declare (ignore name))
+       (let* ((is-gate nil)
+	      (cur-cv 0)
+	      (ticks-per-ms (floor (/ (getf environment :sample-rate) 1000)))
+	      (controller (segments-controller (list ,@segment-def))))
+	 (list
+	  :inputs (lambda () '(:gate))
+	  :outputs (lambda () '(:cv))
+	  :get-output (lambda (output)
+			(declare (ignore output))
+			cur-cv)
+	  :update (lambda (&key (gate 0))
+		    (let ((previous-gate is-gate) (restart nil))
+		      (setf is-gate (if (>= gate 4.9) t nil))
+		      (setf restart (and is-gate (not previous-gate)))
+		      (if restart
+			  (setf cur-cv 0))
+		      (funcall controller restart))))))))
 

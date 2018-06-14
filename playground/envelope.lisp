@@ -26,7 +26,7 @@
 				:cv-max 5
 				:f-max 13000
 				:v-peak 5)
-    (cl-synthesizer:add-module rack "ADSR" (cl-synthesizer-modules-adsr:envelope
+    (cl-synthesizer:add-module rack "ADSR" (cl-synthesizer-modules-envelope:envelope
 					    ((:segment-name "Attack" :type :ramp :time-ms 1000 :target-cv 5 :requires-gate t)
 					     (:segment-name "Decay" :type :ramp :time-ms 1000 :target-cv 3 :requires-gate t)
 					     (:segment-name "Sustain" :type :hold :requires-gate t)
