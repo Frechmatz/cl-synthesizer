@@ -107,24 +107,12 @@ terminates when the gate drops to 0."
   (let ((segment-def nil))
     ;; compile segments
     (dolist (segment segments)
-      (cond
-	((eq :ramp (getf segment :type))
-	 (push `(segment
-		 (:segment-name ,(getf segment :segment-name)
-				:requires-gate ,(getf segment :requires-gate)
-				:target-cv ,(getf segment :target-cv)
-				:time-ms ,(getf segment :time-ms)))
+      (push `(segment
+	      (:segment-name ,(getf segment :segment-name)
+			     :requires-gate ,(getf segment :requires-gate)
+			     :target-cv ,(getf segment :target-cv)
+			     :time-ms ,(getf segment :time-ms)))
 	       segment-def))
-	((eq :hold (getf segment :type))
-	 (push `(segment
-		 (:segment-name ,(getf segment :segment-name)
-				:requires-gate ,(getf segment :requires-gate)
-				:target-cv nil
-				:time-ms ,(getf segment :time-ms)))
-	       segment-def))
-	(t (cl-synthesizer:signal-assembly-error
-	    :format-control "Unsupported segment type: ~a"
-	    :format-arguments (list (getf segment :type))))))
     (setf segment-def (reverse segment-def))
     ;;(format t "~%Compiled segments: ~a~%" segment-def)
     `(lambda(name environment)
