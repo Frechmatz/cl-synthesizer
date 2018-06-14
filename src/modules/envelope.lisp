@@ -52,70 +52,75 @@ The function returns the current segment index or nil."
 	cur-segment-index))))
     
 
-;;
-;; Segment macros (to be used within the ADSR module function definition)
-;;
+(defun has-segment-completed (total-ticks elapsed-ticks is-gate requires-gate)
+  (cond 
+    ((and requires-gate (not is-gate))
+     t)
+    ((and elapsed-ticks total-ticks)
+     (>= elapsed-ticks total-ticks))
+    (requires-gate
+     nil)
+    (t (error "Cannot evaluate has-segment-completed"))))
 
-(defmacro hold ((&key segment-name))
-  "Generates a segment whose result remains at cur-cv until the gate drops to 0."
-  `(flet ((has-segment-completed ()
-	    (not is-gate)))
-     (list
-      :init (lambda ()
-	      (format t "~%Initializing segment ~a~%" ,segment-name))
-      :update (lambda()
-		(if (has-segment-completed)
-		    :CONTINUE
-		    :DONE)))))
+(defun validate-segment (requires-gate target-cv time-ms)
+  (if (and (not requires-gate) (not time-ms))
+      (cl-synthesizer:signal-assembly-error
+       :format-control "One of (requires-gate time-ms) must be t"
+       :format-arguments (list)))
+  (if (and target-cv (not time-ms))
+      (cl-synthesizer:signal-assembly-error
+       :format-control "target-cv set to ~a but time-ms is nil"
+       :format-arguments (list target-cv))))
 
-(defmacro ramp ((&key segment-name requires-gate target-cv time-ms))
+(defmacro segment ((&key segment-name requires-gate target-cv time-ms))
   "Generates a segment whose output starts at cur-cv and descends/ascends to the given target
 voltage within the given time interval. Depending on the 'requires-gate' parameter the segment
 terminates when the gate drops to 0."
   (declare (ignore segment-name))
-  ;;(format t "~%RAMP Macro called~%")
+  (validate-segment requires-gate target-cv time-ms)
   `(let ((total-ticks nil) (elapsed-ticks nil) (transfer-fn nil))
-     (flet ((has-segment-completed ()
-	      (if (and ,requires-gate (not is-gate))
-		  t
-		  (and elapsed-ticks total-ticks (>= elapsed-ticks total-ticks)))))
-       (list
-	:init (lambda ()
-		(setf total-ticks (* ticks-per-ms ,time-ms))
-		(setf elapsed-ticks -1)
-		(setf transfer-fn (cl-synthesizer-core:linear-converter
-				   :input-min 0
-				   :input-max total-ticks
-				   :output-min cur-cv
-				   :output-max ,target-cv)))
-	:update (lambda()
-		  (setf elapsed-ticks (+ 1 elapsed-ticks))
-		  (if (has-segment-completed)
-		      :CONTINUE
-		      (progn
-			(setf cur-cv (funcall (getf transfer-fn :get-y) elapsed-ticks))
-			:DONE)))))))
-  
+     (list
+      :init (lambda ()
+	      (setf elapsed-ticks -1)
+	      (setf total-ticks (if ,time-ms (* ticks-per-ms ,time-ms) nil))
+	      (setf transfer-fn
+		    ;; todo: Only re-create fn if target-cv or total-ticks has changed
+		    (if ,target-cv
+			(getf (cl-synthesizer-core:linear-converter
+			       :input-min 0
+			       :input-max total-ticks
+			       :output-min cur-cv
+			       :output-max ,target-cv)
+			      :get-y)
+			(lambda (elapsed-ticks)
+			  (declare (ignore elapsed-ticks))
+			  cur-cv))))
+      :update (lambda()
+		(setf elapsed-ticks (+ 1 elapsed-ticks))
+		(if (has-segment-completed total-ticks elapsed-ticks is-gate ,requires-gate)
+		    :CONTINUE
+		    (progn
+		      (setf cur-cv (funcall transfer-fn elapsed-ticks))
+		      :DONE))))))
+
 (defmacro envelope (segments)
   (let ((segment-def nil))
     ;; compile segments
     (dolist (segment segments)
       (cond
 	((eq :ramp (getf segment :type))
-	 (push `(ramp
-		 (:segment-name
-		  ,(getf segment :segment-name)
-		  :requires-gate
-		  ,(getf segment :requires-gate)
-		  :target-cv
-		  ,(getf segment :target-cv)
-		  :time-ms
-		  ,(getf segment :time-ms)))
+	 (push `(segment
+		 (:segment-name ,(getf segment :segment-name)
+				:requires-gate ,(getf segment :requires-gate)
+				:target-cv ,(getf segment :target-cv)
+				:time-ms ,(getf segment :time-ms)))
 	       segment-def))
 	((eq :hold (getf segment :type))
-	 (push `(hold
-		 (:segment-name
-		  ,(getf segment :segment-name)))
+	 (push `(segment
+		 (:segment-name ,(getf segment :segment-name)
+				:requires-gate ,(getf segment :requires-gate)
+				:target-cv nil
+				:time-ms ,(getf segment :time-ms)))
 	       segment-def))
 	(t (cl-synthesizer:signal-assembly-error
 	    :format-control "Unsupported segment type: ~a"
