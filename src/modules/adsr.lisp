@@ -75,8 +75,8 @@ terminates when the gate drops to 0."
   (declare (ignore segment-name))
   ;;(format t "~%RAMP Macro called~%")
   `(let ((total-ticks nil) (elapsed-ticks nil) (transfer-fn nil))
-     (flet ((has-segment-completed (elapsed-ticks total-ticks requires-gate)
-	      (if (and requires-gate (not is-gate))
+     (flet ((has-segment-completed ()
+	      (if (and ,requires-gate (not is-gate))
 		  t
 		  (and elapsed-ticks total-ticks (>= elapsed-ticks total-ticks)))))
        (list
@@ -90,7 +90,7 @@ terminates when the gate drops to 0."
 				   :output-max ,target-cv)))
 	:update (lambda()
 		  (setf elapsed-ticks (+ 1 elapsed-ticks))
-		  (if (has-segment-completed elapsed-ticks total-ticks ,requires-gate)
+		  (if (has-segment-completed)
 		      :CONTINUE
 		      (progn
 			(setf cur-cv (funcall (getf transfer-fn :get-y) elapsed-ticks))
