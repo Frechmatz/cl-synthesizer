@@ -36,6 +36,7 @@
 				     (:file "exponential-converter")
 				     (:file "phase-waveform-converter")
 				     (:file "phase-generator")
+				     (:file "function-array")
 				     (:file "trigger")))
 		(:module "src/midi"
 			:serial t
@@ -47,7 +48,8 @@
 	       (:module "src/modules"
 			:serial t
 			:components ((:file "packages")
-				     (:file "midi-interface")))
+				     (:file "midi-interface")
+				     (:file "envelope")))
 	       (:module "test"
 			:serial t
 			:components ((:file "packages")
@@ -58,6 +60,7 @@
 				     (:file "test-trigger")
 				     (:file "test-exponential-converter")
 				     (:file "test-waveform")
+				     (:file "test-function-array")
 				     ))
 	       (:module "test/midi"
 			:serial t

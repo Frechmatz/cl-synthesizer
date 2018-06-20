@@ -9,5 +9,6 @@
    :phase-saw-converter
    :phase-square-converter
    :phase-triangle-converter
+   :function-array
    ))
 

@@ -9,49 +9,6 @@
 
 (in-package :cl-synthesizer-modules-envelope)
 
-(defun segments-controller (segments)
-  "Manages a list of segments that define an envelope. A segment is defined 
-as a plist with the following properties:
-- :init -- A function that is called when the envelope enters the segment.
-- :update -- A function that is called in order to update the segment (to process a tick).
-The update function must return :DONE or :CONTINUE. In the case of :CONTINUE
-the controller switches forward to the next segment (if available) and 
-initializes and updates it.
-Returns a function with the following arguments:
-- restart -- If t the controller switches to the first segment. Otherwise
-it continues with the current segment or does nothing if there is no current segment.
-The function returns the current segment index or nil."
-  (let ((cur-segment-index nil)
-	(segment-array
-	 (make-array
-	  (length segments)
-	  :initial-contents segments)))
-    (labels ((activate-segment (segment-index)
-	       (declare (optimize (debug 3) (speed 0) (space 0)))
-	       (setf cur-segment-index segment-index)
-	       (funcall (getf (elt segment-array cur-segment-index) :init)))
-	     (activate-next-segment ()
-	       (declare (optimize (debug 3) (speed 0) (space 0)))
-	       (if (>= (+ 1 cur-segment-index) (length segments))
-		   (progn
-		     (setf cur-segment-index nil)
-		     nil)
-		   (progn
-		     (activate-segment (+ 1 cur-segment-index))
-		     t)))
-	     (update-segment (restart)
-	       (declare (optimize (debug 3) (speed 0) (space 0)))
-	       (if restart
-		   (activate-segment 0)
-		   (if cur-segment-index
-		       (let ((segment-state (funcall (getf (elt segment-array cur-segment-index) :update))))
-			 (if (and (eq :CONTINUE segment-state) (activate-next-segment))
-			     (update-segment nil)))))))
-      (lambda (restart)
-	(update-segment restart)
-	cur-segment-index))))
-    
-
 (defun has-segment-completed (total-ticks elapsed-ticks is-gate requires-gate)
   (cond 
     ((and requires-gate (not is-gate))
@@ -108,11 +65,15 @@ terminates when the gate drops to 0."
     ;; compile segments
     (dolist (segment segments)
       (push `(segment
-	      (:name ,(getf segment :name)
-			     :requires-gate ,(getf segment :requires-gate)
-			     :target-cv ,(getf segment :target-cv)
-			     :time-ms ,(getf segment :time-ms)))
-	       segment-def))
+	      (:name
+	       ,(getf segment :name)
+	       :requires-gate
+	       ,(getf segment :requires-gate)
+	       :target-cv
+	       ,(getf segment :target-cv)
+	       :time-ms
+	       ,(getf segment :time-ms)))
+	    segment-def))
     (setf segment-def (reverse segment-def))
     ;;(format t "~%Compiled segments: ~a~%" segment-def)
     `(lambda(name environment)
@@ -120,7 +81,7 @@ terminates when the gate drops to 0."
        (let* ((is-gate nil)
 	      (cur-cv 0)
 	      (ticks-per-ms (floor (/ (getf environment :sample-rate) 1000)))
-	      (controller (segments-controller (list ,@segment-def))))
+	      (controller (cl-synthesizer-core:function-array (list ,@segment-def))))
 	 (list
 	  :inputs (lambda () '(:gate))
 	  :outputs (lambda () '(:cv))
