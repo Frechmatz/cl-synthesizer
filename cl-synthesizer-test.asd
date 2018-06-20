@@ -66,10 +66,10 @@
 				     (:file "test-voice-manager")
 				     (:file "test-cc-handler")
 				     ))
-	       (:module "test/modules"
+	       (:module "test/modules/midi-interface"
 			:serial t
-			:components ((:file "test-midi-interface")
-				     (:file "test-midi-interface-cc")
+			:components ((:file "test-interface")
+				     (:file "test-cc")
 				     ))
 	       (:module "test/synthesizer"
 			:serial t
