@@ -115,7 +115,8 @@
 				(progn
 				  (setf (elt voice-state +voice-state-gate+) 5.0)))
 			    (setf (elt voice-state +voice-state-cv+) (funcall note-number-to-cv voice-note))
-			    (format t "cv-oct: ~a~%" (elt voice-state +voice-state-cv+)))))
+			    ;;(format t "cv-oct: ~a~%" (elt voice-state +voice-state-cv+))
+			    )))
 		       ((cl-synthesizer-midi-event:note-off-eventp midi-event)
 			(multiple-value-bind (voice-index voice-note)
 			    (cl-synthesizer-midi-voice-manager:remove-note
@@ -129,6 +130,6 @@
 				    (progn
 				      (setf (elt voice-state +voice-state-cv+) (funcall note-number-to-cv voice-note))
 				      ))
-				(format t "cv-oct: ~a~%" (elt voice-state +voice-state-cv+))
+				;;(format t "cv-oct: ~a~%" (elt voice-state +voice-state-cv+))
 				))))
 		       )))))))
