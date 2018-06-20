@@ -27,10 +27,10 @@
 				:f-max 13000
 				:v-peak 5)
     (cl-synthesizer:add-module rack "ADSR" (cl-synthesizer-modules-envelope:envelope
-					    ((:segment-name "Attack" :time-ms 1000 :target-cv 5 :requires-gate t)
-					     (:segment-name "Decay" :time-ms 1000 :target-cv 3 :requires-gate t)
-					     (:segment-name "Sustain" :requires-gate t)
-					     (:segment-name "Release" :time-ms 1000 :target-cv 0 :requires-gate nil))))
+					    ((:name "Attack" :time-ms 1000 :target-cv 5 :requires-gate t)
+					     (:name "Decay" :time-ms 1000 :target-cv 3 :requires-gate t)
+					     (:name "Sustain" :requires-gate t)
+					     (:name "Release" :time-ms 1000 :target-cv 0 :requires-gate nil))))
     (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:vca)
 
     (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv)

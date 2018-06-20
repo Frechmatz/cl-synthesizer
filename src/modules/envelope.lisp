@@ -72,11 +72,11 @@ The function returns the current segment index or nil."
        :format-control "target-cv set to ~a but time-ms is nil"
        :format-arguments (list target-cv))))
 
-(defmacro segment ((&key segment-name requires-gate target-cv time-ms))
+(defmacro segment ((&key name requires-gate target-cv time-ms))
   "Generates a segment whose output starts at cur-cv and descends/ascends to the given target
 voltage within the given time interval. Depending on the 'requires-gate' parameter the segment
 terminates when the gate drops to 0."
-  (declare (ignore segment-name))
+  (declare (ignore name))
   (validate-segment requires-gate target-cv time-ms)
   `(let ((total-ticks nil) (elapsed-ticks nil) (transfer-fn nil))
      (list
@@ -108,7 +108,7 @@ terminates when the gate drops to 0."
     ;; compile segments
     (dolist (segment segments)
       (push `(segment
-	      (:segment-name ,(getf segment :segment-name)
+	      (:name ,(getf segment :name)
 			     :requires-gate ,(getf segment :requires-gate)
 			     :target-cv ,(getf segment :target-cv)
 			     :time-ms ,(getf segment :time-ms)))
