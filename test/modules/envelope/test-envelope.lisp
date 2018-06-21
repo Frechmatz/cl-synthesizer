@@ -1,14 +1,15 @@
 (in-package :cl-synthesizer-test)
 
 (defun make-envelope-environment ()
-    (cl-synthesizer:make-environment :sample-rate 1000))
+  (cl-synthesizer:make-environment :sample-rate 1000))
 
 #|
 test-case:
 (
-:segments (...)
-:test-cases (
-(:gate :on :ticks 100 :expected-cv 5.0)
+ :segments (...)
+ :test-cases (
+   (:gate :on :ticks 100 :expected-cv 5.0)
+)
 |#
 
 (defun run-test-case-envelope (test-case)
@@ -25,10 +26,8 @@ test-case:
 	  (funcall (getf module :update) :gate gate))
 	(assert-equal expected-cv (funcall (getf module :get-output) :cv))))))
 
-#|
 (define-test test-envelope-1 ()
 	     (let ((test
-		    '(:segments ((:name "Attack" :time-ms 50 :target-cv 5 :requires-gate t))
+		    '(:segments ((:name "Attack" :time-ms nil :target-cv 5 :required-gate-state :on))
 		      :test-cases ((:gate :on :ticks 50 :expected-cv 5)))))
 	       (run-test-case-envelope test)))
-|#
