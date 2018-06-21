@@ -74,6 +74,10 @@
 			:components ((:file "test-interface")
 				     (:file "test-cc")
 				     ))
+	       (:module "test/modules/envelope"
+			:serial t
+			:components ((:file "test-envelope")
+				     ))
 	       (:module "test/synthesizer"
 			:serial t
 			:components ((:file "test-assembly")
