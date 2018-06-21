@@ -9,20 +9,21 @@
 
 (in-package :cl-synthesizer-modules-envelope)
 
-(defun has-segment-completed (total-ticks elapsed-ticks is-gate requires-gate)
+;; todo: what is the meaning of the params?
+(defun has-segment-completed (total-ticks elapsed-ticks is-gate required-gate-state)
   (cond 
-    ((and requires-gate (not is-gate))
+    ((and elapsed-ticks total-ticks (>= elapsed-ticks total-ticks))
      t)
-    ((and elapsed-ticks total-ticks)
-     (>= elapsed-ticks total-ticks))
-    (requires-gate
-     nil)
-    (t (error "Cannot evaluate has-segment-completed"))))
+    ((and (eq :on required-gate-state) (not is-gate))
+     t)
+    ((and (eq :off required-gate-state) is-gate)
+     t)
+    (t nil)))
 
-(defun validate-segment (requires-gate target-cv time-ms)
-  (if (and (not requires-gate) (not time-ms))
+(defun validate-segment (required-gate-state target-cv time-ms)
+  (if (and (eq :ignore required-gate-state) (not time-ms))
       (cl-synthesizer:signal-assembly-error
-       :format-control "One of (requires-gate time-ms) must be t"
+       :format-control "If required-gate-state is :ignore then time-ms must not be nil"
        :format-arguments (list)))
   (if (and target-cv (not time-ms))
       (cl-synthesizer:signal-assembly-error
@@ -38,10 +39,10 @@
     (dolist (segment segments)
       (let ((total-ticks nil) (elapsed-ticks nil) (transfer-fn nil)
 	    ;;(name (getf segment :name))
-	    (requires-gate (getf segment :requires-gate))
+	    (required-gate-state (getf segment :required-gate-state))
 	    (target-cv (getf segment :target-cv))
 	    (time-ms (getf segment :time-ms)))
-	(validate-segment requires-gate target-cv time-ms)
+	(validate-segment required-gate-state target-cv time-ms)
 	(push 
 	 (list
 	  :init (lambda ()
@@ -61,7 +62,7 @@
 			      cur-cv))))
 	  :update (lambda()
 		    (setf elapsed-ticks (+ 1 elapsed-ticks))
-		    (if (has-segment-completed total-ticks elapsed-ticks is-gate requires-gate)
+		    (if (has-segment-completed total-ticks elapsed-ticks is-gate required-gate-state)
 			:CONTINUE
 			(progn
 			  (setf cur-cv (funcall transfer-fn elapsed-ticks))
