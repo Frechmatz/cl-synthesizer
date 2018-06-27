@@ -28,11 +28,8 @@ testcase:
 	   functions)))
     (setf controller (cl-synthesizer-core:function-array (reverse functions)))
     (dolist (update-param (getf test-case :update-calls))
-      (let ((index (funcall controller (if (eq :restart update-param) t nil))))
-	;;(if index
-	    (push cur-cv recorded-cvs)
-	;;    (format t "~%Update call has returned index nil: ~a~%" update-param)
-	    ))
+      (funcall controller (if (eq :restart update-param) t nil))
+      (push cur-cv recorded-cvs))
     (assert-equal (getf test-case :expected-cvs) (reverse recorded-cvs))))
 
 (define-test function-array-test-1 ()
