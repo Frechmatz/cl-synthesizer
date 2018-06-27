@@ -16,7 +16,6 @@ test-case:
   (let ((envelope-segments
 	 (mapcar (lambda (s)
 		   (list
-		    :name (getf s :name)
 		    ;; convert ticks to milliseconds
 		    :time-ms (getf s :time-ticks)
 		    :target-cv (getf s :target-cv)
@@ -38,34 +37,34 @@ test-case:
 
 (define-test test-envelope-1 ()
 	     (let ((test
-		    '(:segments ((:name "Attack" :time-ticks 50 :target-cv 5 :required-gate-state :on))
+		    '(:segments ((:time-ticks 50 :target-cv 5 :required-gate-state :on))
 		      :test-cases ((:gate :on :ticks 50 :expected-cv 5)))))
 	       (run-test-case-envelope test)))
 
 (define-test test-envelope-2 ()
 	     (let ((test
-		    `(:segments ((:name "Attack" :time-ticks 10 :target-cv 5 :required-gate-state :on))
+		    `(:segments ((:time-ticks 10 :target-cv 5 :required-gate-state :on))
 		      ;; CV must climb on first tick
 		      :test-cases ((:gate :on :ticks 1 :expected-cv 0.5)))))
 	       (run-test-case-envelope test)))
 
 (define-test test-envelope-3 ()
 	     (let ((test
-		    '(:segments ((:name "Segment-0" :time-ticks 0 :target-cv 5 :required-gate-state :on)
-				 (:name "Segment-1" :time-ticks 10 :target-cv 5 :required-gate-state :on))
+		    '(:segments ((:time-ticks 0 :target-cv 5 :required-gate-state :on)
+				 (:time-ticks 10 :target-cv 5 :required-gate-state :on))
 		      :test-cases ((:gate :on :ticks 1 :expected-cv 0.5)))))
 	       (run-test-case-envelope test)))
 
 (define-test test-envelope-jumping-attack ()
 	     (let ((test
-		    '(:segments ((:name "Segment-0" :time-ticks nil :target-cv 5 :required-gate-state :on))
+		    '(:segments ((:time-ticks nil :target-cv 5 :required-gate-state :on))
 		      :test-cases ((:gate :on :ticks 1 :expected-cv 5)))))
 	       (run-test-case-envelope test)))
 
 (define-test test-envelope-jumping-segments ()
 	     (let ((test
-		    '(:segments ((:name "Segment-0" :time-ticks nil :target-cv 5 :required-gate-state :on)
-				 (:name "Segment-1" :time-ticks nil :target-cv 20 :required-gate-state :off))
+		    '(:segments ((:time-ticks nil :target-cv 5 :required-gate-state :on)
+				 (:time-ticks nil :target-cv 20 :required-gate-state :off))
 		      :test-cases ((:gate :on :ticks 1 :expected-cv 5)
 				   (:gate :off :ticks 1 :expected-cv 20)))))
 	       (run-test-case-envelope test)))
