@@ -55,3 +55,17 @@ test-case:
 				 (:name "Segment-1" :time-ticks 10 :target-cv 5 :required-gate-state :on))
 		      :test-cases ((:gate :on :ticks 1 :expected-cv 0.5)))))
 	       (run-test-case-envelope test)))
+
+(define-test test-envelope-jumping-attack ()
+	     (let ((test
+		    '(:segments ((:name "Segment-0" :time-ticks nil :target-cv 5 :required-gate-state :on))
+		      :test-cases ((:gate :on :ticks 1 :expected-cv 5)))))
+	       (run-test-case-envelope test)))
+
+(define-test test-envelope-jumping-segments ()
+	     (let ((test
+		    '(:segments ((:name "Segment-0" :time-ticks nil :target-cv 5 :required-gate-state :on)
+				 (:name "Segment-1" :time-ticks nil :target-cv 20 :required-gate-state :off))
+		      :test-cases ((:gate :on :ticks 1 :expected-cv 5)
+				   (:gate :off :ticks 1 :expected-cv 20)))))
+	       (run-test-case-envelope test)))
