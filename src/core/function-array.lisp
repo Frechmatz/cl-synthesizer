@@ -12,6 +12,10 @@
    - restart -- If t the controller switches to the first array-function. Otherwise
    the controller continues with the current array-function or does nothing if there is no current array-function.
    The function returns the current array-function index or nil."
+  (if (or (not array-functions) (= 0 (length array-functions)))
+      (cl-synthesizer:signal-assembly-error
+       :format-control "function-array: Function array must not be nil or empty"
+       :format-arguments (list)))
   (let ((cur-function-index nil)
 	(array-function-array
 	 (make-array

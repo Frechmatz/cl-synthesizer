@@ -59,3 +59,19 @@ testcase:
      :update-calls (:restart nil :restart nil nil)
      :expected-cvs (5.0 3.0 5.0 3.0 7.0))))
 
+(define-test function-array-test-5 ()
+	     (expect-assembly-exception
+	       (run-test-case-function-array
+		'(:functions ()
+		  :update-calls (:restart nil :restart nil nil)
+		  :expected-cvs (5.0 3.0 5.0 3.0 7.0)))))
+
+
+
+
+
+
+
+
+
+
