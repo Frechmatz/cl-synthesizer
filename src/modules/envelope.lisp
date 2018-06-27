@@ -29,7 +29,7 @@
     (t
      ,@body)))
 
-(defun envelope (name environment &key segments)
+(defun envelope (name environment &key segments (gate-trigger-threshold-cv 4.9))
   (declare (ignore name))
   (let ((segment-def nil)
 	(is-gate nil)
@@ -85,7 +85,7 @@
 		     cur-cv)
        :update (lambda (&key (gate 0))
 		 (let ((previous-gate is-gate) (restart nil))
-		   (setf is-gate (if (>= gate 4.9) t nil))
+		   (setf is-gate (if (>= gate gate-trigger-threshold-cv) t nil))
 		   (setf restart (and is-gate (not previous-gate)))
 		   (if restart
 		       (setf cur-cv 0))
