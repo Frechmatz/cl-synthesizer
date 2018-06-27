@@ -34,7 +34,7 @@ test-case:
 	  (dotimes (i ticks)
 	    (funcall (getf module :update) :gate gate))
 	  ;; http://www.lispworks.com/documentation/HyperSpec/Body/f_equalp.htm
-	  (assert-equalp expected-cv (funcall (getf module :get-output) :cv)))))))
+	  (assert-equality #'= expected-cv (funcall (getf module :get-output) :cv)))))))
 
 (define-test test-envelope-1 ()
 	     (let ((test
@@ -49,11 +49,9 @@ test-case:
 		      :test-cases ((:gate :on :ticks 1 :expected-cv 0.5)))))
 	       (run-test-case-envelope test)))
 
-#|
 (define-test test-envelope-3 ()
 	     (let ((test
 		    '(:segments ((:name "Segment-0" :time-ticks 0 :target-cv 5 :required-gate-state :on)
 				 (:name "Segment-1" :time-ticks 10 :target-cv 5 :required-gate-state :on))
 		      :test-cases ((:gate :on :ticks 1 :expected-cv 0.5)))))
 	       (run-test-case-envelope test)))
-|#

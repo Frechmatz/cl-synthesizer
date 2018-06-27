@@ -9,19 +9,6 @@
 
 (in-package :cl-synthesizer-modules-envelope)
 
-;; todo: what is the meaning of the params?
-(defun has-segment-completed (total-ticks elapsed-ticks is-gate required-gate-state)
-  (cond 
-    ((eq 0 total-ticks)
-     t)
-    ((and elapsed-ticks total-ticks (> elapsed-ticks total-ticks))
-     t)
-    ((and (eq :on required-gate-state) (not is-gate))
-     t)
-    ((and (eq :off required-gate-state) is-gate)
-     t)
-    (t nil)))
-
 (defun validate-segment (required-gate-state target-cv time-ms)
   (if (and (eq :ignore required-gate-state) (not time-ms))
       (cl-synthesizer:signal-assembly-error
@@ -39,10 +26,7 @@
 	(cur-cv 0)
 	(ticks-per-ms (floor (/ (getf environment :sample-rate) 1000))))
     (dolist (segment segments)
-      (let ((total-ticks nil)
-	    (elapsed-ticks nil)
-	    (transfer-fn nil)
-	    ;;(name (getf segment :name))
+      (let ((update-fn nil)
 	    (required-gate-state (getf segment :required-gate-state))
 	    (target-cv (getf segment :target-cv))
 	    (time-ms (getf segment :time-ms)))
@@ -50,28 +34,52 @@
 	(push 
 	 (list
 	  :init (lambda ()
-		  (setf elapsed-ticks 0)
-		  (setf total-ticks nil)
-		  (setf transfer-fn
-			(cond
-			  ((and target-cv time-ms)
-			   (setf total-ticks (* ticks-per-ms time-ms))
-			   (let ((converter (cl-synthesizer-core:linear-converter
-					     :input-min 0
-					     :input-max total-ticks
-					     :output-min cur-cv
-					     :output-max target-cv)))
+		  (cond
+		    ((and time-ms (= 0 time-ms))
+		     (setf update-fn (lambda () :CONTINUE))) 
+		    ((and target-cv time-ms)
+		     (let* ((elapsed-ticks 0)
+			    (total-ticks (* ticks-per-ms time-ms))
+			    (converter (cl-synthesizer-core:linear-converter
+					:input-min 0
+					:input-max total-ticks
+					:output-min cur-cv
+					:output-max target-cv)))
+		       (setf update-fn
 			     (lambda ()
-			       (funcall (getf converter :get-y) elapsed-ticks))))
-			  (target-cv (lambda () target-cv))
-			  (t (lambda () cur-cv)))))
-	  :update (lambda()
-		    (setf elapsed-ticks (+ 1 elapsed-ticks))
-		    (if (has-segment-completed total-ticks elapsed-ticks is-gate required-gate-state)
-			:CONTINUE
-			(progn
-			  (setf cur-cv (funcall transfer-fn))
-			  :DONE))))
+			       (setf elapsed-ticks (+ 1 elapsed-ticks))
+			       (cond
+				 ((> elapsed-ticks total-ticks)
+				  :CONTINUE)
+				 ((and (eq :on required-gate-state) (not is-gate))
+				  :CONTINUE)
+				 ((and (eq :off required-gate-state) is-gate)
+				  :CONTINUE)
+				 (t
+				  (setf cur-cv (funcall (getf converter :get-y) elapsed-ticks))
+				  :DONE))))))
+		    (target-cv
+		     (setf update-fn
+			   (lambda ()
+			     (cond
+			       ((and (eq :on required-gate-state) (not is-gate))
+				:CONTINUE)
+			       ((and (eq :off required-gate-state) is-gate)
+				:CONTINUE)
+			       (t
+				(setf cur-cv target-cv)
+				:DONE)))))
+		    (t
+		     (setf update-fn
+			   (lambda ()
+			     (cond
+			       ((and (eq :on required-gate-state) (not is-gate))
+				:CONTINUE)
+			       ((and (eq :off required-gate-state) is-gate)
+				:CONTINUE)
+			       (t
+				:DONE)))))))
+	  :update (lambda() (funcall update-fn)))
 	 segment-def)))
     (let ((controller (cl-synthesizer-core:function-array (reverse segment-def))))
       (list
