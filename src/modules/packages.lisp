@@ -13,11 +13,6 @@
   (:use :cl)
   (:export :multiple-4))
 
-(defpackage :cl-synthesizer-modules-adsr
-  (:use :cl)
-  (:export
-   :adsr))
-
 (defpackage :cl-synthesizer-modules-envelope
   (:use :cl)
   (:export

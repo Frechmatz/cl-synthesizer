@@ -51,7 +51,6 @@
 			:components ((:file "packages")
 				     (:file "vco")
 				     (:file "multiple")
-				     (:file "adsr")
 				     (:file "envelope")
 				     (:file "vca")
 				     (:file "midi-interface")

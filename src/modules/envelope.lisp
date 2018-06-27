@@ -1,7 +1,6 @@
 ;;
 ;;
 ;; Generic Envelope Generator
-;; Will replace the ADSR module
 ;;
 ;; Work in progress
 ;;
