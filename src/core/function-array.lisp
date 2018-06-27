@@ -10,8 +10,7 @@
    initializes and updates it.
    Returns a function with the following arguments:
    - restart -- If t the controller switches to the first array-function. Otherwise
-   the controller continues with the current array-function or does nothing if there is no current array-function.
-   The function returns the current array-function index or nil."
+   the controller continues with the current array-function or does nothing if there is no current array-function."
   (if (or (not array-functions) (= 0 (length array-functions)))
       (cl-synthesizer:signal-assembly-error
        :format-control "function-array: Function array must not be nil or empty"
@@ -46,4 +45,4 @@
 			     (update-array-function nil)))))))
       (lambda (restart)
 	(update-array-function restart)
-	cur-function-index))))
+	nil))))
