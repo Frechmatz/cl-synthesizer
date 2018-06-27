@@ -13,21 +13,47 @@ test-case:
 |#
 
 (defun run-test-case-envelope (test-case)
-  (let ((module (cl-synthesizer-modules-envelope:envelope
-		 "Envelope Module"
-		 (make-envelope-environment)
-		 :segments
+  (let ((envelope-segments
+	 (mapcar (lambda (s)
+		   (list
+		    :name (getf s :name)
+		    ;; convert ticks to milliseconds
+		    :time-ms (getf s :time-ticks)
+		    :target-cv (getf s :target-cv)
+		    :required-gate-state (getf s :required-gate-state)))
 		 (getf test-case :segments))))
-    (dolist (cur-test-case (getf test-case :test-cases))
-      (let ((gate (if (eq :on (getf cur-test-case :gate)) 5.0 0.0))
-	    (ticks (getf cur-test-case :ticks))
-	    (expected-cv (getf cur-test-case :expected-cv)))
-	(dotimes (i ticks)
-	  (funcall (getf module :update) :gate gate))
-	(assert-equal expected-cv (funcall (getf module :get-output) :cv))))))
+    (let ((module (cl-synthesizer-modules-envelope:envelope
+		   "Envelope Module"
+		   (make-envelope-environment)
+		   :segments
+		   envelope-segments)))
+      (dolist (cur-test-case (getf test-case :test-cases))
+	(let ((gate (if (eq :on (getf cur-test-case :gate)) 5.0 0.0))
+	      (ticks (getf cur-test-case :ticks))
+	      (expected-cv (getf cur-test-case :expected-cv)))
+	  (dotimes (i ticks)
+	    (funcall (getf module :update) :gate gate))
+	  ;; http://www.lispworks.com/documentation/HyperSpec/Body/f_equalp.htm
+	  (assert-equalp expected-cv (funcall (getf module :get-output) :cv)))))))
 
 (define-test test-envelope-1 ()
 	     (let ((test
-		    '(:segments ((:name "Attack" :time-ms nil :target-cv 5 :required-gate-state :on))
+		    '(:segments ((:name "Attack" :time-ticks 50 :target-cv 5 :required-gate-state :on))
 		      :test-cases ((:gate :on :ticks 50 :expected-cv 5)))))
 	       (run-test-case-envelope test)))
+
+(define-test test-envelope-2 ()
+	     (let ((test
+		    `(:segments ((:name "Attack" :time-ticks 10 :target-cv 5 :required-gate-state :on))
+		      ;; CV must climb on first tick
+		      :test-cases ((:gate :on :ticks 1 :expected-cv 0.5)))))
+	       (run-test-case-envelope test)))
+
+#|
+(define-test test-envelope-3 ()
+	     (let ((test
+		    '(:segments ((:name "Segment-0" :time-ticks 0 :target-cv 5 :required-gate-state :on)
+				 (:name "Segment-1" :time-ticks 10 :target-cv 5 :required-gate-state :on))
+		      :test-cases ((:gate :on :ticks 1 :expected-cv 0.5)))))
+	       (run-test-case-envelope test)))
+|#

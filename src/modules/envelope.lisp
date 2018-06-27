@@ -12,7 +12,9 @@
 ;; todo: what is the meaning of the params?
 (defun has-segment-completed (total-ticks elapsed-ticks is-gate required-gate-state)
   (cond 
-    ((and elapsed-ticks total-ticks (>= elapsed-ticks total-ticks))
+    ((eq 0 total-ticks)
+     t)
+    ((and elapsed-ticks total-ticks (> elapsed-ticks total-ticks))
      t)
     ((and (eq :on required-gate-state) (not is-gate))
      t)
@@ -48,7 +50,7 @@
 	(push 
 	 (list
 	  :init (lambda ()
-		  (setf elapsed-ticks -1)
+		  (setf elapsed-ticks 0)
 		  (setf total-ticks nil)
 		  (setf transfer-fn
 			(cond
@@ -59,7 +61,8 @@
 					     :input-max total-ticks
 					     :output-min cur-cv
 					     :output-max target-cv)))
-			     (lambda () (funcall (getf converter :get-y) elapsed-ticks))))
+			     (lambda ()
+			       (funcall (getf converter :get-y) elapsed-ticks))))
 			  (target-cv (lambda () target-cv))
 			  (t (lambda () cur-cv)))))
 	  :update (lambda()
