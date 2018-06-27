@@ -10,6 +10,7 @@
 (in-package :cl-synthesizer-modules-envelope)
 
 (defun validate-segment (required-gate-state target-cv time-ms)
+  "Perform some basic plausibility checks of a segment definition"
   (if (and (eq :ignore required-gate-state) (not time-ms))
       (cl-synthesizer:signal-assembly-error
        :format-control "If required-gate-state is :ignore then time-ms must not be nil"
@@ -18,6 +19,15 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "target-cv set to ~a but time-ms is nil and required-gate-state is :ignored"
        :format-arguments (list target-cv))))
+
+(defmacro with-gate-check (&body body)
+  `(cond
+    ((and (eq :on required-gate-state) (not is-gate))
+     :CONTINUE)
+    ((and (eq :off required-gate-state) is-gate)
+     :CONTINUE)
+    (t
+     ,@body)))
 
 (defun envelope (name environment &key segments)
   (declare (ignore name))
@@ -48,37 +58,22 @@
 		       (setf update-fn
 			     (lambda ()
 			       (setf elapsed-ticks (+ 1 elapsed-ticks))
-			       (cond
-				 ((> elapsed-ticks total-ticks)
-				  :CONTINUE)
-				 ((and (eq :on required-gate-state) (not is-gate))
-				  :CONTINUE)
-				 ((and (eq :off required-gate-state) is-gate)
-				  :CONTINUE)
-				 (t
-				  (setf cur-cv (funcall (getf converter :get-y) elapsed-ticks))
-				  :DONE))))))
+			       (if (> elapsed-ticks total-ticks)
+				  :CONTINUE
+				 (with-gate-check
+				   (setf cur-cv (funcall (getf converter :get-y) elapsed-ticks))
+				   :DONE))))))
 		    (target-cv
 		     (setf update-fn
 			   (lambda ()
-			     (cond
-			       ((and (eq :on required-gate-state) (not is-gate))
-				:CONTINUE)
-			       ((and (eq :off required-gate-state) is-gate)
-				:CONTINUE)
-			       (t
-				(setf cur-cv target-cv)
-				:DONE)))))
+			     (with-gate-check
+			       (setf cur-cv target-cv)
+			       :DONE))))
 		    (t
 		     (setf update-fn
 			   (lambda ()
-			     (cond
-			       ((and (eq :on required-gate-state) (not is-gate))
-				:CONTINUE)
-			       ((and (eq :off required-gate-state) is-gate)
-				:CONTINUE)
-			       (t
-				:DONE)))))))
+			     (with-gate-check 
+			       :DONE))))))
 	  :update (lambda() (funcall update-fn)))
 	 segment-def)))
     (let ((controller (cl-synthesizer-core:function-array (reverse segment-def))))
