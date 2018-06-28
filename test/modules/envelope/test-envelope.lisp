@@ -3,15 +3,6 @@
 (defun make-envelope-environment ()
   (cl-synthesizer:make-environment :sample-rate 1000))
 
-#|
-test-case:
-(
- :segments (...)
- :test-cases (
-   (:gate :on :ticks 100 :expected-cv 5.0)
-)
-|#
-
 (defun run-test-case-envelope (test-case)
   (let ((envelope-segments
 	 (mapcar (lambda (s)
