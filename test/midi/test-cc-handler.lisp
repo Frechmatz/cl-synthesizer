@@ -8,12 +8,12 @@
    :get-controller-value-offset
    (lambda (controller-value)
      (cond
-       ((eq 61 controller-value) -5)
-       ((eq 62 controller-value) -3)
-       ((eq 63 controller-value) -1)
-       ((eq 65 controller-value) 1)
-       ((eq 66 controller-value) 3)
-       ((eq 67 controller-value) 5)
+       ((= 61 controller-value) -5)
+       ((= 62 controller-value) -3)
+       ((= 63 controller-value) -1)
+       ((= 65 controller-value) 1)
+       ((= 66 controller-value) 3)
+       ((= 67 controller-value) 5)
        (t 0)))))
 
 (defparameter *CC-HANDLER-NG-INITIAL-CV* 5.0)

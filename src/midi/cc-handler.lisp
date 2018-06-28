@@ -39,7 +39,7 @@
 	    (delta (* cv-range (getf input :delta-percent)))
 	    (turn-speed (if (getf input :turn-speed) (getf input :turn-speed) (lambda (offs) offs))))
 	(push (lambda (midi-event-controller-id midi-event-controller-offset)
-		(if (eq midi-event-controller-id ctrl-id)
+		(if (= midi-event-controller-id ctrl-id)
 		    (let ((speed (* (signum midi-event-controller-offset)
 				    (funcall turn-speed (abs midi-event-controller-offset)))))
 		      (* delta speed))

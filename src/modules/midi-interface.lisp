@@ -62,7 +62,7 @@
 					   output-keyword))
 				       controller-handler)))
     (dotimes (i voice-count)
-      (if (or (eq 0 i) (not (eq play-mode :PLAY-MODE-UNISONO)))
+      (if (or (= 0 i) (not (eq play-mode :PLAY-MODE-UNISONO)))
 	  (setf (elt voice-states i) (make-voice-state name environment i))
 	  (setf (elt voice-states i) (elt voice-states 0)))
       (let ((cur-i i)) ;; new context for the lambdas
@@ -73,7 +73,7 @@
     ;; add controller handlers to lookup table
     (dolist (cc-handler controller-handler)
       (let ((cur-cc-handler cc-handler)) ;; new context
-	  (if (or (not (listp (second cur-cc-handler))) (eq 0 (length (second cur-cc-handler))))
+	  (if (or (not (listp (second cur-cc-handler))) (= 0 (length (second cur-cc-handler))))
 	      (cl-synthesizer:signal-assembly-error
 	       :format-control "Module ~a: Controller handler object ~a must be a non-empty list"
 	       :format-arguments (list name (first cur-cc-handler))))
