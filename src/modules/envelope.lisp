@@ -38,7 +38,7 @@
       (let ((update-fn nil)
 	    (required-gate-state (getf segment :required-gate-state))
 	    (target-cv (getf segment :target-cv))
-	    (time-ms (getf segment :time-ms)))
+	    (time-ms (getf segment :duration-ms)))
 	(validate-segment required-gate-state target-cv time-ms)
 	(push 
 	 (list

@@ -27,10 +27,10 @@
 				:f-max 13000
 				:v-peak 5)
     (cl-synthesizer:add-module rack "ADSR" #'cl-synthesizer-modules-envelope:envelope
-			       :segments '((:time-ms 1000 :target-cv 5 :required-gate-state :on)
-					   (:time-ms 1000 :target-cv 3 :required-gate-state :on)
+			       :segments '((:duration-ms 1000 :target-cv 5 :required-gate-state :on)
+					   (:duration-ms 1000 :target-cv 3 :required-gate-state :on)
 					   (:required-gate-state :on)
-					   (:time-ms 1000 :target-cv 0 :required-gate-state :off)))
+					   (:duration-ms 1000 :target-cv 0 :required-gate-state :off)))
     (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:vca)
 
     (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv)

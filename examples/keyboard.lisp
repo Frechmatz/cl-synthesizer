@@ -28,10 +28,10 @@
 		:f-max 13000
 		:v-peak 5)
 	       (cl-synthesizer:add-module rack (make-module-name "ADSR") #'cl-synthesizer-modules-envelope:envelope
-					  :segments '((:time-ms 1000 :target-cv 5 :required-gate-state :on)
-						      (:time-ms 1000 :target-cv 3 :required-gate-state :on)
+					  :segments '((:duration-ms 1000 :target-cv 5 :required-gate-state :on)
+						      (:duration-ms 1000 :target-cv 3 :required-gate-state :on)
 						      (:required-gate-state :on)
-						      (:time-ms 1000 :target-cv 0 :required-gate-state :ignore)))
+						      (:duration-ms 1000 :target-cv 0 :required-gate-state :ignore)))
 	       (cl-synthesizer:add-module rack (make-module-name "VCA") #'cl-synthesizer-modules-vca:vca)
 	       (cl-synthesizer:add-patch rack (make-module-name "VCO") :sine (make-module-name "VCA") :input)
 	       (cl-synthesizer:add-patch rack (make-module-name "ADSR") :cv (make-module-name "VCA") :cv)
