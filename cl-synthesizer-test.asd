@@ -77,6 +77,7 @@
 	       (:module "test/modules/envelope"
 			:serial t
 			:components ((:file "test-envelope")
+				     (:file "test-envelope-validation")
 				     ))
 	       (:module "test/synthesizer"
 			:serial t

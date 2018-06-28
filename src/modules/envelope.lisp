@@ -8,16 +8,29 @@
 
 (in-package :cl-synthesizer-modules-envelope)
 
-(defun validate-segment (required-gate-state target-cv time-ms)
+#|
+required-gate-state    target-cv     duration-ms   Action
+:ignore                nil           nil           Error
+:ignore                nil           t             Ok
+:ignore                t             nil           Error
+:ignore                t             t             Ok
+:on                    *             *             Ok
+:off                   *             *             Ok
+|#
+(defun validate-segment (segment)
   "Perform some basic plausibility checks of a segment definition"
-  (if (and (eq :ignore required-gate-state) (not time-ms))
-      (cl-synthesizer:signal-assembly-error
-       :format-control "If required-gate-state is :ignore then time-ms must not be nil"
-       :format-arguments (list)))
-  (if (and target-cv (not time-ms) (eq :ignore required-gate-state))
-      (cl-synthesizer:signal-assembly-error
-       :format-control "target-cv set to ~a but time-ms is nil and required-gate-state is :ignored"
-       :format-arguments (list target-cv))))
+  (let ((required-gate-state (getf segment :required-gate-state))
+	(target-cv (getf segment :target-cv))
+	(duration-ms (getf segment :duration-ms)))
+    (cond
+      ((and (eq :ignore required-gate-state) (not target-cv) (not duration-ms))
+       (cl-synthesizer:signal-assembly-error
+	:format-control "Invalid segment: ~a"
+	:format-arguments (list segment)))
+      ((and (eq :ignore required-gate-state) target-cv (not duration-ms))
+       (cl-synthesizer:signal-assembly-error
+	:format-control "Invalid segment: ~a"
+	:format-arguments (list segment))))))
 
 (defmacro with-gate-check (&body body)
   `(cond
@@ -35,20 +48,20 @@
 	(cur-cv 0)
 	(ticks-per-ms (floor (/ (getf environment :sample-rate) 1000))))
     (dolist (segment segments)
+      (validate-segment segment)
       (let ((update-fn nil)
 	    (required-gate-state (getf segment :required-gate-state))
 	    (target-cv (getf segment :target-cv))
-	    (time-ms (getf segment :duration-ms)))
-	(validate-segment required-gate-state target-cv time-ms)
+	    (duration-ms (getf segment :duration-ms)))
 	(push 
 	 (list
 	  :init (lambda ()
 		  (cond
-		    ((and time-ms (= 0 time-ms))
+		    ((and duration-ms (= 0 duration-ms))
 		     (setf update-fn (lambda () :CONTINUE))) 
-		    ((and target-cv time-ms)
+		    ((and target-cv duration-ms)
 		     (let* ((elapsed-ticks 0)
-			    (total-ticks (* ticks-per-ms time-ms))
+			    (total-ticks (* ticks-per-ms duration-ms))
 			    (converter (cl-synthesizer-core:linear-converter
 					:input-min 0
 					:input-max total-ticks
