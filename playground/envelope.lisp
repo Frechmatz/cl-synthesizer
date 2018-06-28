@@ -27,12 +27,22 @@
 				:f-max 13000
 				:v-peak 5)
     (cl-synthesizer:add-module rack "ADSR" #'cl-synthesizer-modules-envelope:envelope
-			       :segments '((:duration-ms 1000 :target-cv 5 :required-gate-state :on)
+			       :segments '((:duration-ms 1000 :target-cv 5 :required-gate-state :on
+					    :duration-controller
+					    (:socket :attack-duration
+					     :input-min -5.0
+					     :input-max 5.0
+					     :rel-ms-min -5000
+					     :rel-ms-max 5000))
 					   (:duration-ms 1000 :target-cv 3 :required-gate-state :on)
 					   (:required-gate-state :on)
 					   (:duration-ms 1000 :target-cv 0 :required-gate-state :off)))
     (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:vca)
 
+    ;; ADSR attack duration controller
+    (cl-synthesizer:add-module rack "ADSR-ATTACK-DURATION-CTRL" #'cl-synthesizer-modules-fixed-output:fixed-output :value 0)
+    (cl-synthesizer:add-patch rack "ADSR-ATTACK-DURATION-CTRL" :out "ADSR" :attack-duration)
+    
     (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv)
     (cl-synthesizer:add-patch rack "MIDI-IFC" :gate-1 "ADSR" :gate)
     (cl-synthesizer:add-patch rack "VCO" :sine "VCA" :input)

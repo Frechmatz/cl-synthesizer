@@ -1,6 +1,6 @@
 ;;
 ;;
-;; Generic Envelope Generator
+;; Envelope Generator
 ;;
 ;; Work in progress
 ;;
@@ -32,6 +32,7 @@
 
 #|
 required-gate-state    target-cv     duration-ms   Action
+------------------------------------------------------------------------------
 :ignore                nil           nil           Error
 :ignore                nil           t             Ok
 :ignore                t             nil           Error
@@ -40,10 +41,12 @@ required-gate-state    target-cv     duration-ms   Action
 :off                   *             *             Ok
 
 duration-controller    duration-ms                
+------------------------------------------------------------------------------
 t                      nil                         Error
 t                      t                           Validate controller settings 
 
 target-cv-controller   target-cv
+------------------------------------------------------------------------------
 t                      nil                         Error
 t                      t                           Validate controller settings
 |#
@@ -170,11 +173,16 @@ t                      t                           Validate controller settings
        :get-output (lambda (output)
 		     (declare (ignore output))
 		     cur-cv)
-       :update (lambda (&key (gate 0))
-		 (let ((previous-gate is-gate) (restart nil))
-		   (setf is-gate (if (>= gate gate-trigger-threshold-cv) t nil))
-		   (setf restart (and is-gate (not previous-gate)))
-		   (if restart
-		       (setf cur-cv 0))
-		   (funcall controller restart)))))))
+       :update (lambda (&rest args)
+		 ;; cl-synthesizer::rack always calls the module update-function with a property list
+		 (dolist (socket controller-inputs)
+		   (let ((value (getf args socket)))
+		     (if value (setf (getf controller-values socket) value))))
+		 (let ((gate (if (getf args :gate) (getf args :gate) 0)))
+		   (let ((previous-gate is-gate) (restart nil))
+		     (setf is-gate (if (>= gate gate-trigger-threshold-cv) t nil))
+		     (setf restart (and is-gate (not previous-gate)))
+		     (if restart
+			 (setf cur-cv 0))
+		     (funcall controller restart))))))))
 
