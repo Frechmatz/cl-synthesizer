@@ -8,7 +8,7 @@
 
 (in-package :cl-synthesizer-modules-envelope)
 
-(defun validate-controller (controller module-inputs controller-inputs)
+(defun validate-controller (controller module-inputs)
   (if (or
        (not (getf controller :socket))
        (not (getf controller :input-min))
@@ -21,17 +21,12 @@
   (let ((socket (getf controller :socket)))
     (if (find socket module-inputs)
 	(cl-synthesizer:signal-assembly-error
-	 :format-control "Controller input socket ~a is a reserved socket identifier"
-	 :format-arguments (list socket)))
-    (if (find socket controller-inputs)
-	(cl-synthesizer:signal-assembly-error
-	 :format-control "Controller input socket has already been declared: ~a"
+	 :format-control "Controller input socket ~a has already been declared"
 	 :format-arguments (list socket)))
     (if (= (float (getf controller :input-min)) (float (getf controller :input-max)))
 	(cl-synthesizer:signal-assembly-error
 	 :format-control "Controller :input-min ~a must not be equal to :input-max ~a"
 	 :format-arguments (list (getf controller :input-min) (getf controller :input-max))))))
-
 
 #|
 required-gate-state    target-cv     duration-ms   Action
@@ -53,7 +48,7 @@ target-cv-controller   target-cv
 t                      nil                         Error
 t                      t                           Validate controller settings
 |#
-(defun validate-segment (segment module-inputs controller-inputs)
+(defun validate-segment (segment module-inputs)
   "Perform some basic plausibility checks of a segment definition"
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((required-gate-state (getf segment :required-gate-state))
@@ -80,11 +75,11 @@ t                      t                           Validate controller settings
       (if (getf segment :duration-controller)
 	  (progn 
 	    (setf duration-socket (getf (getf segment :duration-controller) :socket))
-	    (validate-controller (getf segment :duration-controller) module-inputs controller-inputs)))
+	    (validate-controller (getf segment :duration-controller) module-inputs)))
       (if (getf segment :target-cv-controller)
 	  (progn 
 	    (setf cv-socket (getf (getf segment :target-cv-controller) :socket))
-	    (validate-controller (getf segment :target-cv-controller) module-inputs controller-inputs)))
+	    (validate-controller (getf segment :target-cv-controller) module-inputs)))
       (if (and duration-socket cv-socket (eq duration-socket cv-socket))
 	  (cl-synthesizer:signal-assembly-error
 	   :format-control "Controller input socket has already been declared: ~a"
@@ -124,7 +119,7 @@ t                      t                           Validate controller settings
 	(controller-handlers nil)
 	(module-inputs '(:gate)))
     (dolist (segment segments)
-      (validate-segment segment module-inputs controller-inputs)
+      (validate-segment segment (concatenate 'list module-inputs controller-inputs))
       (let ((segment-update-fn nil)
 	    (duration-ms-offset 0.0)
 	    (target-cv-offset 0.0)
@@ -142,18 +137,21 @@ t                      t                           Validate controller settings
 	  :init (lambda ()
 		  ;; Set up segment update function
 		  (cond
+		    ;; Skip segment
 		    ((and duration-ms (= 0 duration-ms))
-		     (setf segment-update-fn (lambda () :CONTINUE))) 
+		     (setf segment-update-fn (lambda () :CONTINUE)))
+		    ;; Ramp
 		    ((and target-cv duration-ms)
 		     (let* ((elapsed-ticks 0)
 			    (total-ticks (* ticks-per-ms (+ duration-ms duration-ms-offset)))
-			    (transfer-fn (getf
-					  (cl-synthesizer-core:linear-converter
-					   :input-min 0
-					   :input-max total-ticks
-					   :output-min cur-cv
-					   :output-max (+ target-cv target-cv-offset))
-					  :get-y)))
+			    (transfer-fn
+			     (getf
+			      (cl-synthesizer-core:linear-converter
+			       :input-min 0
+			       :input-max total-ticks
+			       :output-min cur-cv
+			       :output-max (+ target-cv target-cv-offset))
+			      :get-y)))
 		       (setf segment-update-fn
 			     (lambda ()
 			       (setf elapsed-ticks (+ 1 elapsed-ticks))
@@ -162,12 +160,14 @@ t                      t                           Validate controller settings
 				 (with-gate-check
 				   (setf cur-cv (funcall transfer-fn elapsed-ticks))
 				   :DONE))))))
+		    ;; Fixed output CV
 		    (target-cv
 		     (setf segment-update-fn
 			   (lambda ()
 			     (with-gate-check
 			       (setf cur-cv target-cv)
 			       :DONE))))
+		    ;; Hold current output CV (as set by previous segment)
 		    (t
 		     (setf segment-update-fn
 			   (lambda ()
@@ -184,7 +184,7 @@ t                      t                           Validate controller settings
 		     cur-cv)
        :update (lambda (&rest args)
 		 ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-		 ;; cl-synthesizer::rack always calls the module update-function with a property list
+		 ;; Update controller handlers
 		 (dolist (socket controller-inputs)
 		   (let ((value (getf args socket)))
 		     (if value (funcall (getf controller-handlers socket) value))))
