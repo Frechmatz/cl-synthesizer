@@ -28,11 +28,6 @@
        :format-control "A module with name ~a has already been added to the rack"
        :format-arguments (list name))))
 
-(defun push-alist (alist key value)
-  (push value alist)
-  (push key alist)
-  alist)
-
 (defun add-module (rack module-name module-fn &rest args)
   (declare (optimize (debug 3) (speed 0) (space 0)))
   (assert-is-module-name-available rack module-name)
