@@ -26,7 +26,11 @@
     (if (find socket controller-inputs)
 	(cl-synthesizer:signal-assembly-error
 	 :format-control "Controller input socket has already been declared: ~a"
-	 :format-arguments (list socket)))))
+	 :format-arguments (list socket)))
+    (if (= (float (getf controller :input-min)) (float (getf controller :input-max)))
+	(cl-synthesizer:signal-assembly-error
+	 :format-control "Controller :input-min ~a must not be equal to :input-max ~a"
+	 :format-arguments (list (getf controller :input-min) (getf controller :input-max))))))
 
 
 #|
@@ -95,6 +99,7 @@ t                      t                           Validate controller settings
     (t
      ,@body)))
 
+;; consider, to make a macro out of this function
 (defun push-plist (alist key value)
   (push value alist)
   (push key alist)
@@ -102,28 +107,55 @@ t                      t                           Validate controller settings
 
 (defun envelope (name environment &key segments (gate-trigger-threshold-cv 4.9))
   (declare (ignore name))
+  (declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((segment-def nil)
 	(is-gate nil)
 	(cur-cv 0)
 	(ticks-per-ms (floor (/ (getf environment :sample-rate) 1000)))
 	(controller-inputs nil)
-	(controller-values nil)
+	(controller-handlers nil)
 	(module-inputs '(:gate)))
     (dolist (segment segments)
       (validate-segment segment module-inputs controller-inputs)
       (let ((update-fn nil)
-	    (duration-controller (getf segment :duration-controller))
-	    (target-cv-controller (getf segment :target-cv-controller))
+	    (duration-ms-offset 0.0)
+	    (target-cv-offset 0.0)
 	    (required-gate-state (getf segment :required-gate-state))
 	    (target-cv (getf segment :target-cv))
 	    (duration-ms (getf segment :duration-ms)))
-	(if duration-controller
-	    (let ((socket (getf duration-controller :socket)))
-	      (push-plist controller-values socket nil)
+	(if (getf segment :duration-controller)
+	    (let* ((controller (getf segment :duration-controller))
+		   (socket (getf controller :socket))
+		   (transfer-fn (cl-synthesizer-core:linear-converter
+				 :input-min (getf controller :input-min)
+				 :input-max (getf controller :input-max)
+				 :output-min (getf controller :output-min)
+				 :output-max (getf controller :output-max))))
+	      (setf controller-handlers
+		    (push-plist
+		     controller-handlers
+		     socket
+		     (lambda (value)
+		       (declare (optimize (debug 3) (speed 0) (space 0)))
+		       (setf duration-ms-offset (funcall (getf transfer-fn :get-y) value))
+		       (if (> 0 duration-ms-offset)
+			   (setf duration-ms-offset 0)))))
 	      (push socket controller-inputs)))
-	(if target-cv-controller
-	    (let ((socket (getf target-cv-controller :socket)))
-	      (push-plist controller-values socket nil)
+	(if (getf segment :target-cv-controller)
+	    (let* ((controller (getf segment :target-cv-controller))
+		   (socket (getf controller :socket))
+		   (transfer-fn (cl-synthesizer-core:linear-converter
+				 :input-min (getf controller :input-min)
+				 :input-max (getf controller :input-max)
+				 :output-min (getf controller :output-min)
+				 :output-max (getf controller :output-max))))
+	      (setf controller-handlers
+		    (push-plist
+		     controller-handlers
+		     socket
+		     (lambda (value)
+		       (declare (optimize (debug 3) (speed 0) (space 0)))
+		       (setf target-cv-offset (funcall (getf transfer-fn :get-y) value)))))
 	      (push socket controller-inputs)))
 	(push 
 	 (list
@@ -133,12 +165,12 @@ t                      t                           Validate controller settings
 		     (setf update-fn (lambda () :CONTINUE))) 
 		    ((and target-cv duration-ms)
 		     (let* ((elapsed-ticks 0)
-			    (total-ticks (* ticks-per-ms duration-ms))
+			    (total-ticks (* ticks-per-ms (+ duration-ms duration-ms-offset)))
 			    (converter (cl-synthesizer-core:linear-converter
 					:input-min 0
 					:input-max total-ticks
 					:output-min cur-cv
-					:output-max target-cv)))
+					:output-max (+ target-cv target-cv-offset))))
 		       (setf update-fn
 			     (lambda ()
 			       (setf elapsed-ticks (+ 1 elapsed-ticks))
@@ -168,10 +200,11 @@ t                      t                           Validate controller settings
 		     (declare (ignore output))
 		     cur-cv)
        :update (lambda (&rest args)
+		 (declare (optimize (debug 3) (speed 0) (space 0)))
 		 ;; cl-synthesizer::rack always calls the module update-function with a property list
 		 (dolist (socket controller-inputs)
 		   (let ((value (getf args socket)))
-		     (if value (setf (getf controller-values socket) value))))
+		     (if value (funcall (getf controller-handlers socket) value))))
 		 (let ((gate (if (getf args :gate) (getf args :gate) 0)))
 		   (let ((previous-gate is-gate) (restart nil))
 		     (setf is-gate (if (>= gate gate-trigger-threshold-cv) t nil))
