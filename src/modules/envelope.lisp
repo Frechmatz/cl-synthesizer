@@ -99,19 +99,20 @@ t                      t                           Validate controller settings
     (t
      ,@body)))
 
-;; consider, to make a macro out of this function
-(defun push-plist (alist key value)
-  (push value alist)
-  (push key alist)
-  alist)
+(defmacro with-controller (controller-key &body body)
+  `(if (getf segment ,controller-key)
+       (let ((transfer-fn
+	      (getf 
+	       (cl-synthesizer-core:linear-converter
+		:input-min (getf (getf segment ,controller-key) :input-min)
+		:input-max (getf (getf segment ,controller-key) :input-max)
+		:output-min (getf (getf segment ,controller-key) :output-min)
+		:output-max (getf (getf segment ,controller-key) :output-max))
+	       :get-y)))
+	 (push (lambda (value) ,@body) controller-handlers)
+	 (push (getf (getf segment ,controller-key) :socket) controller-handlers)
+	 (push (getf (getf segment ,controller-key) :socket) controller-inputs))))
 
-(defmacro make-controller-transfer-fn (controller)
-  `(cl-synthesizer-core:linear-converter
-    :input-min (getf ,controller :input-min)
-    :input-max (getf ,controller :input-max)
-    :output-min (getf ,controller :output-min)
-    :output-max (getf ,controller :output-max)))
-  
 (defun envelope (name environment &key segments (gate-trigger-threshold-cv 4.9))
   (declare (ignore name))
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
@@ -124,66 +125,55 @@ t                      t                           Validate controller settings
 	(module-inputs '(:gate)))
     (dolist (segment segments)
       (validate-segment segment module-inputs controller-inputs)
-      (let ((update-fn nil)
+      (let ((segment-update-fn nil)
 	    (duration-ms-offset 0.0)
 	    (target-cv-offset 0.0)
 	    (required-gate-state (getf segment :required-gate-state))
 	    (target-cv (getf segment :target-cv))
 	    (duration-ms (getf segment :duration-ms)))
-	(if (getf segment :duration-controller)
-	    (let* ((transfer-fn (make-controller-transfer-fn (getf segment :duration-controller))))
-	      (setf controller-handlers
-		    (push-plist
-		     controller-handlers
-		     (getf (getf segment :duration-controller) :socket)
-		     (lambda (value)
-		       (setf duration-ms-offset (funcall (getf transfer-fn :get-y) value))
-		       (if (> 0 duration-ms-offset)
-			   (setf duration-ms-offset 0)))))
-	      (push (getf (getf segment :duration-controller) :socket) controller-inputs)))
-	(if (getf segment :target-cv-controller)
-	    (let* ((transfer-fn (make-controller-transfer-fn (getf segment :target-cv-controller))))
-	      (setf controller-handlers
-		    (push-plist
-		     controller-handlers
-		     (getf (getf segment :target-cv-controller) :socket)
-		     (lambda (value)
-		       (setf target-cv-offset (funcall (getf transfer-fn :get-y) value)))))
-	      (push (getf (getf segment :target-cv-controller) :socket) controller-inputs)))
+	(with-controller :duration-controller
+	  (setf duration-ms-offset (funcall transfer-fn value))
+	  (if (> 0 duration-ms-offset)
+	      (setf duration-ms-offset 0)))
+	(with-controller :target-cv-controller
+	  (setf target-cv-offset (funcall transfer-fn value)))
 	(push 
 	 (list
 	  :init (lambda ()
+		  ;; Set up segment update function
 		  (cond
 		    ((and duration-ms (= 0 duration-ms))
-		     (setf update-fn (lambda () :CONTINUE))) 
+		     (setf segment-update-fn (lambda () :CONTINUE))) 
 		    ((and target-cv duration-ms)
 		     (let* ((elapsed-ticks 0)
 			    (total-ticks (* ticks-per-ms (+ duration-ms duration-ms-offset)))
-			    (converter (cl-synthesizer-core:linear-converter
-					:input-min 0
-					:input-max total-ticks
-					:output-min cur-cv
-					:output-max (+ target-cv target-cv-offset))))
-		       (setf update-fn
+			    (transfer-fn (getf
+					  (cl-synthesizer-core:linear-converter
+					   :input-min 0
+					   :input-max total-ticks
+					   :output-min cur-cv
+					   :output-max (+ target-cv target-cv-offset))
+					  :get-y)))
+		       (setf segment-update-fn
 			     (lambda ()
 			       (setf elapsed-ticks (+ 1 elapsed-ticks))
 			       (if (> elapsed-ticks total-ticks)
 				  :CONTINUE
 				 (with-gate-check
-				   (setf cur-cv (funcall (getf converter :get-y) elapsed-ticks))
+				   (setf cur-cv (funcall transfer-fn elapsed-ticks))
 				   :DONE))))))
 		    (target-cv
-		     (setf update-fn
+		     (setf segment-update-fn
 			   (lambda ()
 			     (with-gate-check
 			       (setf cur-cv target-cv)
 			       :DONE))))
 		    (t
-		     (setf update-fn
+		     (setf segment-update-fn
 			   (lambda ()
 			     (with-gate-check 
 			       :DONE))))))
-	  :update (lambda() (funcall update-fn)))
+	  :update (lambda() (funcall segment-update-fn)))
 	 segment-def)))
     (let ((controller (cl-synthesizer-core:function-array (reverse segment-def))))
       (list
