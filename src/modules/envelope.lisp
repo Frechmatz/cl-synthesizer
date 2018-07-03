@@ -8,7 +8,7 @@
 
 (in-package :cl-synthesizer-modules-envelope)
 
-(defun validate-controller (controller)
+(defun validate-controller (controller module-inputs controller-inputs)
   (if (or
        (not (getf controller :socket))
        (not (getf controller :input-min))
@@ -17,7 +17,16 @@
        (not (getf controller :output-max)))
       (cl-synthesizer:signal-assembly-error
        :format-control "Invalid controller settings: ~a"
-       :format-arguments (list controller))))
+       :format-arguments (list controller)))
+  (let ((socket (getf controller :socket)))
+    (if (find socket module-inputs)
+	(cl-synthesizer:signal-assembly-error
+	 :format-control "Controller input socket ~a is a reserved socket identifier"
+	 :format-arguments (list socket)))
+    (if (find socket controller-inputs)
+	(cl-synthesizer:signal-assembly-error
+	 :format-control "Controller input socket has already been declared: ~a"
+	 :format-arguments (list socket)))))
 
 
 #|
@@ -40,8 +49,9 @@ target-cv-controller   target-cv
 t                      nil                         Error
 t                      t                           Validate controller settings
 |#
-(defun validate-segment (segment)
+(defun validate-segment (segment module-inputs controller-inputs)
   "Perform some basic plausibility checks of a segment definition"
+  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((required-gate-state (getf segment :required-gate-state))
 	(target-cv (getf segment :target-cv))
 	(duration-ms (getf segment :duration-ms)))
@@ -62,10 +72,19 @@ t                      t                           Validate controller settings
        (cl-synthesizer:signal-assembly-error
 	:format-control "If a target-cv-controller is set then target-cv must not be nil"
 	:format-arguments (list segment))))
-    (if (getf segment :duration-controller)
-	(validate-controller (getf segment :duration-controller)))
-    (if (getf segment :control-cv-controller)
-	(validate-controller (getf segment :control-cv-controller)))))
+    (let ((duration-socket nil) (cv-socket nil))
+      (if (getf segment :duration-controller)
+	  (progn 
+	    (setf duration-socket (getf (getf segment :duration-controller) :socket))
+	    (validate-controller (getf segment :duration-controller) module-inputs controller-inputs)))
+      (if (getf segment :target-cv-controller)
+	  (progn 
+	    (setf cv-socket (getf (getf segment :target-cv-controller) :socket))
+	    (validate-controller (getf segment :target-cv-controller) module-inputs controller-inputs)))
+      (if (and duration-socket cv-socket (eq duration-socket cv-socket))
+	  (cl-synthesizer:signal-assembly-error
+	   :format-control "Controller input socket has already been declared: ~a"
+	   :format-arguments (list duration-socket cv-socket))))))
 
 (defmacro with-gate-check (&body body)
   `(cond
@@ -75,6 +94,11 @@ t                      t                           Validate controller settings
      :CONTINUE)
     (t
      ,@body)))
+
+(defun push-plist (alist key value)
+  (push value alist)
+  (push key alist)
+  alist)
 
 (defun envelope (name environment &key segments (gate-trigger-threshold-cv 4.9))
   (declare (ignore name))
@@ -86,7 +110,7 @@ t                      t                           Validate controller settings
 	(controller-values nil)
 	(module-inputs '(:gate)))
     (dolist (segment segments)
-      (validate-segment segment)
+      (validate-segment segment module-inputs controller-inputs)
       (let ((update-fn nil)
 	    (duration-controller (getf segment :duration-controller))
 	    (target-cv-controller (getf segment :target-cv-controller))
@@ -95,31 +119,11 @@ t                      t                           Validate controller settings
 	    (duration-ms (getf segment :duration-ms)))
 	(if duration-controller
 	    (let ((socket (getf duration-controller :socket)))
-	      (if (find socket module-inputs)
-		  (cl-synthesizer:signal-assembly-error
-		   :format-control "Controller socket ~a is a reserved socket identifier"
-		   :format-arguments (list socket)))
-	      (if (find socket controller-inputs)
-		  (cl-synthesizer:signal-assembly-error
-		   :format-control "Controller socket not unique: ~a"
-		   :format-arguments (list socket)))
-	      ;; add to property list
-	      (push nil controller-values)
-	      (push socket controller-values)
+	      (push-plist controller-values socket nil)
 	      (push socket controller-inputs)))
 	(if target-cv-controller
 	    (let ((socket (getf target-cv-controller :socket)))
-	      (if (find socket module-inputs)
-		  (cl-synthesizer:signal-assembly-error
-		   :format-control "Controller socket ~a is a reserved socket identifier"
-		   :format-arguments (list socket)))
-	      (if (find socket controller-inputs)
-		  (cl-synthesizer:signal-assembly-error
-		   :format-control "Controller socket not unique: ~a"
-		   :format-arguments (list socket)))
-	      ;; add to property list
-	      (push nil controller-values)
-	      (push socket controller-values)
+	      (push-plist controller-values socket nil)
 	      (push socket controller-inputs)))
 	(push 
 	 (list
