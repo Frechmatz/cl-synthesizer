@@ -8,27 +8,17 @@
 
 (in-package :cl-synthesizer-modules-envelope)
 
-(defun validate-duration-controller (controller)
+(defun validate-controller (controller)
   (if (or
        (not (getf controller :socket))
        (not (getf controller :input-min))
        (not (getf controller :input-max))
-       (not (getf controller :rel-ms-min))
-       (not (getf controller :rel-ms-max)))
+       (not (getf controller :output-min))
+       (not (getf controller :output-max)))
       (cl-synthesizer:signal-assembly-error
-       :format-control "Invalid duration-controller settings: ~a"
+       :format-control "Invalid controller settings: ~a"
        :format-arguments (list controller))))
 
-(defun validate-target-cv-controller (controller)
-  (if (or
-       (not (getf controller :socket))
-       (not (getf controller :input-min))
-       (not (getf controller :input-max))
-       (not (getf controller :rel-cv-min))
-       (not (getf controller :rel-cv-max)))
-      (cl-synthesizer:signal-assembly-error
-       :format-control "Invalid target-cv-controller settings: ~a"
-       :format-arguments (list controller))))
 
 #|
 required-gate-state    target-cv     duration-ms   Action
@@ -73,9 +63,9 @@ t                      t                           Validate controller settings
 	:format-control "If a target-cv-controller is set then target-cv must not be nil"
 	:format-arguments (list segment))))
     (if (getf segment :duration-controller)
-	(validate-duration-controller (getf segment :duration-controller)))
+	(validate-controller (getf segment :duration-controller)))
     (if (getf segment :control-cv-controller)
-	(validate-target-cv-controller (getf segment :control-cv-controller)))))
+	(validate-controller (getf segment :control-cv-controller)))))
 
 (defmacro with-gate-check (&body body)
   `(cond

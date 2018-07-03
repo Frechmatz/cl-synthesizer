@@ -32,8 +32,8 @@
 					    (:socket :attack-duration
 					     :input-min -5.0
 					     :input-max 5.0
-					     :rel-ms-min -5000
-					     :rel-ms-max 5000))
+					     :output-min -5000
+					     :output-max 5000))
 					   (:duration-ms 1000 :target-cv 3 :required-gate-state :on)
 					   (:required-gate-state :on)
 					   (:duration-ms 1000 :target-cv 0 :required-gate-state :off)))
