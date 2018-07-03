@@ -105,9 +105,16 @@ t                      t                           Validate controller settings
   (push key alist)
   alist)
 
+(defmacro make-controller-transfer-fn (controller)
+  `(cl-synthesizer-core:linear-converter
+    :input-min (getf ,controller :input-min)
+    :input-max (getf ,controller :input-max)
+    :output-min (getf ,controller :output-min)
+    :output-max (getf ,controller :output-max)))
+  
 (defun envelope (name environment &key segments (gate-trigger-threshold-cv 4.9))
   (declare (ignore name))
-  (declare (optimize (debug 3) (speed 0) (space 0)))
+  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((segment-def nil)
 	(is-gate nil)
 	(cur-cv 0)
@@ -124,39 +131,25 @@ t                      t                           Validate controller settings
 	    (target-cv (getf segment :target-cv))
 	    (duration-ms (getf segment :duration-ms)))
 	(if (getf segment :duration-controller)
-	    (let* ((controller (getf segment :duration-controller))
-		   (socket (getf controller :socket))
-		   (transfer-fn (cl-synthesizer-core:linear-converter
-				 :input-min (getf controller :input-min)
-				 :input-max (getf controller :input-max)
-				 :output-min (getf controller :output-min)
-				 :output-max (getf controller :output-max))))
+	    (let* ((transfer-fn (make-controller-transfer-fn (getf segment :duration-controller))))
 	      (setf controller-handlers
 		    (push-plist
 		     controller-handlers
-		     socket
+		     (getf (getf segment :duration-controller) :socket)
 		     (lambda (value)
-		       (declare (optimize (debug 3) (speed 0) (space 0)))
 		       (setf duration-ms-offset (funcall (getf transfer-fn :get-y) value))
 		       (if (> 0 duration-ms-offset)
 			   (setf duration-ms-offset 0)))))
-	      (push socket controller-inputs)))
+	      (push (getf (getf segment :duration-controller) :socket) controller-inputs)))
 	(if (getf segment :target-cv-controller)
-	    (let* ((controller (getf segment :target-cv-controller))
-		   (socket (getf controller :socket))
-		   (transfer-fn (cl-synthesizer-core:linear-converter
-				 :input-min (getf controller :input-min)
-				 :input-max (getf controller :input-max)
-				 :output-min (getf controller :output-min)
-				 :output-max (getf controller :output-max))))
+	    (let* ((transfer-fn (make-controller-transfer-fn (getf segment :target-cv-controller))))
 	      (setf controller-handlers
 		    (push-plist
 		     controller-handlers
-		     socket
+		     (getf (getf segment :target-cv-controller) :socket)
 		     (lambda (value)
-		       (declare (optimize (debug 3) (speed 0) (space 0)))
 		       (setf target-cv-offset (funcall (getf transfer-fn :get-y) value)))))
-	      (push socket controller-inputs)))
+	      (push (getf (getf segment :target-cv-controller) :socket) controller-inputs)))
 	(push 
 	 (list
 	  :init (lambda ()
@@ -200,7 +193,7 @@ t                      t                           Validate controller settings
 		     (declare (ignore output))
 		     cur-cv)
        :update (lambda (&rest args)
-		 (declare (optimize (debug 3) (speed 0) (space 0)))
+		 ;;(declare (optimize (debug 3) (speed 0) (space 0)))
 		 ;; cl-synthesizer::rack always calls the module update-function with a property list
 		 (dolist (socket controller-inputs)
 		   (let ((value (getf args socket)))
