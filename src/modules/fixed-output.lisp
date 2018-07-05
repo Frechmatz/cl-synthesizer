@@ -8,11 +8,11 @@
 
 (in-package :cl-synthesizer-modules-fixed-output)
 
-(defun fixed-output (name environment &key value)
+(defun fixed-output (name environment &key value (output-socket :out))
   (declare (ignore name environment))
   (list
    :inputs (lambda () nil)
-   :outputs (lambda () '(:out))
+   :outputs (lambda () (list output-socket))
    :get-output (lambda (output)
 		 (declare (ignore output))
 		 value)
