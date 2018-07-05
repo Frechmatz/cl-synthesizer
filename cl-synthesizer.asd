@@ -81,6 +81,7 @@
 				     (:file "vcoexample")
 				     (:file "midiccexample")
 				     (:file "keyboard")
+				     (:file "modulated-envelope")
 				     )
 			)))
 
