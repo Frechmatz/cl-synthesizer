@@ -127,9 +127,10 @@ t                      t                           Validate controller settings
 	    (target-cv (getf segment :target-cv))
 	    (duration-ms (getf segment :duration-ms)))
 	(with-controller :duration-controller
-	  (setf duration-ms-offset (funcall transfer-fn value))
-	  (if (> 0 duration-ms-offset)
-	      (setf duration-ms-offset 0)))
+	  (let ((offset (funcall transfer-fn value)))
+	    ;; keep current duration-ms-offset when resulting duration will be negative
+	    (if (<= 0 (+ offset duration-ms))
+		(setf duration-ms-offset offset))))
 	(with-controller :target-cv-controller
 	  (setf target-cv-offset (funcall transfer-fn value)))
 	(push 
