@@ -7,7 +7,7 @@
   (let ((envelope-segments
 	 (mapcar (lambda (s)
 		   (let ((duration-controller (getf s :duration-controller))
-			 ;;(target-cv-controller (getf s :target-cv-controller))
+			 (target-cv-controller (getf s :target-cv-controller))
 			 (mapped
 			  (list
 			   :duration-ms (getf s :duration-ticks)
@@ -24,6 +24,10 @@
 			     :output-max (getf duration-controller :output-max-ticks))
 			    mapped)
 			   (push :duration-controller mapped)))
+		     (if target-cv-controller
+			 (progn
+			   (push target-cv-controller mapped)
+			   (push :target-cv-controller mapped)))
 		     mapped))
 	  (getf test-case :segments))))
     (let ((module (cl-synthesizer-modules-envelope:envelope
@@ -92,11 +96,10 @@
 				   (:gate :on :ticks 1000 :expected-cv 50)
 				   ;; release
 				   (:gate :off :ticks 1 :expected-cv 49.95)
-				   (:gate :off :ticks 999 :expected-cv 0)
-				   ))))
+				   (:gate :off :ticks 999 :expected-cv 0)))))
 	       (run-test-case-envelope test)))
 
-(define-test test-envelope-controller-1 ()
+(define-test test-envelope-duration-controller-1 ()
 	     (let ((test
 		    '(:segments ((:duration-ticks 1000 :target-cv 100 :required-gate-state :on
 				  :duration-controller
@@ -104,16 +107,12 @@
 					   :input-min -5.0
 					   :input-max 5.0
 					   :output-min-ticks -500
-					   :output-max-ticks 500))
-				 (:duration-ticks 1000 :target-cv 50 :required-gate-state :on)
-				 (:required-gate-state :on)
-				 (:duration-ticks 1000 :target-cv 0 :required-gate-state :off))
+					   :output-max-ticks 500)))
 		      ;; decrease duration by 500 ticks
-		      :test-cases ((:gate :on :ticks 1 :expected-cv 0.2 :controller-inputs (:attack-duration -5.0))
-				   ))))
+		      :test-cases ((:gate :on :ticks 1 :expected-cv 0.2 :controller-inputs (:attack-duration -5.0))))))
 	       (run-test-case-envelope test)))
 
-(define-test test-envelope-controller-2 ()
+(define-test test-envelope-duration-controller-2 ()
 	     (let ((test
 		    '(:segments ((:duration-ticks 1000 :target-cv 100 :required-gate-state :on
 				  :duration-controller
@@ -121,11 +120,64 @@
 					   :input-min -5.0
 					   :input-max 5.0
 					   :output-min-ticks -1000
-					   :output-max-ticks 1000))
-				 (:duration-ticks 1000 :target-cv 50 :required-gate-state :on)
-				 (:required-gate-state :on)
-				 (:duration-ticks 1000 :target-cv 0 :required-gate-state :off))
+					   :output-max-ticks 1000)))
 		      ;; increase duration by 1000 ticks
-		      :test-cases ((:gate :on :ticks 1 :expected-cv 0.05 :controller-inputs (:attack-duration 5.0))
-				   ))))
+		      :test-cases ((:gate :on :ticks 1 :expected-cv 0.05 :controller-inputs (:attack-duration 5.0))))))
+	       (run-test-case-envelope test)))
+
+(define-test test-envelope-target-cv-controller-1 ()
+	     (let ((test
+		    '(:segments ((:duration-ticks 1000 :target-cv 100 :required-gate-state :on
+				  :target-cv-controller
+				  (:socket :attack-target-cv
+					   :input-min -5.0
+					   :input-max 5.0
+					   :output-min -100
+					   :output-max 100)))
+		      ;; decrease target-cv by 100
+		      :test-cases ((:gate :on :ticks 1000 :expected-cv 0 :controller-inputs (:attack-target-cv -5.0))))))
+	       (run-test-case-envelope test)))
+
+(define-test test-envelope-target-cv-controller-2 ()
+	     (let ((test
+		    '(:segments ((:duration-ticks 1000 :target-cv 100 :required-gate-state :on
+				  :target-cv-controller
+				  (:socket :attack-target-cv
+					   :input-min -5.0
+					   :input-max 5.0
+					   :output-min -50
+					   :output-max 50)))
+		      ;; decrease target-cv by 50
+		      :test-cases ((:gate :on :ticks 1000 :expected-cv 50 :controller-inputs (:attack-target-cv -5.0))))))
+	       (run-test-case-envelope test)))
+
+(define-test test-envelope-target-cv-controller-3 ()
+	     (let ((test
+		    '(:segments ((:duration-ticks 1000 :target-cv 100 :required-gate-state :on
+				  :target-cv-controller
+				  (:socket :attack-target-cv
+					   :input-min -5.0
+					   :input-max 5.0
+					   :output-min -200
+					   :output-max 200)))
+		      ;; decrease target-cv by 200
+		      :test-cases ((:gate :on :ticks 1000 :expected-cv -100 :controller-inputs (:attack-target-cv -5.0))))))
+	       (run-test-case-envelope test)))
+
+(define-test test-envelope-target-cv-controller-4 ()
+	     (let ((test
+		    '(:segments (;; attack
+				 (:duration-ticks 1000 :target-cv 100 :required-gate-state :on
+				  :target-cv-controller
+				  (:socket :attack-target-cv
+					   :input-min -5.0
+					   :input-max 5.0
+					   :output-min -200
+					   :output-max 200))
+				 ;; decay
+				 (:duration-ticks 1000 :target-cv 500 :required-gate-state :on))
+		      :test-cases (;; decrease target-cv by 200 -> attack climbs to -100
+				   (:gate :on :ticks 1000 :expected-cv -100 :controller-inputs (:attack-target-cv -5.0))
+				   ;; decay climbs from -100 to 500
+				   (:gate :on :ticks 1000 :expected-cv 500)))))
 	       (run-test-case-envelope test)))
