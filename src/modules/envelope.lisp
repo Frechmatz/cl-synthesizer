@@ -109,6 +109,69 @@ t                      t                           Validate controller settings
 	 (push (getf (getf segment ,controller-key) :socket) controller-inputs))))
 
 (defun envelope (name environment &key segments (gate-threshold 4.9))
+"Creates an envelope generator module. An envelope consists of a list of segments where
+    each segment defines rules how to behave. The module generates linear envelopes.
+    The function has the following arguments:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:segments The segments of the envelope. Each segment consists of
+	    a property list with the following keys:
+	    <ul>
+		<li>:duration-ms Optional duration of the segment in milli-seconds. The effective
+		    duration depends on the sample rate as specified by
+		the environment.</li>
+		<li>:target-cv Optional target voltage to which the segment shall climb.</li>
+		<li>:required-gate-state One of :on :off :ignore</li>
+		<li>:duration-controller Declares a controller with which the
+		    duration of the segment can be modulated.</li>
+		<li>:target-cv-controller Declares a controller with which the
+		    target voltage of the segment can be modulated.</li>
+	    </ul>
+	    A Controller represents an external input that is exposed by the module and can be
+	    used to modulate a certain property of the segment. External input values
+	    are mapped by a linear function to the actual values that are processed by the segment.
+	    Controllers are represented as property lists with the following keys:
+	    <ul>
+		<li>:socket A keyword that defines the input socket that will be exposed by the
+		    envelope module and to which other modules can be connected.</li>
+		<li>:input-min The minimum input value of the socket.</li>
+		<li>:input-max The maximum input value of the socket.</li>
+		<li>:output-min The minimum target value of the mapping.</li>
+		<li>:output-max The maximum target value of the mapping.</li>
+	    </ul>
+	    Clipping is generally not applied except for cases such as a negative segment
+	    duration. Controller inputs are always offsets that are added to the initial
+	    value as provided by :duration-ms or :target-cv.
+	    Controller inputs do not affect the behaviour of the currently active segment.
+	</li>
+	<li>:gate-threshold An optional threshold which defines the minimum input value
+	    of the :gate input that is interpreted as gate on. The default value is 4.9</li>
+    </ul>
+    The module has the following inputs:
+    <ul>
+	<li>:gate The gate signal as provided for example by a MIDI sequencer. If the gate switches from
+	:off to :on the output voltage is reset to 0.0 and the module switches to the first segment.</li>
+	<li>Inputs as defined by segment controllers.</li>
+    </ul>
+    The module has the following outputs:
+    <ul>
+	<li>:cv The current value of the envelope. The initial value is 0.0</li>
+    </ul>
+    Example:
+    <pre><code>
+    (cl-synthesizer:add-module rack \"ADSR\" #'cl-synthesizer-modules-envelope:envelope
+			       :segments '((:duration-ms 200 :target-cv 5 :required-gate-state :on
+					    :duration-controller
+					    (:socket :attack-duration
+					     :input-min -5.0
+					     :input-max 5.0
+					     :output-min -1000
+					     :output-max 1000))
+					   (:duration-ms 100 :target-cv 3 :required-gate-state :on)
+					   (:required-gate-state :on)
+					   (:duration-ms 300 :target-cv 0 :required-gate-state :off)))
+    </code></pre>"
   (declare (ignore name))
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((segment-def nil)
