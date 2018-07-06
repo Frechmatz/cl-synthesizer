@@ -108,7 +108,7 @@ t                      t                           Validate controller settings
 	 (push (getf (getf segment ,controller-key) :socket) controller-handlers)
 	 (push (getf (getf segment ,controller-key) :socket) controller-inputs))))
 
-(defun envelope (name environment &key segments (gate-trigger-threshold-cv 4.9))
+(defun envelope (name environment &key segments (gate-threshold 4.9))
   (declare (ignore name))
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((segment-def nil)
@@ -191,7 +191,7 @@ t                      t                           Validate controller settings
 		     (if value (funcall (getf controller-handlers socket) value))))
 		 (let ((gate (if (getf args :gate) (getf args :gate) 0)))
 		   (let ((previous-gate is-gate) (restart nil))
-		     (setf is-gate (if (>= gate gate-trigger-threshold-cv) t nil))
+		     (setf is-gate (if (>= gate gate-threshold) t nil))
 		     (setf restart (and is-gate (not previous-gate)))
 		     (if restart
 			 (setf cur-cv 0))
