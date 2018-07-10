@@ -70,17 +70,19 @@
 			 'cl-synthesizer-midi-voice-manager:voice-manager
 			 :voice-count (if (eq play-mode :PLAY-MODE-POLY) voice-count 1))))
     (dotimes (i voice-count)
-      (setf outputs (push (cl-synthesizer-macro-util:make-keyword "CV" i) outputs))
-      (setf outputs (push (cl-synthesizer-macro-util:make-keyword "GATE" i) outputs))
-      ;; in Unisono mode all voices share the same state
-      (if (or (= 0 i) (not (eq play-mode :PLAY-MODE-UNISONO)))
-	  (setf (elt voice-states i) (make-voice-state name environment i))
-	  (setf (elt voice-states i) (elt voice-states 0)))
-      (let ((cur-i i)) ;; new context for the lambdas
-	(setf (gethash (cl-synthesizer-macro-util:make-keyword "CV" cur-i) output-socket-lookup-table)
-	      (lambda () (elt (elt voice-states cur-i) +voice-state-cv+)))
-	(setf (gethash (cl-synthesizer-macro-util:make-keyword "GATE" cur-i) output-socket-lookup-table)
-	      (lambda () (elt (elt voice-states cur-i) +voice-state-gate+)))))
+      (let ((cv-socket (cl-synthesizer-macro-util:make-keyword "CV" i))
+	    (gate-socket (cl-synthesizer-macro-util:make-keyword "GATE" i)))
+	(setf outputs (push cv-socket outputs))
+	(setf outputs (push gate-socket outputs))
+	;; in Unisono mode all voices share the same state object
+	(if (or (= 0 i) (not (eq play-mode :PLAY-MODE-UNISONO)))
+	    (setf (elt voice-states i) (make-voice-state name environment i))
+	    (setf (elt voice-states i) (elt voice-states 0)))
+	(let ((cur-i i)) ;; new context
+	  (setf (gethash cv-socket output-socket-lookup-table)
+		(lambda () (elt (elt voice-states cur-i) +voice-state-cv+)))
+	  (setf (gethash gate-socket output-socket-lookup-table)
+		(lambda () (elt (elt voice-states cur-i) +voice-state-gate+))))))
     ;; process controller handlers
     (dolist (cc-handler controller-handler)
       (validate-controller cc-handler outputs)
