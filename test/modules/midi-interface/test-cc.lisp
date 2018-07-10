@@ -7,7 +7,7 @@
 		"Test-Midi-Interface"
 		(cl-synthesizer:make-environment)
 		:voice-count 1
-		:controller-handler (list
+		:controller (list
 				     (list :socket :CV-1 :handler nil)))))
 
 (define-test test-midi-interface-cc-output-not-keyword ()
@@ -16,7 +16,7 @@
 		"Test-Midi-Interface"
 		(cl-synthesizer:make-environment)
 		:voice-count 1
-		:controller-handler (list
+		:controller (list
 				     (list :socket "CV-1" :handler nil)))))
 
 (define-test test-midi-interface-cc-invalid-handler-1 ()
@@ -25,7 +25,7 @@
 		"Test-Midi-Interface"
 		(cl-synthesizer:make-environment)
 		:voice-count 1
-		:controller-handler (list
+		:controller (list
 				     (list :socket :my-controller :handler nil)))))
 
 ;; get-output function missing in handler
@@ -35,7 +35,7 @@
 		"Test-Midi-Interface"
 		(cl-synthesizer:make-environment)
 		:voice-count 1
-		:controller-handler (list
+		:controller (list
 				     (list :socket :my-controller :handler (list :update (lambda () nil)))))))
 
 ;; update function missing in handler
@@ -45,7 +45,7 @@
 		"Test-Midi-Interface"
 		(cl-synthesizer:make-environment)
 		:voice-count 1
-		:controller-handler (list
+		:controller (list
 				     (list :socket :my-controller :handler (list :get-output (lambda () nil)))))))
 
 
@@ -55,7 +55,7 @@
 		     "Test-Midi-Interface"
 		     (cl-synthesizer:make-environment)
 		     :voice-count 1
-		     :controller-handler (list (list
+		     :controller (list (list
 						:socket :my-controller
 						:handler (list
 						 :get-output (lambda () 99)
@@ -68,7 +68,7 @@
 		     "Test-Midi-Interface"
 		     (cl-synthesizer:make-environment)
 		     :voice-count 1
-		     :controller-handler (list (list
+		     :controller (list (list
 						:socket :my-controller
 						:handler (list
 						 :get-output (lambda () 99)
@@ -99,7 +99,7 @@
 	  "Test-Midi-Interface"
 	  (cl-synthesizer:make-environment)
 	  :voice-count 1
-	  :controller-handler (list (list
+	  :controller (list (list
 				     :socket :my-controller
 				     :handler (cl-synthesizer-midi:relative-cc-handler
 				      *MIDI-IFC-TEST-VENDOR*

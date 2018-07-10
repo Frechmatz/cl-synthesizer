@@ -10,7 +10,7 @@
   "Midi example: Modulate frequency via Controller"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
-				:controller-handler
+				:controller
 				(list
 				 (list :socket :controller-1
 				       :handler (cl-synthesizer-midi:relative-cc-handler
@@ -39,7 +39,7 @@
   "Midi example: Modulate frequency via Controller"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
-				:controller-handler
+				:controller
 				(list
 				 (list :socket :controller-1
 				       :handler (cl-synthesizer-midi:relative-cc-handler
@@ -68,7 +68,7 @@
   "Midi example: Modulate frequency via Controller"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
-				:controller-handler
+				:controller
 				(list
 				 (list :socket :controller-1
 				       :handler (cl-synthesizer-midi:relative-cc-handler

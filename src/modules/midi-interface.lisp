@@ -65,9 +65,9 @@
 			 (voice-count 1)
 			 (note-number-to-cv (lambda (note-number) (/ note-number 12)))
 			 (play-mode :PLAY-MODE-POLY)
-			 (controller-handler nil))
+			 (controller nil))
   "play-mode: :PLAY-MODE-POLY, :PLAY-MODE-UNISONO
-   controller-handler: A list of controller handlers. Each entry consists of a list of
+   controller: A list of controllers. Each entry consists of a list of
    :socket <output-keyword> :handler (list :update lambda (midi-events) () :get-output :lambda ()())"
   (declare (optimize (debug 3) (speed 0) (space 0)))
   (let* ((outputs nil)
@@ -91,7 +91,7 @@
 	  (setf (gethash gate-socket output-socket-lookup-table)
 		(lambda () (get-voice-state-gate (elt voice-states cur-i)))))))
     ;; process controller handlers
-    (dolist (cc-handler controller-handler)
+    (dolist (cc-handler controller)
       (validate-controller cc-handler outputs)
       (setf outputs (push (getf cc-handler :socket) outputs))
       (let ((cur-cc-handler cc-handler)) ;; new context
@@ -109,7 +109,7 @@
 	       ;;(declare (optimize (debug 3) (speed 0) (space 0)))
 	       ;;(break)
 	       ;; Update controllers
-	       (dolist (c controller-handler)
+	       (dolist (c controller)
 		 (funcall (getf (getf c :handler) :update) midi-events))
 	       ;; Update voices
 	       (dolist (midi-event midi-events)
