@@ -30,6 +30,13 @@
     (setf (elt voice-state +voice-state-gate-retrigger+) nil)
     voice-state))
 
+(defun get-voice-state-cv (state) (elt state +voice-state-cv+))
+(defun set-voice-state-cv (state cv) (setf (elt state +voice-state-cv+) cv))
+(defun get-voice-state-gate (state) (elt state +voice-state-gate+))
+(defun set-voice-state-gate (state cv) (setf (elt state +voice-state-gate+) cv))
+(defun get-voice-state-gate-retrigger (state) (elt state +voice-state-gate-retrigger+))
+(defun set-voice-state-gate-retrigger (state cv) (setf (elt state +voice-state-gate-retrigger+) cv))
+
 (defun validate-controller (controller module-outputs)
   (let ((output-keyword (first controller)))
     (if (not (keywordp output-keyword))
@@ -80,9 +87,9 @@
 	    (setf (elt voice-states i) (elt voice-states 0)))
 	(let ((cur-i i)) ;; new context
 	  (setf (gethash cv-socket output-socket-lookup-table)
-		(lambda () (elt (elt voice-states cur-i) +voice-state-cv+)))
+		(lambda () (get-voice-state-cv (elt voice-states cur-i))))
 	  (setf (gethash gate-socket output-socket-lookup-table)
-		(lambda () (elt (elt voice-states cur-i) +voice-state-gate+))))))
+		(lambda () (get-voice-state-gate (elt voice-states cur-i)))))))
     ;; process controller handlers
     (dolist (cc-handler controller-handler)
       (validate-controller cc-handler outputs)
@@ -115,11 +122,8 @@
 			     (cl-synthesizer-midi-event:get-note-number midi-event))
 			  (let ((voice-state (elt voice-states voice-index)))
 			    (if (= 1 stack-size)
-				(progn
-				  (setf (elt voice-state +voice-state-gate+) 5.0)))
-			    (setf (elt voice-state +voice-state-cv+) (funcall note-number-to-cv voice-note))
-			    ;;(format t "cv-oct: ~a~%" (elt voice-state +voice-state-cv+))
-			    )))
+				(set-voice-state-gate voice-state 5.0))
+			    (set-voice-state-cv voice-state (funcall note-number-to-cv voice-note)))))
 		       ((cl-synthesizer-midi-event:note-off-eventp midi-event)
 			(multiple-value-bind (voice-index voice-note)
 			    (cl-synthesizer-midi-voice-manager:remove-note
@@ -128,11 +132,5 @@
 			  (if voice-index
 			      (let ((voice-state (elt voice-states voice-index)))
 				(if (not voice-note)
-				    (progn
-				      (setf (elt voice-state +voice-state-gate+) 0))
-				    (progn
-				      (setf (elt voice-state +voice-state-cv+) (funcall note-number-to-cv voice-note))
-				      ))
-				;;(format t "cv-oct: ~a~%" (elt voice-state +voice-state-cv+))
-				))))
-		       )))))))
+				    (set-voice-state-gate voice-state 0)
+				    (set-voice-state-cv voice-state (funcall note-number-to-cv voice-note))))))))))))))
