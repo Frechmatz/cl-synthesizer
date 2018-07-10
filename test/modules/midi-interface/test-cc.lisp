@@ -8,7 +8,7 @@
 		(cl-synthesizer:make-environment)
 		:voice-count 1
 		:controller-handler (list
-				     (list :CV-1 nil)))))
+				     (list :socket :CV-1 :handler nil)))))
 
 (define-test test-midi-interface-cc-output-not-keyword ()
 	     (expect-assembly-exception
@@ -17,7 +17,7 @@
 		(cl-synthesizer:make-environment)
 		:voice-count 1
 		:controller-handler (list
-				     (list "CV-1" nil)))))
+				     (list :socket "CV-1" :handler nil)))))
 
 (define-test test-midi-interface-cc-invalid-handler-1 ()
 	     (expect-assembly-exception
@@ -26,7 +26,7 @@
 		(cl-synthesizer:make-environment)
 		:voice-count 1
 		:controller-handler (list
-				     (list :my-controller nil)))))
+				     (list :socket :my-controller :handler nil)))))
 
 ;; get-output function missing in handler
 (define-test test-midi-interface-cc-invalid-handler-2 ()
@@ -36,7 +36,7 @@
 		(cl-synthesizer:make-environment)
 		:voice-count 1
 		:controller-handler (list
-				     (list :my-controller (list :update (lambda () nil)))))))
+				     (list :socket :my-controller :handler (list :update (lambda () nil)))))))
 
 ;; update function missing in handler
 (define-test test-midi-interface-cc-invalid-handler-3 ()
@@ -46,7 +46,7 @@
 		(cl-synthesizer:make-environment)
 		:voice-count 1
 		:controller-handler (list
-				     (list :my-controller (list :get-output (lambda () nil)))))))
+				     (list :socket :my-controller :handler (list :get-output (lambda () nil)))))))
 
 
 (define-test test-midi-interface-cc-1 ()
@@ -56,8 +56,8 @@
 		     (cl-synthesizer:make-environment)
 		     :voice-count 1
 		     :controller-handler (list (list
-						:my-controller
-						(list
+						:socket :my-controller
+						:handler (list
 						 :get-output (lambda () 99)
 						 :update (lambda (midi-events) nil)))))))
 	       (assert-equal 99 (funcall (getf ifc :get-output) :my-controller))))
@@ -69,8 +69,8 @@
 		     (cl-synthesizer:make-environment)
 		     :voice-count 1
 		     :controller-handler (list (list
-						:my-controller
-						(list
+						:socket :my-controller
+						:handler (list
 						 :get-output (lambda () 99)
 						 :update (lambda (midi-events) nil)))))))
 	       (assert-equal 99 (funcall (getf ifc :get-output) :my-controller))))
@@ -100,8 +100,8 @@
 	  (cl-synthesizer:make-environment)
 	  :voice-count 1
 	  :controller-handler (list (list
-				     :my-controller
-				     (cl-synthesizer-midi:relative-cc-handler
+				     :socket :my-controller
+				     :handler (cl-synthesizer-midi:relative-cc-handler
 				      *MIDI-IFC-TEST-VENDOR*
 				      (list (list :controller-id :ENCODER-2 :delta-percent 0.1))
 				      :cv-initial *MIDI-IFC-TEST-CC-HANDLER-INITIAL-CV*

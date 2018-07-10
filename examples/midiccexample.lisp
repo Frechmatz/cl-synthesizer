@@ -12,14 +12,14 @@
     (cl-synthesizer:add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
 				:controller-handler
 				(list
-				 (list :controller-1
-				       (cl-synthesizer-midi:relative-cc-handler
-					cl-synthesizer-vendor:*arturia-minilab-mk2*
-					(list (list :controller-id :ENCODER-1 :delta-percent 0.01
-						    :turn-speed (lambda(offs) (declare (ignore offs)) 1)))
-					:cv-initial 2.5
-					:cv-min 0
-					:cv-max 5))))
+				 (list :socket :controller-1
+				       :handler (cl-synthesizer-midi:relative-cc-handler
+						 cl-synthesizer-vendor:*arturia-minilab-mk2*
+						 (list (list :controller-id :ENCODER-1 :delta-percent 0.01
+							     :turn-speed (lambda(offs) (declare (ignore offs)) 1)))
+						 :cv-initial 2.5
+						 :cv-min 0
+						 :cv-max 5))))
     (cl-synthesizer:add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco
 				:base-frequency 440
@@ -41,8 +41,8 @@
     (cl-synthesizer:add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
 				:controller-handler
 				(list
-				 (list :controller-1
-				       (cl-synthesizer-midi:relative-cc-handler
+				 (list :socket :controller-1
+				       :handler (cl-synthesizer-midi:relative-cc-handler
 					cl-synthesizer-vendor:*arturia-minilab-mk2*
 					(list (list :controller-id :ENCODER-1 :delta-percent 0.005)
 					      (list :controller-id :ENCODER-9 :delta-percent 0.02))
@@ -70,8 +70,8 @@
     (cl-synthesizer:add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
 				:controller-handler
 				(list
-				 (list :controller-1
-				       (cl-synthesizer-midi:relative-cc-handler
+				 (list :socket :controller-1
+				       :handler (cl-synthesizer-midi:relative-cc-handler
 					cl-synthesizer-vendor:*arturia-minilab-mk2*
 					(list (list :controller-id :ENCODER-1 :delta-percent 0.01))
 					:cv-initial 2.5

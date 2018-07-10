@@ -38,7 +38,7 @@
 (defun set-voice-state-gate-retrigger (state cv) (setf (elt state +voice-state-gate-retrigger+) cv))
 
 (defun validate-controller (controller module-outputs)
-  (let ((output-keyword (first controller)))
+  (let ((output-keyword (getf controller :socket)))
     (if (not (keywordp output-keyword))
 	(cl-synthesizer:signal-assembly-error
 	 :format-control "Controller handler output socket ~a must be a keyword"
@@ -47,18 +47,18 @@
 	(cl-synthesizer:signal-assembly-error
 	 :format-control "Controller handler output socket ~a is already defined"
 	 :format-arguments (list output-keyword))))
-  (if (or (not (listp (second controller))) (= 0 (length (second controller))))
+  (if (or (not (listp (getf controller :handler))) (= 0 (length (getf controller :handler))))
       (cl-synthesizer:signal-assembly-error
        :format-control "Controller handler object ~a must be a non-empty list"
-       :format-arguments (list (first controller))))
-  (if (not (getf (second controller) :get-output))
+       :format-arguments (list controller)))
+  (if (not (getf (getf controller :handler) :get-output))
       (cl-synthesizer:signal-assembly-error
        :format-control "Controller handler object ~a must provide a 'get-output' function property"
-       :format-arguments (list (first controller))))
-  (if (not (getf (second controller) :update))
+       :format-arguments (list controller)))
+  (if (not (getf (getf controller :handler) :update))
       (cl-synthesizer:signal-assembly-error
        :format-control "Controller handler object ~a must provide a 'update' function property"
-       :format-arguments (list (first controller)))))
+       :format-arguments (list controller))))
 
 (defun midi-interface (name environment
 		       &key
@@ -68,7 +68,7 @@
 			 (controller-handler nil))
   "play-mode: :PLAY-MODE-POLY, :PLAY-MODE-UNISONO
    controller-handler: A list of controller handlers. Each entry consists of a list of
-   <output-keyword> (list :update lambda (midi-events) () :get-output :lambda ()())"
+   :socket <output-keyword> :handler (list :update lambda (midi-events) () :get-output :lambda ()())"
   (declare (optimize (debug 3) (speed 0) (space 0)))
   (let* ((outputs nil)
 	 (voice-states (make-array voice-count))
@@ -93,10 +93,10 @@
     ;; process controller handlers
     (dolist (cc-handler controller-handler)
       (validate-controller cc-handler outputs)
-      (setf outputs (push (first cc-handler) outputs))
+      (setf outputs (push (getf cc-handler :socket) outputs))
       (let ((cur-cc-handler cc-handler)) ;; new context
-	(setf (gethash (first cur-cc-handler) output-socket-lookup-table)
-	      (lambda () (funcall (getf (second cur-cc-handler) :get-output))))))
+	(setf (gethash (getf cur-cc-handler :socket) output-socket-lookup-table)
+	      (lambda () (funcall (getf (getf cur-cc-handler :handler) :get-output))))))
     (list
      :inputs (lambda () '(:midi-events))
      :outputs (lambda () outputs)
@@ -110,7 +110,7 @@
 	       ;;(break)
 	       ;; Update controllers
 	       (dolist (c controller-handler)
-		 (funcall (getf (second c) :update) midi-events))
+		 (funcall (getf (getf c :handler) :update) midi-events))
 	       ;; Update voices
 	       (dolist (midi-event midi-events)
 		 (if midi-event
