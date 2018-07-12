@@ -10,7 +10,7 @@
   "Midi example: Modulate frequency via Controller"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
-				:controller
+				:controllers
 				(list
 				 (list :socket :controller-1
 				       :handler (cl-synthesizer-midi:relative-cc-handler
@@ -39,7 +39,7 @@
   "Midi example: Modulate frequency via Controller"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
-				:controller
+				:controllers
 				(list
 				 (list :socket :controller-1
 				       :handler (cl-synthesizer-midi:relative-cc-handler
@@ -62,13 +62,13 @@
     (cl-synthesizer:add-patch rack "VCO-1" :triangle "LINE-OUT" :channel-2)
     rack))
       
-;;(cl-synthesizer-util:play-rack (cl-synthesizer-examples::synthesizer-example-midi-chained-controllers) 30 :attach-speaker t :attach-midi t)
+;;(cl-synthesizer-util:play-rack (cl-synthesizer-examples::synthesizer-example-midi-chained-controllers) 10 :attach-speaker t :attach-midi t)
 
 (defun synthesizer-example-midi-single-controller-2 ()
   "Midi example: Modulate frequency via Controller"
   (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
-				:controller
+				:controllers
 				(list
 				 (list :socket :controller-1
 				       :handler (cl-synthesizer-midi:relative-cc-handler

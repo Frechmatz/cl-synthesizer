@@ -65,11 +65,13 @@
 			 (voice-count 1)
 			 (note-number-to-cv (lambda (note-number) (/ note-number 12)))
 			 (play-mode :PLAY-MODE-POLY)
-			 (controller nil))
+			 (cv-gate-on 5.0)
+			 (cv-gate-off 0.0)
+			 (controllers nil))
   "play-mode: :PLAY-MODE-POLY, :PLAY-MODE-UNISONO
-   controller: A list of controllers. Each entry consists of a list of
+   controllers: A list of controllers. Each entry consists of a list of
    :socket <output-keyword> :handler (list :update lambda (midi-events) () :get-output :lambda ()())"
-  (declare (optimize (debug 3) (speed 0) (space 0)))
+  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let* ((outputs nil)
 	 (voice-states (make-array voice-count))
 	 (output-socket-lookup-table (make-hash-table :test #'eq))
@@ -90,13 +92,13 @@
 		(lambda () (get-voice-state-cv (elt voice-states cur-i))))
 	  (setf (gethash gate-socket output-socket-lookup-table)
 		(lambda () (get-voice-state-gate (elt voice-states cur-i)))))))
-    ;; process controller handlers
-    (dolist (cc-handler controller)
-      (validate-controller cc-handler outputs)
-      (setf outputs (push (getf cc-handler :socket) outputs))
-      (let ((cur-cc-handler cc-handler)) ;; new context
-	(setf (gethash (getf cur-cc-handler :socket) output-socket-lookup-table)
-	      (lambda () (funcall (getf (getf cur-cc-handler :handler) :get-output))))))
+    ;; process controllers
+    (dolist (controller controllers)
+      (validate-controller controller outputs)
+      (setf outputs (push (getf controller :socket) outputs))
+      (let ((cur-controller controller)) ;; new context
+	(setf (gethash (getf cur-controller :socket) output-socket-lookup-table)
+	      (lambda () (funcall (getf (getf cur-controller :handler) :get-output))))))
     (list
      :inputs (lambda () '(:midi-events))
      :outputs (lambda () outputs)
@@ -106,10 +108,8 @@
 			 (error (format nil "Unknown input ~a requested from ~a" output name)))
 		     (funcall handler)))
      :update (lambda (&key (midi-events nil))
-	       ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-	       ;;(break)
 	       ;; Update controllers
-	       (dolist (c controller)
+	       (dolist (c controllers)
 		 (funcall (getf (getf c :handler) :update) midi-events))
 	       ;; Update voices
 	       (dolist (midi-event midi-events)
@@ -121,9 +121,12 @@
 			     voice-manager
 			     (cl-synthesizer-midi-event:get-note-number midi-event))
 			  (let ((voice-state (elt voice-states voice-index)))
+			    ;; if first note then set gate to on
 			    (if (= 1 stack-size)
-				(set-voice-state-gate voice-state 5.0))
-			    (set-voice-state-cv voice-state (funcall note-number-to-cv voice-note)))))
+				(set-voice-state-gate voice-state cv-gate-on))
+			    (set-voice-state-cv
+			     voice-state
+			     (funcall note-number-to-cv voice-note)))))
 		       ((cl-synthesizer-midi-event:note-off-eventp midi-event)
 			(multiple-value-bind (voice-index voice-note)
 			    (cl-synthesizer-midi-voice-manager:remove-note
@@ -131,6 +134,9 @@
 			     (cl-synthesizer-midi-event:get-note-number midi-event))
 			  (if voice-index
 			      (let ((voice-state (elt voice-states voice-index)))
+				;; if no note left then set gate to off
 				(if (not voice-note)
-				    (set-voice-state-gate voice-state 0)
-				    (set-voice-state-cv voice-state (funcall note-number-to-cv voice-note))))))))))))))
+				    (set-voice-state-gate voice-state cv-gate-off)
+				    (set-voice-state-cv
+				     voice-state
+				     (funcall note-number-to-cv voice-note))))))))))))))
