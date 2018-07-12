@@ -19,7 +19,7 @@
     (dolist (cur-test-case (getf test-case :test-cases))
       (test-midi-interface-update ifc (getf cur-test-case :events))
       (dolist (cur-output (getf cur-test-case :outputs))
-	(assert-equal (second cur-output) (test-midi-interface-get-output ifc (first cur-output)))))))
+	(assert-equal (float (second cur-output)) (float (test-midi-interface-get-output ifc (first cur-output))))))))
 
 (define-test test-midi-interface-1 ()
 	     (let ((test
