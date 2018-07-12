@@ -1,6 +1,6 @@
 (in-package :cl-synthesizer-midi)
 
-(defun relative-cc-handler (midi-controller inputs &key (cv-initial 2.5) (cv-min 0) (cv-max 5) (channel nil))
+(defun relative-cc-handler (midi-controller controllers &key (cv-initial 2.5) (cv-min 0) (cv-max 5) (channel nil))
   "Returns a handler that converts relative MIDI CC-Events to control voltages. The handler
    consists of a property list with the following properties:
    - :update Update function to be called with a list of midi-events
@@ -14,7 +14,7 @@
          for example 112.
      -- :get-controller-value-offset A function that is called with the value of a 
          CC event, for example 62, and returns a positive or negative offset, for example -3.
-   - inputs: (list (:controller-id <id> :delta-percent <delta-percent> :turn-speed <speed>)) 
+   - controllers: (list (:controller-id <id> :delta-percent <delta-percent> :turn-speed <speed>)) 
      -- <controller-id>: A keyword that identifies an encoder of the midi-controller, for example :encoder-1
      -- <delta-percent>: Defines how much the control-voltage will be increased/decreased when the controller
         is turned. The value is relative to the total control voltage range as defined by cv-min and cv-max.
@@ -34,35 +34,41 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "Initial value ~a not in CV range ~a - ~a"
        :format-arguments (list cv-initial cv-min cv-max)))
-  (let ((input-handlers nil) (cur-cv cv-initial) (cv-range (abs (- cv-max cv-min))))
-    (dolist (input inputs)
-      (let ((ctrl-id (funcall (getf midi-controller :get-controller-number) (getf input :controller-id)))
-	    (delta (* cv-range (getf input :delta-percent)))
-	    (turn-speed (if (getf input :turn-speed) (getf input :turn-speed) (lambda (offs) offs))))
-	(push (lambda (midi-event-controller-id midi-event-controller-offset)
-		(if (= midi-event-controller-id ctrl-id)
-		    (let ((speed (* (signum midi-event-controller-offset)
-				    (funcall turn-speed (abs midi-event-controller-offset)))))
-		      (* delta speed))
-		    0))
-	      input-handlers)))
+  (let ((controller-handlers nil) (cur-cv cv-initial) (cv-range (abs (- cv-max cv-min))))
+    (dolist (controller controllers)
+      (let ((ctrl-id (funcall (getf midi-controller :get-controller-number) (getf controller :controller-id)))
+	    (delta (* cv-range (getf controller :delta-percent)))
+	    (turn-speed (if (getf controller :turn-speed) (getf controller :turn-speed) (lambda (offs) offs))))
+	(push
+	 (lambda (midi-event-controller-id midi-event-controller-offset)
+	   (if (= midi-event-controller-id ctrl-id)
+	       (let ((speed
+		      (*
+		       (signum midi-event-controller-offset)
+		       (funcall turn-speed (abs midi-event-controller-offset)))))
+		 (* delta speed))
+	       0))
+	 controller-handlers)))
     (list
      :update (lambda (midi-events)
 	       (let ((delta 0))
 		 (dolist (midi-event midi-events)
-		   (if (and (cl-synthesizer-midi-event:control-change-eventp midi-event)
-			    (or (not channel)
-				(= channel (cl-synthesizer-midi-event:get-channel midi-event))))
+		   (if (and
+			(cl-synthesizer-midi-event:control-change-eventp midi-event)
+			(or (not channel)
+			    (= channel (cl-synthesizer-midi-event:get-channel midi-event))))
 		       (let ((controller-number (cl-synthesizer-midi-event:get-controller-number midi-event))
-			     (offset (funcall (getf midi-controller :get-controller-value-offset)
-					      (cl-synthesizer-midi-event:get-controller-value midi-event))))
-			 (dolist (input-handler input-handlers)
-			   (setf delta (+ delta (funcall input-handler controller-number offset)))))))
+			     (offset
+			      (funcall
+			       (getf midi-controller :get-controller-value-offset)
+			       (cl-synthesizer-midi-event:get-controller-value midi-event))))
+			 (dolist (controller-handler controller-handlers)
+			   (setf delta (+ delta (funcall controller-handler controller-number offset)))))))
 		 (let ((tmp (+ cur-cv delta)))
 		   ;; apply clipping
-		   (if (> cv-min tmp) ;; tmp < cv-min
+		   (if (> cv-min tmp)
 		       (setf cur-cv cv-min)
-		       (if (< cv-max tmp) ;; tmp > cv-max
+		       (if (< cv-max tmp)
 			   (setf cur-cv cv-max)
 			   (setf cur-cv tmp))))))
      :get-output (lambda () cur-cv))))
