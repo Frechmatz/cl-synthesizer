@@ -37,7 +37,7 @@
 		  *CC-HANDLER-TEST-VENDOR*
 		  (mapcar
 		   (lambda (setup-entry)
-		     (list :controller-id (first setup-entry) :delta-percent (second setup-entry)))
+		     (list :controller-id (first setup-entry) :weight (second setup-entry)))
 		   cc-setup)
 		  :cv-initial cv-initial :cv-min cv-min :cv-max cv-max)))
     (let ((midi-events nil))

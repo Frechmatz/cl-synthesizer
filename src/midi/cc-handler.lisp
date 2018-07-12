@@ -17,7 +17,7 @@
 	  <ul>
 	      <li>:controller-id A keyword that identifies an encoder of the given midi-controller, 
 		  for example :ENCODER-1</li>
-	      <li>:delta-percent The \"weight\" of the controller that defines how much the control-voltage will 
+	      <li>:weight The weight of the controller in percent that defines how much the target value will 
 		  be increased/decreased when the controller is turned. The value is relative to the total 
 		  control voltage range as defined by cv-min and cv-max.</li>
 	      <li>:turn-speed An optional function that is called with the absolute value of the increase/decrease
@@ -44,8 +44,8 @@
   <pre><code>
   (cl-synthesizer-midi:relative-cc-handler
       cl-synthesizer-vendor:*arturia-minilab-mk2*
-      (list (list :controller-id :ENCODER-1 :delta-percent 0.005)
-            (list :controller-id :ENCODER-9 :delta-percent 0.02))
+      (list (list :controller-id :ENCODER-1 :weight 0.005)
+            (list :controller-id :ENCODER-9 :weight 0.02))
       :channel 1
       :cv-initial 2.5
       :cv-min 0
@@ -63,7 +63,7 @@
   (let ((controller-handlers nil) (cur-cv cv-initial) (cv-range (abs (- cv-max cv-min))))
     (dolist (controller controllers)
       (let ((ctrl-id (funcall (getf midi-controller :get-controller-number) (getf controller :controller-id)))
-	    (delta (* cv-range (getf controller :delta-percent)))
+	    (delta (* cv-range (getf controller :weight)))
 	    (turn-speed (if (getf controller :turn-speed) (getf controller :turn-speed) (lambda (offs) offs))))
 	(push
 	 (lambda (midi-event-controller-id midi-event-controller-offset)

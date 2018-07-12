@@ -114,7 +114,7 @@
 		       :handler
 		       (cl-synthesizer-midi:relative-cc-handler
 			*MIDI-IFC-TEST-VENDOR*
-			(list (list :controller-id :ENCODER-2 :delta-percent 0.1))
+			(list (list :controller-id :ENCODER-2 :weight 0.1))
 			:cv-initial *MIDI-IFC-TEST-CC-HANDLER-INITIAL-CV*
 			:cv-min 0
 			:cv-max 100))))))
@@ -146,7 +146,7 @@
 		       :handler
 		       (cl-synthesizer-midi:relative-cc-handler
 			*MIDI-IFC-TEST-VENDOR*
-			(list (list :controller-id :ENCODER-2 :delta-percent 0.1))
+			(list (list :controller-id :ENCODER-2 :weight 0.1))
 			:channel 99
 			:cv-initial *MIDI-IFC-TEST-CC-HANDLER-INITIAL-CV*
 			:cv-min 0
@@ -174,7 +174,7 @@
 		       :handler
 		       (cl-synthesizer-midi:relative-cc-handler
 			*MIDI-IFC-TEST-VENDOR*
-			(list (list :controller-id :ENCODER-2 :delta-percent 0.1))
+			(list (list :controller-id :ENCODER-2 :weight 0.1))
 			:channel 1
 			:cv-initial *MIDI-IFC-TEST-CC-HANDLER-INITIAL-CV*
 			:cv-min 0
