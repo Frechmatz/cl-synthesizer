@@ -1,30 +1,56 @@
 (in-package :cl-synthesizer-midi)
 
-(defun relative-cc-handler (midi-controller controllers &key (cv-initial 2.5) (cv-min 0) (cv-max 5) (channel nil))
-  "Returns a handler that converts relative MIDI CC-Events to control voltages. The handler
-   consists of a property list with the following properties:
-   - :update Update function to be called with a list of midi-events
-   - :get-output A function that returns the current control voltage.
-   The handler can work with multiple encoders, where each encoder has a \"weight\" which
-   defines how strongly the control voltage will be changed.
-   Arguments:
-   - midi-controller: A property list with the following properties:
-     -- :get-controller-number: A function that is called with a keyword that identifies 
-         the controller, for example :ENCODER-1 and returns the controller number, 
-         for example 112.
-     -- :get-controller-value-offset A function that is called with the value of a 
-         CC event, for example 62, and returns a positive or negative offset, for example -3.
-   - controllers: (list (:controller-id <id> :delta-percent <delta-percent> :turn-speed <speed>)) 
-     -- <controller-id>: A keyword that identifies an encoder of the midi-controller, for example :encoder-1
-     -- <delta-percent>: Defines how much the control-voltage will be increased/decreased when the controller
-        is turned. The value is relative to the total control voltage range as defined by cv-min and cv-max.
-     -- <speed>: A lambda that is called with the absolute value of the increase/decrease offset as returned by
-        the :get-controller-value-offset function of the midi-controller. The offset typically depends on the 
-        speed with which the encoder is turned. The lambda must return the absolute value of the new offset. 
-        Can for example be used to disable turn-speed specific increments/decrements by returning 1. 
-        Example: (:turn-speed (lambda (offs) 1))
-    Input example 1: '((:controller-id :ENCODER-1 :delta-percent 0.01) (:controller-id :ENCODER-2 :delta-percent 0.10))
-    Input example 2: '((:controller-id :ENCODER-1 :delta-percent 0.01 :turn-speed (lambda(offs) 1)))"
+(defun relative-cc-handler (midi-controller controllers &key cv-initial cv-min cv-max (channel nil))
+  "Creates a handler function that maps MIDI events of n >= 1 relative MIDI CC-Controllers
+  to a single target value. The generator function has the following arguments:
+  <ul>
+    <li>midi-controller A property list with the keys
+      <ul>
+	  <li>:get-controller-number A function with one argument that is called with a
+	      keyword that identifies the controller, for example :ENCODER-1 and returns
+	      the controller number, for example 112.</li>
+	  <li>:get-controller-value-offset A function with one argument that is called with
+	      the value of a relative CC event, for example 62, and returns a positive or
+	      negative offset, for example -3.</li>
+      </ul>
+      <li>controllers A list of property lists with the keys
+	  <ul>
+	      <li>:controller-id A keyword that identifies an encoder of the given midi-controller, 
+		  for example :ENCODER-1</li>
+	      <li>:delta-percent The \"weight\" of the controller that defines how much the control-voltage will 
+		  be increased/decreased when the controller is turned. The value is relative to the total 
+		  control voltage range as defined by cv-min and cv-max.</li>
+	      <li>:turn-speed An optional function that is called with the absolute value of the increase/decrease
+		  offset as returned by the :get-controller-value-offset function of the midi-controller. The offset 
+		  typically depends on the speed with which the encoder is turned. The function must return the 
+		  absolute value of the new offset. This function can for example be used to disable turn-speed 
+		  specific increments/decrements by simply returning 1.
+		  Example: (:turn-speed (lambda (offs) 1))</li>
+	  </ul>
+      </li>
+      <li>:cv-initial The initial output value of the handler function.</li>
+      <li>:cv-min The minimum output value of the handler function. Clipping is applied to ensure this.</li>
+      <li>:cv-max The maximum output value of the handler function. Clipping is applied to ensure this.</li>
+      <li>:channel Optional number of the MIDI channel to which the controller events must belong. By default
+	  the channel number is ignored.</li>
+    </li>
+  </ul>
+  The returned handler function is a property list with the following keys:
+  <ul>
+      <li>:update A function that is to be called with a list of midi-events.</li>
+      <li>:get-output A function that returns the current output value.</li>
+  </ul>
+  Example:
+  <pre><code>
+  (cl-synthesizer-midi:relative-cc-handler
+      cl-synthesizer-vendor:*arturia-minilab-mk2*
+      (list (list :controller-id :ENCODER-1 :delta-percent 0.005)
+            (list :controller-id :ENCODER-9 :delta-percent 0.02))
+      :channel 1
+      :cv-initial 2.5
+      :cv-min 0
+      :cv-max 5)
+  </code></pre>"
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (if (< cv-max cv-min)
       (cl-synthesizer:signal-assembly-error
