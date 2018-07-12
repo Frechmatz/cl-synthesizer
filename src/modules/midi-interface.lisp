@@ -7,12 +7,6 @@
 ;; Work in progress
 ;;
 
-
-
-;;
-;; MIDI Interface
-;;
-
 (defconstant +voice-state-cv+ 0)
 (defconstant +voice-state-gate+ 1)
 (defconstant +voice-state-gate-retrigger+ 2)
@@ -69,9 +63,93 @@
 			 (cv-gate-on 5.0)
 			 (cv-gate-off 0.0)
 			 (controllers nil))
-  "play-mode: :PLAY-MODE-POLY, :PLAY-MODE-UNISONO
-   controllers: A list of controllers. Each entry consists of a list of
-   :socket <output-keyword> :handler (list :update lambda (midi-events) () :get-output :lambda ()())"
+  "Creates a MIDI interface module. The module maps MIDI events to so called voices where each
+    voice is represented by a control-voltage and a gate signal. The module supports the
+    mapping of MIDI CC-Events to arbitary output sockets. The function has the following arguments:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:voice-count The number of voices to be exposed by the module. Each voice consists
+	    of the following output sockets:
+	    <ul>
+		<li>:GATE-n The gate signal, for example :GATE-1 n = 1..voice-count.</li>
+		<li>:CV-n A control voltage representing the note number, for example :CV-1.
+		    n = 1..voice-count</li>
+	    </ul>
+	    The default voice count is 1.</li>
+	<li>:channel Optional MIDI channel to which note events must belong. By default the
+	    channel is ignored. This setting does not effect the evaluation of
+	    CC-Events that are handled by controllers. Controllers must implement
+	    channel filtering on their own.</li>
+	<li>:note-number-to-cv An optional function that is called with a MIDI note number
+	    and returns a control-voltage. The default implementation is
+	    (lambda (note-number) (/ note-number 12)))</li>
+	<li>:play-mode One of
+	    <ul>
+		<li>:PLAY-MODE-POLY Polyphonic play mode. Incoming note events will be
+		    dispatched to \"available\" voices, where a voice is available
+		    when it meets certain criteria. These criteria are defined
+		    and implemented by the cl-synthesizer-midi-voice-manager:voice-manager
+		    package.</li>
+		<li>:PLAY-MODE-UNISONO Monophonic play mode. All voices exposed by the module
+		    are set to the current \"active\" note. Notes are stacked. When a note is
+		    released, the voice outputs switch to the previous note. This logic is
+		    also implemented by the cl-synthesizer-midi-voice-manager:voice-manager
+		    package.</li>
+	    </ul>
+	    The default value is :PLAY-MODE-POLY</li>
+	<li>:cv-gate-on The \"Gate on\" control voltage. The default value is 5.0</li>
+	<li>:cv-gate-off The \"Gate off\" control voltage. The default value is 0.0</li>
+	<li>:controllers Controllers can be used to declare additional output sockets that are
+	    exposed by the module. The controllers parameter consists of a list of property lists
+	    with the following keys:
+	    <ul>
+		<li>:socket A keyword that defines the output socket to be exposed by the modules.</li>
+		<li>:handler A property list that defines the keys
+		    <ul>
+			<li>:update A function that is called with the MIDI events passed to the update
+			    function of the module.</li>
+			<li>:get-output A function with no arguments that returns the current value
+			    of the controller.</li>
+		    </ul>
+		    For typical use cases refer to cl-synthesizer-midi:relative-cc-handler
+		</li>
+	    </ul>
+	</li>
+    </ul>
+    The module has the following inputs:
+    <ul>
+	<li>:midi-events A list of MIDI events.</li>
+    </ul>
+    The module has the following outputs:
+    <ul>
+	<li>:GATE-1 ... :GATE-n</li>
+	<li>:CV-1 ... :CV-n</li>
+	<li>Outputs as defined by controllers</li>
+    </ul>
+    Example:
+    <pre><code>
+    (cl-synthesizer:add-module
+        rack
+        \"MIDI-IFC\"
+        #'cl-synthesizer-modules-midi-interface:midi-interface
+        :voice-count 2
+        :play-mode :PLAY-MODE-POLY
+	:controllers
+	(list
+	    (list :socket
+                  :controller-1
+	          :handler
+                      (cl-synthesizer-midi:relative-cc-handler
+		      cl-synthesizer-vendor:*arturia-minilab-mk2*
+		      (list
+                          (list
+                              :controller-id :ENCODER-1
+                              :weight 0.01
+			      :cv-initial 2.5
+			      :cv-min 0
+		              :cv-max 5))))))
+    </code></pre>"
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let* ((outputs nil)
 	 (voice-states (make-array voice-count))
