@@ -1,6 +1,6 @@
 (in-package :cl-synthesizer-midi)
 
-(defun relative-cc-handler (midi-controller inputs &key (cv-initial 2.5) (cv-min 0) (cv-max 5))
+(defun relative-cc-handler (midi-controller inputs &key (cv-initial 2.5) (cv-min 0) (cv-max 5) (channel nil))
   "Returns a handler that converts relative MIDI CC-Events to control voltages. The handler
    consists of a property list with the following properties:
    - :update Update function to be called with a list of midi-events
@@ -25,6 +25,7 @@
         Example: (:turn-speed (lambda (offs) 1))
     Input example 1: '((:controller-id :ENCODER-1 :delta-percent 0.01) (:controller-id :ENCODER-2 :delta-percent 0.10))
     Input example 2: '((:controller-id :ENCODER-1 :delta-percent 0.01 :turn-speed (lambda(offs) 1)))"
+  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (if (< cv-max cv-min)
       (cl-synthesizer:signal-assembly-error
        :format-control "cv-min greater than cv-max ~a ~a"
@@ -49,10 +50,12 @@
      :update (lambda (midi-events)
 	       (let ((delta 0))
 		 (dolist (midi-event midi-events)
-		   (if (cl-synthesizer-midi-event:control-change-eventp midi-event)
+		   (if (and (cl-synthesizer-midi-event:control-change-eventp midi-event)
+			    (or (not channel)
+				(= channel (cl-synthesizer-midi-event:get-channel midi-event))))
 		       (let ((controller-number (cl-synthesizer-midi-event:get-controller-number midi-event))
 			     (offset (funcall (getf midi-controller :get-controller-value-offset)
-					    (cl-synthesizer-midi-event:get-controller-value midi-event))))
+					      (cl-synthesizer-midi-event:get-controller-value midi-event))))
 			 (dolist (input-handler input-handlers)
 			   (setf delta (+ delta (funcall input-handler controller-number offset)))))))
 		 (let ((tmp (+ cur-cv delta)))

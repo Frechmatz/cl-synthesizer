@@ -63,6 +63,7 @@
 (defun midi-interface (name environment
 		       &key
 			 (voice-count 1)
+			 (channel nil)
 			 (note-number-to-cv (lambda (note-number) (/ note-number 12)))
 			 (play-mode :PLAY-MODE-POLY)
 			 (cv-gate-on 5.0)
@@ -113,7 +114,9 @@
 		 (funcall (getf (getf c :handler) :update) midi-events))
 	       ;; Update voices
 	       (dolist (midi-event midi-events)
-		 (if midi-event
+		 (if (and midi-event
+			  (or (not channel)
+			      (= channel (cl-synthesizer-midi-event:get-channel midi-event))))
 		     (cond
 		       ((cl-synthesizer-midi-event:note-on-eventp midi-event)
 			(multiple-value-bind (voice-index voice-note stack-size)

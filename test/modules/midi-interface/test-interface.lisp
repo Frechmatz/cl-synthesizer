@@ -1,10 +1,11 @@
 (in-package :cl-synthesizer-test)
 
-(defun test-midi-interface-make-midi-interface (voice-count &key (play-mode :PLAY-MODE-POLY))
+(defun test-midi-interface-make-midi-interface (voice-count &key (play-mode :PLAY-MODE-POLY) (channel nil))
   (cl-synthesizer-modules-midi-interface:midi-interface
    "Test-Midi-Interface"
    (cl-synthesizer:make-environment)
    :voice-count voice-count
+   :channel channel
    :note-number-to-cv (lambda (n) (* 1000 n))
    :play-mode play-mode))
 
@@ -15,7 +16,11 @@
   (funcall (getf ifc :update) :midi-events events))
 
 (defun run-test-case-midi-ifc (test-case)
-  (let ((ifc (test-midi-interface-make-midi-interface (getf test-case :voice-count) :play-mode (getf test-case :play-mode))))
+  (let ((ifc (test-midi-interface-make-midi-interface
+	      (getf test-case :voice-count)
+	      :play-mode (getf test-case :play-mode)
+	      :channel (getf test-case :channel)
+	      )))
     (dolist (cur-test-case (getf test-case :test-cases))
       (test-midi-interface-update ifc (getf cur-test-case :events))
       (dolist (cur-output (getf cur-test-case :outputs))
@@ -233,3 +238,26 @@
 					 (:GATE-2 5.0)))
 		       ))))
 	       (run-test-case-midi-ifc test)))
+
+;; Test channel support
+
+(define-test test-midi-interface-channel-1 ()
+	     (let ((test
+		    `(:voice-count 1 :play-mode :PLAY-MODE-POLY :channel 2
+		      :test-cases
+		      ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
+				:outputs ((:CV-1 0)
+					  (:GATE-1 0)))))))
+	       (run-test-case-midi-ifc test)))
+
+(define-test test-midi-interface-channel-2 ()
+	     (let ((test
+		    `(:voice-count 1 :play-mode :PLAY-MODE-POLY :channel 1
+		      :test-cases
+		      ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
+				:outputs ((:CV-1 64000)
+					  (:GATE-1 5.0)))))))
+	       (run-test-case-midi-ifc test)))
+
+
+
