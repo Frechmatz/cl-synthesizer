@@ -58,10 +58,17 @@
 		      ;; update
 		      ,@(let ((c nil))
 			     (dotimes (i channel-count)
-			       (push `(push (input-to-wave
-					     ,(cl-synthesizer-macro-util::make-package-symbol input-name i)) frames) c)
-			       (push `(setf ,(cl-synthesizer-macro-util::make-package-symbol output-name i)
-					    ,(cl-synthesizer-macro-util::make-package-symbol input-name i)) c))
+			       ;; push to frames in reverse order because
+			       ;; we want that channel-1 is the first channel
+			       ;; of the frame 
+			       (let ((frame-index (- channel-count 1 i)))
+				 (push `(push
+					 (input-to-wave
+					  ,(cl-synthesizer-macro-util::make-package-symbol input-name frame-index)) frames) c))
+			       ;; update output sockets
+			       (push `(setf
+				       ,(cl-synthesizer-macro-util::make-package-symbol output-name i)
+				       ,(cl-synthesizer-macro-util::make-package-symbol input-name i)) c))
 			     c)
 		      nil)
 	    :shutdown (lambda ()
