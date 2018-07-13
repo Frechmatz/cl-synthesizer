@@ -25,5 +25,6 @@
   (:export
    :voice-manager
    :push-note
-   :remove-note))
+   :remove-note
+   :has-note))
 

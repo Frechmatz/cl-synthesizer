@@ -4,32 +4,24 @@
 ;;
 ;; A Midi Rack Module
 ;;
-;; Work in progress
-;;
 
 (defconstant +voice-state-cv+ 0)
 (defconstant +voice-state-gate+ 1)
-(defconstant +voice-state-gate-retrigger+ 2)
 
 (defparameter +voice-states+
   '(+voice-state-cv+
-    +voice-state-gate+
-    +voice-state-gate-retrigger+))
+    +voice-state-gate+))
 
-(defun make-voice-state (name environment voice-number)
-  (declare (ignore name environment voice-number))
+(defun make-voice-state ()
   (let ((voice-state (make-array (length +voice-states+))))
     (setf (elt voice-state +voice-state-cv+) 0)
     (setf (elt voice-state +voice-state-gate+) 0)
-    (setf (elt voice-state +voice-state-gate-retrigger+) nil)
     voice-state))
 
 (defun get-voice-state-cv (state) (elt state +voice-state-cv+))
 (defun set-voice-state-cv (state cv) (setf (elt state +voice-state-cv+) cv))
 (defun get-voice-state-gate (state) (elt state +voice-state-gate+))
 (defun set-voice-state-gate (state cv) (setf (elt state +voice-state-gate+) cv))
-(defun get-voice-state-gate-retrigger (state) (elt state +voice-state-gate-retrigger+))
-(defun set-voice-state-gate-retrigger (state cv) (setf (elt state +voice-state-gate-retrigger+) cv))
 
 (defun validate-controller (controller module-outputs)
   (let ((output-keyword (getf controller :socket)))
@@ -62,7 +54,8 @@
 			 (play-mode :PLAY-MODE-POLY)
 			 (cv-gate-on 5.0)
 			 (cv-gate-off 0.0)
-			 (controllers nil))
+			 (controllers nil)
+			 (force-gate-retrigger nil))
   "Creates a MIDI interface module. The module maps MIDI events to so called voices where each
     voice is represented by a control-voltage and a gate signal. The module supports the
     mapping of MIDI CC-Events to arbitary output sockets. The function has the following arguments:
@@ -84,7 +77,7 @@
 	<li>:note-number-to-cv An optional function that is called with a MIDI note number
 	    and returns a control-voltage. The default implementation is
 	    (lambda (note-number) (/ note-number 12)))</li>
-	<li>:play-mode One of
+	<li>:play-mode
 	    <ul>
 		<li>:PLAY-MODE-POLY Polyphonic play mode. Incoming note events will be
 		    dispatched to \"available\" voices, where a voice is available
@@ -100,6 +93,9 @@
 	    The default value is :PLAY-MODE-POLY</li>
 	<li>:cv-gate-on The \"Gate on\" control voltage. The default value is 5.0</li>
 	<li>:cv-gate-off The \"Gate off\" control voltage. The default value is 0.0</li>
+	<li>:force-gate-retrigger If t then in :PLAY-MODE-UNISONO play mode each note
+	    event will cause a retriggering of the gate signal. Otherwise the gate signal
+	    will stay on when it is already on.</li>
 	<li>:controllers Controllers can be used to declare additional output sockets that are
 	    exposed by the module. The controllers parameter consists of a list of property lists
 	    with the following keys:
@@ -116,6 +112,18 @@
 		</li>
 	    </ul>
 	</li>
+    </ul>
+    Gate transitions are implemented as follows:
+    <ul>
+	<li>In :PLAY-MODE-POLY play mode each incoming note causes that the gate signal of the
+	    assigned voice switches to On. If the gate signal of the assigned voice is already On
+	    (this happens when the available voices are exhausted and a voice is \"stolen\") then
+	    the gate signal switches to Off for the duration of one system tick and
+	    then to On again.</li>
+	<li>In :PLAY-MODE-UNISONO play mode incoming notes are stacked. The first note causes
+	    the gate signal to switch to On. Further \"nested\" note-on events only result
+	    in a change of the CV output but the gate signal will stay On.
+	    This behaviour can be overridden with the :FORCE-GATE-RETRIGGER parameter.</li>
     </ul>
     The module has the following inputs:
     <ul>
@@ -150,10 +158,11 @@
 			      :cv-min 0
 		              :cv-max 5))))))
     </code></pre>"
-  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
+  (declare (ignore environment))
   (let* ((outputs nil)
 	 (voice-states (make-array voice-count))
 	 (output-socket-lookup-table (make-hash-table :test #'eq))
+	 (pending-gate-on-voices nil)
 	 (voice-manager (make-instance
 			 'cl-synthesizer-midi-voice-manager:voice-manager
 			 :voice-count (if (eq play-mode :PLAY-MODE-POLY) voice-count 1))))
@@ -164,7 +173,7 @@
 	(setf outputs (push gate-socket outputs))
 	;; in Unisono mode all voices share the same state object
 	(if (or (= 0 i) (not (eq play-mode :PLAY-MODE-UNISONO)))
-	    (setf (elt voice-states i) (make-voice-state name environment i))
+	    (setf (elt voice-states i) (make-voice-state))
 	    (setf (elt voice-states i) (elt voice-states 0)))
 	(let ((cur-i i)) ;; new context
 	  (setf (gethash cv-socket output-socket-lookup-table)
@@ -178,6 +187,20 @@
       (let ((cur-controller controller)) ;; new context
 	(setf (gethash (getf cur-controller :socket) output-socket-lookup-table)
 	      (lambda () (funcall (getf (getf cur-controller :handler) :get-output))))))
+    (flet ((activate-gate (voice-index)
+	     ;; set gate to on or if already on let it go down for one tick
+	     (let ((voice-state (elt voice-states voice-index)))
+	       (cond
+		 ((= cv-gate-off (get-voice-state-gate voice-state))
+		  (set-voice-state-gate voice-state cv-gate-on))
+		 ((eq play-mode :PLAY-MODE-UNISONO)
+		  (if force-gate-retrigger
+		      (progn
+			(set-voice-state-gate voice-state cv-gate-off)
+			(push voice-index pending-gate-on-voices))))
+		 (t
+		  (set-voice-state-gate voice-state cv-gate-off)
+		  (push voice-index pending-gate-on-voices))))))
     (list
      :inputs (lambda () '(:midi-events))
      :outputs (lambda () outputs)
@@ -187,6 +210,12 @@
 			 (error (format nil "Unknown input ~a requested from ~a" output name)))
 		     (funcall handler)))
      :update (lambda (&key (midi-events nil))
+	       ;; Set pending gates to on.
+	       (dolist (voice-index pending-gate-on-voices)
+		 (let ((voice-state (elt voice-states voice-index)))
+		   (if (cl-synthesizer-midi-voice-manager:has-note voice-manager voice-index)
+		       (set-voice-state-gate voice-state cv-gate-on))))
+	       (setf pending-gate-on-voices nil)
 	       ;; Update controllers
 	       (dolist (c controllers)
 		 (funcall (getf (getf c :handler) :update) midi-events))
@@ -196,18 +225,18 @@
 			  (or (not channel)
 			      (= channel (cl-synthesizer-midi-event:get-channel midi-event))))
 		     (cond
+		       ;; Note on
 		       ((cl-synthesizer-midi-event:note-on-eventp midi-event)
 			(multiple-value-bind (voice-index voice-note stack-size)
 			    (cl-synthesizer-midi-voice-manager:push-note
 			     voice-manager
 			     (cl-synthesizer-midi-event:get-note-number midi-event))
 			  (let ((voice-state (elt voice-states voice-index)))
-			    ;; if first note then set gate to on
-			    (if (= 1 stack-size)
-				(set-voice-state-gate voice-state cv-gate-on))
+			    (activate-gate voice-index)
 			    (set-voice-state-cv
 			     voice-state
 			     (funcall note-number-to-cv voice-note)))))
+		       ;; Note off
 		       ((cl-synthesizer-midi-event:note-off-eventp midi-event)
 			(multiple-value-bind (voice-index voice-note)
 			    (cl-synthesizer-midi-voice-manager:remove-note
@@ -220,4 +249,4 @@
 				    (set-voice-state-gate voice-state cv-gate-off)
 				    (set-voice-state-cv
 				     voice-state
-				     (funcall note-number-to-cv voice-note))))))))))))))
+				     (funcall note-number-to-cv voice-note)))))))))))))))

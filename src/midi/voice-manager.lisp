@@ -80,15 +80,18 @@
   (second voice))
 
 (defun format-voices (voices)
-  (let ((a (apply 'concatenate ;; concatenate wants rest params, not a list
-		  'string
-		  (mapcar
-		   (lambda (v)
-		     (format nil " Index: ~a Voice: (~a) "
-			     (get-voice-manager-voice-index v)
-			     (voice-format (get-voice-manager-voice-voice v))
-			     ))
-		   voices))))
+  (let ((a
+	 (apply
+	  'concatenate ;; concatenate wants rest params, not a list
+	  'string
+	  (mapcar
+	   (lambda (v)
+	     (format
+	      nil " Index: ~a Voice: (~a) "
+	      (get-voice-manager-voice-index v)
+	      (voice-format (get-voice-manager-voice-voice v))
+	      ))
+	   voices))))
     a))
 
 (defmethod initialize-instance :after ((mgr voice-manager) &key voice-count)
@@ -110,32 +113,27 @@
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((voices (copy-list (slot-value cur-voice-manager 'voices))))
     (let ((sorted-voices
-	   (sort voices
-		 (lambda (v1 v2)
-		   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-		   ;; If the first argument is greater than or equal to the second then the predicate should return false.
-		   (let ((sl1 (voice-get-stack-size (get-voice-manager-voice-voice v1)))
-			 (sl2 (voice-get-stack-size (get-voice-manager-voice-voice v2))))
-		     (if (eq sl1 sl2)
-			 (if (> (voice-get-tick (get-voice-manager-voice-voice v1))
-				(voice-get-tick (get-voice-manager-voice-voice v2)))
-			     nil
-			     t)
+	   (sort
+	    voices
+	    (lambda (v1 v2)
+	      ;; If the first argument is greater than or equal to the second then the predicate should return false.
+	      (let ((sl1 (voice-get-stack-size (get-voice-manager-voice-voice v1)))
+		    (sl2 (voice-get-stack-size (get-voice-manager-voice-voice v2))))
+		(if (eq sl1 sl2)
+		    (if (> (voice-get-tick (get-voice-manager-voice-voice v1))
+			   (voice-get-tick (get-voice-manager-voice-voice v2)))
+			nil
+			t)
 			 (if (> sl1 sl2) nil t)))))))
       ;;(format t "Sorted voices ~a~%" (format-voices playing-voices))
       (first sorted-voices))))
 
-(defun voice-manager-is-mono (cur-voice-manager)
-  (if (= 1 (length (slot-value cur-voice-manager 'voices)))
-      t
-      nil))
-
 (defun voice-manager-allocate-voice (cur-voice-manager)
-  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-  ;;(format t "~%Allocating voice~%")
-  (if (voice-manager-is-mono cur-voice-manager)
+  (if (= 1 (length (slot-value cur-voice-manager 'voices)))
+      ;; in single voice mode, keep state of voice
       (first (slot-value cur-voice-manager 'voices))
       (let ((v (voice-manager-get-least-recently-used-voice cur-voice-manager)))
+	;; in polyphonic mode, steal the voice and reset it
 	(voice-clear (get-voice-manager-voice-voice v))
 	v)))
     
@@ -152,7 +150,7 @@
        voice-note-stack-size))))
 
 ;; Removes a note.
-;; Returns voice index, current voice note and nil.
+;; Returns voice index, current voice note and stack-size.
 (defun remove-note (cur-voice-manager note)
   (with-slots (voices) cur-voice-manager
     (let ((voice (voice-manager-find-voice-by-note cur-voice-manager note)))
@@ -163,3 +161,10 @@
 	   (voice-remove-note (get-voice-manager-voice-voice voice) note)
 	   (voice-get-stack-size (get-voice-manager-voice-voice voice)))))))
 
+;; Returns t if the given voice-index is assigned to at least one note
+(defun has-note (cur-voice-manager voice-index)
+  (let* ((voices (slot-value cur-voice-manager 'voices))
+	 (v (second (nth voice-index voices))))
+    (if (voice-get-current-note v)
+	t
+	nil)))
