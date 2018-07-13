@@ -130,7 +130,6 @@
       t
       nil))
 
-
 (defun voice-manager-allocate-voice (cur-voice-manager)
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   ;;(format t "~%Allocating voice~%")
@@ -140,11 +139,6 @@
 	(voice-clear (get-voice-manager-voice-voice v))
 	v)))
     
-(defun voice-manager-next-tick (cur-voice-manager)
-  (with-slots (tick) cur-voice-manager
-    (setf tick (+ tick 1))
-    tick))
-
 ;; Pushes a note.
 ;; Returns voice index, current voice note and the current stack size
 (defun push-note (cur-voice-manager note)
