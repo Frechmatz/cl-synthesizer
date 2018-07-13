@@ -7,6 +7,21 @@
 
 (alexandria:define-constant +V-PEAK+ 5.0)
 
+
+(defun wave-writer-float-to-int16 (value)
+  (cond
+    ((> value 1.0)
+     1)
+    ((< value -1.0)
+     -1)
+    (t
+     (round (* 32000 value)))))
+
+(defun input-to-wave (f)
+  (wave-writer-float-to-int16
+   ;; convert to -1.0 ... +1.0
+   (/ f +V-PEAK+)))
+
 (defmacro n-channel-wave-file-writer (name channel-count)
   "Generates a factory function for a multiple channel wave-file-writer module. 
    name: Name of the module (name of the generated function).
@@ -21,19 +36,6 @@
        ;;(declare (optimize (debug 3) (speed 0) (space 0)))
        (let ((frames nil)
 	     ,@(cl-synthesizer-macro-util::make-let-list output-name channel-count))
-	 (labels (
-		(wave-writer-float-to-int16 (value)
-		  (cond
-		    ((> value 1.0)
-		     1)
-		    ((< value -1.0)
-		     -1)
-		    (t
-		    (round (* 32000 value)))))
-		(input-to-wave (f)
-		  (wave-writer-float-to-int16
-		   ;; convert to -1.0 ... +1.0
-		   (/ f +V-PEAK+))))
 	   (list
 	    :inputs (lambda () (cl-synthesizer-macro-util::make-keyword-list ,input-name ,channel-count))
 	    :outputs (lambda () (cl-synthesizer-macro-util::make-keyword-list ,output-name ,channel-count))
@@ -78,7 +80,7 @@
 			  (cl-wave:set-frames wave (nreverse frames))
 			  (cl-wave:close-wave wave)
 			  (setf frames nil)))
-	    ))))))
+	    )))))
 
 ;; http://clhs.lisp.se/Body/s_eval_w.htm#eval-when
 (n-channel-wave-file-writer "one-channel-wave-file-writer" 1)
@@ -120,3 +122,14 @@
        :format-control "channel-count must be smaller than ~a: ~a"
        :format-arguments (list (length *wave-file-writers*) channel-count)))
   (elt *wave-file-writers* (- channel-count 1)))
+
+(defun wave-file-writer (name environment &key channel-count)
+  )
+
+
+
+
+
+
+
+
