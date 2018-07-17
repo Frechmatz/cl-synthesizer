@@ -197,6 +197,8 @@
 				#'cl-synthesizer-modules-vco:vco :base-frequency 500 :cv-max 5 :f-max 10000 :v-peak 5)
     (cl-synthesizer:add-patch rack "FIXED" :out "VCO-1" :cv-lin)
 
+    (cl-synthesizer:add-patch rack "VCO-1" :sine "LINE-OUT" :channel-1)
+    
     ;; Add Oscilloscope Monitor
     (cl-synthesizer:register-monitor
      rack
