@@ -8,7 +8,7 @@
     (format t "~%Ticks to play: ~a~%" ticks-to-play)
     (if attach-speaker
 	(funcall (getf (cl-synthesizer:get-line-out rack) :set-device)
-		 (cl-synthesizer-device-speaker:stereo-speaker "SPEAKER" environment :driver "coreaudio")))
+		 (cl-synthesizer-device-speaker:speaker-cl-out123 "SPEAKER" environment :channel-count 2 :driver "coreaudio")))
     (if midi-device
 	(funcall (getf (cl-synthesizer:get-midi-in rack) :set-device) midi-device)
 	(if attach-midi
