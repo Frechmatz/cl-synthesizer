@@ -17,9 +17,7 @@
 (defpackage :cl-synthesizer-device-wave-file-writer
   (:use :cl)
   (:export
-   :one-channel-wave-file-writer
-   :two-channel-wave-file-writer
-   :get-n-channel-wave-file-writer))
+   :wave-file-writer))
 
 
 

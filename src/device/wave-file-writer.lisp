@@ -1,12 +1,9 @@
 ;;
 ;;
-;; A Wave-File-Writer module
+;; A Wave-File-Writer Device
 ;;
 ;;
 (in-package :cl-synthesizer-device-wave-file-writer)
-
-(alexandria:define-constant +V-PEAK+ 5.0)
-
 
 (defun wave-writer-float-to-int16 (value)
   (cond
@@ -17,119 +14,58 @@
     (t
      (round (* 32000 value)))))
 
-(defun input-to-wave (f)
+(defun input-to-wave (f v-peak)
   (wave-writer-float-to-int16
    ;; convert to -1.0 ... +1.0
-   (/ f +V-PEAK+)))
+   (/ f v-peak)))
 
-(defmacro n-channel-wave-file-writer (name channel-count)
-  "Generates a factory function for a multiple channel wave-file-writer module. 
-   name: Name of the module (name of the generated function).
-   channel-count: Number of channels.
-   The generated module has n input sockets channel-1...channel-n and n pass-through 
-   output sockets out-1...out-n, where n is the channel count.
-   The generated module factory function has the following parameters:
-   - environment: Environment that specifies sample rate etc.
-   - &key filename: Pathname of the wave file."
-  (let ((output-name "out") (input-name "channel"))
-    `(defun ,(cl-synthesizer-macro-util::make-package-symbol name nil) (name environment &key filename &allow-other-keys)
-       ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-       (let ((frames nil)
-	     ,@(cl-synthesizer-macro-util::make-let-list output-name channel-count))
-	   (list
-	    :inputs (lambda () (cl-synthesizer-macro-util::make-keyword-list ,input-name ,channel-count))
-	    :outputs (lambda () (cl-synthesizer-macro-util::make-keyword-list ,output-name ,channel-count))
-	    :get-output (lambda (output)
-			  ;; TODO: Realize with cond. Did not get this to work :(
-			  (block nil
-			    ;; generate if-clauses
-			    ,@(let ((c nil))
-				   (dotimes (o channel-count)
-				     (push `(if (eq ,(cl-synthesizer-macro-util::make-keyword output-name o) output)
-						(return ,(cl-synthesizer-macro-util::make-package-symbol output-name o))) c))
-				   c)
-			    (error (format nil "Unknown output ~a requested from ~a" output name))))
-	    :update (lambda (&key ,@(cl-synthesizer-macro-util::make-param-list input-name channel-count))
-		      ;; validate inputs
-		      ,@(let ((c nil))
-			     (dotimes (i channel-count)
-			       (push `(if (not ,(cl-synthesizer-macro-util::make-package-symbol input-name i))
-					  (error (format nil "Channel ~a must not be nil"
-							 ,(cl-synthesizer-macro-util::get-socket-number i)))) c))
-			     c)
-		      ;; update
-		      ,@(let ((c nil))
-			     (dotimes (i channel-count)
-			       ;; push to frames in reverse order because
-			       ;; we want that channel-1 is the first channel
-			       ;; of the frame 
-			       (let ((frame-index (- channel-count 1 i)))
-				 (push `(push
-					 (input-to-wave
-					  ,(cl-synthesizer-macro-util::make-package-symbol input-name frame-index)) frames) c))
-			       ;; update output sockets
-			       (push `(setf
-				       ,(cl-synthesizer-macro-util::make-package-symbol output-name i)
-				       ,(cl-synthesizer-macro-util::make-package-symbol input-name i)) c))
-			     c)
-		      nil)
-	    :shutdown (lambda ()
-			(let ((wave (cl-wave:open-wave filename :direction :output)))
-			  (cl-wave:set-num-channels wave ,channel-count)
-			  (cl-wave:set-sample-rate wave (getf environment :sample-rate))
-			  (cl-wave:set-frames wave (nreverse frames))
-			  (cl-wave:close-wave wave)
-			  (setf frames nil)))
-	    )))))
-
-;; http://clhs.lisp.se/Body/s_eval_w.htm#eval-when
-(n-channel-wave-file-writer "one-channel-wave-file-writer" 1)
-(n-channel-wave-file-writer "two-channel-wave-file-writer" 2)
-(n-channel-wave-file-writer "three-channel-wave-file-writer" 3)
-(n-channel-wave-file-writer "four-channel-wave-file-writer" 4)
-(n-channel-wave-file-writer "five-channel-wave-file-writer" 5)
-(n-channel-wave-file-writer "six-channel-wave-file-writer" 6)
-(n-channel-wave-file-writer "seven-channel-wave-file-writer" 7)
-(n-channel-wave-file-writer "eight-channel-wave-file-writer" 8)
-
-;;
-;; The following code is a bit crazy and needs rework :)
-;;
-
-(defparameter *wave-file-writers*
-  (make-array
-   8
-   :initial-contents
-   (list
-    #'one-channel-wave-file-writer
-    #'two-channel-wave-file-writer
-    #'three-channel-wave-file-writer
-    #'four-channel-wave-file-writer
-    #'five-channel-wave-file-writer
-    #'six-channel-wave-file-writer
-    #'seven-channel-wave-file-writer
-    #'eight-channel-wave-file-writer)))
-
-(defun get-n-channel-wave-file-writer (channel-count)
-  "Returns a creator function for a wave-writer with given number of channels
-   - channel-count: Number of channels"
+(defun wave-file-writer (name environment &key channel-count filename (v-peak 5.0))
+  "Creates a wave-file-writer device. The device writes files in \"Waveform Audio File\" (\"WAV\") format.
+    The function has the following arguments:
+  <ul>
+    <li>name Name of the device.</li>
+    <li>environment The synthesizer environment.</li>
+    <li>:channel-count Number of channels.</li>
+    <li>:filename The full path of the file to be written.</li>
+    <li>:v-peak Optional peak voltage. The inputs of the device will be scaled
+	to v-peak. If for example v-peak is set to 20.0 an incoming voltage
+	of 5.0 results in a sample value of 5.0 / 20.0 -> 0.25 and an incoming
+	voltage of -5.0 results in a sample value of -0.25. The default value
+	is 5.0. Incoming voltages will be clipped according to v-peak.</li>
+  </ul>
+  The device has the following inputs:
+  <ul>
+      <li>:channel-1 ... :channel-n The sample values of the generated frames
+	  are written in order :channel-1 ... :channel-n</li>
+  </ul>
+  The device has no outputs.
+  The actual wave-file is written by the :shutdown function exposed by the device."
   (if (<= channel-count 0)
       (cl-synthesizer:signal-assembly-error
-       :format-control "channel-count must be greater than 0: ~a"
-       :format-arguments (list channel-count)))
-  (if (> channel-count (length *wave-file-writers*))
-      (cl-synthesizer:signal-assembly-error
-       :format-control "channel-count must be smaller than ~a: ~a"
-       :format-arguments (list (length *wave-file-writers*) channel-count)))
-  (elt *wave-file-writers* (- channel-count 1)))
-
-(defun wave-file-writer (name environment &key channel-count)
-  )
-
-
-
-
-
-
-
-
+       :format-control "~a: channel-count must be greater than 0: ~a"
+       :format-arguments (list name channel-count)))
+  (let ((inputs nil) (samples nil))
+    (dotimes (i channel-count)
+      (push (cl-synthesizer-macro-util:make-keyword "channel" i) inputs))
+    ;; inputs are now (:CHANNEL-n ... :CHANNEL-1)
+    ;; reverse inputs to (:CHANNEL-1 ... :CHANNEL-n)
+    ;; In this order samples will be pushed.
+    ;; Final reverse of samples takes place in :shutdown function.
+    (setf inputs (reverse inputs))
+    (list
+     :inputs (lambda () inputs)
+     :outputs (lambda () '())
+     :get-output (lambda (output) (declare (ignore output)) nil)
+     :update (lambda (&rest args)
+	       (dolist (input inputs)
+		 (let ((value (getf args input)))
+		   (if (not value)
+		       (setf value 0.0))
+		   (push (input-to-wave value v-peak) samples))))
+     :shutdown (lambda ()
+		 (let ((wave (cl-wave:open-wave filename :direction :output)))
+		   (cl-wave:set-num-channels wave channel-count)
+		   (cl-wave:set-sample-rate wave (getf environment :sample-rate))
+		   (cl-wave:set-frames wave (nreverse samples))
+		   (cl-wave:close-wave wave)
+		   (setf samples nil))))))
