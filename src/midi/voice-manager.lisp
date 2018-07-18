@@ -21,7 +21,7 @@
 
 (defun voice-is-note (cur-voice note)
   (find-if
-   (lambda (i) (eq i note))
+   (lambda (i) (equal i note))
    (slot-value cur-voice 'notes)))
 
 (defun voice-get-current-note (cur-voice)
@@ -32,7 +32,7 @@
   (setf (slot-value cur-voice 'tick) (next-tick))
   (setf (slot-value cur-voice 'notes)
 	(remove-if
-	 (lambda (i) (eq i note))
+	 (lambda (i) (equal i note))
 	 (slot-value cur-voice 'notes)))
   ;; return top note-number
   (voice-get-current-note cur-voice))
@@ -61,7 +61,35 @@
   ((voices :initform nil) ;; list of (index voice)
    (next-voice-index :initform 0))
   (:documentation
-   "The voice-manager controls the assignment of note-events to voices."))
+   "A voice-manager controls the assignment of notes to so called voices.
+    Voices consist of an index, a current note and a stack of \"pushed back\"
+    notes. Voice-Managers are instantiated with the number of available
+    voices. They do not keep states such as control voltage or gate.
+    Notes can be represented by any objects that can be compared via #'equal.
+    The class provides the following functions:
+    <ul>
+	<li>push-note (mgr note) Adds a note to the manager. The function decides
+	    which voice to use and returns the index of the chosen voice.</li>
+	<li>remove-note (mgr note) Removes a note from the manager. Returns
+	    the index of the voice from which the note has been removed and
+	    the current note of the voice. The current note may be not nil
+	    if the voice manager has only one voice because in this case incoming
+	    notes are stacked.</li>
+	<li>has-note (mgr voice-index) Returns t if the given voice is assigned
+	    to a note.</li>
+    </ul>
+    The constructor has the following arguments:
+    <ul>
+	<li>:voice-count Number of voices.</li>
+    </ul>
+    Example:
+    <pre><code>
+    (let ((voice-manager
+             (make-instance
+                 'cl-synthesizer-midi-voice-manager:voice-manager
+                 :voice-count 5)))
+         (let ((voice-index (push-note voice-manager 64)))))
+    </code></pre>"))
 
 (defmacro with-voice (mgr-voice index voice &body body)
   (let ((v (gensym)))
@@ -76,7 +104,7 @@
 	 ,@body))))
 
 (defmethod initialize-instance :after ((mgr voice-manager) &key voice-count)
-  (if (eq 0 voice-count)
+  (if (equal 0 voice-count)
       (error "voice-manager: voice-count must be greater zero"))
   (dotimes (i voice-count)
     (push (list i (make-instance 'voice)) (slot-value mgr 'voices)))
