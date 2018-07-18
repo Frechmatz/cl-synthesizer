@@ -65,78 +65,91 @@
   (:documentation
    "The voice-manager controls the assignment of note-events to voices."))
 
+(defmacro with-voice (mgr-voice index voice &body body)
+  `(let ((,index (first ,mgr-voice)) (,voice (second ,mgr-voice)))
+     ,@body))
+
+(defmacro with-voices (voice-manager index voice voice-entry &body body)
+  (let ((v (gensym)))
+    `(dolist (,v (slot-value ,voice-manager 'voices))
+       (let ((,index (first ,v)) (,voice (second ,v)) (,voice-entry ,v))
+	 ,@body))))
+
 (defun make-voice-manager-voice (index)
   (list index (make-instance 'voice)))
-
-(defun get-voice-manager-voice-index (voice)
-  (first voice))
-
-(defun get-voice-manager-voice-voice (voice)
-  (second voice))
 
 (defmethod initialize-instance :after ((mgr voice-manager) &key voice-count)
   (if (eq 0 voice-count)
       (error "voice-manager: voice-count must be greater zero"))
   (dotimes (i voice-count)
-    (push (make-voice-manager-voice i) (slot-value mgr 'voices))))
+    (push (make-voice-manager-voice i) (slot-value mgr 'voices)))
+  (setf (slot-value mgr 'voices) (reverse (slot-value mgr 'voices))))
 
 (defun voice-manager-find-voice-by-note (cur-voice-manager note)
   (let ((found-voice nil))
-    (with-slots (voices) cur-voice-manager
-      ;; todo: break out of dolist when matching voice has been found
-      (dolist (v voices)
-	(if (voice-is-note (get-voice-manager-voice-voice v) note)
-	    (setf found-voice v))))
+    (with-voices cur-voice-manager index voice voice-entry
+      (declare (ignore index))
+      (if (voice-is-note voice note)
+	  (setf found-voice voice-entry)))
     found-voice))
 
-(defun voice-manager-get-least-recently-used-voice (cur-voice-manager)
-  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-  (let ((voices (copy-list (slot-value cur-voice-manager 'voices))))
-    (let ((sorted-voices
-	   (sort
-	    voices
-	    (lambda (v1 v2)
-	      ;; If the first argument is greater than or equal to the second then the predicate should return false.
-	      (let ((sl1 (voice-get-stack-size (get-voice-manager-voice-voice v1)))
-		    (sl2 (voice-get-stack-size (get-voice-manager-voice-voice v2))))
-		(if (eq sl1 sl2)
-		    (if (> (voice-get-tick (get-voice-manager-voice-voice v1))
-			   (voice-get-tick (get-voice-manager-voice-voice v2)))
-			nil
-			t)
-			 (if (> sl1 sl2) nil t)))))))
-      (first sorted-voices))))
-
 (defun voice-manager-allocate-voice (cur-voice-manager)
-  (if (= 1 (length (slot-value cur-voice-manager 'voices)))
-      ;; in single voice mode, keep state of voice
-      (first (slot-value cur-voice-manager 'voices))
-      (let ((v (voice-manager-get-least-recently-used-voice cur-voice-manager)))
-	;; in polyphonic mode, steal the voice and reset it
-	(voice-clear (get-voice-manager-voice-voice v))
-	v)))
+  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
+  (let ((voices (slot-value cur-voice-manager 'voices)))
+    (if (= 1 (length voices))
+	;; in single voice mode return voice but do not reset it
+	(first voices)
+	(let* ((resulting-voice-entry nil)
+	       (resulting-voice nil))
+	  ;; get least recently used un-allocated voice
+	  (let ((min-tick 99999999))
+	    (with-voices cur-voice-manager index voice voice-entry
+	      (declare (ignore index))
+	      (if (not (voice-get-current-note voice))
+		  (let ((tick (voice-get-tick voice)))
+		    (if (< tick min-tick)
+			(progn
+			  (setf min-tick tick)
+			  (setf resulting-voice voice)
+			  (setf resulting-voice-entry voice-entry)))))))
+	  ;; if no voice found then get least recently used voice
+	  (if (not resulting-voice)
+	      (let ((min-tick 99999999))
+		(with-voices cur-voice-manager index voice voice-entry
+		  (declare (ignore index))
+		  (let ((tick (voice-get-tick voice)))
+		    (if (< tick min-tick)
+			(progn
+			  (setf min-tick tick)
+			  (setf resulting-voice voice)
+			  (setf resulting-voice-entry voice-entry)))))))
+	  ;; in polyphonic mode, steal the voice (by resetting it)
+	  (voice-clear resulting-voice)
+	  resulting-voice-entry))))
     
 ;; Pushes a note.
 ;; Returns voice index, current voice note and the current stack size
 (defun push-note (cur-voice-manager note)
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((cur-voice (voice-manager-allocate-voice cur-voice-manager)))
-    (multiple-value-bind (current-voice-note)
-	(voice-push-note (second cur-voice) note)
-      (values
-       (get-voice-manager-voice-index cur-voice)
-       current-voice-note))))
+    (with-voice cur-voice index voice
+      (multiple-value-bind (current-voice-note)
+	  (voice-push-note voice note)
+	(values
+	 index
+	 current-voice-note)))))
 
 ;; Removes a note.
 ;; Returns voice index, current voice note and stack-size.
 (defun remove-note (cur-voice-manager note)
   (with-slots (voices) cur-voice-manager
-    (let ((voice (voice-manager-find-voice-by-note cur-voice-manager note)))
-      (if (not voice)
-	  (values nil nil nil)
-	  (values
-	   (get-voice-manager-voice-index voice)
-	   (voice-remove-note (get-voice-manager-voice-voice voice) note))))))
+    (let ((found-voice (voice-manager-find-voice-by-note cur-voice-manager note)))
+      (with-voice found-voice index voice
+	(if (not voice)
+	    (values nil nil nil)
+	    (values
+	     index
+	     (voice-remove-note voice note)))))))
 
 ;; Returns t if the given voice-index is assigned to at least one note
 (defun has-note (cur-voice-manager voice-index)
