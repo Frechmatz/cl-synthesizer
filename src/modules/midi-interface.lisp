@@ -227,7 +227,7 @@
 		     (cond
 		       ;; Note on
 		       ((cl-synthesizer-midi-event:note-on-eventp midi-event)
-			(multiple-value-bind (voice-index voice-note stack-size)
+			(multiple-value-bind (voice-index voice-note)
 			    (cl-synthesizer-midi-voice-manager:push-note
 			     voice-manager
 			     (cl-synthesizer-midi-event:get-note-number midi-event))

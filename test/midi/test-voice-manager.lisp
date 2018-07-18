@@ -12,19 +12,18 @@
 	    (cmd-arg (second test-case))
 	    (expected-voice-number (getf test-case :expected-voice-number))
 	    (expected-note (getf test-case :expected-note))
-	    (expected-stack-size (getf test-case :expected-stack-size)))
-	(format t "Expected Number: ~a Expected Note: ~a Expected Stacksize: ~a~%"
-		expected-voice-number expected-note expected-stack-size)
-	(multiple-value-bind (resulting-voice-number resulting-note resulting-stack-size)
+	    )
+	(format t "Expected Number: ~a Expected Note: ~a~%"
+		expected-voice-number expected-note)
+	(multiple-value-bind (resulting-voice-number resulting-note)
 	    (if (eq cmd :push)
 		(cl-synthesizer-midi-voice-manager:push-note mgr cmd-arg)
 		(if (eq cmd :remove)
 		    (cl-synthesizer-midi-voice-manager:remove-note mgr cmd-arg)
 		    (error "STOP")))
-	  (format t "Number: ~a Note: ~a Stacksize: ~a~%" resulting-voice-number resulting-note resulting-stack-size)
+	  (format t "Number: ~a Note: ~a~%" resulting-voice-number resulting-note)
 	  (assert-equal expected-voice-number resulting-voice-number)
-	  (assert-equal expected-note resulting-note)
-	  (assert-equal expected-stack-size resulting-stack-size))))))
+	  (assert-equal expected-note resulting-note))))))
 
 
 ;;
@@ -37,8 +36,8 @@
 	     (let ((test
 		    '(:voice-count 2
 		      :test-cases
-		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
-		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)))))
+		      ((:push "A" :expected-voice-number 0 :expected-note "A")
+		       (:push "B" :expected-voice-number 1 :expected-note "B")))))
 	     (run-test-case test)))
 
 ;; test that A is removed from voice 0
@@ -46,9 +45,9 @@
 	     (let ((test
 		    '(:voice-count 2
 		      :test-cases
-		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
-		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
-		       (:remove "A" :expected-voice-number 0 :expected-note nil :expected-stack-size 0)
+		      ((:push "A" :expected-voice-number 0 :expected-note "A")
+		       (:push "B" :expected-voice-number 1 :expected-note "B")
+		       (:remove "A" :expected-voice-number 0 :expected-note nil)
 		       ))))
 	     (run-test-case test)))
 
@@ -57,10 +56,10 @@
 	     (let ((test
 		    '(:voice-count 2
 		      :test-cases
-		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
-		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
-		       (:remove "A" :expected-voice-number 0 :expected-note nil :expected-stack-size 0)
-		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 1)
+		      ((:push "A" :expected-voice-number 0 :expected-note "A")
+		       (:push "B" :expected-voice-number 1 :expected-note "B")
+		       (:remove "A" :expected-voice-number 0 :expected-note nil)
+		       (:push "C" :expected-voice-number 0 :expected-note "C")
 		       ))))
 	     (run-test-case test)))
 
@@ -69,10 +68,10 @@
 	     (let ((test
 		    '(:voice-count 2
 		      :test-cases
-		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
-		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
-		       (:remove "B" :expected-voice-number 1 :expected-note nil :expected-stack-size 0)
-		       (:push "C" :expected-voice-number 1 :expected-note "C" :expected-stack-size 1)
+		      ((:push "A" :expected-voice-number 0 :expected-note "A")
+		       (:push "B" :expected-voice-number 1 :expected-note "B")
+		       (:remove "B" :expected-voice-number 1 :expected-note nil)
+		       (:push "C" :expected-voice-number 1 :expected-note "C")
 		       ))))
 	     (run-test-case test)))
 
@@ -81,12 +80,12 @@
 	     (let ((test
 		    '(:voice-count 2
 		      :test-cases
-		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
-		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
-		       (:remove "B" :expected-voice-number 1 :expected-note nil :expected-stack-size 0)
-		       (:push "C" :expected-voice-number 1 :expected-note "C" :expected-stack-size 1)
-		       (:remove "C" :expected-voice-number 1 :expected-note nil :expected-stack-size 0)
-		       (:push "D" :expected-voice-number 1 :expected-note "D" :expected-stack-size 1)
+		      ((:push "A" :expected-voice-number 0 :expected-note "A")
+		       (:push "B" :expected-voice-number 1 :expected-note "B")
+		       (:remove "B" :expected-voice-number 1 :expected-note nil)
+		       (:push "C" :expected-voice-number 1 :expected-note "C")
+		       (:remove "C" :expected-voice-number 1 :expected-note nil)
+		       (:push "D" :expected-voice-number 1 :expected-note "D")
 		       ))))
 	     (run-test-case test)))
 
@@ -94,10 +93,10 @@
 	     (let ((test
 		    '(:voice-count 2
 		      :test-cases
-		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
-		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
-		       (:remove "A" :expected-voice-number 0 :expected-note nil :expected-stack-size 0)
-		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 1)
+		      ((:push "A" :expected-voice-number 0 :expected-note "A")
+		       (:push "B" :expected-voice-number 1 :expected-note "B")
+		       (:remove "A" :expected-voice-number 0 :expected-note nil)
+		       (:push "C" :expected-voice-number 0 :expected-note "C")
 
 		       ))))
 	     (run-test-case test)))
@@ -107,11 +106,11 @@
 	     (let ((test
 		    '(:voice-count 2
 		      :test-cases
-		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
-		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
-		       (:remove "A" :expected-voice-number 0 :expected-note nil :expected-stack-size 0)
-		       (:remove "B" :expected-voice-number 1 :expected-note nil :expected-stack-size 0)
-		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 1)
+		      ((:push "A" :expected-voice-number 0 :expected-note "A")
+		       (:push "B" :expected-voice-number 1 :expected-note "B")
+		       (:remove "A" :expected-voice-number 0 :expected-note nil)
+		       (:remove "B" :expected-voice-number 1 :expected-note nil)
+		       (:push "C" :expected-voice-number 0 :expected-note "C")
 		       ))))
 	     (run-test-case test)))
 
@@ -120,11 +119,11 @@
 	     (let ((test
 		    '(:voice-count 2
 		      :test-cases
-		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
-		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
-		       (:remove "B" :expected-voice-number 1 :expected-note nil :expected-stack-size 0)
-		       (:remove "A" :expected-voice-number 0 :expected-note nil :expected-stack-size 0)
-		       (:push "C" :expected-voice-number 1 :expected-note "C" :expected-stack-size 1)
+		      ((:push "A" :expected-voice-number 0 :expected-note "A")
+		       (:push "B" :expected-voice-number 1 :expected-note "B")
+		       (:remove "B" :expected-voice-number 1 :expected-note nil)
+		       (:remove "A" :expected-voice-number 0 :expected-note nil)
+		       (:push "C" :expected-voice-number 1 :expected-note "C")
 		       ))))
 	     (run-test-case test)))
 
@@ -139,12 +138,12 @@
 	     (let ((test
 		    '(:voice-count 2
 		      :test-cases
-		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
-		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
-		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 1)
-		       (:push "D" :expected-voice-number 1 :expected-note "D" :expected-stack-size 1)
-		       (:push "E" :expected-voice-number 0 :expected-note "E" :expected-stack-size 1)
-		       (:push "F" :expected-voice-number 1 :expected-note "F" :expected-stack-size 1)
+		      ((:push "A" :expected-voice-number 0 :expected-note "A")
+		       (:push "B" :expected-voice-number 1 :expected-note "B")
+		       (:push "C" :expected-voice-number 0 :expected-note "C")
+		       (:push "D" :expected-voice-number 1 :expected-note "D")
+		       (:push "E" :expected-voice-number 0 :expected-note "E")
+		       (:push "F" :expected-voice-number 1 :expected-note "F")
 		       ))))
 	     (run-test-case test)))
 
@@ -153,11 +152,11 @@
 	     (let ((test
 		    '(:voice-count 2
 		      :test-cases
-		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
-		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
-		       (:push "C-ON" :expected-voice-number 0 :expected-note "C-ON" :expected-stack-size 1)
-		       (:remove "C-ON" :expected-voice-number 0 :expected-note nil :expected-stack-size 0)
-		       (:push "D-ON" :expected-voice-number 0 :expected-note "D-ON" :expected-stack-size 1)
+		      ((:push "A" :expected-voice-number 0 :expected-note "A")
+		       (:push "B" :expected-voice-number 1 :expected-note "B")
+		       (:push "C-ON" :expected-voice-number 0 :expected-note "C-ON")
+		       (:remove "C-ON" :expected-voice-number 0 :expected-note nil)
+		       (:push "D-ON" :expected-voice-number 0 :expected-note "D-ON")
 		       ))))
 	     (run-test-case test)))
 
@@ -166,12 +165,12 @@
 	     (let ((test
 		    '(:voice-count 2
 		      :test-cases
-		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
-		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
-		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 1)
-		       (:push "D-ON" :expected-voice-number 1 :expected-note "D-ON" :expected-stack-size 1)
-		       (:remove "D-ON" :expected-voice-number 1 :expected-note nil :expected-stack-size 0)
-		       (:push "D-ON" :expected-voice-number 1 :expected-note "D-ON" :expected-stack-size 1)
+		      ((:push "A" :expected-voice-number 0 :expected-note "A")
+		       (:push "B" :expected-voice-number 1 :expected-note "B")
+		       (:push "C" :expected-voice-number 0 :expected-note "C")
+		       (:push "D-ON" :expected-voice-number 1 :expected-note "D-ON")
+		       (:remove "D-ON" :expected-voice-number 1 :expected-note nil)
+		       (:push "D-ON" :expected-voice-number 1 :expected-note "D-ON")
 		       ))))
 	     (run-test-case test)))
 
@@ -179,10 +178,10 @@
 	     (let ((test
 		    '(:voice-count 2
 		      :test-cases
-		      ((:push "A" :expected-voice-number 0 :expected-note "A" :expected-stack-size 1)
-		       (:push "B" :expected-voice-number 1 :expected-note "B" :expected-stack-size 1)
-		       (:push "C" :expected-voice-number 0 :expected-note "C" :expected-stack-size 1)
-		       (:remove "B" :expected-voice-number 1 :expected-note nil :expected-stack-size 0)
+		      ((:push "A" :expected-voice-number 0 :expected-note "A")
+		       (:push "B" :expected-voice-number 1 :expected-note "B")
+		       (:push "C" :expected-voice-number 0 :expected-note "C")
+		       (:remove "B" :expected-voice-number 1 :expected-note nil)
 		       ))))
 	     (run-test-case test)))
 

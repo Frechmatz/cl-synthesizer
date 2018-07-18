@@ -44,8 +44,7 @@
       (voice-remove-note cur-voice note))
   (progn
     (push note (slot-value cur-voice 'notes))
-    (values (voice-get-current-note cur-voice)
-	    (length (slot-value cur-voice 'notes)))))
+    (values (voice-get-current-note cur-voice))))
 
 (defun voice-get-tick (cur-voice)
   (slot-value cur-voice 'tick))
@@ -122,12 +121,11 @@
 (defun push-note (cur-voice-manager note)
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((cur-voice (voice-manager-allocate-voice cur-voice-manager)))
-    (multiple-value-bind (current-voice-note voice-note-stack-size)
+    (multiple-value-bind (current-voice-note)
 	(voice-push-note (second cur-voice) note)
       (values
        (get-voice-manager-voice-index cur-voice)
-       current-voice-note
-       voice-note-stack-size))))
+       current-voice-note))))
 
 ;; Removes a note.
 ;; Returns voice index, current voice note and stack-size.
@@ -138,8 +136,7 @@
 	  (values nil nil nil)
 	  (values
 	   (get-voice-manager-voice-index voice)
-	   (voice-remove-note (get-voice-manager-voice-voice voice) note)
-	   (voice-get-stack-size (get-voice-manager-voice-voice voice)))))))
+	   (voice-remove-note (get-voice-manager-voice-voice voice) note))))))
 
 ;; Returns t if the given voice-index is assigned to at least one note
 (defun has-note (cur-voice-manager voice-index)
