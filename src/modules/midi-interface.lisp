@@ -227,15 +227,17 @@
 		     (cond
 		       ;; Note on
 		       ((cl-synthesizer-midi-event:note-on-eventp midi-event)
-			(multiple-value-bind (voice-index voice-note)
-			    (cl-synthesizer-midi-voice-manager:push-note
-			     voice-manager
-			     (cl-synthesizer-midi-event:get-note-number midi-event))
+			(let ((voice-index
+			       (cl-synthesizer-midi-voice-manager:push-note
+				voice-manager
+				(cl-synthesizer-midi-event:get-note-number midi-event))))
 			  (let ((voice-state (elt voice-states voice-index)))
 			    (activate-gate voice-index)
 			    (set-voice-state-cv
 			     voice-state
-			     (funcall note-number-to-cv voice-note)))))
+			     (funcall
+			      note-number-to-cv
+			      (cl-synthesizer-midi-event:get-note-number midi-event))))))
 		       ;; Note off
 		       ((cl-synthesizer-midi-event:note-off-eventp midi-event)
 			(multiple-value-bind (voice-index voice-note)

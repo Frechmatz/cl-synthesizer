@@ -125,13 +125,12 @@
 	  resulting-voice-entry))))
 
 ;; Pushes a note.
-;; Returns voice index and current voice note
+;; Returns voice index
 (defun push-note (cur-voice-manager note)
   (let ((cur-voice (voice-manager-allocate-voice cur-voice-manager)))
     (with-voice cur-voice index voice
-      (values
-       index
-       (voice-push-note voice note)))))
+      (voice-push-note voice note)
+       index)))
 
 ;; Removes a note.
 ;; Returns voice index and current note.
