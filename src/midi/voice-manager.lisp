@@ -18,10 +18,6 @@
   (declare (ignore args))
   (setf (slot-value v 'tick) (next-tick)))
 
-(defun voice-format (voice)
-  (with-slots (notes tick) voice
-    (format nil "Stacksize: ~a Tick: ~a" (length notes) tick)))
-
 (defun voice-is-note (cur-voice note)
   (find-if
    (lambda (i) (eq i note))
@@ -79,21 +75,6 @@
 (defun get-voice-manager-voice-voice (voice)
   (second voice))
 
-(defun format-voices (voices)
-  (let ((a
-	 (apply
-	  'concatenate ;; concatenate wants rest params, not a list
-	  'string
-	  (mapcar
-	   (lambda (v)
-	     (format
-	      nil " Index: ~a Voice: (~a) "
-	      (get-voice-manager-voice-index v)
-	      (voice-format (get-voice-manager-voice-voice v))
-	      ))
-	   voices))))
-    a))
-
 (defmethod initialize-instance :after ((mgr voice-manager) &key voice-count)
   (if (eq 0 voice-count)
       (error "voice-manager: voice-count must be greater zero"))
@@ -125,7 +106,6 @@
 			nil
 			t)
 			 (if (> sl1 sl2) nil t)))))))
-      ;;(format t "Sorted voices ~a~%" (format-voices playing-voices))
       (first sorted-voices))))
 
 (defun voice-manager-allocate-voice (cur-voice-manager)
