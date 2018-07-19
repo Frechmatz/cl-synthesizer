@@ -50,7 +50,7 @@
     (cl-synthesizer:add-patch rack "ADSR" :cv "VCA" :cv)
 
     ;; Add ADSR-Output and VCA-Output monitor
-    (cl-synthesizer:register-monitor
+    (cl-synthesizer-monitor:register-monitor
      rack
      "ADSR-VCA"
      #'cl-synthesizer-monitor:wave-file-handler
@@ -58,7 +58,7 @@
      :filename "/Users/olli/waves/adsrplayground.wav")
 
     ;; Add LINE-OUT Monitor
-    (cl-synthesizer:register-monitor
+    (cl-synthesizer-monitor:register-monitor
      rack
      "LINE-OUT"
      #'cl-synthesizer-monitor:wave-file-handler

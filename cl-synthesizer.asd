@@ -66,6 +66,7 @@
 	       (:module "src/monitor"
 			:serial t
 			:components ((:file "packages")
+				     (:file "monitor")
 				     (:file "wave-file-handler")))
 	       (:module "src/vendor"
 			:serial t

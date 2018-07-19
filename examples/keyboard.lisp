@@ -56,7 +56,7 @@
       (cl-synthesizer:add-patch rack "VOICE-1-VCA" :out "LINE-OUT" :channel-2)
       
       ;; Add LINE-OUT Monitor
-      (cl-synthesizer:register-monitor
+      (cl-synthesizer-monitor:register-monitor
        rack
        "LINE-OUT"
        #'cl-synthesizer-monitor:wave-file-handler
@@ -64,7 +64,7 @@
        :filename "/Users/olli/waves/lineout.wav")
 
       ;; Add ADSR Monitor
-      (cl-synthesizer:register-monitor
+      (cl-synthesizer-monitor:register-monitor
        rack
        "ADSR"
        #'cl-synthesizer-monitor:wave-file-handler

@@ -10,7 +10,6 @@
    :line-out
    :midi-in
    :get-sample-rate
-   :register-monitor
    :add-module
    :add-patch
    :update-rack
@@ -20,5 +19,7 @@
    :get-input-module-name
    :get-module-output-sockets
    :get-module-input-sockets
+   :add-hook
+   :get-environment
    ))
 

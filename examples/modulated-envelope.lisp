@@ -48,7 +48,7 @@
     (cl-synthesizer:add-patch rack "ADSR" :cv "VCA" :cv)
 
     ;; Record LFO-Output, ADSR-Output and LINE-OUT into a wave file
-    (cl-synthesizer:register-monitor
+    (cl-synthesizer-monitor:register-monitor
      rack
      "LFO-ADSR-LINEOUT"
      #'cl-synthesizer-monitor:wave-file-handler

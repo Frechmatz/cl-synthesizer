@@ -15,7 +15,7 @@
     (cl-synthesizer:add-patch rack "VCO-2" :sine "LINE-OUT" :channel-2)
     
     ;; Add LINE-OUT Monitor
-    (cl-synthesizer:register-monitor
+    (cl-synthesizer-monitor:register-monitor
      rack
      "LINE-OUT"
      #'cl-synthesizer-monitor:wave-file-handler
@@ -45,7 +45,7 @@
     (cl-synthesizer:add-patch rack "VCO-2" :sine "LINE-OUT" :channel-2)
 
     ;; Add Oscilloscope Monitor
-    (cl-synthesizer:register-monitor
+    (cl-synthesizer-monitor:register-monitor
      rack
      "Oscilloscope"
      #'cl-synthesizer-monitor:wave-file-handler
@@ -56,7 +56,7 @@
      :filename "/Users/olli/waves/VCOFourChannelExample.wav")
     
     ;; Add LINE-OUT Monitor
-    (cl-synthesizer:register-monitor
+    (cl-synthesizer-monitor:register-monitor
      rack
      "LINE-OUT"
      #'cl-synthesizer-monitor:wave-file-handler
@@ -77,7 +77,7 @@
     (cl-synthesizer:add-patch rack "LFO-1" :triangle "VCO-1" :cv)
 
     ;; Add Oscilloscope Monitor
-    (cl-synthesizer:register-monitor
+    (cl-synthesizer-monitor:register-monitor
      rack
      "Oscilloscope"
      #'cl-synthesizer-monitor:wave-file-handler
@@ -95,7 +95,7 @@
 				#'cl-synthesizer-modules-vco:vco :base-frequency 300 :cv-max 5 :f-max 8000 :v-peak 5)
 
     ;; Add Oscilloscope Monitor
-    (cl-synthesizer:register-monitor
+    (cl-synthesizer-monitor:register-monitor
      rack
      "Oscilloscope"
      #'cl-synthesizer-monitor:wave-file-handler
@@ -117,7 +117,7 @@
     (cl-synthesizer:add-patch rack "LFO-1" :triangle "VCO-1" :cv-lin)
 
     ;; Add Oscilloscope Monitor
-    (cl-synthesizer:register-monitor
+    (cl-synthesizer-monitor:register-monitor
      rack
      "Oscilloscope"
      #'cl-synthesizer-monitor:wave-file-handler
@@ -135,7 +135,7 @@
     (cl-synthesizer:add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco :base-frequency 300 :cv-max 5 :v-peak 5)
     ;; Add Oscilloscope Monitor
-    (cl-synthesizer:register-monitor
+    (cl-synthesizer-monitor:register-monitor
      rack
      "Oscilloscope"
      #'cl-synthesizer-monitor:wave-file-handler
@@ -157,7 +157,7 @@
     (cl-synthesizer:add-patch rack "LFO-1" :triangle "VCO-1" :cv-lin)
 
     ;; Add Oscilloscope Monitor
-    (cl-synthesizer:register-monitor
+    (cl-synthesizer-monitor:register-monitor
      rack
      "Oscilloscope"
      #'cl-synthesizer-monitor:wave-file-handler
@@ -175,7 +175,7 @@
 				#'cl-synthesizer-modules-vco:vco :base-frequency 300 :cv-max 5 :v-peak 5)
 
     ;; Add Oscilloscope Monitor
-    (cl-synthesizer:register-monitor
+    (cl-synthesizer-monitor:register-monitor
      rack
      "Oscilloscope"
      #'cl-synthesizer-monitor:wave-file-handler
@@ -200,7 +200,7 @@
     (cl-synthesizer:add-patch rack "VCO-1" :sine "LINE-OUT" :channel-1)
     
     ;; Add Oscilloscope Monitor
-    (cl-synthesizer:register-monitor
+    (cl-synthesizer-monitor:register-monitor
      rack
      "Oscilloscope"
      #'cl-synthesizer-monitor:wave-file-handler
