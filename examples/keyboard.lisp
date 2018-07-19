@@ -59,7 +59,7 @@
       (cl-synthesizer-monitor:register-monitor
        rack
        "LINE-OUT"
-       #'cl-synthesizer-monitor:wave-file-handler
+       #'cl-synthesizer-monitor-wave-handler:wave-file-handler
        '((:channel-1 "LINE-OUT" :input-socket :channel-1) (:channel-2 "LINE-OUT" :input-socket :channel-2))
        :filename "/Users/olli/waves/lineout.wav")
 
@@ -67,7 +67,7 @@
       (cl-synthesizer-monitor:register-monitor
        rack
        "ADSR"
-       #'cl-synthesizer-monitor:wave-file-handler
+       #'cl-synthesizer-monitor-wave-handler:wave-file-handler
        '((:channel-1 "VOICE-0-ADSR" :input-socket :gate)
 	 (:channel-2 "VOICE-0-ADSR" :output-socket :cv)
 	 (:channel-3 "LINE-OUT" :input-socket :channel-1)

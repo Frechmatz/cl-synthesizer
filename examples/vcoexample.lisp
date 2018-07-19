@@ -18,7 +18,7 @@
     (cl-synthesizer-monitor:register-monitor
      rack
      "LINE-OUT"
-     #'cl-synthesizer-monitor:wave-file-handler
+     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "LINE-OUT" :input-socket :channel-1) (:channel-2 "LINE-OUT" :input-socket :channel-2))
      :filename "/Users/olli/waves/VCOTwoChannelExample.wav"
      :v-peak 5.0)
@@ -48,7 +48,7 @@
     (cl-synthesizer-monitor:register-monitor
      rack
      "Oscilloscope"
-     #'cl-synthesizer-monitor:wave-file-handler
+     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "VCO-1" :output-socket :sine)
        (:channel-2 "VCO-2" :output-socket :sine)
        (:channel-3 "LFO-1" :output-socket :sine)
@@ -59,7 +59,7 @@
     (cl-synthesizer-monitor:register-monitor
      rack
      "LINE-OUT"
-     #'cl-synthesizer-monitor:wave-file-handler
+     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "LINE-OUT" :input-socket :channel-1) (:channel-2 "LINE-OUT" :input-socket :channel-2))
      :filename "/Users/olli/waves/AudioOut.wav")
     
@@ -80,7 +80,7 @@
     (cl-synthesizer-monitor:register-monitor
      rack
      "Oscilloscope"
-     #'cl-synthesizer-monitor:wave-file-handler
+     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "VCO-1" :output-socket :triangle))
      :filename "/Users/olli/waves/triangle.wav")
 
@@ -98,7 +98,7 @@
     (cl-synthesizer-monitor:register-monitor
      rack
      "Oscilloscope"
-     #'cl-synthesizer-monitor:wave-file-handler
+     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "VCO-1" :output-socket :saw))
      :filename "/Users/olli/waves/saw.wav")
 
@@ -120,7 +120,7 @@
     (cl-synthesizer-monitor:register-monitor
      rack
      "Oscilloscope"
-     #'cl-synthesizer-monitor:wave-file-handler
+     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "VCO-1" :output-socket :saw))
      :filename "/Users/olli/waves/sawsweep.wav")
 
@@ -138,7 +138,7 @@
     (cl-synthesizer-monitor:register-monitor
      rack
      "Oscilloscope"
-     #'cl-synthesizer-monitor:wave-file-handler
+     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "VCO-1" :output-socket :square))
      :filename "/Users/olli/waves/square.wav")
 
@@ -160,7 +160,7 @@
     (cl-synthesizer-monitor:register-monitor
      rack
      "Oscilloscope"
-     #'cl-synthesizer-monitor:wave-file-handler
+     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "VCO-1" :output-socket :square))
      :filename "/Users/olli/waves/squaresweep.wav")
 
@@ -178,7 +178,7 @@
     (cl-synthesizer-monitor:register-monitor
      rack
      "Oscilloscope"
-     #'cl-synthesizer-monitor:wave-file-handler
+     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "VCO-1" :output-socket :sine)
        (:channel-2 "VCO-1" :output-socket :triangle)
        (:channel-3 "VCO-1" :output-socket :saw)
@@ -203,7 +203,7 @@
     (cl-synthesizer-monitor:register-monitor
      rack
      "Oscilloscope"
-     #'cl-synthesizer-monitor:wave-file-handler
+     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "VCO-1" :output-socket :sine))
      :filename "/Users/olli/waves/out.wav")
 

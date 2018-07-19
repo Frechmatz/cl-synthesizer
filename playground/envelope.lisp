@@ -53,7 +53,7 @@
     (cl-synthesizer-monitor:register-monitor
      rack
      "ADSR-VCA"
-     #'cl-synthesizer-monitor:wave-file-handler
+     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "VCA" :output-socket :out) (:channel-2 "ADSR" :output-socket :cv))
      :filename "/Users/olli/waves/adsrplayground.wav")
 
@@ -61,7 +61,7 @@
     (cl-synthesizer-monitor:register-monitor
      rack
      "LINE-OUT"
-     #'cl-synthesizer-monitor:wave-file-handler
+     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "LINE-OUT" :input-socket :channel-1))
      :filename "/Users/olli/waves/lineout.wav")
     

@@ -51,7 +51,7 @@
     (cl-synthesizer-monitor:register-monitor
      rack
      "LFO-ADSR-LINEOUT"
-     #'cl-synthesizer-monitor:wave-file-handler
+     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "ADSR" :output-socket :cv)
        (:channel-2 "LINE-OUT" :input-socket :channel-1)
        (:channel-3 "LFO" :output-socket :saw))

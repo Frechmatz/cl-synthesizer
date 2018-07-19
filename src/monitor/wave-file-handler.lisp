@@ -1,5 +1,5 @@
 
-(in-package :cl-synthesizer-monitor)
+(in-package :cl-synthesizer-monitor-wave-handler)
 
 (defun wave-file-handler (name environment outputs &rest rest &key filename &allow-other-keys)
   "Monitor handler which writes its input into a Wave file. For now the keys
