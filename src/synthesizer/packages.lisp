@@ -15,5 +15,10 @@
    :add-patch
    :update-rack
    :shutdown-rack
+   :get-module-input
+   :get-module-output
+   :get-input-module-name
+   :get-module-output-sockets
+   :get-module-input-sockets
    ))
 

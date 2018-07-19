@@ -11,7 +11,7 @@
 
 (defclass rack ()
   ((modules :initform nil)
-   (monitors :initform nil)
+   (hooks :initform nil)
    (environment :initform nil))
   (:documentation ""))
 
@@ -146,15 +146,16 @@
     ;; for all modules
     (dolist (rm (slot-value rack 'modules))
       (update-rm rm))
-    ;; for all monitors
-    (dolist (m (slot-value rack 'monitors))
+    ;; for all hooks
+    (dolist (m (slot-value rack 'hooks))
       (funcall (getf m :update)))))
 
 (defun shutdown-rack (rack)
   (dolist (rm (slot-value rack 'modules))
     (funcall (get-rack-module-shutdown-fn rm)))
-  (dolist (m (slot-value rack 'monitors))
-    (funcall (getf m :shutdown))))
+  (dolist (m (slot-value rack 'hooks))
+    (if (getf m :shutdown)
+	(funcall (getf m :shutdown)))))
   
 (defun create-rack (&key environment)
   (let ((rack (make-instance 'cl-synthesizer:rack :environment environment)))
@@ -169,13 +170,73 @@
 (defun get-midi-in (rack)
   (slot-value (get-module rack "MIDI-IN") 'module))
 
+(defun add-hook (rack hook)
+  "Hook consists a property list with the following properties:
+   - :update function without arguments
+   - :shutdown function without arguments
+   Hooks must not manipulate the rack.
+   Hooks may not be called in certain situations such as when
+   a rack is a embedded into another rack."
+  (push hook (slot-value rack 'hooks)))
+
+;; TODO Fix inefficient implementation. Maybe rack must hold some mapping hashes.
+(defun get-input-module-name (rack module-name socket)
+  "Get name of module which is patched to an input socket of the given module"
+  (let ((rm (get-module rack module-name)))
+    (if (not rm)
+	nil
+	(let ((patch (get-rack-module-input-patch rm socket)))
+	  (if patch
+	      (get-rack-patch-target-name patch)
+	      nil)))))
+  
+;; TODO Fix inefficient implementation. Maybe rack must hold some mapping hashes.
+(defun get-module-input (rack module-name socket)
+  "Get the input value of a given module and module input socket.
+   - rack The rack
+   - module-name Name of the module
+   - socket One of the input sockets provided by the module
+   Example: (get-module-input rack \"ADSR\" :gate)"
+  (let ((rm (get-module rack module-name)))
+    (if (not rm)
+	nil
+	(let ((patch (get-rack-module-input-patch rm socket)))
+	  (if (not patch)
+	      nil
+	      (let ((source-rm (get-rack-patch-module patch))
+		    (source-socket-key (get-rack-patch-socket patch)))
+		(get-rack-module-output source-rm source-socket-key)))))))
+
+;; TODO Fix inefficient implementation. Maybe rack must hold some mapping hashes.
+(defun get-module-output (rack module-name socket)
+  "Get the output value of a given module and socket.
+   - rack The rack
+   - module-name Name of the module
+   - socket One of the output sockets provided by the module
+   Example: (get-module-output rack \"ADSR\" :cv)"
+  (let ((rm (get-module rack module-name)))
+    (if (not rm)
+	nil
+	(get-rack-module-output rm socket))))
+
+(defun get-module-output-sockets (rack module-name)
+  (let ((rm (get-module rack module-name)))
+    (if (not rm)
+	nil
+	(get-rack-module-output-sockets rm))))
+
+(defun get-module-input-sockets (rack module-name)
+  (let ((rm (get-module rack module-name)))
+    (if (not rm)
+	nil
+	(get-rack-module-input-sockets rm))))
+
 (defun register-monitor (rack name ctor outputs &rest additional-ctor-args)
   "Adds a monitor to the rack. A monitor is basically a function that is called after
    each tick of the rack and to which the values of arbitrary sockets are passed.
    Monitors can for example be used to record inputs and outputs of specific
    rack modules into wave-files for debugging/analysis purposes.
    - rack: The rack
-   - name: Unique name of the monitor
    - ctor: Monitor handler constructor function. After validation of the request 
      this function is called in order to instantiate the monitor handler. 
      It is called with the following lambda list: 
@@ -195,10 +256,6 @@
      For the given output declaration the update function will be
      called as follows (update-fn :channel-1 <value> :channel-2 <value>)"
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-  (if (find-if (lambda (m) (eql name (getf m :name))) (slot-value rack 'monitors))
-      (signal-assembly-error
-       :format-control "Monitor ~a has already been registered"
-       :format-arguments (list name)))
   (let ((lambda-list-prototype nil) ;; list of (keyword lambda) 
 	(keys nil))
     (dolist (output outputs)
@@ -222,47 +279,45 @@
 	       :format-arguments (list module-name)))
 	  (cond
 	    ((eq :output-socket socket-type)
-	     (assert-is-module-output-socket rm socket-key)
-	     (let ((closure-rm rm) (closure-socket-key socket-key))
-	       (push (list
-		      key
-		      (lambda () (cl-synthesizer::get-rack-module-output closure-rm closure-socket-key)) lambda-list-prototype)
-		   lambda-list-prototype)))
+	     (if (not (find socket-key (get-module-output-sockets rack module-name)))
+		 (signal-assembly-error
+		  :format-control "Module ~a does not have output socket ~a"
+		  :format-arguments (list (get-rack-module-name rm) socket-key)))
+	     (push (list
+		    key
+		    (lambda () (get-module-output rack module-name socket-key)))
+		   lambda-list-prototype))
 	    ((eq :input-socket socket-type)
-	     (assert-is-module-input-socket rm socket-key)
-	     (let ((patch (cl-synthesizer::get-rack-module-input-patch rm socket-key)))
-	       (if (not patch)
-		   ;; we do not allow to monitor un-patched inputs to avoid cumbersome debugging
-		   (signal-assembly-error
-		    :format-control "Monitor: Input socket ~a of module ~a is not connected with a module"
-		    :format-arguments (list socket-key module-name )))
-	       (push (list key (lambda() nil)) lambda-list-prototype)
-	       (let ((source-rm (cl-synthesizer::get-rack-patch-module patch))
-		     (source-socket-key (cl-synthesizer::get-rack-patch-socket patch)))
-		 (push (list
-			key
-			(lambda () (cl-synthesizer::get-rack-module-output source-rm source-socket-key)))
-		       lambda-list-prototype))))
-	  (t (signal-assembly-error
-	      :format-control "Monitor: Invalid socket type: ~a Must be one of :input-socket, :output-socket"
-	      :format-arguments (list socket-type)))))))
+	     (if (not (find socket-key (get-module-input-sockets rack module-name)))
+		 (signal-assembly-error
+		  :format-control "Module ~a does not have input socket ~a"
+		  :format-arguments (list (get-rack-module-name rm) socket-key)))
+	     (if (not (get-input-module-name rack module-name socket-key))
+		 (signal-assembly-error
+		  :format-control "Monitor: Input socket ~a of module ~a is not connected with a module"
+		  :format-arguments (list socket-key module-name )))
+	     (push (list
+		    key
+		    (lambda () (get-module-input rack module-name socket-key)))
+		   lambda-list-prototype))
+	    (t (signal-assembly-error
+		:format-control "Monitor: Invalid socket type: ~a Must be one of :input-socket, :output-socket"
+		:format-arguments (list socket-type)))))))
     ;; Instantiate the monitor handler
     (let* ((handler (apply ctor name (slot-value rack 'environment) keys additional-ctor-args))
 	   (update-fn (getf handler :update))
 	   (shutdown-fn (if (getf handler :shutdown) (getf handler :shutdown) (lambda() nil))))
       ;; Wrap callbacks and add to rack
-      (push (list 
-	     :shutdown (lambda ()
-			 (funcall shutdown-fn))
-	     :update (lambda()
-		       (let ((params nil))
+      (add-hook rack (list 
+		      :shutdown (lambda ()
+				  (funcall shutdown-fn))
+		      :update (lambda()
+				(let ((params nil))
 			 (dolist (p lambda-list-prototype)
 			   (let ((v (funcall (second p))))
 			     (if v ;; Omit from monitor callback if not defined
 				 (progn
 				   (push v params)
 				   (push (first p) params)))))
-			 (apply update-fn params)))
-	     :name name)
-	    (slot-value rack 'monitors)))))
+			 (apply update-fn params))))))))
 
