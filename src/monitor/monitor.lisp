@@ -35,29 +35,51 @@
 	     :format-arguments (list socket-key module-name ))))))
 
 (defun add-monitor (rack monitor-backend outputs &rest additional-backend-args)
-  "Adds a monitor to the rack. A monitor is basically a function that is called after
-   each tick of the rack and to which the values of arbitrary sockets are passed.
-   Monitors can for example be used to record inputs and outputs of specific
-   rack modules into wave-files for debugging/analysis purposes.
-   - rack: The rack
-   - monitor-backend: Monitor backend handler constructor function. After validation of the request 
-     this function is called in order to instantiate the monitor backend handler. 
-     It is called with the following lambda list: 
-     (name environment output-keywords additional-backend-args).
-     The constructor function must return a property list which provides 
-     the actual callback function and an optional shutdown callback.
-     -- :shutdown An optional rack shutdown callback function.
-     -- :update A mandatory function that is called after each tick.
-     The update function is called with the following lambda list:
-     (:output-key-1 value :output-key-2 value ...) 
-     Output keys whose value is not defined are omitted from the callback.
-   - outputs: List of output-def
-     output-def := <key> <module-name> <socket>
-     socket := :input-socket <input-socket-key> | :output-socket <output-socket-key>
-     Example: '((:channel-1 \"ADSR\" :output-socket :cv)
-                (:channel-2 \"LINE-OUT\" :input-socket :channel-1))
-     For the given output declaration the update function will be
-     called as follows (update-fn :channel-1 <value> :channel-2 <value>)"
+  "Adds a monitor to the rack. A monitor is a high-level Rack hook that is called
+    after the Rack has processed a tick. When the monitor is being called by the
+    Rack it collects the values of arbitray input and output sockets of any modules
+    of the rack and then passes these values to a monitor backend handler.
+    A monitor backend can for example be a Wave-File-Writer or a CSV file output
+    module.
+    The function has the following arguments:
+    <ul>
+	<li>rack The rack.</li>
+	<li>monitor-backend A function that instantiates the monitor backend.
+	    This function is called with the following lambda list: 
+	    (name environment output-keywords additional-backend-args).
+	    The constructor function must return a property list with
+	    the following keys:
+	    <ul>
+		<li>:shutdown An optional function without arguments that is
+		    called when the rack shuts down</li>
+		<li>:update A mandatory function that is called after each tick.
+		    This function is called with the following lambda list:
+		    (:output-keyword-1 value :output-keyword-2 value ...)
+		    output-keywords whose value is not defined are omitted by
+		    the Monitor.</li>
+	    </ul>
+	</li>
+	<li>outputs Declares the sockets whose values are to be passed to
+	    the backend. The outputs consist of a list of output definitions, where
+	    each output definition has the following lambda list:
+	    output-def := key module-name socket
+	    socket := :input-socket input-socket-key | :output-socket output-socket-key
+	    Example: '((:channel-1 \"ADSR\" :output-socket :cv)
+	    (:channel-2 \"LINE-OUT\" :input-socket :channel-1))
+	</li>
+	<li>&rest additional-backend-args Optional arguments that are passed to
+	    the monitor-backend on instantiation.</li>
+    </ul>
+    Example using the wave-file-handler monitor backend:
+    <pre><code>
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
+     '((:channel-1 \"ADSR\" :output-socket :cv)
+       (:channel-2 \"LINE-OUT\" :input-socket :channel-1)
+       (:channel-3 \"LFO\" :output-socket :saw))
+     :filename \"/Users/olli/waves/envelope.wav\")
+    </code></pre>"
   (let ((output-handlers nil) ;; list of (keyword lambda) 
 	(keys nil))
     (dolist (output outputs)
