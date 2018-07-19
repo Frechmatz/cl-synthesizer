@@ -15,9 +15,8 @@
     (cl-synthesizer:add-patch rack "VCO-2" :sine "LINE-OUT" :channel-2)
     
     ;; Add LINE-OUT Monitor
-    (cl-synthesizer-monitor:register-monitor
+    (cl-synthesizer-monitor:add-monitor
      rack
-     "LINE-OUT"
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "LINE-OUT" :input-socket :channel-1) (:channel-2 "LINE-OUT" :input-socket :channel-2))
      :filename "/Users/olli/waves/VCOTwoChannelExample.wav"
@@ -45,9 +44,8 @@
     (cl-synthesizer:add-patch rack "VCO-2" :sine "LINE-OUT" :channel-2)
 
     ;; Add Oscilloscope Monitor
-    (cl-synthesizer-monitor:register-monitor
+    (cl-synthesizer-monitor:add-monitor
      rack
-     "Oscilloscope"
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "VCO-1" :output-socket :sine)
        (:channel-2 "VCO-2" :output-socket :sine)
@@ -56,9 +54,8 @@
      :filename "/Users/olli/waves/VCOFourChannelExample.wav")
     
     ;; Add LINE-OUT Monitor
-    (cl-synthesizer-monitor:register-monitor
+    (cl-synthesizer-monitor:add-monitor
      rack
-     "LINE-OUT"
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "LINE-OUT" :input-socket :channel-1) (:channel-2 "LINE-OUT" :input-socket :channel-2))
      :filename "/Users/olli/waves/AudioOut.wav")
@@ -77,9 +74,8 @@
     (cl-synthesizer:add-patch rack "LFO-1" :triangle "VCO-1" :cv)
 
     ;; Add Oscilloscope Monitor
-    (cl-synthesizer-monitor:register-monitor
+    (cl-synthesizer-monitor:add-monitor
      rack
-     "Oscilloscope"
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "VCO-1" :output-socket :triangle))
      :filename "/Users/olli/waves/triangle.wav")
@@ -95,9 +91,8 @@
 				#'cl-synthesizer-modules-vco:vco :base-frequency 300 :cv-max 5 :f-max 8000 :v-peak 5)
 
     ;; Add Oscilloscope Monitor
-    (cl-synthesizer-monitor:register-monitor
+    (cl-synthesizer-monitor:add-monitor
      rack
-     "Oscilloscope"
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "VCO-1" :output-socket :saw))
      :filename "/Users/olli/waves/saw.wav")
@@ -117,9 +112,8 @@
     (cl-synthesizer:add-patch rack "LFO-1" :triangle "VCO-1" :cv-lin)
 
     ;; Add Oscilloscope Monitor
-    (cl-synthesizer-monitor:register-monitor
+    (cl-synthesizer-monitor:add-monitor
      rack
-     "Oscilloscope"
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "VCO-1" :output-socket :saw))
      :filename "/Users/olli/waves/sawsweep.wav")
@@ -135,9 +129,8 @@
     (cl-synthesizer:add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco :base-frequency 300 :cv-max 5 :v-peak 5)
     ;; Add Oscilloscope Monitor
-    (cl-synthesizer-monitor:register-monitor
+    (cl-synthesizer-monitor:add-monitor
      rack
-     "Oscilloscope"
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "VCO-1" :output-socket :square))
      :filename "/Users/olli/waves/square.wav")
@@ -157,9 +150,8 @@
     (cl-synthesizer:add-patch rack "LFO-1" :triangle "VCO-1" :cv-lin)
 
     ;; Add Oscilloscope Monitor
-    (cl-synthesizer-monitor:register-monitor
+    (cl-synthesizer-monitor:add-monitor
      rack
-     "Oscilloscope"
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "VCO-1" :output-socket :square))
      :filename "/Users/olli/waves/squaresweep.wav")
@@ -175,9 +167,8 @@
 				#'cl-synthesizer-modules-vco:vco :base-frequency 300 :cv-max 5 :v-peak 5)
 
     ;; Add Oscilloscope Monitor
-    (cl-synthesizer-monitor:register-monitor
+    (cl-synthesizer-monitor:add-monitor
      rack
-     "Oscilloscope"
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "VCO-1" :output-socket :sine)
        (:channel-2 "VCO-1" :output-socket :triangle)
@@ -200,9 +191,8 @@
     (cl-synthesizer:add-patch rack "VCO-1" :sine "LINE-OUT" :channel-1)
     
     ;; Add Oscilloscope Monitor
-    (cl-synthesizer-monitor:register-monitor
+    (cl-synthesizer-monitor:add-monitor
      rack
-     "Oscilloscope"
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "VCO-1" :output-socket :sine))
      :filename "/Users/olli/waves/out.wav")

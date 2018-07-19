@@ -34,7 +34,7 @@
 	     :format-control "Monitor: Input socket ~a of module ~a is not connected with a module"
 	     :format-arguments (list socket-key module-name ))))))
 
-(defun register-monitor (rack name monitor-backend outputs &rest additional-backend-args)
+(defun add-monitor (rack monitor-backend outputs &rest additional-backend-args)
   "Adds a monitor to the rack. A monitor is basically a function that is called after
    each tick of the rack and to which the values of arbitrary sockets are passed.
    Monitors can for example be used to record inputs and outputs of specific
@@ -72,7 +72,10 @@
 	      (setf handler (lambda () (cl-synthesizer:get-module-output rack module-name socket-key)))
 	      (setf handler (lambda () (cl-synthesizer:get-module-input rack module-name socket-key))))
 	  (push (list key handler)  output-handlers))))
-    (let* ((backend (apply monitor-backend name (cl-synthesizer:get-environment rack) keys additional-backend-args))
+    (let* ((backend (apply
+		     monitor-backend
+		     "Monitor-Backend"
+		     (cl-synthesizer:get-environment rack) keys additional-backend-args))
 	   (update-fn (getf backend :update)))
       (cl-synthesizer:add-hook
        rack

@@ -1,7 +1,7 @@
 (defpackage :cl-synthesizer-monitor
   (:use :cl)
   (:export
-   :register-monitor
+   :add-monitor
    ))
 
 (defpackage :cl-synthesizer-monitor-wave-handler
