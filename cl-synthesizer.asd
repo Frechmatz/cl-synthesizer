@@ -24,7 +24,6 @@
 				     (:file "assembly-error")
 				     (:file "environment")
 				     (:file "rack-module")
-				     (:file "rack-module-patch")
 				     (:file "rack")
 				     (:file "line-out")
 				     (:file "midi-in")

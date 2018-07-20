@@ -6,14 +6,45 @@
 ;;
 ;; Represents a grid of rack-modules
 ;;
-;; Todo: Re-think shutdown concept
-;;
+
 
 (defclass rack ()
   ((modules :initform nil)
    (hooks :initform nil)
    (environment :initform nil))
   (:documentation ""))
+
+;;
+;; Helper classes
+;;
+
+;;
+;; Patch
+;;
+
+(defclass rack-module-patch ()
+  ((rack-module :initarg nil)
+   (socket :initarg nil))
+  (:documentation ""))
+
+(defun get-rack-patch-target-name (patch)
+  (get-rack-module-name (slot-value patch 'rack-module)))
+
+(defun get-rack-patch-socket (patch)
+  (slot-value patch 'socket))
+
+(defun get-rack-patch-module (patch)
+  (slot-value patch 'rack-module))
+
+(defun make-rack-module-patch (rm socket)
+  (let ((c (make-instance 'rack-module-patch)))
+    (setf (slot-value c 'rack-module) rm)
+    (setf (slot-value c 'socket) socket)
+    c))
+
+;;
+;;
+;;
 
 (defmethod initialize-instance :after ((r rack) &key environment)
   (declare (optimize (debug 3) (speed 0) (space 0)))
