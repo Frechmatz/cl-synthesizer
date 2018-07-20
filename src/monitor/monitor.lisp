@@ -19,17 +19,18 @@
 	 :format-control "Monitor: Invalid socket type: ~a Must be one of :input-socket, :output-socket"
 	 :format-arguments (list socket-type)))
     ;; get-rm-module needs to be fixed back rack API rework
-    (if (not (cl-synthesizer::get-rm-module rack module-name))
+    (if (not (cl-synthesizer:get-module rack module-name))
 	(cl-synthesizer:signal-assembly-error
 	 :format-control "Monitor: Cannot find module ~a"
 	 :format-arguments (list module-name)))
     (if (eq :output-socket socket-type)
-	(if (not (find socket-key (cl-synthesizer:get-module-output-sockets rack module-name)))
+	(let ((module (cl-synthesizer:get-module rack module-name)))
+	  (if (not (find socket-key (funcall (getf module :outputs))))
 	    (cl-synthesizer:signal-assembly-error
 	     :format-control "Module ~a does not have output socket ~a"
-	     :format-arguments (list module-name socket-key))))
+	     :format-arguments (list module-name socket-key)))))
     (if (eq :input-socket socket-type)
-	(if (not (cl-synthesizer:get-input-module-name rack module-name socket-key))
+	(if (not (cl-synthesizer:get-input-socket-patch rack module-name socket-key))
 	    (cl-synthesizer:signal-assembly-error
 	     :format-control "Monitor: Input socket ~a of module ~a is not connected with a module"
 	     :format-arguments (list socket-key module-name ))))))

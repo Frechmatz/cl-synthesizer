@@ -16,10 +16,10 @@
    :shutdown-rack
    :get-module-input
    :get-module-output
-   :get-input-module-name
-   :get-module-output-sockets
    :get-module-input-sockets
    :add-hook
    :get-environment
+   :get-module
+   :get-input-socket-patch
    ))
 
