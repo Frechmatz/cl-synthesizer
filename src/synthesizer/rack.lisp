@@ -7,7 +7,6 @@
 ;; Represents a grid of rack-modules
 ;;
 
-
 (defclass rack ()
   ((modules :initform nil)
    (hooks :initform nil)
@@ -102,10 +101,6 @@
 ;; Rack
 ;;
 
-;;
-;;
-;;
-
 (defmethod initialize-instance :after ((r rack) &key environment)
   (declare (optimize (debug 3) (speed 0) (space 0)))
   (if (not environment)
@@ -115,16 +110,13 @@
 (defun get-environment (rack)
   (slot-value rack 'environment))
 
-(defun assert-is-module-name-available (rack name)
-  (declare (optimize (debug 3) (speed 0) (space 0)))
-  (if (get-module rack name)
-      (signal-assembly-error
-       :format-control "A module with name ~a has already been added to the rack"
-       :format-arguments (list name))))
-
 (defun add-module (rack module-name module-fn &rest args)
   (declare (optimize (debug 3) (speed 0) (space 0)))
-  (assert-is-module-name-available rack module-name)
+  (if (get-module rack module-name)
+      (signal-assembly-error
+       :format-control "A module with name ~a has already been added to the rack"
+       :format-arguments (list module-name)))
+
   (let ((environment (slot-value rack 'environment)))
     (let ((rm (make-instance 'rack-module
 			     :module (apply module-fn `(,module-name ,environment ,@args))
