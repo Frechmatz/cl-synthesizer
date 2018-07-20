@@ -18,8 +18,8 @@
 	(cl-synthesizer:signal-assembly-error
 	 :format-control "Monitor: Invalid socket type: ~a Must be one of :input-socket, :output-socket"
 	 :format-arguments (list socket-type)))
-    ;; get-module needs to be fixed back rack API rework
-    (if (not (cl-synthesizer::get-module rack module-name))
+    ;; get-rm-module needs to be fixed back rack API rework
+    (if (not (cl-synthesizer::get-rm-module rack module-name))
 	(cl-synthesizer:signal-assembly-error
 	 :format-control "Monitor: Cannot find module ~a"
 	 :format-arguments (list module-name)))

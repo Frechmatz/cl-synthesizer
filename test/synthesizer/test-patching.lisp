@@ -6,8 +6,8 @@
     (cl-synthesizer:add-module rack "Module 1" #'cl-synthesizer-test::test-module)
     (cl-synthesizer:add-module rack "Module 2" #'cl-synthesizer-test::test-module)
     (assert-eq 2 (length (slot-value rack 'cl-synthesizer::modules)))
-    (let ((found-module-1 (cl-synthesizer::get-module rack "Module 1"))
-	  (found-module-2 (cl-synthesizer::get-module rack "Module 2")))
+    (let ((found-module-1 (cl-synthesizer::get-rm-module rack "Module 1"))
+	  (found-module-2 (cl-synthesizer::get-rm-module rack "Module 2")))
       (assert-true found-module-1)
       (assert-true found-module-2)
       (assert-equal "Module 1" (cl-synthesizer::get-rack-module-name found-module-1))
@@ -16,8 +16,8 @@
 
 (define-test test-simple-patch ()
 	     (let ((rack (create-test-rack)))
-	       (let ((rm-1 (cl-synthesizer::get-module rack "Module 1"))
-		     (rm-2 (cl-synthesizer::get-module rack "Module 2")))
+	       (let ((rm-1 (cl-synthesizer::get-rm-module rack "Module 1"))
+		     (rm-2 (cl-synthesizer::get-rm-module rack "Module 2")))
 		 (cl-synthesizer:add-patch
 		  rack
 		  "Module 1" :out-1
@@ -35,8 +35,8 @@
 
 (define-test test-connect-sockets-twice-patch ()
 	     (let ((rack (create-test-rack)))
-	       (let ((rm-1 (cl-synthesizer::get-module rack "Module 1"))
-		     (rm-2 (cl-synthesizer::get-module rack "Module 2")))
+	       (let ((rm-1 (cl-synthesizer::get-rm-module rack "Module 1"))
+		     (rm-2 (cl-synthesizer::get-rm-module rack "Module 2")))
 		 (cl-synthesizer:add-patch
 		  rack
 		  "Module 1" :out-1
@@ -66,7 +66,7 @@
 
 (define-test test-short-circuit ()
 	     (let ((rack (create-test-rack)))
-	       (cl-synthesizer::get-module rack "Module 1")
+	       (cl-synthesizer::get-rm-module rack "Module 1")
 	       (expect-assembly-exception
 		 (cl-synthesizer:add-patch
 		  rack
@@ -80,7 +80,7 @@
 
 (define-test test-unknown-module ()
 	     (let ((rack (create-test-rack)))
-	       (cl-synthesizer::get-module rack "Module 1")
+	       (cl-synthesizer::get-rm-module rack "Module 1")
 	       (expect-assembly-exception
 		 (cl-synthesizer:add-patch
 		  rack
@@ -94,8 +94,8 @@
 
 (define-test test-unknown-socket ()
 	     (let ((rack (create-test-rack)))
-	       (cl-synthesizer::get-module rack "Module 1")
-	       (cl-synthesizer::get-module rack "Module 2")
+	       (cl-synthesizer::get-rm-module rack "Module 1")
+	       (cl-synthesizer::get-rm-module rack "Module 2")
 		 (expect-assembly-exception
 		   (cl-synthesizer:add-patch
 		    rack

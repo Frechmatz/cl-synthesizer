@@ -27,10 +27,10 @@
     (setf (slot-value m 'state) state)))
 
 (defun get-line-out (rack)
-  (slot-value (get-module rack "LINE-OUT") 'module))
+  (slot-value (get-rm-module rack "LINE-OUT") 'module))
 
 (defun get-midi-in (rack)
-  (slot-value (get-module rack "MIDI-IN") 'module))
+  (slot-value (get-rm-module rack "MIDI-IN") 'module))
 
 (defun add-hook (rack hook)
   "Hook consists a property list with the following properties:
@@ -137,12 +137,12 @@
 ;; Rack
 ;;
 
-(defun get-module (rack name)
+(defun get-rm-module (rack name)
   (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (slot-value rack 'modules)))
 
 (defun add-module (rack module-name module-fn &rest args)
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-  (if (get-module rack module-name)
+  (if (get-rm-module rack module-name)
       (signal-assembly-error
        :format-control "A module with name ~a has already been added to the rack"
        :format-arguments (list module-name)))
@@ -156,8 +156,8 @@
 
 (defun add-patch (rack source-rm-name source-output-socket destination-rm-name destination-input-socket)
   (declare (optimize (debug 3) (speed 0) (space 0)))
-  (let ((source-rm (get-module rack source-rm-name))
-	(destination-rm (get-module rack destination-rm-name)))
+  (let ((source-rm (get-rm-module rack source-rm-name))
+	(destination-rm (get-rm-module rack destination-rm-name)))
     (if (not source-rm)
 	(signal-assembly-error
 	 :format-control "Cannot find source module ~a"
@@ -261,7 +261,7 @@
 ;; TODO Fix inefficient implementation. Maybe rack must hold some mapping hashes.
 (defun get-input-module-name (rack module-name socket)
   "Get name of module which is patched to an input socket of the given module"
-  (let ((rm (get-module rack module-name)))
+  (let ((rm (get-rm-module rack module-name)))
     (if (not rm)
 	nil
 	(let ((patch (get-rack-module-input-patch rm socket)))
@@ -276,7 +276,7 @@
    - module-name Name of the module
    - socket One of the input sockets provided by the module
    Example: (get-module-input rack \"ADSR\" :gate)"
-  (let ((rm (get-module rack module-name)))
+  (let ((rm (get-rm-module rack module-name)))
     (if (not rm)
 	nil
 	(let ((patch (get-rack-module-input-patch rm socket)))
@@ -293,21 +293,21 @@
    - module-name Name of the module
    - socket One of the output sockets provided by the module
    Example: (get-module-output rack \"ADSR\" :cv)"
-  (let ((rm (get-module rack module-name)))
+  (let ((rm (get-rm-module rack module-name)))
     (if (not rm)
 	nil
 	(get-rack-module-output rm socket))))
 
 ;; TODO Fix inefficient implementation. Maybe rack must hold some mapping hashes.
 (defun get-module-output-sockets (rack module-name)
-  (let ((rm (get-module rack module-name)))
+  (let ((rm (get-rm-module rack module-name)))
     (if (not rm)
 	nil
 	(get-rack-module-output-sockets rm))))
 
 ;; TODO Fix inefficient implementation. Maybe rack must hold some mapping hashes.
 (defun get-module-input-sockets (rack module-name)
-  (let ((rm (get-module rack module-name)))
+  (let ((rm (get-rm-module rack module-name)))
     (if (not rm)
 	nil
 	(get-rack-module-input-sockets rm))))
