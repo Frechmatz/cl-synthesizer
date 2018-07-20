@@ -185,26 +185,26 @@
 	(signal-assembly-error
 	 :format-control "Module ~a does not have input socket ~a"
 	 :format-arguments (list (get-rack-module-name destination-rm) destination-input-socket)))
-
-    (let ((i (get-rack-module-input-patch destination-rm destination-input-socket)))
-      (if i
+    
+    (let ((p (get-rack-module-input-patch destination-rm destination-input-socket)))
+      (if p
 	  (signal-assembly-error
 	   :format-control "Input socket ~a of module ~a is already connected to output socket ~a of module ~a"
 	   :format-arguments (list
 			      destination-input-socket
 			      (get-rack-module-name destination-rm)
-			      (get-rack-patch-target-name i)
-			      (get-rack-patch-socket i)))))
+			      (get-rack-patch-target-name p)
+			      (get-rack-patch-socket p)))))
     
-    (let ((i (get-rack-module-output-patch source-rm source-output-socket)))
-      (if i
+    (let ((p (get-rack-module-output-patch source-rm source-output-socket)))
+      (if p
 	  (signal-assembly-error
 	   :format-control "Output socket ~a of module ~a is already connected to input socket ~a of module ~a"
 	   :format-arguments (list
 			      source-output-socket
 			      (get-rack-module-name source-rm)
-			      (get-rack-patch-socket i)
-			      (get-rack-patch-target-name i)))))
+			      (get-rack-patch-socket p)
+			      (get-rack-patch-target-name p)))))
     
     (setf (gethash destination-input-socket (slot-value destination-rm 'input-patches))
 	  (make-rack-module-patch source-rm source-output-socket))
