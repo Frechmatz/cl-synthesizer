@@ -13,6 +13,42 @@
    (environment :initform nil))
   (:documentation "Represents a grid of rack-modules"))
 
+(defmethod initialize-instance :after ((r rack) &key environment)
+  (declare (optimize (debug 3) (speed 0) (space 0)))
+  (if (not environment)
+      (error "Environment must not be nil"))
+  (setf (slot-value r 'environment) environment))
+
+(defun get-environment (rack)
+  (slot-value rack 'environment))
+
+(defun set-state (rack state)
+  (dolist (m (slot-value rack 'modules))
+    (setf (slot-value m 'state) state)))
+
+(defun get-line-out (rack)
+  (slot-value (get-module rack "LINE-OUT") 'module))
+
+(defun get-midi-in (rack)
+  (slot-value (get-module rack "MIDI-IN") 'module))
+
+(defun add-hook (rack hook)
+  "Hook consists a property list with the following properties:
+   - :update function without arguments
+   - :shutdown function without arguments
+   Hooks must not manipulate the rack.
+   Hooks may not be called in certain situations such as when
+   a rack is a embedded into another rack."
+  (push hook (slot-value rack 'hooks)))
+
+(defun create-rack (&key environment)
+  (let ((rack (make-instance 'cl-synthesizer:rack :environment environment)))
+    ;; Add Device Interfaces
+    (add-module rack "LINE-OUT" #'cl-synthesizer:line-out)
+    (add-module rack "MIDI-IN" #'cl-synthesizer:midi-in)
+    rack))
+
+
 ;;
 ;; Helper classes
 ;;
@@ -101,17 +137,11 @@
 ;; Rack
 ;;
 
-(defmethod initialize-instance :after ((r rack) &key environment)
-  (declare (optimize (debug 3) (speed 0) (space 0)))
-  (if (not environment)
-      (error "Environment must not be nil"))
-  (setf (slot-value r 'environment) environment))
-
-(defun get-environment (rack)
-  (slot-value rack 'environment))
+(defun get-module (rack name)
+  (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (slot-value rack 'modules)))
 
 (defun add-module (rack module-name module-fn &rest args)
-  (declare (optimize (debug 3) (speed 0) (space 0)))
+  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (if (get-module rack module-name)
       (signal-assembly-error
        :format-control "A module with name ~a has already been added to the rack"
@@ -123,13 +153,6 @@
 			     :name module-name)))
       (push rm (slot-value rack 'modules))
       rm)))
-
-(defun get-module (rack name)
-  (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (slot-value rack 'modules)))
-
-(defun set-state (rack state)
-  (dolist (m (slot-value rack 'modules))
-    (setf (slot-value m 'state) state)))
 
 (defun add-patch (rack source-rm-name source-output-socket destination-rm-name destination-input-socket)
   (declare (optimize (debug 3) (speed 0) (space 0)))
@@ -235,28 +258,6 @@
     (if (getf m :shutdown)
 	(funcall (getf m :shutdown)))))
   
-(defun create-rack (&key environment)
-  (let ((rack (make-instance 'cl-synthesizer:rack :environment environment)))
-    ;; Add Device Interfaces
-    (add-module rack "LINE-OUT" #'cl-synthesizer:line-out)
-    (add-module rack "MIDI-IN" #'cl-synthesizer:midi-in)
-    rack))
-
-(defun get-line-out (rack)
-  (slot-value (get-module rack "LINE-OUT") 'module))
-
-(defun get-midi-in (rack)
-  (slot-value (get-module rack "MIDI-IN") 'module))
-
-(defun add-hook (rack hook)
-  "Hook consists a property list with the following properties:
-   - :update function without arguments
-   - :shutdown function without arguments
-   Hooks must not manipulate the rack.
-   Hooks may not be called in certain situations such as when
-   a rack is a embedded into another rack."
-  (push hook (slot-value rack 'hooks)))
-
 ;; TODO Fix inefficient implementation. Maybe rack must hold some mapping hashes.
 (defun get-input-module-name (rack module-name socket)
   "Get name of module which is patched to an input socket of the given module"
