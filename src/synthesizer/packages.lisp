@@ -14,9 +14,6 @@
    :add-patch
    :update-rack
    :shutdown-rack
-   :get-module-input
-   :get-module-output
-   :get-module-input-sockets
    :add-hook
    :get-environment
    :get-module

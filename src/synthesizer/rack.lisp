@@ -144,7 +144,7 @@
   (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (slot-value rack 'modules)))
 
 (defun get-module (rack name)
-  "Returns a module or nil"
+  "Returns a module (as added via add-module) or nil"
   (let ((rm (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (slot-value rack 'modules))))
     (if rm
 	(slot-value rm 'module)
@@ -270,8 +270,7 @@
   
 ;; TODO Fix inefficient implementation. Maybe rack must hold some mapping hashes.
 (defun get-input-socket-patch (rack module-name input-socket)
-  "Returns the input module, its output socket and name that is connected with
-   the given module and input"
+  "Returns values (name module socket) of connected module"
   (let ((rm (get-rm-module rack module-name)))
     (if (not rm)
 	nil
@@ -286,38 +285,3 @@
 		 (get-rack-module-module patched-rm)
 		 patched-socket)))))))
 
-;; TODO Fix inefficient implementation. Maybe rack must hold some mapping hashes.
-(defun get-module-input (rack module-name socket)
-  "Get the input value of a given module and module input socket.
-   - rack The rack
-   - module-name Name of the module
-   - socket One of the input sockets provided by the module
-   Example: (get-module-input rack \"ADSR\" :gate)"
-  (let ((rm (get-rm-module rack module-name)))
-    (if (not rm)
-	nil
-	(let ((patch (get-rack-module-input-patch rm socket)))
-	  (if (not patch)
-	      nil
-	      (let ((source-rm (get-rack-patch-module patch))
-		    (source-socket-key (get-rack-patch-socket patch)))
-		(get-rack-module-output source-rm source-socket-key)))))))
-
-;; TODO Fix inefficient implementation. Maybe rack must hold some mapping hashes.
-(defun get-module-output (rack module-name socket)
-  "Get the output value of a given module and socket.
-   - rack The rack
-   - module-name Name of the module
-   - socket One of the output sockets provided by the module
-   Example: (get-module-output rack \"ADSR\" :cv)"
-  (let ((rm (get-rm-module rack module-name)))
-    (if (not rm)
-	nil
-	(get-rack-module-output rm socket))))
-
-;; TODO Fix inefficient implementation. Maybe rack must hold some mapping hashes.
-(defun get-module-input-sockets (rack module-name)
-  (let ((rm (get-rm-module rack module-name)))
-    (if (not rm)
-	nil
-	(get-rack-module-input-sockets rm))))

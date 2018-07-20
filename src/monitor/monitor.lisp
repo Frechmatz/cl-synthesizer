@@ -1,3 +1,7 @@
+;;
+;; Monitor
+;;
+
 
 (in-package :cl-synthesizer-monitor)
 
@@ -18,7 +22,6 @@
 	(cl-synthesizer:signal-assembly-error
 	 :format-control "Monitor: Invalid socket type: ~a Must be one of :input-socket, :output-socket"
 	 :format-arguments (list socket-type)))
-    ;; get-rm-module needs to be fixed back rack API rework
     (if (not (cl-synthesizer:get-module rack module-name))
 	(cl-synthesizer:signal-assembly-error
 	 :format-control "Monitor: Cannot find module ~a"
@@ -107,13 +110,26 @@
 	(push key keys)
 	(let ((handler nil))
 	  (if (eq :output-socket socket-type)
-	      (setf handler (lambda () (cl-synthesizer:get-module-output rack module-name socket-key)))
-	      (setf handler (lambda () (cl-synthesizer:get-module-input rack module-name socket-key))))
+	      (setf handler
+		    (lambda ()
+		      (let ((module (cl-synthesizer:get-module rack module-name)))
+			(if module
+			    (funcall (getf module :get-output) socket-key)
+			    nil))))
+	      (setf handler
+		    (lambda ()
+		      (multiple-value-bind (source-module-name source-module source-socket)
+			  (cl-synthesizer:get-input-socket-patch rack module-name socket-key)
+			(declare (ignore source-module-name))
+			(if source-socket
+			    (funcall (getf source-module :get-output) source-socket)
+			    nil)))))
 	  (push (list key handler)  output-handlers))))
-    (let* ((backend (apply
-		     monitor-backend
-		     "Monitor-Backend"
-		     (cl-synthesizer:get-environment rack) keys additional-backend-args))
+    (let* ((backend
+	    (apply
+	     monitor-backend
+	     "Monitor-Backend"
+	     (cl-synthesizer:get-environment rack) keys additional-backend-args))
 	   (update-fn (getf backend :update)))
       (cl-synthesizer:add-hook
        rack
