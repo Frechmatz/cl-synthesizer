@@ -12,7 +12,7 @@
   ((modules :initform nil)
    (hooks :initform nil)
    (environment :initform nil))
-  (:documentation ""))
+  (:documentation "Represents a grid of rack-modules"))
 
 ;;
 ;; Helper classes
@@ -99,37 +99,8 @@
   (gethash output-socket (slot-value rm 'output-patches)))
 
 ;;
+;; Rack
 ;;
-;;
-
-(defun assert-is-module-input-socket (rm socket)
-  (if (not (find socket (get-rack-module-input-sockets rm)))
-      (signal-assembly-error
-       :format-control "Module ~a does not have input socket ~a"
-       :format-arguments (list (get-rack-module-name rm) socket))))
-
-(defun assert-input-socket-unoccupied (rm socket)
-  (let ((i (get-rack-module-input-patch rm socket)))
-    (if i
-	(signal-assembly-error
-	 :format-control "Input socket ~a of module ~a is already connected to output socket ~a of module ~a"
-	 :format-arguments (list
-			    socket
-			    (get-rack-module-name rm)
-			    (get-rack-patch-target-name i)
-			    (get-rack-patch-socket i))))))
-
-(defun assert-output-socket-unoccupied (rm socket)
-  (let ((i (get-rack-module-output-patch rm socket)))
-    (if i
-	(signal-assembly-error
-	 :format-control "Output socket ~a of module ~a is already connected to input socket ~a of module ~a"
-	 :format-arguments (list
-			    socket
-			    (get-rack-module-name rm)
-			    (get-rack-patch-socket i)
-			    (get-rack-patch-target-name i))))))
-
 
 ;;
 ;;
@@ -168,12 +139,6 @@
   (dolist (m (slot-value rack 'modules))
     (setf (slot-value m 'state) state)))
 
-(defun assert-is-module-output-socket (rm socket)
-  (if (not (find socket (get-rack-module-output-sockets rm)))
-      (signal-assembly-error
-              :format-control "Module ~a does not have output socket ~a"
-              :format-arguments (list (get-rack-module-name rm) socket))))
-
 (defun add-patch (rack source-rm-name source-output-socket destination-rm-name destination-input-socket)
   (declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((source-rm (get-module rack source-rm-name))
@@ -186,10 +151,36 @@
 	(signal-assembly-error
 	 :format-control "Cannot find destination module ~a"
 	 :format-arguments (list destination-rm-name)))
-    (assert-is-module-output-socket source-rm source-output-socket)
-    (assert-is-module-input-socket destination-rm destination-input-socket)
-    (assert-input-socket-unoccupied destination-rm destination-input-socket)
-    (assert-output-socket-unoccupied source-rm source-output-socket)
+    (if (not (find source-output-socket (get-rack-module-output-sockets source-rm)))
+	(signal-assembly-error
+	 :format-control "Module ~a does not have output socket ~a"
+	 :format-arguments (list (get-rack-module-name source-rm) source-output-socket)))
+
+    (if (not (find destination-input-socket (get-rack-module-input-sockets destination-rm)))
+	(signal-assembly-error
+	 :format-control "Module ~a does not have input socket ~a"
+	 :format-arguments (list (get-rack-module-name destination-rm) destination-input-socket)))
+
+    (let ((i (get-rack-module-input-patch destination-rm destination-input-socket)))
+      (if i
+	  (signal-assembly-error
+	   :format-control "Input socket ~a of module ~a is already connected to output socket ~a of module ~a"
+	   :format-arguments (list
+			      destination-input-socket
+			      (get-rack-module-name destination-rm)
+			      (get-rack-patch-target-name i)
+			      (get-rack-patch-socket i)))))
+    
+    (let ((i (get-rack-module-output-patch source-rm source-output-socket)))
+      (if i
+	  (signal-assembly-error
+	   :format-control "Output socket ~a of module ~a is already connected to input socket ~a of module ~a"
+	   :format-arguments (list
+			      source-output-socket
+			      (get-rack-module-name source-rm)
+			      (get-rack-patch-socket i)
+			      (get-rack-patch-target-name i)))))
+    
     (setf (gethash destination-input-socket (slot-value destination-rm 'input-patches))
 	  (make-rack-module-patch source-rm source-output-socket))
     (setf (gethash source-output-socket (slot-value source-rm 'output-patches))
