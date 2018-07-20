@@ -1,11 +1,11 @@
 
 (in-package :cl-synthesizer-monitor)
 
-(defun validate-output (rack output output-sockets)
-  (let ((key (first output))
-	(module-name (second output))
-	(socket-type (third output))
-	(socket-key (fourth output)))
+(defun validate-output (rack socket-mapping output-sockets)
+  (let ((key (first socket-mapping))
+	(module-name (second socket-mapping))
+	(socket-type (third socket-mapping))
+	(socket-key (fourth socket-mapping)))
     (if (not (keywordp key))
 	(cl-synthesizer:signal-assembly-error
 	 :format-control "Monitor: Key must be a keyword ~a"
@@ -34,60 +34,75 @@
 	     :format-control "Monitor: Input socket ~a of module ~a is not connected with a module"
 	     :format-arguments (list socket-key module-name ))))))
 
-(defun add-monitor (rack monitor-backend outputs &rest additional-backend-args)
-  "Adds a monitor to the rack. A monitor is a high-level Rack hook that is called
-    after the Rack has processed a tick. When the monitor is being called by the
-    Rack it collects the values of arbitray input and output sockets of any modules
-    of the rack and then passes these values to a monitor backend handler.
-    A monitor backend can for example be a Wave-File-Writer or a CSV file output
-    module.
-    The function has the following arguments:
+(defun add-monitor (rack monitor-backend socket-mappings &rest additional-backend-args)
+  "    Adds a monitor to a rack. A monitor is a high-level Rack hook that
+    collects module states (input/output sockets) and passes them
+    to a monitor backend. A monitor backend can for example be a
+    Wave-File-Writer. The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
 	<li>monitor-backend A function that instantiates the monitor backend.
-	    This function is called with the following lambda list: 
-	    (name environment output-keywords additional-backend-args).
-	    The constructor function must return a property list with
-	    the following keys:
+	    This function is called with the following arguments:
 	    <ul>
-		<li>:shutdown An optional function without arguments that is
-		    called when the rack shuts down</li>
-		<li>:update A mandatory function that is called after each tick.
-		    This function is called with the following lambda list:
-		    (:output-keyword-1 value :output-keyword-2 value ...)
-		    output-keywords whose value is not defined are omitted by
-		    the Monitor.</li>
+		<li>name A name.</li>
+		<li>environment The synthesizer environment.</li>
+		<li>output-keywords A list of keywords declaring the keyword
+		    parameters with which the monitor backend update function
+		    will be called.</li>
+		<li>additional-backend-args Any additional keyword parameters as
+		    passed to the monitor function. These parameters can be
+		    used to initialize backend specific properties such as
+		    a filename.</li>
+	    </ul>
+	    The function must return a property list with the following keys:
+	    <ul>
+		<li>:update A function that is called after each tick of the rack.
+		    It is called with keyword parameters as declared by the
+		    output-keywords argument described above.</li>
+		<li>:shutdown An optional function with no arguments that is
+		    called when the rack shuts down.</li>
 	    </ul>
 	</li>
-	<li>outputs Declares the sockets whose values are to be passed to
-	    the backend. The outputs consist of a list of output definitions, where
-	    each output definition has the following lambda list:
-	    output-def := key module-name socket
-	    socket := :input-socket input-socket-key | :output-socket output-socket-key
-	    Example: '((:channel-1 \"ADSR\" :output-socket :cv)
-	    (:channel-2 \"LINE-OUT\" :input-socket :channel-1))
+	<li>socket-mappings Declares a list of mappings of specific sockets of
+	    specific modules to keyword parameters that will be passed to the
+	    update function of the backend. Each mapping entry has the following format:
+	    <ul>
+		<li>key Keyword to be used as keyword parameter when the backend
+		    update function is called, for example :channel-1.
+		    For now this key must be one that is supported by the backend. For
+		    example the Wave-File-Writer backend only understands :channel-n
+		    keys. This might be changed in a later point of time.</li>
+		<li>module-name Name of the module from which the state of
+		    a certain input/output socket is to be retrieved, for
+		    example \"ADSR\"</li>
+		<li>socket-type Defines if the value of an input-socket is requested
+		    or the value of an output-socket. Must be :input-socket or
+		    :output-socket</li>
+		<li>socket A keyword that identifies one of the input/output sockets
+		    as provided by the module, for example :cv</li>
+	    </ul>
 	</li>
-	<li>&rest additional-backend-args Optional arguments that are passed to
-	    the monitor-backend on instantiation.</li>
+	<li>&rest additional-backend-args Optional keyword arguments to be passed to
+	    the backend instantiation function.</li>
     </ul>
     Example using the wave-file-handler monitor backend:
     <pre><code>
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-     '((:channel-1 \"ADSR\" :output-socket :cv)
-       (:channel-2 \"LINE-OUT\" :input-socket :channel-1)
-       (:channel-3 \"LFO\" :output-socket :saw))
-     :filename \"/Users/olli/waves/envelope.wav\")
+     '((:channel-1 \"LFO\" :output-socket :saw)
+       (:channel-2 \"ADSR\" :output-socket :cv)
+       (:channel-3 \"LINE-OUT\" :input-socket :channel-1))
+     :filename \"trace.wav\")
     </code></pre>"
-  (let ((output-handlers nil) ;; list of (keyword lambda) 
+  (let ((output-handlers nil)
 	(keys nil))
-    (dolist (output outputs)
-      (validate-output rack output keys)
-      (let ((key (first output))
-	    (module-name (second output))
-	    (socket-type (third output))
-	    (socket-key (fourth output)))
+    (dolist (socket-mapping socket-mappings)
+      (validate-output rack socket-mapping keys)
+      (let ((key (first socket-mapping))
+	    (module-name (second socket-mapping))
+	    (socket-type (third socket-mapping))
+	    (socket-key (fourth socket-mapping)))
 	(push key keys)
 	(let ((handler nil))
 	  (if (eq :output-socket socket-type)
