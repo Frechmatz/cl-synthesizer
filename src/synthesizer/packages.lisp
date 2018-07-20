@@ -9,7 +9,6 @@
    :get-midi-in
    :line-out
    :midi-in
-   :get-sample-rate
    :add-module
    :add-patch
    :update-rack

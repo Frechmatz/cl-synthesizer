@@ -4,5 +4,3 @@
     (list
      :sample-rate sample-rate))
 
-(defun get-sample-rate (environment)
-  (getf environment :sample-rate))
