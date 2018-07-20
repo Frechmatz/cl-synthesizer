@@ -123,8 +123,8 @@
 		  (let ((params nil))
 		    (dolist (p output-handlers)
 		      (let ((v (funcall (second p))))
-			(if v ;; Omit from monitor callback if not defined
-			    (progn
-			      (push v params)
-			      (push (first p) params)))))
+			;; Value
+			(push v params)
+			;; Key
+			(push (first p) params)))
 		    (apply update-fn params))))))))
