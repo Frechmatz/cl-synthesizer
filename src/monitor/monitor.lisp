@@ -39,7 +39,7 @@
 	     :format-arguments (list socket-key module-name ))))))
 
 (defun add-monitor (rack monitor-backend socket-mappings &rest additional-backend-args)
-  "    Adds a monitor to a rack. A monitor is a high-level Rack hook that
+   "Adds a monitor to a rack. A monitor is a high-level Rack hook that
     collects module states (input/output sockets) and passes them
     to a monitor backend. A monitor backend can for example be a
     Wave-File-Writer. The function has the following arguments:
