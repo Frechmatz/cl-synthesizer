@@ -14,6 +14,6 @@
    :add-hook
    :get-environment
    :get-module
-   :get-input-socket-patch
+   :get-patch
    ))
 

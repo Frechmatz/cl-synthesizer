@@ -33,7 +33,7 @@
 	     :format-control "Module ~a does not have output socket ~a"
 	     :format-arguments (list module-name socket-key)))))
     (if (eq :input-socket socket-type)
-	(if (not (cl-synthesizer:get-input-socket-patch rack module-name socket-key))
+	(if (not (cl-synthesizer:get-patch rack module-name :input-socket socket-key))
 	    (cl-synthesizer:signal-assembly-error
 	     :format-control "Monitor: Input socket ~a of module ~a is not connected with a module"
 	     :format-arguments (list socket-key module-name ))))))
@@ -119,7 +119,7 @@
 	      (setf handler
 		    (lambda ()
 		      (multiple-value-bind (source-module-name source-module source-socket)
-			  (cl-synthesizer:get-input-socket-patch rack module-name socket-key)
+			  (cl-synthesizer:get-patch rack module-name :input-socket socket-key)
 			(declare (ignore source-module-name))
 			(if source-socket
 			    (funcall (getf source-module :get-output) source-socket)
