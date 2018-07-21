@@ -26,10 +26,10 @@
   (dolist (m (slot-value rack 'modules))
     (setf (slot-value m 'state) state)))
 
-(defun get-line-out (rack)
+(defun get-line-out-adapter (rack)
   (slot-value (get-rm-module rack "LINE-OUT") 'module))
 
-(defun get-midi-in (rack)
+(defun get-midi-in-adapter (rack)
   (slot-value (get-rm-module rack "MIDI-IN") 'module))
 
 (defun add-hook (rack hook)
@@ -44,8 +44,8 @@
 (defun create-rack (&key environment)
   (let ((rack (make-instance 'cl-synthesizer:rack :environment environment)))
     ;; Add Device Interfaces
-    (add-module rack "LINE-OUT" #'cl-synthesizer:line-out)
-    (add-module rack "MIDI-IN" #'cl-synthesizer:midi-in)
+    (add-module rack "LINE-OUT" #'line-out-adapter)
+    (add-module rack "MIDI-IN" #'midi-in-adapter)
     rack))
 
 

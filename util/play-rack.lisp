@@ -7,12 +7,12 @@
 	 (ticks-to-play (* duration-seconds sample-rate)))
     (format t "~%Ticks to play: ~a~%" ticks-to-play)
     (if attach-speaker
-	(funcall (getf (cl-synthesizer:get-line-out rack) :set-device)
+	(funcall (getf (cl-synthesizer:get-line-out-adapter rack) :set-device)
 		 (cl-synthesizer-device-speaker:speaker-cl-out123 "SPEAKER" environment :channel-count 2 :driver "coreaudio")))
     (if midi-device
-	(funcall (getf (cl-synthesizer:get-midi-in rack) :set-device) midi-device)
+	(funcall (getf (cl-synthesizer:get-midi-in-adapter rack) :set-device) midi-device)
 	(if attach-midi
-	    (funcall (getf (cl-synthesizer:get-midi-in rack) :set-device)
+	    (funcall (getf (cl-synthesizer:get-midi-in-adapter rack) :set-device)
 		     (cl-synthesizer-device-midi:midi-device "MIDI" environment))))
     (dotimes (i ticks-to-play)
       (cl-synthesizer:update-rack rack))

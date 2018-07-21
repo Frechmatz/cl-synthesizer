@@ -24,8 +24,8 @@
 				     (:file "assembly-error")
 				     (:file "environment")
 				     (:file "rack")
-				     (:file "line-out")
-				     (:file "midi-in")
+				     (:file "line-out-adapter")
+				     (:file "midi-in-adapter")
 				     ))
 	       (:module "src/core"
 			:serial t

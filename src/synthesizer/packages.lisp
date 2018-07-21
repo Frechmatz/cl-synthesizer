@@ -5,10 +5,8 @@
    :make-environment
    :rack
    :create-rack
-   :get-line-out
-   :get-midi-in
-   :line-out
-   :midi-in
+   :get-line-out-adapter
+   :get-midi-in-adapter
    :add-module
    :add-patch
    :update-rack

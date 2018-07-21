@@ -4,7 +4,7 @@
 
 (in-package :cl-synthesizer)
 
-(defun line-out (name environment)
+(defun line-out-adapter (name environment)
   (declare (ignore environment))
   (declare (ignore name))
   (let ((device nil))
