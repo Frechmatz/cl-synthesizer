@@ -10,12 +10,13 @@
 
 (defun fixed-output (name environment &key value (output-socket :out))
   (declare (ignore name environment))
-  (list
-   :inputs (lambda () nil)
-   :outputs (lambda () (list output-socket))
-   :get-output (lambda (output)
-		 (declare (ignore output))
-		 value)
-   :update (lambda () nil)))
+  (let ((outputs (list output-socket)))
+    (list
+     :inputs (lambda () nil)
+     :outputs (lambda () outputs)
+     :get-output (lambda (output)
+		   (declare (ignore output))
+		   value)
+     :update (lambda () nil))))
 
 

@@ -239,9 +239,10 @@ t                      t                           Validate controller settings
 			       :DONE))))))
 	  :update (lambda() (funcall segment-update-fn)))
 	 segment-def)))
-    (let ((controller (cl-synthesizer-core:function-array (reverse segment-def))))
+    (let ((controller (cl-synthesizer-core:function-array (reverse segment-def)))
+	  (inputs (concatenate 'list module-inputs controller-inputs)))
       (list
-       :inputs (lambda () (concatenate 'list module-inputs controller-inputs))
+       :inputs (lambda () inputs)
        :outputs (lambda () '(:cv))
        :get-output (lambda (output)
 		     (declare (ignore output))

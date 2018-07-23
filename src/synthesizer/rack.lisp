@@ -62,18 +62,12 @@
    (name :initarg nil)
    (module :initarg nil)
    (input-patches :initform (make-hash-table))
-   (output-patches :initform (make-hash-table))
-   (input-sockets :initarg nil)
-   (output-sockets :initarg nil))
+   (output-patches :initform (make-hash-table)))
   (:documentation "Represents a module holding input/output connections to other modules"))
 
 (defmethod initialize-instance :after ((rm rack-module) &key name module)
   (setf (slot-value rm 'name) name)
-  (setf (slot-value rm 'module) module)
-  (let ((f (getf (slot-value rm 'module) :inputs)))
-    (if f (setf (slot-value rm 'input-sockets) (funcall f))))
-  (let ((f (getf (slot-value rm 'module) :outputs)))
-    (if f (setf (slot-value rm 'output-sockets) (funcall f)))))
+  (setf (slot-value rm 'module) module))
 
 (defun get-rack-module-name (rm)
   (slot-value rm 'name))
@@ -85,10 +79,12 @@
   (setf (slot-value rm 'state) state))
 
 (defun get-rack-module-input-sockets (rm)
-  (slot-value rm 'input-sockets))
+  (let ((f (getf (slot-value rm 'module) :inputs)))
+    (if f (funcall f) nil)))
 
 (defun get-rack-module-output-sockets (rm)
-  (slot-value rm 'output-sockets))
+  (let ((f (getf (slot-value rm 'module) :outputs)))
+    (if f (funcall f) nil)))
 
 (defun get-rack-module-update-fn (rm)
   (getf (slot-value rm 'module) :update))

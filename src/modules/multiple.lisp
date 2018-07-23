@@ -5,10 +5,10 @@
   (let ((output-name "out"))
     `(defun ,(cl-synthesizer-macro-util::make-package-symbol name nil) (name environment)
        (declare (ignore environment name))
-       (let ((cur-input nil))
+       (let ((cur-input nil) (outputs (cl-synthesizer-macro-util::make-keyword-list ,output-name ,output-count)))
 	 (list
 	  :inputs (lambda () '(:input))
-	  :outputs (lambda () (cl-synthesizer-macro-util::make-keyword-list ,output-name ,output-count))
+	  :outputs (lambda () outputs)
 	  :get-output (lambda (output)
 			(declare (ignore output))
 			cur-input)
