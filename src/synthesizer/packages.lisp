@@ -1,8 +1,10 @@
 (defpackage :cl-synthesizer
   (:use :cl)
   (:export
+   :assembly-error
    :signal-assembly-error
    :invalid-arguments-error
+   :signal-invalid-arguments-error
    :make-environment
    :rack
    :create-rack
