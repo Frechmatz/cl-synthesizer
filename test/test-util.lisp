@@ -98,6 +98,18 @@
        (assert-false err)
        nil)))
 
+(defmacro expect-invalid-arguments-exception(&body body)
+  `(handler-case
+       (progn
+         ,@body
+         (assert-true nil))
+     (cl-synthesizer::invalid-arguments-error (err)
+       (assert-true err) ;; increase test count of lisp-unit summary
+       t)
+     (error (err)
+       (assert-false err)
+       nil)))
+
 (defun zero-crossing-trigger ()
   (let ((cur-value 0))
     (lambda (v)

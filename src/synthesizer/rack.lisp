@@ -16,7 +16,9 @@
 (defmethod initialize-instance :after ((r rack) &key environment)
   (declare (optimize (debug 3) (speed 0) (space 0)))
   (if (not environment)
-      (error "Environment must not be nil"))
+      (signal-invalid-arguments-error
+       :format-control "Environment must not be nil"
+       :format-arguments nil))
   (setf (slot-value r 'environment) environment))
 
 (defun get-environment (rack)
@@ -264,7 +266,9 @@
 (defun get-patch (rack module-name socket-type socket)
   "Returns values (name module socket) of connected module"
   (if (not (or (eq :input-socket socket-type) (eq :output-socket socket-type)))
-      (error "get-patch: socket must be one of :input-socket or :output-socket"))
+      (signal-invalid-arguments-error
+       :format-control "get-patch: socket must be one of :input-socket or :output-socket"
+       :format-arguments nil))
   (let ((rm (get-rm-module rack module-name)))
     (if (not rm)
 	nil
