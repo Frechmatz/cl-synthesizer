@@ -261,26 +261,22 @@
 	(funcall (getf m :shutdown)))))
   
 ;; TODO Fix inefficient implementation. Maybe rack must hold some mapping hashes.
-(defun get-patch (rack module-name socket-type input-socket)
+(defun get-patch (rack module-name socket-type socket)
   "Returns values (name module socket) of connected module"
+  (if (not (or (eq :input-socket socket-type) (eq :output-socket socket-type)))
+      (error "get-patch: socket must be one of :input-socket or :output-socket"))
   (let ((rm (get-rm-module rack module-name)))
     (if (not rm)
 	nil
-	(cond
-	  ((eq socket-type :input-socket)
-	   (let ((patch (get-rack-module-input-patch rm input-socket)))
-	     (if (not patch)
-		 nil
-		 (let ((patched-module-name (get-rack-patch-target-name patch))
-		       (patched-rm (get-rack-patch-module patch))
-		       (patched-socket (get-rack-patch-socket patch)))
-		   (values
-		    patched-module-name
-		    (get-rack-module-module patched-rm)
-		    patched-socket)))))
-	  ((eq socket-type :output-socket)
-	   (error "Not supported yet"))
-	  (t
-	   (error "Not supported yet"))))))
+	(let ((patch nil))
+	  (if (eq :input-socket socket-type)
+	      (setf patch (get-rack-module-input-patch rm socket))
+	      (setf patch (get-rack-module-output-patch rm socket)))
+	  (if (not patch)
+	      nil
+	      (values
+	       (get-rack-patch-target-name patch)
+	       (get-rack-module-module (get-rack-patch-module patch))
+	       (get-rack-patch-socket patch)))))))
 
 
