@@ -23,6 +23,7 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "assembly-error")
+				     (:file "invalid-arguments-error")
 				     (:file "environment")
 				     (:file "rack")
 				     (:file "line-out-adapter")
