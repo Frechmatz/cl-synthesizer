@@ -240,13 +240,9 @@
 				  (source-rm-socket (get-rack-patch-socket patch))
 				  (output-fn (get-rack-module-output-fn source-rm)))
 			     (setf socket-input-value (funcall output-fn source-rm-socket))))
-		       ;; omit from lambdalist if input is not connected or input-value is undefined
-		       (if socket-input-value
-			   (progn 
-			     (push cur-input-socket lambdalist)
-			     (push socket-input-value lambdalist)))))
+		       (push cur-input-socket lambdalist)
+		       (push socket-input-value lambdalist)))
 		   ;; call update function on this
-		   ;;(break)
 		   (apply (get-rack-module-update-fn rm) (nreverse lambdalist))
 		   (set-rack-module-state rm :PROCESSED-TICK)
 		   ))))))

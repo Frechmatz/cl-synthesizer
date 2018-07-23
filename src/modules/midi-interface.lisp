@@ -209,7 +209,7 @@
 		     (if (not handler)
 			 (error (format nil "Unknown input ~a requested from ~a" output name)))
 		     (funcall handler)))
-     :update (lambda (&key (midi-events nil))
+     :update (lambda (&key midi-events)
 	       ;; Set pending gates to on.
 	       (dolist (voice-index pending-gate-on-voices)
 		 (let ((voice-state (elt voice-states voice-index)))

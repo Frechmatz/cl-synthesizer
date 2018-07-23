@@ -21,6 +21,10 @@
      :get-output (lambda (output)
 		   (declare (ignore output))
 		   cur-out)
-     :update (lambda (&key (cv 0) (input 0))
-	       (setf cur-out (* input (funcall fn cv)))))))
+     :update (lambda (&key cv input)
+	       (setf cur-out
+		     (* (if input input 0)
+			(funcall
+			 fn
+			 (if cv cv 0))))))))
   

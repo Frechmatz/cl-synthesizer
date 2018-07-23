@@ -14,7 +14,7 @@
 		       ((eq :out-2 output)
 			out-2)
 		       (t (error (format nil "Unknown output ~a requested from test-module" output)))))
-     :update (lambda (&key (cv-1 0) (cv-2 0))
+     :update (lambda (&key cv-1 cv-2)
 	       (if cv-1
 		   (setf out-1 cv-1))
 	       (if cv-2
@@ -49,7 +49,7 @@
 		       ((eq :out output)
 			out)
 		       (t (error (format nil "Unknown output ~a requested from test-module-multiply-by-two" output)))))
-     :update (lambda (&key (in 0))
+     :update (lambda (&key in)
 	       (setf out (* 2 in)))
      )))
 
@@ -65,7 +65,7 @@
 		       ((eq :out output)
 			out)
 		       (t (error (format nil "Unknown output ~a requested from test-module-add" output)))))
-     :update (lambda (&key (in-1 0) (in-2 0))
+     :update (lambda (&key in-1 in-2)
 	       (setf out (+ in-1 in-2)))
      )))
 
@@ -81,7 +81,7 @@
 		       ((eq :out-1 output) out)
 		       ((eq :out-2 output) out)
 		       (t (error (format nil "Unknown output ~a requested from test-module-multiple-1-2" output)))))
-     :update (lambda (&key (in 0))
+     :update (lambda (&key in)
 	       (setf out in))
      )))
 

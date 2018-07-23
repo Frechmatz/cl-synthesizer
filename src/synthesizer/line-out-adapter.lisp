@@ -19,7 +19,7 @@
      :get-output (lambda (output)
 		   (declare (ignore output))
 		   nil)
-     :update (lambda (&key (channel-1 0) (channel-2 0))
+     :update (lambda (&key channel-1 channel-2)
 	       (if device
 		   (let ((f (getf device :update)))
 		     (if f (funcall f :channel-1 channel-1 :channel-2 channel-2))))))))
