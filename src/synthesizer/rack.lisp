@@ -44,11 +44,11 @@
   (push hook (slot-value rack 'hooks)))
 
 (defun make-rack (&key environment)
-  (let ((rack (make-instance 'cl-synthesizer:rack :environment environment)))
+  (let ((cur-rack (make-instance 'rack :environment environment)))
     ;; Add Device Interfaces
-    (add-module rack "LINE-OUT" #'line-out-adapter)
-    (add-module rack "MIDI-IN" #'midi-in-adapter)
-    rack))
+    (add-module cur-rack "LINE-OUT" #'line-out-adapter)
+    (add-module cur-rack "MIDI-IN" #'midi-in-adapter)
+    cur-rack))
 
 
 ;;

@@ -6,7 +6,6 @@
    :invalid-arguments-error
    :signal-invalid-arguments-error
    :make-environment
-   :rack
    :make-rack
    :get-line-out-adapter
    :get-midi-in-adapter
