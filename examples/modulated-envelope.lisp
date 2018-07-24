@@ -44,7 +44,7 @@
     (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:vca)
     (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv)
     (cl-synthesizer:add-patch rack "VCO" :sine "VCA" :input)
-    (cl-synthesizer:add-patch rack "VCA" :out "LINE-OUT" :channel-1)
+    (cl-synthesizer:add-patch rack "VCA" :output "LINE-OUT" :channel-1)
     (cl-synthesizer:add-patch rack "ADSR" :cv "VCA" :cv)
 
     ;; Record LFO-Output, ADSR-Output and LINE-OUT into a wave file

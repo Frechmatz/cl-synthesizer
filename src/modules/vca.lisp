@@ -17,7 +17,7 @@
     (declare (ignore sample-rate))
     (list
      :inputs (lambda () '(:input :cv))
-     :outputs (lambda () '(:out))
+     :outputs (lambda () '(:output))
      :get-output (lambda (output)
 		   (declare (ignore output))
 		   cur-out)

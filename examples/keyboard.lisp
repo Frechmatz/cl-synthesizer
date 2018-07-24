@@ -51,9 +51,9 @@
       ;; TODO: Numbering is confusing. When will number be incremented by one and when not?
       ;;
       (add-voice "VOICE" 0)
-      (cl-synthesizer:add-patch rack "VOICE-0-VCA" :out "LINE-OUT" :channel-1)
+      (cl-synthesizer:add-patch rack "VOICE-0-VCA" :output "LINE-OUT" :channel-1)
       (add-voice "VOICE" 1)
-      (cl-synthesizer:add-patch rack "VOICE-1-VCA" :out "LINE-OUT" :channel-2)
+      (cl-synthesizer:add-patch rack "VOICE-1-VCA" :output "LINE-OUT" :channel-2)
       
       ;; Add LINE-OUT Monitor
       (cl-synthesizer-monitor:add-monitor

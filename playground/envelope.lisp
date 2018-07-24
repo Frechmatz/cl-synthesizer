@@ -46,14 +46,14 @@
     (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv)
     (cl-synthesizer:add-patch rack "MIDI-IFC" :gate-1 "ADSR" :gate)
     (cl-synthesizer:add-patch rack "VCO" :sine "VCA" :input)
-    (cl-synthesizer:add-patch rack "VCA" :out "LINE-OUT" :channel-1)
+    (cl-synthesizer:add-patch rack "VCA" :output "LINE-OUT" :channel-1)
     (cl-synthesizer:add-patch rack "ADSR" :cv "VCA" :cv)
 
     ;; Add ADSR-Output and VCA-Output monitor
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-     '((:channel-1 "VCA" :output-socket :out) (:channel-2 "ADSR" :output-socket :cv))
+     '((:channel-1 "VCA" :output-socket :output) (:channel-2 "ADSR" :output-socket :cv))
      :filename "/Users/olli/waves/adsrplayground.wav")
 
     ;; Add LINE-OUT Monitor
