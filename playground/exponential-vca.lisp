@@ -36,14 +36,11 @@
 			       :output-min -5.0
 			       :output-max 5.0)
     (cl-synthesizer:add-module rack "VCA-EXP" #'cl-synthesizer-modules-vca:vca-exponential
-			       :input-min -5.0
-			       :input-max 5.0
-			       :output-min -5.0
-			       :output-max 5.0)
+			       :cv-max 5.0)
     (cl-synthesizer:add-patch rack "ADSR-CV-MULTIPLE" :output-1 "VCA-LIN" :cv)
     (cl-synthesizer:add-patch rack "ADSR-CV-MULTIPLE" :output-2 "VCA-EXP" :cv)
 
-    (cl-synthesizer:add-module rack "AUDIO-SIGNAL" #'cl-synthesizer-modules-fixed-output:fixed-output :value 1)
+    (cl-synthesizer:add-module rack "AUDIO-SIGNAL" #'cl-synthesizer-modules-fixed-output:fixed-output :value 4.9)
     (cl-synthesizer:add-module rack "AUDIO-SIGNAL-MULTIPLE" #'cl-synthesizer-modules-multiple:multiple :output-count 2)
     (cl-synthesizer:add-patch rack "AUDIO-SIGNAL" :out "AUDIO-SIGNAL-MULTIPLE" :input)
     (cl-synthesizer:add-patch rack "AUDIO-SIGNAL-MULTIPLE" :output-1 "VCA-LIN" :input)
@@ -57,7 +54,8 @@
        (:channel-2 "AUDIO-SIGNAL" :output-socket :out)
        ;; Output of VCA-LIN must exactly follow ADSR output
        (:channel-3 "VCA-LIN" :output-socket :output)
-       (:channel-4 "VCA-EXP" :output-socket :output)
+       (:channel-4 "VCA-EXP" :input-socket :cv)
+       (:channel-5 "VCA-EXP" :output-socket :output)
 
        )
      :filename "/Users/olli/waves/vcaplayground.wav")
