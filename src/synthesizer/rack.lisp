@@ -117,7 +117,7 @@
 (defclass rack-module-patch ()
   ((rack-module :initarg nil)
    (socket :initarg nil))
-  (:documentation ""))
+  (:documentation "Represents an end-point to which an input/output socket of a module is connected."))
 
 (defun get-rack-patch-target-name (patch)
   (get-rack-module-name (slot-value patch 'rack-module)))
