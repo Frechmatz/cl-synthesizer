@@ -11,7 +11,7 @@
 
 (defpackage :cl-synthesizer-modules-multiple
   (:use :cl)
-  (:export :multiple-4))
+  (:export :multiple))
 
 (defpackage :cl-synthesizer-modules-envelope
   (:use :cl)

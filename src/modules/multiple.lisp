@@ -1,21 +1,16 @@
 (in-package :cl-synthesizer-modules-multiple)
 
-(defmacro multiple (name output-count)
-  "A multiple with n outputs and one input 'input'"
-  (let ((output-name "out"))
-    `(defun ,(cl-synthesizer-macro-util::make-package-symbol name nil) (name environment)
-       (declare (ignore environment name))
-       (let ((cur-input nil) (outputs (cl-synthesizer-macro-util::make-keyword-list ,output-name ,output-count)))
-	 (list
-	  :inputs (lambda () '(:input))
-	  :outputs (lambda () outputs)
-	  :get-output (lambda (output)
-			(declare (ignore output))
-			cur-input)
-	  :update (lambda (&key input)
-		    (setf cur-input input))
-	  )))))
-
-(multiple "multiple-4" 4)
-
+(defun multiple (name environment &key output-count)
+  "A multiple with n outputs output-1 ... output-n and one input 'input'"
+  (declare (ignore environment))
+  (if (<= output-count 0)
+      (cl-synthesizer:signal-assembly-error
+       :format-control "~a: output-count must be greater than 0: ~a"
+       :format-arguments (list name output-count)))
+  (let ((cur-input nil) (outputs (cl-synthesizer-macro-util:make-keyword-list "output" output-count)))
+    (list
+     :inputs (lambda () '(:input))
+     :outputs (lambda () outputs)
+     :get-output (lambda (output) (declare (ignore output)) cur-input)
+     :update (lambda (&key input) (setf cur-input input)))))
 
