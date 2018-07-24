@@ -13,7 +13,7 @@
 
 (defun synthesizer-playground-adsr ()
   "Envelope-Example"
-  (let ((rack (cl-synthesizer:create-rack :environment *adsr-environment*)))
+  (let ((rack (cl-synthesizer:make-rack :environment *adsr-environment*)))
 
     ;; Set up MIDI Interface and connect it to the MIDI input of the Rack
     (cl-synthesizer:add-module rack "MIDI-IFC"

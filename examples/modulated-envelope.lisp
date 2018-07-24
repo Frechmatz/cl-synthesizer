@@ -2,7 +2,7 @@
 
 (defun synthesizer-modulated-envelope-example ()
   "Modulate Envelope Attack Time with LFO"
-  (let ((rack (cl-synthesizer:create-rack :environment (cl-synthesizer:make-environment))))
+  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
 
     ;; Set up MIDI Interface and connect it to the MIDI input of the Rack
     (cl-synthesizer:add-module

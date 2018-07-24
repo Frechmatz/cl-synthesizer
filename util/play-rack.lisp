@@ -15,8 +15,8 @@
 	    (funcall (getf (cl-synthesizer:get-midi-in-adapter rack) :set-device)
 		     (cl-synthesizer-device-midi:midi-device "MIDI" environment))))
     (dotimes (i ticks-to-play)
-      (cl-synthesizer:update-rack rack))
-    (cl-synthesizer:shutdown-rack rack)
+      (cl-synthesizer:update rack))
+    (cl-synthesizer:shutdown rack)
     (let ((end (get-internal-real-time)))
       (format t "~%Elapsed time in seconds after shutdown: ~a~%"
 	      (/ (- end start) internal-time-units-per-second))))

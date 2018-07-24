@@ -43,7 +43,7 @@
    a rack is a embedded into another rack."
   (push hook (slot-value rack 'hooks)))
 
-(defun create-rack (&key environment)
+(defun make-rack (&key environment)
   (let ((rack (make-instance 'cl-synthesizer:rack :environment environment)))
     ;; Add Device Interfaces
     (add-module rack "LINE-OUT" #'line-out-adapter)
@@ -209,7 +209,7 @@
     (setf (gethash source-output-socket (slot-value source-rm 'output-patches))
 	  (make-rack-module-patch destination-rm destination-input-socket))))
 
-(defun update-rack (rack)
+(defun update (rack)
   "Process a tick" 
   ;; (declare (optimize (debug 3) (speed 0) (space 0)))
   (set-state rack :PROCESS-TICK)
@@ -255,7 +255,7 @@
     (dolist (m (slot-value rack 'hooks))
       (funcall (getf m :update)))))
 
-(defun shutdown-rack (rack)
+(defun shutdown (rack)
   (dolist (rm (slot-value rack 'modules))
     (funcall (get-rack-module-shutdown-fn rm)))
   (dolist (m (slot-value rack 'hooks))
