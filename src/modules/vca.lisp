@@ -32,7 +32,7 @@
 			 fn
 			 (if cv cv 0))))))))
 
-
+#|
 (defun vca-exponential (name environment &key (cv-max 5.0))
   (declare (ignore name))
   (let* ((sample-rate (getf environment :sample-rate))
@@ -53,3 +53,43 @@
 	       (if (not input)
 		   (setf input 0.0))
 	       (setf cur-out (funcall fn cv input))))))
+|#
+
+(defun vca-ng (name environment &key max-amplification max-amplification-cv)
+  (declare (ignore environment name))
+  (let ((cur-out-linear 0)
+	(cur-out-exponential 0)
+	(linear-amplification-fn
+	 (getf
+	  (cl-synthesizer-core:linear-converter
+	   :input-min 0.0
+	   :input-max max-amplification-cv
+	   :output-min 0.0
+	   :output-max max-amplification)
+	  :get-y))
+	(exponential-amplification-fn ;; for now use linear mapping
+	 (getf
+	  (cl-synthesizer-core:linear-converter
+	   :input-min 0.0
+	   :input-max max-amplification-cv
+	   :output-min 0.0
+	   :output-max max-amplification)
+	  :get-y)))
+    (list
+     :inputs (lambda () '(:input :cv))
+     :outputs (lambda () '(:output-linear :output-exponential))
+     :get-output (lambda (output)
+		   (cond 
+		     ((eq output :output-linear)
+		      cur-out-linear)
+		     (t
+		      cur-out-exponential)))
+     :update (lambda (&key cv input)
+	       ;; todo clip negative cv
+	       (if (not cv)
+		   (setf cv 0.0))
+	       (if (not input)
+		   (setf input 0.0))
+	       ;; TODO more clipping, for example cv > max-amplification-cv and negative cv
+	       (setf cur-out-linear (* input (funcall linear-amplification-fn cv)))
+	       (setf cur-out-exponential (* input (funcall exponential-amplification-fn cv)))))))

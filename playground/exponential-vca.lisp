@@ -26,37 +26,29 @@
 					   (:duration-ms 1000 :target-cv 3 :required-gate-state :on)
 					   (:required-gate-state :on)
 					   (:duration-ms 1000 :target-cv 0 :required-gate-state :off)))
-    (cl-synthesizer:add-module rack "ADSR-CV-MULTIPLE" #'cl-synthesizer-modules-multiple:multiple :output-count 2)
-    (cl-synthesizer:add-patch rack "ADSR" :cv "ADSR-CV-MULTIPLE" :input)
-    (cl-synthesizer:add-patch rack "MIDI-IFC" :gate-1 "ADSR" :gate)
     
-    (cl-synthesizer:add-module rack "VCA-LIN" #'cl-synthesizer-modules-vca:vca
-			       :input-min -5.0
-			       :input-max 5.0
-			       :output-min -5.0
-			       :output-max 5.0)
-    (cl-synthesizer:add-module rack "VCA-EXP" #'cl-synthesizer-modules-vca:vca-exponential
-			       :cv-max 5.0)
-    (cl-synthesizer:add-patch rack "ADSR-CV-MULTIPLE" :output-1 "VCA-LIN" :cv)
-    (cl-synthesizer:add-patch rack "ADSR-CV-MULTIPLE" :output-2 "VCA-EXP" :cv)
+    ;; Set up VCA that will take care of the characteristic of the ADSR envelope
+    (cl-synthesizer:add-module rack "VCA-ADSR-CV" #'cl-synthesizer-modules-vca::vca-ng
+			       :max-amplification 1.0
+			       :max-amplification-cv 2.5)
+    ;;; Set amplification fixed to 5.0. Amplification shall be 1.0
+    (cl-synthesizer:add-module rack "VCA-ADSR-AMPLIFICATION-INPUT-CV" #'cl-synthesizer-modules-fixed-output:fixed-output :value 2.5)
+    (cl-synthesizer:add-patch rack "VCA-ADSR-AMPLIFICATION-INPUT-CV" :out "VCA-ADSR-CV" :cv)
 
-    (cl-synthesizer:add-module rack "AUDIO-SIGNAL" #'cl-synthesizer-modules-fixed-output:fixed-output :value 4.9)
-    (cl-synthesizer:add-module rack "AUDIO-SIGNAL-MULTIPLE" #'cl-synthesizer-modules-multiple:multiple :output-count 2)
-    (cl-synthesizer:add-patch rack "AUDIO-SIGNAL" :out "AUDIO-SIGNAL-MULTIPLE" :input)
-    (cl-synthesizer:add-patch rack "AUDIO-SIGNAL-MULTIPLE" :output-1 "VCA-LIN" :input)
-    (cl-synthesizer:add-patch rack "AUDIO-SIGNAL-MULTIPLE" :output-2 "VCA-EXP" :input)
+    ;; Connect ADSR Gate input with Gate output of MIDI-IFC
+    (cl-synthesizer:add-patch rack "MIDI-IFC" :gate-1 "ADSR" :gate)
+    ;; Connect ADSR CV output with VCA input
+    (cl-synthesizer:add-patch rack "ADSR" :cv "VCA-ADSR-CV" :input)
     
     ;; Add monitor
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-     '((:channel-1 "ADSR-CV-MULTIPLE" :input-socket :input)
-       (:channel-2 "AUDIO-SIGNAL" :output-socket :out)
-       ;; Output of VCA-LIN must exactly follow ADSR output
-       (:channel-3 "VCA-LIN" :output-socket :output)
-       (:channel-4 "VCA-EXP" :input-socket :cv)
-       (:channel-5 "VCA-EXP" :output-socket :output)
-
+     '((:channel-1 "ADSR" :output-socket :cv)
+       (:channel-2 "VCA-ADSR-AMPLIFICATION-INPUT-CV" :output-socket :out)
+       ;; for now both outputs should exactly follow the CV output of ADSR
+       (:channel-3 "VCA-ADSR-CV" :output-socket :output-linear)
+       (:channel-4 "VCA-ADSR-CV" :output-socket :output-exponential)
        )
      :filename "/Users/olli/waves/vcaplayground.wav")
 

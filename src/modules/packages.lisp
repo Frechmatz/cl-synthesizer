@@ -21,8 +21,7 @@
 (defpackage :cl-synthesizer-modules-vca
   (:use :cl)
   (:export
-   :vca
-   :vca-exponential))
+   :vca))
 
 (defpackage :cl-synthesizer-modules-fixed-output
   (:use :cl)
