@@ -68,13 +68,8 @@
 	   :output-max max-amplification)
 	  :get-y))
 	(exponential-amplification-fn ;; for now use linear mapping
-	 (getf
-	  (cl-synthesizer-core:linear-converter
-	   :input-min 0.0
-	   :input-max max-amplification-cv
-	   :output-min 0.0
-	   :output-max max-amplification)
-	  :get-y)))
+	 (lambda (cv)
+	   (/ (expt 2 cv) (expt 2 max-amplification-cv)))))
     (list
      :inputs (lambda () '(:input :cv))
      :outputs (lambda () '(:output-linear :output-exponential))

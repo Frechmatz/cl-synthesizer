@@ -22,33 +22,47 @@
 
     ;; Setup ADSR
     (cl-synthesizer:add-module rack "ADSR" #'cl-synthesizer-modules-envelope:envelope
-			       :segments '((:duration-ms 1000 :target-cv 5 :required-gate-state :on)
-					   (:duration-ms 1000 :target-cv 3 :required-gate-state :on)
+			       :segments '(;; Attack
+					   (:duration-ms 1000 :target-cv 5 :required-gate-state :on)
+					   ;; Decay
+					   (:duration-ms 500 :target-cv 2.5 :required-gate-state :on)
+					   ;; Sustain
 					   (:required-gate-state :on)
+					   ;; Release
 					   (:duration-ms 1000 :target-cv 0 :required-gate-state :off)))
-    
-    ;; Set up VCA that will take care of the characteristic of the ADSR envelope
-    (cl-synthesizer:add-module rack "VCA-ADSR-CV" #'cl-synthesizer-modules-vca::vca-ng
-			       :max-amplification 1.0
-			       :max-amplification-cv 2.5)
-    ;;; Set amplification fixed to 5.0. Amplification shall be 1.0
-    (cl-synthesizer:add-module rack "VCA-ADSR-AMPLIFICATION-INPUT-CV" #'cl-synthesizer-modules-fixed-output:fixed-output :value 2.5)
-    (cl-synthesizer:add-patch rack "VCA-ADSR-AMPLIFICATION-INPUT-CV" :out "VCA-ADSR-CV" :cv)
-
     ;; Connect ADSR Gate input with Gate output of MIDI-IFC
     (cl-synthesizer:add-patch rack "MIDI-IFC" :gate-1 "ADSR" :gate)
-    ;; Connect ADSR CV output with VCA input
-    (cl-synthesizer:add-patch rack "ADSR" :cv "VCA-ADSR-CV" :input)
-    
+    ;; Dispatch output of ADSR to a multiple
+    (cl-synthesizer:add-module rack "ADSR-CV-MULTIPLE" #'cl-synthesizer-modules-multiple:multiple
+			       :output-count 2)
+    (cl-synthesizer:add-patch rack "ADSR" :cv "ADSR-CV-MULTIPLE" :input)
+
+    ;; Set up VCA which will follow the CV of ADSR with linear characteristic
+    ;; this is realized with a fixed input voltage of the CV input of the VCA
+    (cl-synthesizer:add-module rack "VCA-LINEAR" #'cl-synthesizer-modules-vca::vca-ng
+			       :max-amplification 1.0
+			       :max-amplification-cv 2.5)
+    (cl-synthesizer:add-module rack "VCA-LINEAR-CONST-CV" #'cl-synthesizer-modules-fixed-output:fixed-output :value 2.5)
+    (cl-synthesizer:add-patch rack "VCA-LINEAR-CONST-CV" :out "VCA-LINEAR" :cv)
+    (cl-synthesizer:add-patch rack "ADSR-CV-MULTIPLE" :output-1 "VCA-LINEAR" :input)
+
+    ;; Set up VCA which will follow the cv of ADSR with exponential characteristic
+    ;; this is realized with a fixed input voltage of the VCA and the CV input
+    ;; of the VCA being modulated by the CV of the ADSR
+    (cl-synthesizer:add-module rack "VCA-EXPONENTIAL" #'cl-synthesizer-modules-vca::vca-ng
+			       :max-amplification 1.0
+			       :max-amplification-cv 5.0) ;; max output of ADSR CV
+    (cl-synthesizer:add-module rack "VCA-EXPONENTIAL-CONST-INPUT" #'cl-synthesizer-modules-fixed-output:fixed-output :value 5.0)
+    (cl-synthesizer:add-patch rack "VCA-EXPONENTIAL-CONST-INPUT" :out "VCA-EXPONENTIAL" :input)
+    (cl-synthesizer:add-patch rack "ADSR-CV-MULTIPLE" :output-2 "VCA-EXPONENTIAL" :cv)
+
     ;; Add monitor
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "ADSR" :output-socket :cv)
-       (:channel-2 "VCA-ADSR-AMPLIFICATION-INPUT-CV" :output-socket :out)
-       ;; for now both outputs should exactly follow the CV output of ADSR
-       (:channel-3 "VCA-ADSR-CV" :output-socket :output-linear)
-       (:channel-4 "VCA-ADSR-CV" :output-socket :output-exponential)
+       (:channel-2 "VCA-LINEAR" :output-socket :output-linear)
+       (:channel-3 "VCA-EXPONENTIAL" :output-socket :output-exponential)
        )
      :filename "/Users/olli/waves/vcaplayground.wav")
 
@@ -57,7 +71,7 @@
 (defun play ()
   (cl-synthesizer-util:play-rack
    (synthesizer-playground-exponential-vca)
-   10 
+   5
    ;;:attach-speaker t
    :midi-device
    (cl-synthesizer-device-midi-sequencer:midi-sequencer
