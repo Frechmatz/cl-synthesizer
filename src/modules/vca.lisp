@@ -67,9 +67,9 @@
 	   :output-min 0.0
 	   :output-max max-amplification)
 	  :get-y))
-	(exponential-amplification-fn ;; for now use linear mapping
+	(exponential-amplification-fn
 	 (lambda (cv)
-	   (/ (expt 2 cv) (expt 2 max-amplification-cv)))))
+	   (* max-amplification (/ (expt 2 cv) (expt 2 max-amplification-cv))))))
     (list
      :inputs (lambda () '(:input :cv))
      :outputs (lambda () '(:output-linear :output-exponential))
