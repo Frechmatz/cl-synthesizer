@@ -38,7 +38,7 @@
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-     '((:channel-1 "LFO" :output-socket :triangle)
+     '((:channel-1 "VCA" :input-socket :cv)
        (:channel-2 "VCA" :input-socket :input)
        (:channel-3 "VCA" :output-socket :output-linear)
        (:channel-4 "VCA" :output-socket :output-exponential)
