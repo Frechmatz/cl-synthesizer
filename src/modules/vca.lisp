@@ -80,11 +80,12 @@
 		     (t
 		      cur-out-exponential)))
      :update (lambda (&key cv input)
-	       ;; todo clip negative cv
 	       (if (not cv)
 		   (setf cv 0.0))
 	       (if (not input)
 		   (setf input 0.0))
+	       (if (> 0.0 cv)
+		   (setf cv 0.0))
 	       ;; TODO more clipping, for example cv > max-amplification-cv and negative cv
 	       (setf cur-out-linear (* input (funcall linear-amplification-fn cv)))
 	       (setf cur-out-exponential (* input (funcall exponential-amplification-fn cv)))))))
