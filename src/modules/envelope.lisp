@@ -2,8 +2,6 @@
 ;;
 ;; Envelope Generator
 ;;
-;; Work in progress
-;;
 ;;
 
 (in-package :cl-synthesizer-modules-envelope)
