@@ -32,7 +32,8 @@
 						      (:duration-ms 1000 :target-cv 3 :required-gate-state :on)
 						      (:required-gate-state :on)
 						      (:duration-ms 1000 :target-cv 0 :required-gate-state :ignore)))
-	       (cl-synthesizer:add-module rack (make-module-name "VCA") #'cl-synthesizer-modules-vca:vca)
+	       (cl-synthesizer:add-module rack (make-module-name "VCA") #'cl-synthesizer-modules-vca:vca
+					  :max-amplification 1.0 :max-amplification-cv 5.0)
 	       (cl-synthesizer:add-patch rack (make-module-name "VCO") :sine (make-module-name "VCA") :input)
 	       (cl-synthesizer:add-patch rack (make-module-name "ADSR") :cv (make-module-name "VCA") :cv)
 	       ;; Connect with midi-interface
@@ -51,9 +52,9 @@
       ;; TODO: Numbering is confusing. When will number be incremented by one and when not?
       ;;
       (add-voice "VOICE" 0)
-      (cl-synthesizer:add-patch rack "VOICE-0-VCA" :output "LINE-OUT" :channel-1)
+      (cl-synthesizer:add-patch rack "VOICE-0-VCA" :output-linear "LINE-OUT" :channel-1)
       (add-voice "VOICE" 1)
-      (cl-synthesizer:add-patch rack "VOICE-1-VCA" :output "LINE-OUT" :channel-2)
+      (cl-synthesizer:add-patch rack "VOICE-1-VCA" :output-linear "LINE-OUT" :channel-2)
       
       ;; Add LINE-OUT Monitor
       (cl-synthesizer-monitor:add-monitor

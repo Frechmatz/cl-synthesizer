@@ -21,7 +21,7 @@
     
     (cl-synthesizer:add-module
      rack "VCA"
-     #'cl-synthesizer-modules-vca::vca-ng
+     #'cl-synthesizer-modules-vca:vca
      :max-amplification 5.0
      :max-amplification-cv 5.0)
     

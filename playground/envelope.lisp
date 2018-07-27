@@ -37,7 +37,8 @@
 					   (:duration-ms 1000 :target-cv 3 :required-gate-state :on)
 					   (:required-gate-state :on)
 					   (:duration-ms 1000 :target-cv 0 :required-gate-state :off)))
-    (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:vca)
+    (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:vca
+			       :max-amplification 1.0 :max-amplification-cv 5.0)
 
     ;; ADSR attack duration controller
     (cl-synthesizer:add-module rack "ADSR-ATTACK-DURATION-CTRL" #'cl-synthesizer-modules-fixed-output:fixed-output :value 0)
@@ -46,14 +47,14 @@
     (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv)
     (cl-synthesizer:add-patch rack "MIDI-IFC" :gate-1 "ADSR" :gate)
     (cl-synthesizer:add-patch rack "VCO" :sine "VCA" :input)
-    (cl-synthesizer:add-patch rack "VCA" :output "LINE-OUT" :channel-1)
+    (cl-synthesizer:add-patch rack "VCA" :output-linear "LINE-OUT" :channel-1)
     (cl-synthesizer:add-patch rack "ADSR" :cv "VCA" :cv)
 
     ;; Add ADSR-Output and VCA-Output monitor
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-     '((:channel-1 "VCA" :output-socket :output) (:channel-2 "ADSR" :output-socket :cv))
+     '((:channel-1 "VCA" :output-socket :output-linear) (:channel-2 "ADSR" :output-socket :cv))
      :filename "/Users/olli/waves/adsrplayground.wav")
 
     ;; Add LINE-OUT Monitor
