@@ -11,7 +11,8 @@
 
 (defun synthesizer-playground-exponential-vca ()
   "Exponential VCA example"
-  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment)))
+	(fixed-vca-input 1.0))
     
     (cl-synthesizer:add-module
      rack "LFO"
@@ -21,14 +22,15 @@
     
     (cl-synthesizer:add-module
      rack "VCA"
-     #'cl-synthesizer-modules-vca:vca
-     :max-amplification 5.0
-     :max-amplification-cv 5.0)
+     #'cl-synthesizer-modules-vca::vca-ng
+     :input-max fixed-vca-input
+     :output-max 5.0
+     :cv-max 5.0)
     
     ;; LFO modulates amplification of VCA
     (cl-synthesizer:add-patch rack "LFO" :triangle "VCA" :cv)
     ;; Feed a constant voltage into the VCA :input socket
-    (cl-synthesizer:add-module rack "CONST-VOLTAGE" #'cl-synthesizer-modules-fixed-output:fixed-output :value 1.0)
+    (cl-synthesizer:add-module rack "CONST-VOLTAGE" #'cl-synthesizer-modules-fixed-output:fixed-output :value fixed-vca-input)
     (cl-synthesizer:add-patch rack "CONST-VOLTAGE" :out "VCA" :input)
 
     ;; Add monitor
@@ -54,34 +56,34 @@
 
 ;; (play)
 
-
-
 (defun synthesizer-playground-exponential-vca-gain ()
   "Exponential VCA example"
-  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment)))
+	(fixed-vca-input 1.0))
     
     (cl-synthesizer:add-module
      rack "LFO"
      #'cl-synthesizer-modules-vco:vco
-     :base-frequency 0.5
+     :base-frequency 1.0
      :v-peak 5)
     
     (cl-synthesizer:add-module
      rack "VCA"
-     #'cl-synthesizer-modules-vca:vca
-     :max-amplification 5.0
-     :max-amplification-cv 10.0
-     :initial-gain 5.0)
+     #'cl-synthesizer-modules-vca::vca-ng
+     :input-max fixed-vca-input
+     :output-max 5.0
+     :cv-max 10.0
+     :cv-initial-gain 9.5)
     
     ;; LFO modulates amplification of VCA
     (cl-synthesizer:add-patch rack "LFO" :triangle "VCA" :cv)
     ;; Feed a constant voltage into the VCA :input socket
-    (cl-synthesizer:add-module rack "CONST-VOLTAGE" #'cl-synthesizer-modules-fixed-output:fixed-output :value 1.0)
+    (cl-synthesizer:add-module rack "CONST-VOLTAGE" #'cl-synthesizer-modules-fixed-output:fixed-output :value fixed-vca-input)
     (cl-synthesizer:add-patch rack "CONST-VOLTAGE" :out "VCA" :input)
 
     ;; Add monitor
     ;; expected output:
-    ;; both outputs of VCA should reach the maximum voltage of 5.0
+    ;; both outputs of VCA should reach the maximum volatge of 5.0
     ;; but with different curve progressions
     (cl-synthesizer-monitor:add-monitor
      rack
@@ -89,7 +91,11 @@
      '((:channel-1 "VCA" :input-socket :cv)
        (:channel-2 "VCA" :input-socket :input)
        (:channel-3 "VCA" :output-socket :output-linear)
-       (:channel-4 "VCA" :output-socket :output-exponential)
+;;       (:channel-4 "VCA" :output-socket :input-normalized)
+       (:channel-4 "VCA" :output-socket :cv-original)
+       (:channel-5 "VCA" :output-socket :cv-unclipped)
+       (:channel-6 "VCA" :output-socket :cv-clipped)
+       (:channel-7 "VCA" :output-socket :output-exponential)
        )
      :filename "/Users/olli/waves/vcaplaygroundgain.wav")
 
@@ -101,3 +107,5 @@
    5))
 
 ;; (play-2)
+
+
