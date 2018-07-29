@@ -73,7 +73,7 @@
      :input-max fixed-vca-input
      :output-max 5.0
      :cv-max 10.0
-     :cv-initial-gain 9.5)
+     :cv-initial-gain 8.0)
     
     ;; LFO modulates amplification of VCA
     (cl-synthesizer:add-patch rack "LFO" :triangle "VCA" :cv)
@@ -91,11 +91,7 @@
      '((:channel-1 "VCA" :input-socket :cv)
        (:channel-2 "VCA" :input-socket :input)
        (:channel-3 "VCA" :output-socket :output-linear)
-;;       (:channel-4 "VCA" :output-socket :input-normalized)
-       (:channel-4 "VCA" :output-socket :cv-original)
-       (:channel-5 "VCA" :output-socket :cv-unclipped)
-       (:channel-6 "VCA" :output-socket :cv-clipped)
-       (:channel-7 "VCA" :output-socket :output-exponential)
+       (:channel-4 "VCA" :output-socket :output-exponential)
        )
      :filename "/Users/olli/waves/vcaplaygroundgain.wav")
 
