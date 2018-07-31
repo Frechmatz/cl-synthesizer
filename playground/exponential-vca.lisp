@@ -105,3 +105,48 @@
 ;; (play-2)
 
 
+;; was will ich testen: Modulation der Verstärkung bei konstantem Input
+(defun synthesizer-playground-exponential-vca-gain-2 ()
+  "Exponential VCA example"
+  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment)))
+	)
+    
+    (cl-synthesizer:add-module
+     rack "LFO-VC"
+     #'cl-synthesizer-modules-vco:vco
+     :base-frequency 0.5
+     :v-peak 2.5)
+
+    (cl-synthesizer:add-module rack "VCA-AUDIO-INPUT" #'cl-synthesizer-modules-fixed-output:fixed-output :value 1.0)
+    
+    (cl-synthesizer:add-module
+     rack "VCA"
+     #'cl-synthesizer-modules-vca::vca-ng
+     :output-max 5.0
+     :cv-max 2.5
+     :cv-initial-gain 0.0)
+
+    (cl-synthesizer:add-patch rack "LFO-VC" :triangle "VCA" :cv)
+    (cl-synthesizer:add-patch rack "VCA-AUDIO-INPUT" :out "VCA" :input)
+
+    ;; Add monitor
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
+     '((:channel-1 "VCA" :input-socket :input)
+       (:channel-2 "VCA" :input-socket :cv)
+       (:channel-3 "VCA" :output-socket :output-linear)
+       (:channel-4 "VCA" :output-socket :output-exponential)
+       )
+     :filename "/Users/olli/waves/vcaplaygroundgain.wav")
+
+    rack))
+
+(defun play-3 ()
+  (cl-synthesizer-util:play-rack
+   (synthesizer-playground-exponential-vca-gain-2)
+   5))
+
+;; (play-3)
+
+

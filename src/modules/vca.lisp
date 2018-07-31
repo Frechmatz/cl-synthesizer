@@ -54,29 +54,23 @@
 
 
 (defun vca-ng (name environment &key
-				  input-max ;; Referenzgroesse für Verstärkung 
+				  ;;				  input-max ;; Referenzgroesse für Verstärkung
+				  ;; Bedeutung; Input(1.0) => Output-Max bei CV = CV-Max 
 				  output-max ;; max output voltage 
 				  cv-max ;; Value of cv input indicating max amplification
 				  (cv-initial-gain 0.0)
 				  )
   (declare (ignore environment name))
-  (let (
+  (declare (optimize (debug 3) (speed 0) (space 0)))
+  (let* (
 	(cur-out-linear 0)
 	(cur-out-exponential 0)
-	(make-lin-fn
-	 (lambda()
-	   (let ((get-y
-		  (getf
-		   (cl-synthesizer-core:linear-converter
-		    :input-min 0.0
-		    :input-max cv-max
-		    :output-min 0.0
-		    :output-max output-max)
-		   :get-y)))
-	     (lambda (input cv)
-	       (* (/ input input-max) (funcall get-y cv))))))
-	(make-exp-fn
-	 (lambda ()
+	(lin-fn (lambda (input cv)
+		  (* input output-max (/ cv cv-max))))
+	(exp-fn (lambda (input cv)
+		  (* input output-max (/ (expt 2 cv) (expt 2 cv-max)))))
+
+#|	
 	   (let ((max-amplification (/ output-max input-max)))
 	     (lambda (input cv)
 	       ;; multiply with (/ cv max-amplification-cv) due to (expt 2 0) => 1.0
@@ -86,24 +80,26 @@
 		  (* max-amplification
 		     (* (/ cv cv-max)
 			(/ (expt 2 cv) (expt 2 cv-max))))))))))
-    (let ((lin-fn (funcall make-lin-fn)) (exp-fn (funcall make-exp-fn)))
-      (list
-       :inputs (lambda () '(:input :cv :cv-gain))
-       :outputs (lambda () '(:output-linear :output-exponential
-			     :input-normalized
-			     :cv-original
-			     :cv-unclipped
+|#
+	)
+    (list
+     :inputs (lambda () '(:input :cv :cv-gain))
+     :outputs (lambda () '(:output-linear :output-exponential
+			   :input-normalized
+			   :cv-original
+			   :cv-unclipped
 			   :cv-clipped
-			     ))
-       :get-output (lambda (output)
-		     (cond 
-		       ((eq output :output-linear)
-			cur-out-linear)
-		       ((eq output :output-exponential)
-			cur-out-exponential)
-		       (t
-			(error "Invalid output requested from vca"))))
-       :update (lambda (&key cv input cv-gain)
+			   ))
+     :get-output (lambda (output)
+		   (cond 
+		     ((eq output :output-linear)
+		      cur-out-linear)
+		     ((eq output :output-exponential)
+		      cur-out-exponential)
+		     (t
+		      (error "Invalid output requested from vca"))))
+     :update (lambda (&key cv input cv-gain)
+	       (declare (optimize (debug 3) (speed 0) (space 0)))
 	       (if (not cv)
 		   (setf cv 0.0))
 	       (if (not cv-gain)
@@ -117,5 +113,14 @@
 		   (setf cv 0.0))
 	       ;; TODO more clipping, for example cv > max-amplification-cv and negative cv
 	       (setf cur-out-linear (funcall lin-fn input cv))
-	       (setf cur-out-exponential (funcall exp-fn input cv)))))))
+;;	       (if (> cur-out-linear output-max)
+;;		   (setf cur-out-linear output-max))
+	       (setf cur-out-exponential (funcall exp-fn input cv))
+;;	       (if (>= 2.5 input)
+;;		   (break))
+;;	       (if (> cur-out-exponential output-max)
+;;		   (setf cur-out-exponential output-max))
+	       
+
+	       ))))
 
