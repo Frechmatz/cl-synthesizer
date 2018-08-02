@@ -53,35 +53,65 @@
 	       (setf cur-out-exponential (* input (funcall exponential-amplification-fn cv)))))))
 
 
-(defun vca-ng (name environment &key
-				  ;;				  input-max ;; Referenzgroesse für Verstärkung
-				  ;; Bedeutung; Input(1.0) => Output-Max bei CV = CV-Max 
-				  output-max ;; max output voltage 
-				  cv-max ;; Value of cv input indicating max amplification
-				  (cv-initial-gain 0.0)
-				  )
+(defun vca-core ()
+  (flet
+      ((validate-cv (cv)
+	 (if (> cv 10.0)
+	     (cl-synthesizer:signal-invalid-arguments-error
+	      :format-control "Input of VCA-CORE must not be greater than 10.0"
+	      :format-arguments (list cv)))
+	 (if (> 0.0 cv)
+	     (cl-synthesizer:signal-invalid-arguments-error
+	      :format-control "Input of VCA-CORE must not be smaller than 0.0"
+	      :format-arguments (list cv)))))
+    (list
+     :exponential
+     (lambda (cv)
+       #|
+       Matlab-Plot:
+       maxCV = 10.0;
+       cv = 0:0.01:maxCV;
+       y = (pow2 (cv) - 1.0) / pow2(maxCV);
+       plot (cv,y);
+       |#
+       (validate-cv cv) 
+       (/ (+ (expt 2 cv) -1.0) (expt 2 10.0)))
+     :linear
+     (lambda (cv)
+       #|
+       Matlab-Plot:
+       maxCV = 10.0;
+       cv = 0:0.01:maxCV;
+       y = cv / maxCV;
+       plot (cv,y);
+       |#
+       (validate-cv cv) 
+       (/ cv 10.0)))))
+  
+       
+(defun vca-ng (name
+	       environment
+	       &key
+		 cv-max ;; Input value of cv socket indicating an amplification of 1.0
+		 (cv-initial-gain 0.0))
   (declare (ignore environment name))
   (declare (optimize (debug 3) (speed 0) (space 0)))
-  (let* (
-	(cur-out-linear 0)
-	(cur-out-exponential 0)
-	(lin-fn (lambda (input cv)
-		  (* input output-max (/ cv cv-max))))
-	(exp-fn (lambda (input cv)
-		  (* input output-max (/ (expt 2 cv) (expt 2 cv-max)))))
-
-#|	
-	   (let ((max-amplification (/ output-max input-max)))
-	     (lambda (input cv)
-	       ;; multiply with (/ cv max-amplification-cv) due to (expt 2 0) => 1.0
-	       ;; on CV = 0.0 amplification factor must be 0.0 
-;;	       (* (/ input input-max) 
-	       (* input
-		  (* max-amplification
-		     (* (/ cv cv-max)
-			(/ (expt 2 cv) (expt 2 cv-max))))))))))
-|#
-	)
+  (if (> 0.0 cv-max)
+      (cl-synthesizer:signal-assembly-error
+       :format-control "CV-MAX must not be smaller than 0.0"
+       :format-arguments (list cv-max)))
+  (let* ((cur-out-linear 0)
+	 (cur-out-exponential 0)
+	 (vca-core (vca-core))
+	 (vca-core-lin (getf vca-core :linear))
+	 (vca-core-exp (getf vca-core :exponential))
+	 (cv-converter (getf 
+			(cl-synthesizer-core:linear-converter
+			 :input-min 0.0
+			 :input-max cv-max
+			 :output-min 0.0
+			 :output-max 10.0)
+			:get-y)))
     (list
      :inputs (lambda () '(:input :cv :cv-gain))
      :outputs (lambda () '(:output-linear :output-exponential
@@ -100,27 +130,19 @@
 		      (error "Invalid output requested from vca"))))
      :update (lambda (&key cv input cv-gain)
 	       (declare (optimize (debug 3) (speed 0) (space 0)))
+	       (if (not input)
+		   (setf input 0.0))
 	       (if (not cv)
 		   (setf cv 0.0))
 	       (if (not cv-gain)
 		   (setf cv-gain 0.0))
 	       (setf cv (+ cv cv-initial-gain cv-gain))
-	       (if (not input)
-		   (setf input 0.0))
 	       (if (> cv cv-max)
 		   (setf cv cv-max))
 	       (if (> 0.0 cv)
 		   (setf cv 0.0))
-	       ;; TODO more clipping, for example cv > max-amplification-cv and negative cv
-	       (setf cur-out-linear (funcall lin-fn input cv))
-;;	       (if (> cur-out-linear output-max)
-;;		   (setf cur-out-linear output-max))
-	       (setf cur-out-exponential (funcall exp-fn input cv))
-;;	       (if (>= 2.5 input)
-;;		   (break))
-;;	       (if (> cur-out-exponential output-max)
-;;		   (setf cur-out-exponential output-max))
-	       
-
+	       (setf cv (funcall cv-converter cv))
+	       (setf cur-out-linear (* input (funcall vca-core-lin cv)))
+	       (setf cur-out-exponential (* input (funcall vca-core-exp cv)))
 	       ))))
 

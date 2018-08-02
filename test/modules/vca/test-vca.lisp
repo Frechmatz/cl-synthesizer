@@ -1,5 +1,7 @@
 (in-package :cl-synthesizer-test)
 
+
+#|
 ;; Max amplification linear
 (define-test vca-test-1 ()
 	     (let ((vca (cl-synthesizer-modules-vca::vca-ng
@@ -57,5 +59,5 @@
 		(float (funcall (getf vca :get-output) :output-linear)))
 
 	       ))
-
+|#
 
