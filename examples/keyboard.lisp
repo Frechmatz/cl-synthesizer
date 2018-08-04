@@ -33,7 +33,7 @@
 						      (:required-gate-state :on)
 						      (:duration-ms 1000 :target-cv 0 :required-gate-state :ignore)))
 	       (cl-synthesizer:add-module rack (make-module-name "VCA") #'cl-synthesizer-modules-vca:vca
-					  :max-amplification 1.0 :max-amplification-cv 5.0)
+					  :cv-max 5.0)
 	       (cl-synthesizer:add-patch rack (make-module-name "VCO") :sine (make-module-name "VCA") :input)
 	       (cl-synthesizer:add-patch rack (make-module-name "ADSR") :cv (make-module-name "VCA") :cv)
 	       ;; Connect with midi-interface

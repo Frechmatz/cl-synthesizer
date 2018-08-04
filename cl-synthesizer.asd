@@ -81,9 +81,12 @@
 				     (:file "vcoexample")
 				     (:file "midiccexample")
 				     (:file "keyboard")
-				     (:file "modulated-envelope")
-				     )
-			)))
-
-
+				     (:file "modulated-envelope")))
+	       ;; Examples provided by Modules as documentation
+	       ;; not needed by cl-synthesizer but include them to ensure that they are at least loadable 
+	       (:module "src/modules/vca"
+			:serial t
+			:components ((:file "example-1")
+				     (:file "example-2")))
+			))
 

@@ -42,7 +42,7 @@
      :f-max 13000
      :v-peak 5)
     (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:vca
-			       :max-amplification 1.0 :max-amplification-cv 5.0)
+			       :cv-max 5.0)
     (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv)
     (cl-synthesizer:add-patch rack "VCO" :sine "VCA" :input)
     (cl-synthesizer:add-patch rack "VCA" :output-linear "LINE-OUT" :channel-1)
