@@ -8,6 +8,7 @@
 
 
 (defun vca-core ()
+  "Maps 0..10 to 0..1 with linear and exponential characteristic"
   (flet
       ((validate-cv (cv)
 	 (if (> cv 10.0)
