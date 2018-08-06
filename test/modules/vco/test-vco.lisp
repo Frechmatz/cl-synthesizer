@@ -155,7 +155,11 @@
 			       (<= 6439.5 f)
 			       (<= f 6440.5))))))
 
-;; Test clipping 
+
+;;
+;; Frequency clipping tests
+;; 
+
 (define-test vco-test-frequency-clipping-upper ()
 	     (let ((vco (cl-synthesizer-modules-vco:vco
 			 "VCO"
@@ -181,7 +185,6 @@
 			       (<= 11999.5 f)
 			       (<= f 12000.5))))))
 
-;; Test clipping of negative frequencies
 (define-test vco-test-frequency-clipping-bottom ()
 	     (let ((vco (cl-synthesizer-modules-vco:vco
 			 "VCO"
