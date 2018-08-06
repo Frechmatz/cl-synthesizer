@@ -47,8 +47,8 @@
 (defun vca (name
 	    environment
 	    &key
-	      cv-max ;; Input value of cv socket indicating an amplification of 1.0
-	      (cv-initial-gain 0.0))
+	      cv-max
+	      (initial-gain 0.0))
   (declare (ignore environment name))
   ;; (declare (optimize (debug 3) (speed 0) (space 0)))
   (if (> 0.0 cv-max)
@@ -68,7 +68,7 @@
 			 :output-max 10.0)
 			:get-y)))
     (list
-     :inputs (lambda () '(:input :cv :cv-gain))
+     :inputs (lambda () '(:input :cv :gain))
      :outputs (lambda () '(:output-linear :output-exponential))
      :get-output (lambda (output)
 		   (cond 
@@ -78,15 +78,15 @@
 		      cur-out-exponential)
 		     (t
 		      (error "Invalid output requested from vca"))))
-     :update (lambda (&key cv input cv-gain)
+     :update (lambda (&key cv input gain)
 	       ;; (declare (optimize (debug 3) (speed 0) (space 0)))
 	       (if (not input)
 		   (setf input 0.0))
 	       (if (not cv)
 		   (setf cv 0.0))
-	       (if (not cv-gain)
-		   (setf cv-gain 0.0))
-	       (setf cv (+ cv cv-initial-gain cv-gain))
+	       (if (not gain)
+		   (setf gain 0.0))
+	       (setf cv (+ cv initial-gain gain))
 	       (if (> cv cv-max)
 		   (setf cv cv-max))
 	       (if (> 0.0 cv)

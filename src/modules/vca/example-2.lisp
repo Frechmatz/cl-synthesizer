@@ -36,7 +36,7 @@
      rack "VCA"
      #'cl-synthesizer-modules-vca:vca
      :cv-max 5.0
-     :cv-initial-gain 2.5)
+     :initial-gain 2.5)
 
     ;; Add patches
     (cl-synthesizer:add-patch rack "VCO-AUDIO" :sine "VCA" :input)
