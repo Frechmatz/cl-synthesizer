@@ -7,7 +7,6 @@
 ;;
 (in-package :cl-synthesizer-modules-vco)
 
-;; CV: exponential input
 (defun vco (name environment &key (base-frequency 440) (cv-max 5) (f-max 12000) (v-peak 5))
   (let* ((sample-rate (getf environment :sample-rate))
 	 (transfer-function-exp
@@ -39,7 +38,11 @@
 		       ((eq output :square) cur-square-output)
 		       (t (error (format nil "Unknown input ~a requested from ~a" output name)))))
        :update (lambda (&key cv cv-linear)
-		 (let* ((f (get-frequency (if cv cv 0) (if cv-linear cv-linear 0)))
+		 (if (not cv)
+		     (setf cv 0))
+		 (if (not cv-linear)
+		     (setf cv-linear 0))
+		 (let* ((f (get-frequency cv cv-linear))
 			(phi (funcall phase-generator f)))
 		   (setf cur-sine-output (* v-peak (cl-synthesizer-core:phase-sine-converter phi)))
 		   (setf cur-triangle-output (* v-peak (cl-synthesizer-core:phase-triangle-converter phi)))
