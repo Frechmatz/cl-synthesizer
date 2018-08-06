@@ -38,8 +38,8 @@
     (cl-synthesizer:add-module rack "VCO-2"
 				#'cl-synthesizer-modules-vco:vco :base-frequency 440 :cv-max 5 :f-max 8000 :v-peak 5)
     
-    (cl-synthesizer:add-patch rack "LFO-1" :sine "VCO-1" :cv-lin)
-    (cl-synthesizer:add-patch rack "LFO-2" :sine "VCO-2" :cv-lin)
+    (cl-synthesizer:add-patch rack "LFO-1" :sine "VCO-1" :cv-linear)
+    (cl-synthesizer:add-patch rack "LFO-2" :sine "VCO-2" :cv-linear)
     (cl-synthesizer:add-patch rack "VCO-1" :sine "LINE-OUT" :channel-1)
     (cl-synthesizer:add-patch rack "VCO-2" :sine "LINE-OUT" :channel-2)
 
@@ -109,7 +109,7 @@
 				#'cl-synthesizer-modules-vco:vco :base-frequency 0.5 :v-peak 5)
     (cl-synthesizer:add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco :base-frequency 440 :cv-max 5 :f-max 660 :v-peak 5)
-    (cl-synthesizer:add-patch rack "LFO-1" :triangle "VCO-1" :cv-lin)
+    (cl-synthesizer:add-patch rack "LFO-1" :triangle "VCO-1" :cv-linear)
 
     ;; Add Oscilloscope Monitor
     (cl-synthesizer-monitor:add-monitor
@@ -147,7 +147,7 @@
     (cl-synthesizer:add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco :base-frequency 440 :cv-max 5 :v-peak 5)
 
-    (cl-synthesizer:add-patch rack "LFO-1" :triangle "VCO-1" :cv-lin)
+    (cl-synthesizer:add-patch rack "LFO-1" :triangle "VCO-1" :cv-linear)
 
     ;; Add Oscilloscope Monitor
     (cl-synthesizer-monitor:add-monitor
@@ -186,7 +186,7 @@
     (cl-synthesizer:add-module rack "FIXED" #'cl-synthesizer-modules-fixed-output:fixed-output :value 1)
     (cl-synthesizer:add-module rack "VCO-1"
 				#'cl-synthesizer-modules-vco:vco :base-frequency 500 :cv-max 5 :f-max 10000 :v-peak 5)
-    (cl-synthesizer:add-patch rack "FIXED" :out "VCO-1" :cv-lin)
+    (cl-synthesizer:add-patch rack "FIXED" :out "VCO-1" :cv-linear)
 
     (cl-synthesizer:add-patch rack "VCO-1" :sine "LINE-OUT" :channel-1)
     

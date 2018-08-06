@@ -29,7 +29,7 @@
 	      (funcall (getf transfer-function-exp :get-y) cv-exp)
 	      (funcall (getf transfer-function-lin :get-y) cv-lin))))
       (list
-       :inputs (lambda () '(:cv :cv-lin))
+       :inputs (lambda () '(:cv :cv-linear))
        :outputs (lambda () '(:sine :triangle :saw :square))
        :get-output (lambda (output)
 		     (cond
@@ -38,8 +38,8 @@
 		       ((eq output :saw) cur-saw-output)
 		       ((eq output :square) cur-square-output)
 		       (t (error (format nil "Unknown input ~a requested from ~a" output name)))))
-       :update (lambda (&key cv cv-lin)
-		 (let* ((f (get-frequency (if cv cv 0) (if cv-lin cv-lin 0)))
+       :update (lambda (&key cv cv-linear)
+		 (let* ((f (get-frequency (if cv cv 0) (if cv-linear cv-linear 0)))
 			(phi (funcall phase-generator f)))
 		   (setf cur-sine-output (* v-peak (cl-synthesizer-core:phase-sine-converter phi)))
 		   (setf cur-triangle-output (* v-peak (cl-synthesizer-core:phase-triangle-converter phi)))
