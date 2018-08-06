@@ -32,7 +32,6 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "linear-converter")
-				     (:file "exponential-converter")
 				     (:file "phase-waveform-converter")
 				     (:file "phase-generator")
 				     (:file "function-array")
@@ -59,7 +58,6 @@
 			:serial t
 			:components (
 				     (:file "test-trigger")
-				     (:file "test-exponential-converter")
 				     (:file "test-waveform")
 				     (:file "test-function-array")
 				     ))

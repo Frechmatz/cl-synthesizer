@@ -10,14 +10,15 @@
 (defun vco (name environment &key (base-frequency 440) (cv-linear-max 5) (f-max 12000) (v-peak 5))
   (let* ((sample-rate (getf environment :sample-rate))
 	 (transfer-function-exp
-	  (cl-synthesizer-core:exponential-converter :base-value base-frequency))
+	  (lambda (input-value)
+	    (* base-frequency (expt 2 input-value))))
 	 (transfer-function-lin
-	  (cl-synthesizer-core:linear-converter
-	   ;; resulting frequency is added to frequency of exp converter
-	   :input-min (* -1 cv-linear-max)
-	   :input-max cv-linear-max
-	   :output-min (* -1 f-max)
-	   :output-max f-max))
+	  (getf (cl-synthesizer-core:linear-converter
+		 :input-min (* -1 cv-linear-max)
+		 :input-max cv-linear-max
+		 :output-min (* -1 f-max)
+		 :output-max f-max)
+		:get-y))
 	 (phase-generator (cl-synthesizer-core:phase-generator sample-rate))
 	 (cur-sine-output 1.0)
 	 (cur-triangle-output 1.0)
@@ -25,8 +26,8 @@
 	 (cur-square-output 1.0))
     (flet ((get-frequency (cv-exp cv-lin)
 	     (let ((f (+ 
-		       (funcall (getf transfer-function-exp :get-y) cv-exp)
-		       (funcall (getf transfer-function-lin :get-y) cv-lin))))
+		       (funcall transfer-function-exp cv-exp)
+		       (funcall transfer-function-lin cv-lin))))
 	       (if (> f f-max)
 		   (setf f f-max))
 	       (if (< f 0.0)

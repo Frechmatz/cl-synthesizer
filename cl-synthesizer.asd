@@ -32,7 +32,6 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "linear-converter")
-				     (:file "exponential-converter")
 				     (:file "phase-waveform-converter")
 				     (:file "phase-generator")
 				     (:file "trigger")
