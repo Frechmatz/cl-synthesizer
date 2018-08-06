@@ -127,3 +127,80 @@
 			       (<= 109.5 f)
 			       (<= f 110.5))))))
 
+
+;; Add 6000Hz via linear CV input
+(define-test vco-test-lin-1 ()
+	     (let ((vco (cl-synthesizer-modules-vco:vco
+			 "VCO"
+			 (cl-synthesizer:make-environment)
+			 :base-frequency 440
+			 :cv-max 5
+			 :f-max 12000
+			 :v-peak 5)))
+	       (let ((f (cl-synthesizer-test::get-frequency
+			 :sample-rate 44100
+			 :update-fn (lambda()
+				      (funcall
+				       (getf vco :update)
+				       :cv 0.0
+				       :cv-linear 2.5))
+			 :get-output-fn (lambda ()
+					  (funcall
+					   (getf vco :get-output)
+					   :sine)))))
+		 ;; Allow some deviation due to algorithm used by get-frequency
+		 (format t "~%F: ~a~%" f)
+		 ;; 6000 (linear) + 440 (base)
+		 (assert-true (and
+			       (<= 6439.5 f)
+			       (<= f 6440.5))))))
+
+;; Test clipping 
+(define-test vco-test-frequency-clipping-upper ()
+	     (let ((vco (cl-synthesizer-modules-vco:vco
+			 "VCO"
+			 (cl-synthesizer:make-environment)
+			 :base-frequency 440
+			 :cv-max 5
+			 :f-max 12000
+			 :v-peak 5)))
+	       (let ((f (cl-synthesizer-test::get-frequency
+			 :sample-rate 44100
+			 :update-fn (lambda()
+				      (funcall
+				       (getf vco :update)
+				       :cv 0.0
+				       :cv-linear 5.0)) ;; this will cause frequency clipping
+			 :get-output-fn (lambda ()
+					  (funcall
+					   (getf vco :get-output)
+					   :sine)))))
+		 ;; Allow some deviation due to algorithm used by get-frequency
+		 (format t "~%F: ~a~%" f)
+		 (assert-true (and
+			       (<= 11999.5 f)
+			       (<= f 12000.5))))))
+
+;; Test clipping of negative frequencies
+(define-test vco-test-frequency-clipping-bottom ()
+	     (let ((vco (cl-synthesizer-modules-vco:vco
+			 "VCO"
+			 (cl-synthesizer:make-environment)
+			 :base-frequency 440
+			 :cv-max 5
+			 :f-max 12000
+			 :v-peak 5)))
+	       (let ((f (cl-synthesizer-test::get-frequency
+			 :sample-rate 44100
+			 :update-fn (lambda()
+				      (funcall
+				       (getf vco :update)
+				       :cv 0.0
+				       :cv-linear -5.0)) ;; this will cause frequency clipping
+			 :get-output-fn (lambda ()
+					  (funcall
+					   (getf vco :get-output)
+					   :sine)))))
+		 (format t "~%F: ~a~%" f)
+		 (assert-equal 0.0 f))))
+
