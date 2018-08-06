@@ -49,6 +49,31 @@
 	    &key
 	      cv-max
 	      (initial-gain 0.0))
+  "Creates a Voltage Controlled Amplifier/Attenuator module. The VCA multiplies an
+    incoming signal with a factor of 0..1. The function has the following arguments:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:cv-max The value of the effective amplification control voltage that represents the maximum
+	    amplification of 1.0.</li>
+	<li>:initial-gain An offset that is added to the amplification control voltage.
+	    Default value is 0.0.</li>
+    </ul>
+    The module has the following inputs:
+    <ul>
+	<li>:cv Amplification control voltage.</li>
+	<li>:input Input signal to be amplified. The amplitude of this voltage is
+	    unknown to the VCA. It can have any value.</li>
+	<li>:gain An offset that is added to the amplification control voltage.</li>
+    </ul>
+    The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.0 <= v <= :cv-max.
+    The module has the following outputs:
+    <ul>
+	<li>:output-linear Amplified input signal with linear amplification characteristic.</li>
+	<li>:output-exponential Amplified input signal with exponential amplification characteristic.</li>
+    </ul>
+
+    Examples can be found under /src/modules/vca/"
   (declare (ignore environment name))
   ;; (declare (optimize (debug 3) (speed 0) (space 0)))
   (if (> 0.0 cv-max)
