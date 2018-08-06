@@ -7,15 +7,15 @@
 ;;
 (in-package :cl-synthesizer-modules-vco)
 
-(defun vco (name environment &key (base-frequency 440) (cv-max 5) (f-max 12000) (v-peak 5))
+(defun vco (name environment &key (base-frequency 440) (cv-linear-max 5) (f-max 12000) (v-peak 5))
   (let* ((sample-rate (getf environment :sample-rate))
 	 (transfer-function-exp
 	  (cl-synthesizer-core:exponential-converter :base-value base-frequency))
 	 (transfer-function-lin
 	  (cl-synthesizer-core:linear-converter
 	   ;; resulting frequency is added to frequency of exp converter
-	   :input-min (* -1 cv-max)
-	   :input-max cv-max
+	   :input-min (* -1 cv-linear-max)
+	   :input-max cv-linear-max
 	   :output-min (* -1 f-max)
 	   :output-max f-max))
 	 (phase-generator (cl-synthesizer-core:phase-generator sample-rate))

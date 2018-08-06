@@ -6,7 +6,7 @@
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
-			 :cv-max 5
+			 :cv-linear-max 5
 			 :f-max 12000
 			 :v-peak 5)))
 	       (let ((f (cl-synthesizer-test::get-frequency
@@ -31,7 +31,7 @@
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
-			 :cv-max 5
+			 :cv-linear-max 5
 			 :f-max 12000
 			 :v-peak 5)))
 	       (let ((f (cl-synthesizer-test::get-frequency
@@ -56,7 +56,7 @@
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
-			 :cv-max 5
+			 :cv-linear-max 5
 			 :f-max 12000
 			 :v-peak 5)))
 	       (let ((f (cl-synthesizer-test::get-frequency
@@ -82,7 +82,7 @@
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
-			 :cv-max 5
+			 :cv-linear-max 5
 			 :f-max 12000
 			 :v-peak 5)))
 	       (let ((f (cl-synthesizer-test::get-frequency
@@ -108,7 +108,7 @@
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
-			 :cv-max 5
+			 :cv-linear-max 5
 			 :f-max 12000
 			 :v-peak 5)))
 	       (let ((f (cl-synthesizer-test::get-frequency
@@ -134,7 +134,7 @@
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
-			 :cv-max 5
+			 :cv-linear-max 5
 			 :f-max 12000
 			 :v-peak 5)))
 	       (let ((f (cl-synthesizer-test::get-frequency
@@ -161,7 +161,7 @@
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
-			 :cv-max 5
+			 :cv-linear-max 5
 			 :f-max 12000
 			 :v-peak 5)))
 	       (let ((f (cl-synthesizer-test::get-frequency
@@ -187,7 +187,7 @@
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
-			 :cv-max 5
+			 :cv-linear-max 5
 			 :f-max 12000
 			 :v-peak 5)))
 	       (let ((f (cl-synthesizer-test::get-frequency

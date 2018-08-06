@@ -24,7 +24,7 @@
 		rack (make-module-name "VCO")
 		#'cl-synthesizer-modules-vco:vco
 		:base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
-		:cv-max 5
+		:cv-linear-max 5
 		:f-max 13000
 		:v-peak 5)
 	       (cl-synthesizer:add-module rack (make-module-name "ADSR") #'cl-synthesizer-modules-envelope:envelope

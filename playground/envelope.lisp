@@ -23,7 +23,7 @@
     ;; Add VCO, ADSR, VCA
     (cl-synthesizer:add-module rack "VCO" #'cl-synthesizer-modules-vco:vco
 				:base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
-				:cv-max 5
+				:cv-linear-max 5
 				:f-max 13000
 				:v-peak 5)
     (cl-synthesizer:add-module rack "ADSR" #'cl-synthesizer-modules-envelope:envelope
@@ -38,7 +38,7 @@
 					   (:required-gate-state :on)
 					   (:duration-ms 1000 :target-cv 0 :required-gate-state :off)))
     (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:vca
-			       :max-amplification 1.0 :max-amplification-cv 5.0)
+			       :cv-max 5.0)
 
     ;; ADSR attack duration controller
     (cl-synthesizer:add-module rack "ADSR-ATTACK-DURATION-CTRL" #'cl-synthesizer-modules-fixed-output:fixed-output :value 0)
