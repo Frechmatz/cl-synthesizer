@@ -49,6 +49,7 @@
 			:components ((:file "packages")
 				     (:file "midi-interface")
 				     (:file "vca")
+				     (:file "vco")
 				     (:file "envelope")))
 	       (:module "test"
 			:serial t
@@ -82,6 +83,10 @@
 	       (:module "test/modules/vca"
 			:serial t
 			:components ((:file "test-vca")
+				     ))
+	       (:module "test/modules/vco"
+			:serial t
+			:components ((:file "test-vco")
 				     ))
 	       (:module "test/synthesizer"
 			:serial t

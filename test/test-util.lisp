@@ -120,3 +120,20 @@
 	(setf cur-value v)
 	is-crossing))))
 
+(defun get-frequency (&key sample-rate update-fn get-output-fn)
+  (let ((seconds 2)
+	(trigger (zero-crossing-trigger))
+	(zero-crossing-count 0))
+    (dotimes (i (* seconds sample-rate))
+      (funcall update-fn)
+      (if (funcall trigger (funcall get-output-fn))
+	  (setf zero-crossing-count (+ 1 zero-crossing-count))))
+    (float (/ zero-crossing-count (* seconds 2)))))
+
+
+
+  
+
+  
+  
+
