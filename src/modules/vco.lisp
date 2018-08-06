@@ -24,9 +24,14 @@
 	 (cur-saw-output 1.0)
 	 (cur-square-output 1.0))
     (flet ((get-frequency (cv-exp cv-lin)
-	     (+ 
-	      (funcall (getf transfer-function-exp :get-y) cv-exp)
-	      (funcall (getf transfer-function-lin :get-y) cv-lin))))
+	     (let ((f (+ 
+		       (funcall (getf transfer-function-exp :get-y) cv-exp)
+		       (funcall (getf transfer-function-lin :get-y) cv-lin))))
+	       (if (> f f-max)
+		   (setf f f-max))
+	       (if (< f 0.0)
+		   (setf f 0.0))
+	       f)))
       (list
        :inputs (lambda () '(:cv :cv-linear))
        :outputs (lambda () '(:sine :triangle :saw :square))
