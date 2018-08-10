@@ -8,6 +8,10 @@
 (in-package :cl-synthesizer-modules-vco)
 
 (defun vco (name environment &key (base-frequency 440) (cv-linear-max 5) (f-max 12000) (v-peak 5))
+  (if (> 0.0 base-frequency)
+      (cl-synthesizer:signal-assembly-error
+       :format-control "Base frequency of VCO ~a must be greater than 0: ~a"
+       :format-arguments (list name base-frequency)))
   (let* ((sample-rate (getf environment :sample-rate))
 	 (transfer-function-exp
 	  (lambda (input-value)
