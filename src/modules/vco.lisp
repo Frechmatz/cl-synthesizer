@@ -12,6 +12,10 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "Base frequency of VCO ~a must be greater than 0: ~a"
        :format-arguments (list name base-frequency)))
+  (if (> 0.0 f-max)
+      (cl-synthesizer:signal-assembly-error
+       :format-control "Max frequency of VCO ~a must be greater than 0: ~a"
+       :format-arguments (list name f-max)))
   (let* ((sample-rate (getf environment :sample-rate))
 	 (transfer-function-exp
 	  (lambda (input-value)
