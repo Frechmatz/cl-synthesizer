@@ -20,14 +20,14 @@
     ;; Set up oszillator modulating the amplification
     (cl-synthesizer:add-module
      rack "LFO-CV"
-     #'cl-synthesizer-modules-vco:vco
+     #'cl-synthesizer-modules-vco:vco-linear
      :base-frequency 0.5
      :v-peak 2.5) ;; will be moved up to 5.0 via gain of VCA
 
     ;; set up oszillator providing the audio signal
     (cl-synthesizer:add-module
      rack "VCO-AUDIO"
-     #'cl-synthesizer-modules-vco:vco
+     #'cl-synthesizer-modules-vco:vco-linear
      :base-frequency 10000.0
      :v-peak 5.0)
 

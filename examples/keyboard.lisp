@@ -22,9 +22,8 @@
 		      (format nil "~a-~a-~a" prefix voice-number name)))
 	       (cl-synthesizer:add-module
 		rack (make-module-name "VCO")
-		#'cl-synthesizer-modules-vco:vco
+		#'cl-synthesizer-modules-vco:vco-exponential
 		:base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
-		:cv-linear-max 5
 		:f-max 13000
 		:v-peak 5)
 	       (cl-synthesizer:add-module rack (make-module-name "ADSR") #'cl-synthesizer-modules-envelope:envelope
@@ -77,7 +76,7 @@
        :filename "/Users/olli/waves/adsr.wav")
       rack)))
 
-;;(cl-synthesizer-util:play-rack (cl-synthesizer-examples::synthesizer-example-keyboard) 10 :attach-speaker t :attach-midi t)
+;;(cl-synthesizer-util:play-rack (cl-synthesizer-examples::synthesizer-example-keyboard) 10 :attach-speaker t :attach-midi t)xk
 
 
 

@@ -2,7 +2,8 @@
 (defpackage :cl-synthesizer-modules-vco
   (:use :cl)
   (:export
-   :vco))
+   :vco-exponential
+   :vco-linear))
 
 (defpackage :cl-synthesizer-modules-midi-interface
   (:use :cl)

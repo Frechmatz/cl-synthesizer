@@ -19,14 +19,14 @@
     ;; Set up oscillator modulating the amplification
     (cl-synthesizer:add-module
      rack "LFO-CV"
-     #'cl-synthesizer-modules-vco:vco
+     #'cl-synthesizer-modules-vco:vco-linear
      :base-frequency 0.5
      :v-peak 5.0)
 
     ;; set up oscillator providing the audio signal
     (cl-synthesizer:add-module
      rack "VCO-AUDIO"
-     #'cl-synthesizer-modules-vco:vco
+     #'cl-synthesizer-modules-vco:vco-linear
      :base-frequency 10000.0
      :v-peak 5.0)
 
