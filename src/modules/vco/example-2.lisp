@@ -6,13 +6,12 @@
 (defun example ()
   "A Triangle Sweep"
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
-    ;; Set up LFO with frequency xxxx mit welcher frequenz geht dad ding los?
     (cl-synthesizer:add-module
      rack "LFO-1"
-     #'cl-synthesizer-modules-vco::vco-linear :v-peak 5 :cv-max 5 :base-frequency 10 :f-max 12000)
+     #'cl-synthesizer-modules-vco::vco-linear :v-peak 5 :cv-max 5 :base-frequency 2 :f-max 12000)
 
     (cl-synthesizer:add-module rack "VCO-1"
-			       #'cl-synthesizer-modules-vco::vco-linear :base-frequency 440 :cv-max 5 :f-max 660 :v-peak 5 :f-max 12000)
+			       #'cl-synthesizer-modules-vco::vco-linear :base-frequency 50 :cv-max 5 :v-peak 5 :f-max 12000)
     (cl-synthesizer:add-patch rack "LFO-1" :triangle "VCO-1" :cv)
     
     ;; Write Sweep to Wave-File
@@ -28,5 +27,5 @@
 
     rack))
 
-;;(cl-synthesizer-util:play-rack (cl-synthesizer-modules-vco-example-2::example) 10)
+;;(cl-synthesizer-util:play-rack (cl-synthesizer-modules-vco-example-2::example) 5)
   
