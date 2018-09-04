@@ -76,7 +76,7 @@
        :filename "/Users/olli/waves/adsr.wav")
       rack)))
 
-;;(cl-synthesizer-util:play-rack (cl-synthesizer-examples::synthesizer-example-keyboard) 10 :attach-speaker t :attach-midi t)xk
+;;(cl-synthesizer-util:play-rack (cl-synthesizer-examples::synthesizer-example-keyboard) 10 :attach-speaker t :attach-midi t)
 
 
 

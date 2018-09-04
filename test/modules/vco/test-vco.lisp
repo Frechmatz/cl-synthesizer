@@ -138,7 +138,7 @@
 					   (getf vco :get-output)
 					   :sine)))))
 		 ;; Allow some deviation due to algorithm used by get-frequency
-		 (format t "~%F: ~a~%" f)
+		 ;;(format t "~%F: ~a~%" f)
 		 (assert-true (and
 			       (<= 499.5 f)
 			       (<= f 500.5))))))
@@ -164,7 +164,7 @@
 					   (getf vco :get-output)
 					   :sine)))))
 		 ;; Allow some deviation due to algorithm used by get-frequency
-		 (format t "~%F: ~a~%" f)
+		 ;;(format t "~%F: ~a~%" f)
 		 ;; 6000 (linear) + 440 (base)
 		 (assert-true (and
 			       (<= 5999.5 f)
@@ -194,7 +194,7 @@
 					   (getf vco :get-output)
 					   :sine)))))
 		 ;; Allow some deviation due to algorithm used by get-frequency
-		 (format t "~%F: ~a~%" f)
+		 ;;(format t "~%F: ~a~%" f)
 		 (assert-true (and
 			       (<= 11999.5 f)
 			       (<= f 12000.5))))))
@@ -217,7 +217,7 @@
 					  (funcall
 					   (getf vco :get-output)
 					   :sine)))))
-		 (format t "~%F: ~a~%" f)
+		 ;;(format t "~%F: ~a~%" f)
 		 (assert-equal 0.0 f))))
 
 
@@ -245,7 +245,7 @@
 					   (getf vco :get-output)
 					   :sine)))))
 		 ;; Allow some deviation due to algorithm used by get-frequency
-		 (format t "~%F: ~a~%" f)
+		 ;;(format t "~%F: ~a~%" f)
 		 (assert-true (and
 			       (<= 11999.5 f)
 			       (<= f 12000.5))))))
@@ -263,12 +263,15 @@
 			 :update-fn (lambda()
 				      (funcall
 				       (getf vco :update)
-				       :cv -5.0 ;; this will cause frequency clipping
+				       :cv -12.0 ;; will be clipped to -5.0
 				       ))
 			 :get-output-fn (lambda ()
 					  (funcall
 					   (getf vco :get-output)
 					   :sine)))))
-		 (format t "~%F: ~a~%" f)
-		 (assert-equal 0.0 f))))
+		 ;; Allow some deviation due to algorithm used by get-frequency
+		 ;;(format t "~%F: ~a~%" f)
+		 (assert-true (and
+			       (<= 11999.5 f)
+			       (<= f 12000.5))))))
 
