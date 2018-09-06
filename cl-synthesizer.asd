@@ -79,8 +79,7 @@
 			:components ((:file "packages")
 				     (:file "vcoexample")
 				     (:file "midiccexample")
-				     (:file "keyboard")
-				     (:file "modulated-envelope")))
+				     (:file "keyboard")))
 	       ;;
 	       ;; Examples provided by module implementations.
 	       ;;
@@ -92,5 +91,8 @@
 			:serial t
 			:components ((:file "example-1")
 				     (:file "example-2")))
+	       (:module "src/modules/envelope"
+			:serial t
+			:components ((:file "example-1")))
 	       ))
 

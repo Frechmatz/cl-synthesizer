@@ -1,6 +1,11 @@
-(in-package :cl-synthesizer-examples)
+(defpackage :cl-synthesizer-modules-envelope-example-1
+  (:use :cl))
 
-(defun synthesizer-modulated-envelope-example ()
+(in-package :cl-synthesizer-modules-envelope-example-1)
+
+(defparameter *attach-speaker* t)
+
+(defun example ()
   "Modulate Envelope Attack Time with LFO"
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
 
@@ -54,15 +59,15 @@
      '((:channel-1 "ADSR" :output-socket :cv)
        (:channel-2 "LFO" :output-socket :saw)
        (:channel-3 "LINE-OUT" :input-socket :channel-1))
-     :filename "/Users/olli/waves/envelope.wav")
+     :filename "/Users/olli/waves/envelope-example-1.wav")
     
     rack))
 
 (defun play ()
   (cl-synthesizer-util:play-rack
-   (synthesizer-modulated-envelope-example)
+   (example)
    10 
-   :attach-speaker t
+   :attach-speaker *attach-speaker*
    :midi-device
    (cl-synthesizer-device-midi-sequencer:midi-sequencer
     "Midi-Sequencer"
