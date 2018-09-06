@@ -22,6 +22,8 @@
      rack "LFO-CV"
      #'cl-synthesizer-modules-vco:vco-linear
      :base-frequency 0.5
+     :cv-max 5.0
+     :f-max 12000
      :v-peak 2.5) ;; will be moved up to 5.0 via gain of VCA
 
     ;; set up oszillator providing the audio signal
@@ -29,6 +31,8 @@
      rack "VCO-AUDIO"
      #'cl-synthesizer-modules-vco:vco-linear
      :base-frequency 10000.0
+     :cv-max 5.0
+     :f-max 12000
      :v-peak 5.0)
 
     ;; Set up VCA with Gain
