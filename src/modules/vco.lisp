@@ -6,7 +6,7 @@
 
 (in-package :cl-synthesizer-modules-vco)
 
-(defun vco-base (name environment transfer-function &key f-max v-peak)
+(defun vco-base (name environment transfer-function &key f-max v-peak (duty-cycle 0.5))
   ""
   (if (not f-max)
       (cl-synthesizer:signal-assembly-error
@@ -24,6 +24,18 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "v-peak of VCO ~a must be greater than 0: ~a"
        :format-arguments (list name v-peak)))
+  (if (not duty-cycle)
+      (cl-synthesizer:signal-assembly-error
+       :format-control "duty-cycle of VCO ~a must not be nil"
+       :format-arguments (list name)))
+  (if (< duty-cycle 0)
+      (cl-synthesizer:signal-assembly-error
+       :format-control "duty-cycle of VCO ~a must not be negative: ~a"
+       :format-arguments (list name duty-cycle)))
+  (if (< 1.0 duty-cycle)
+      (cl-synthesizer:signal-assembly-error
+       :format-control "duty-cycle of VCO ~a must not be greater than 1: ~a"
+       :format-arguments (list name duty-cycle)))
   (let* ((sample-rate (getf environment :sample-rate))
 	 (phase-generator (cl-synthesizer-core:phase-generator sample-rate))
 	 (cur-sine-output 1.0)
@@ -55,9 +67,10 @@
 		   (setf cur-sine-output (* v-peak (cl-synthesizer-core:phase-sine-converter phi)))
 		   (setf cur-triangle-output (* v-peak (cl-synthesizer-core:phase-triangle-converter phi)))
 		   (setf cur-saw-output (* v-peak (cl-synthesizer-core:phase-saw-converter phi)))
-		   (setf cur-square-output (* v-peak (cl-synthesizer-core:phase-square-converter phi)))))))))
+		   (setf cur-square-output (* v-peak (cl-synthesizer-core:phase-square-converter
+						      phi :duty-cycle duty-cycle)))))))))
 
-(defun vco-exponential (name environment &key base-frequency f-max v-peak)
+(defun vco-exponential (name environment &key base-frequency f-max v-peak (duty-cycle 0.5))
   (if (not base-frequency)
       (cl-synthesizer:signal-assembly-error
        :format-control "base-frequency of VCO ~a must not be nil"
@@ -72,9 +85,10 @@
    (lambda (cv)
      (* base-frequency (expt 2 cv)))
    :f-max f-max
-   :v-peak v-peak))
+   :v-peak v-peak
+   :duty-cycle duty-cycle))
 
-(defun vco-linear (name environment &key base-frequency f-max v-peak cv-max)
+(defun vco-linear (name environment &key base-frequency f-max v-peak cv-max (duty-cycle 0.5))
   (if (not base-frequency)
       (cl-synthesizer:signal-assembly-error
        :format-control "base-frequency of VCO ~a must not be nil"
@@ -111,6 +125,7 @@
 	     (setf cur-cv cv-max))
 	 (funcall (getf linear-converter :get-y) cur-cv)))
      :f-max f-max
-     :v-peak v-peak)))
+     :v-peak v-peak
+     :duty-cycle duty-cycle)))
 
 
