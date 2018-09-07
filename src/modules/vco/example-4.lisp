@@ -30,14 +30,14 @@
        (:channel-2 "LFO-2" :output-socket :sine)
        (:channel-3 "VCO-1" :output-socket :sine)
        (:channel-4 "VCO-2" :output-socket :sine))
-     :filename "/Users/olli/waves/vco-example-4-oscilloscope.wav")
+     :filename "waves/vco-example-4-oscilloscope.wav")
     
     ;; Write LINE-OUT to Wave-File
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "LINE-OUT" :input-socket :channel-1) (:channel-2 "LINE-OUT" :input-socket :channel-2))
-     :filename "/Users/olli/waves/vco-example-4.wav")
+     :filename "waves/vco-example-4.wav")
     
     rack))
       

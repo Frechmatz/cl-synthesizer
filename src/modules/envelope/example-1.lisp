@@ -59,7 +59,7 @@
      '((:channel-1 "ADSR" :output-socket :cv)
        (:channel-2 "LFO" :output-socket :saw)
        (:channel-3 "LINE-OUT" :input-socket :channel-1))
-     :filename "/Users/olli/waves/envelope-example-1.wav")
+     :filename "waves/envelope-example-1.wav")
     
     rack))
 

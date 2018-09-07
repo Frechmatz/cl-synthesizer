@@ -26,7 +26,8 @@
     <li>name Name of the device.</li>
     <li>environment The synthesizer environment.</li>
     <li>:channel-count Number of channels.</li>
-    <li>:filename The full path of the file to be written.</li>
+    <li>:filename The relative path of the file to be written. The filename will be concatenated
+        with the base path as defined by the :output-directory property of the environment.</li>
     <li>:v-peak Optional peak voltage. The inputs of the device will be scaled
 	to v-peak. If for example v-peak is set to 20.0 an incoming voltage
 	of 5.0 results in a sample value of 5.0 / 20.0 -> 0.25 and an incoming
@@ -63,7 +64,7 @@
 		       (setf value 0.0))
 		   (push (input-to-wave value v-peak) samples))))
      :shutdown (lambda ()
-		 (let ((wave (cl-wave:open-wave filename :direction :output)))
+		 (let ((wave (cl-wave:open-wave (concatenate 'string (getf environment :output-directory) filename) :direction :output)))
 		   (cl-wave:set-num-channels wave channel-count)
 		   (cl-wave:set-sample-rate wave (getf environment :sample-rate))
 		   (cl-wave:set-frames wave (nreverse samples))

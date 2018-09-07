@@ -54,14 +54,14 @@
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "VCA" :output-socket :output-linear) (:channel-2 "ADSR" :output-socket :cv))
-     :filename "/Users/olli/waves/adsrplayground.wav")
+     :filename "waves/adsrplayground.wav")
 
     ;; Add LINE-OUT Monitor
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "LINE-OUT" :input-socket :channel-1))
-     :filename "/Users/olli/waves/lineout.wav")
+     :filename "waves/lineout.wav")
     
     rack))
 

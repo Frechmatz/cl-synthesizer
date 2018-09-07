@@ -19,7 +19,7 @@
        (:channel-2 "VCO" :output-socket :triangle)
        (:channel-3 "VCO" :output-socket :saw)
        (:channel-4 "VCO" :output-socket :square))
-     :filename "/Users/olli/waves/vco-example-1.wav")
+     :filename "waves/vco-example-1.wav")
 
     rack))
       

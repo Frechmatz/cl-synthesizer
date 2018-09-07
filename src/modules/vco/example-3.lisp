@@ -20,7 +20,7 @@
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "LINE-OUT" :input-socket :channel-1) (:channel-2 "LINE-OUT" :input-socket :channel-2))
-     :filename "/Users/olli/waves/vco-example-3.wav"
+     :filename "waves/vco-example-3.wav"
      :v-peak 5.0)
 
     rack))

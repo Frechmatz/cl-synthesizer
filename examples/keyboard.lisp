@@ -61,7 +61,7 @@
        rack
        #'cl-synthesizer-monitor-wave-handler:wave-file-handler
        '((:channel-1 "LINE-OUT" :input-socket :channel-1) (:channel-2 "LINE-OUT" :input-socket :channel-2))
-       :filename "/Users/olli/waves/lineout.wav")
+       :filename "waves/lineout.wav")
 
       ;; Add ADSR Monitor
       (cl-synthesizer-monitor:add-monitor
@@ -74,7 +74,7 @@
 	 (:channel-5 "VOICE-1-ADSR" :output-socket :cv)
 	 (:channel-6 "LINE-OUT" :input-socket :channel-2)
 	 )
-       :filename "/Users/olli/waves/adsr.wav")
+       :filename "waves/adsr.wav")
       rack)))
 
 ;;(cl-synthesizer-util:play-rack (cl-synthesizer-examples::synthesizer-example-keyboard) 10 :attach-speaker t :attach-midi t)

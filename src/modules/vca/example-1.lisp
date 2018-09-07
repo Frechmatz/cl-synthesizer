@@ -52,7 +52,7 @@
        (:channel-2 "VCA" :input-socket :input)
        (:channel-3 "VCA" :output-socket :output-linear)
        (:channel-4 "VCA" :output-socket :output-exponential))
-     :filename "/Users/olli/waves/vca-example-1.wav")
+     :filename "waves/vca-example-1.wav")
 
     rack))
 

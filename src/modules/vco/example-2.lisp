@@ -22,7 +22,7 @@
        (:channel-1 "VCO-1" :input-socket :cv)
        (:channel-2 "VCO-1" :output-socket :triangle)
        )
-     :filename "/Users/olli/waves/vco-example-2.wav")
+     :filename "waves/vco-example-2.wav")
 
     rack))
 
