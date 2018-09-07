@@ -77,7 +77,6 @@
 	       (:module "examples"
 			:serial t
 			:components ((:file "packages")
-				     (:file "midiccexample")
 				     (:file "keyboard")))
 	       ;;
 	       ;; Examples provided by module implementations.
@@ -95,5 +94,9 @@
 	       (:module "src/modules/envelope"
 			:serial t
 			:components ((:file "example-1")))
+	       (:module "src/modules/midi-interface"
+			:serial t
+			:components ((:file "example-1")
+				     (:file "example-2")))
 	       ))
 
