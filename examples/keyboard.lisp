@@ -2,6 +2,7 @@
 ;;
 ;; A MIDI Keyboard Instrument
 ;;
+;; Work in progress
 ;;
 
 (in-package :cl-synthesizer-examples)
