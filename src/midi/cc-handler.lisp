@@ -40,17 +40,7 @@
       <li>:update A function that is to be called with a list of midi-events.</li>
       <li>:get-output A function that returns the current output value.</li>
   </ul>
-  Example:
-  <pre><code>
-  (cl-synthesizer-midi:relative-cc-handler
-      cl-synthesizer-vendor:*arturia-minilab-mk2*
-      (list (list :controller-id :ENCODER-1 :weight 0.005)
-            (list :controller-id :ENCODER-9 :weight 0.02))
-      :channel 1
-      :cv-initial 2.5
-      :cv-min 0
-      :cv-max 5)
-  </code></pre>"
+  Examples: see modules/midi-interface/"
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (if (< cv-max cv-min)
       (cl-synthesizer:signal-assembly-error
