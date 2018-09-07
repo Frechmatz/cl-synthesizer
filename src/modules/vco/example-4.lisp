@@ -1,32 +1,11 @@
-;;
-;; VCO Examples
-;;
+(defpackage :cl-synthesizer-modules-vco-example-4
+  (:use :cl))
 
-(in-package :cl-synthesizer-examples)
+(in-package :cl-synthesizer-modules-vco-example-4)
 
-(defun synthesizer-example-vco-stereo-speaker ()
-  "Play two sinus waves in stereo"
-  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
-    (cl-synthesizer:add-module rack "VCO-1"
-				#'cl-synthesizer-modules-vco:vco-exponential :base-frequency 440 :f-max 8000 :v-peak 5)
-    (cl-synthesizer:add-module rack "VCO-2"
-				#'cl-synthesizer-modules-vco:vco-exponential :base-frequency 442 :f-max 8000 :v-peak 5)
-    (cl-synthesizer:add-patch rack "VCO-1" :sine "LINE-OUT" :channel-1)
-    (cl-synthesizer:add-patch rack "VCO-2" :sine "LINE-OUT" :channel-2)
-    
-    ;; Add LINE-OUT Monitor
-    (cl-synthesizer-monitor:add-monitor
-     rack
-     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-     '((:channel-1 "LINE-OUT" :input-socket :channel-1) (:channel-2 "LINE-OUT" :input-socket :channel-2))
-     :filename "/Users/olli/waves/VCOTwoChannelExample.wav"
-     :v-peak 5.0)
+(defparameter *attach-speaker* t)
 
-    rack))
-  
-;;(cl-synthesizer-util:play-rack (synthesizer-example-vco-stereo-speaker) 5 :attach-speaker t)
-
-(defun synthesizer-example-vco-lfo-stereo-speaker ()
+(defun example ()
   "Modulate sine with sine-lfo"
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module rack "LFO-1"
@@ -43,7 +22,7 @@
     (cl-synthesizer:add-patch rack "VCO-1" :sine "LINE-OUT" :channel-1)
     (cl-synthesizer:add-patch rack "VCO-2" :sine "LINE-OUT" :channel-2)
 
-    ;; Add Oscilloscope Monitor
+    ;; Write LFO/VCO outputs to Wave-File
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
@@ -51,16 +30,17 @@
        (:channel-2 "LFO-2" :output-socket :sine)
        (:channel-3 "VCO-1" :output-socket :sine)
        (:channel-4 "VCO-2" :output-socket :sine))
-     :filename "/Users/olli/waves/VCOFourChannelExample.wav")
+     :filename "/Users/olli/waves/vco-example-4-oscilloscope.wav")
     
-    ;; Add LINE-OUT Monitor
+    ;; Write LINE-OUT to Wave-File
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "LINE-OUT" :input-socket :channel-1) (:channel-2 "LINE-OUT" :input-socket :channel-2))
-     :filename "/Users/olli/waves/AudioOut.wav")
+     :filename "/Users/olli/waves/vco-example-4.wav")
     
     rack))
       
-;;(cl-synthesizer-util:play-rack (synthesizer-example-vco-lfo-stereo-speaker) 10 :attach-speaker t)
+;;(cl-synthesizer-util:play-rack (cl-synthesizer-modules-vco-example-4::example) 5 :attach-speaker *attach-speaker*)
+
 

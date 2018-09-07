@@ -77,7 +77,6 @@
 	       (:module "examples"
 			:serial t
 			:components ((:file "packages")
-				     (:file "vcoexample")
 				     (:file "midiccexample")
 				     (:file "keyboard")))
 	       ;;
@@ -90,7 +89,9 @@
 	       (:module "src/modules/vco"
 			:serial t
 			:components ((:file "example-1")
-				     (:file "example-2")))
+				     (:file "example-2")
+				     (:file "example-3")
+				     (:file "example-4")))
 	       (:module "src/modules/envelope"
 			:serial t
 			:components ((:file "example-1")))
