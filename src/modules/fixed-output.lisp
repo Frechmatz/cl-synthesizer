@@ -1,14 +1,22 @@
 ;;
 ;; A module with a fixed output value
 ;;
-;; Intended use is for the analysis of the behaviour
-;; of a component under a certain hard coded context.
-;;
 
 
 (in-package :cl-synthesizer-modules-fixed-output)
 
 (defun fixed-output (name environment &key value (output-socket :out))
+  "Creates a module with a fixed output value.
+   The function has the following arguments:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:value The value of the module output.</li>
+	<li>:output-socket Optional keyword that declares the output socket
+	    identifier to be exposed by the module. The default value is :out</li>
+    </ul>
+    The module has no inputs.
+    The module has one output socket according to the :output-socket argument."
   (declare (ignore name environment))
   (let ((outputs (list output-socket)))
     (list

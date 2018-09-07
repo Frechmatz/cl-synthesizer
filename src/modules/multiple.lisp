@@ -1,7 +1,18 @@
 (in-package :cl-synthesizer-modules-multiple)
 
 (defun multiple (name environment &key output-count)
-  "A multiple with n outputs output-1 ... output-n and one input 'input'"
+  "Creates a Multiple module. A multiple mirrors one input to n outputs.
+   The function has the following arguments:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:output-count The number of outputs.</li>
+    </ul>
+    The module has the following inputs:
+    <ul>
+	<li>:input The input signal to be mirrored to the outputs.</li>
+    </ul>
+    The module has outputs :output-1 ... :output-n."
   (declare (ignore environment))
   (if (<= output-count 0)
       (cl-synthesizer:signal-assembly-error
