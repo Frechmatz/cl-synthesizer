@@ -56,7 +56,7 @@
 			 (cv-gate-off 0.0)
 			 (controllers nil)
 			 (force-gate-retrigger nil))
-  "Creates a MIDI interface module. The module maps MIDI events to so called voices where each
+  "Creates a MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
     voice is represented by a control-voltage and a gate signal. The module supports the
     mapping of MIDI CC-Events to arbitary output sockets. The function has the following arguments:
     <ul>
@@ -97,7 +97,7 @@
 	    event will cause a retriggering of the gate signal. Otherwise the gate signal
 	    will stay on when it is already on.</li>
 	<li>:controllers Controllers can be used to declare additional output sockets that are
-	    exposed by the module. The controllers parameter consists of a list of property lists
+	    exposed by the module. The controllers argument consists of a list of property lists
 	    with the following keys:
 	    <ul>
 		<li>:socket A keyword that defines the output socket to be exposed by the modules.</li>
@@ -123,7 +123,7 @@
 	<li>In :PLAY-MODE-UNISONO play mode incoming notes are stacked. The first note causes
 	    the gate signal to switch to On. Further \"nested\" note-on events only result
 	    in a change of the CV output but the gate signal will stay On.
-	    This behaviour can be overridden with the :FORCE-GATE-RETRIGGER parameter.</li>
+	    This behaviour can be overridden with the :force-gate-retrigger parameter.</li>
     </ul>
     The module has the following inputs:
     <ul>
