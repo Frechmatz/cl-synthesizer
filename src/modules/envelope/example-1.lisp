@@ -9,12 +9,52 @@
   "Modulate Envelope Attack Time with LFO"
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
 
-    ;; Set up MIDI Interface and connect it to the MIDI input of the Rack
+    (cl-synthesizer:add-module
+     rack
+     "MIDI-SEQUENCER"
+     #'cl-synthesizer-modules-midi-sequencer:midi-sequencer :events
+     (list 
+      (list :timestamp-milli-seconds 0
+	    :midi-events (list
+			  (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+      (list :timestamp-milli-seconds 1000
+	    :midi-events (list
+			  (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
+
+      (list :timestamp-milli-seconds 2000
+	    :midi-events (list
+			  (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+      (list :timestamp-milli-seconds 3000
+	    :midi-events (list
+			  (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
+
+      (list :timestamp-milli-seconds 4000
+	    :midi-events (list
+			  (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+      (list :timestamp-milli-seconds 5000
+	    :midi-events (list
+			  (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
+
+      (list :timestamp-milli-seconds 6000
+	    :midi-events (list
+			  (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+      (list :timestamp-milli-seconds 7000
+	    :midi-events (list
+			  (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
+
+      (list :timestamp-milli-seconds 8000
+	    :midi-events (list
+			  (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+      (list :timestamp-milli-seconds 9000
+	    :midi-events (list
+			  (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))))
+    
+    ;; Set up MIDI Interface and connect it with the MIDI Sequencer
     (cl-synthesizer:add-module
      rack
      "MIDI-IFC"
      #'cl-synthesizer-modules-midi-interface:midi-interface :voice-count 1)
-    (cl-synthesizer:add-patch rack "MIDI-IN" :midi-events "MIDI-IFC" :midi-events)
+    (cl-synthesizer:add-patch rack "MIDI-SEQUENCER" :midi-events "MIDI-IFC" :midi-events)
 
     ;; Add LFO
     (cl-synthesizer:add-module
@@ -67,47 +107,6 @@
   (cl-synthesizer-util:play-rack
    (example)
    10 
-   :attach-speaker *attach-speaker*
-   :midi-device
-   (cl-synthesizer-device-midi-sequencer:midi-sequencer
-    "Midi-Sequencer"
-    (cl-synthesizer:make-environment)
-    :events
-    (list 
-     (list :timestamp-milli-seconds 0
-	   :midi-events (list
-			 (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
-     (list :timestamp-milli-seconds 1000
-	   :midi-events (list
-			 (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
-
-     (list :timestamp-milli-seconds 2000
-	   :midi-events (list
-			 (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
-     (list :timestamp-milli-seconds 3000
-	   :midi-events (list
-			 (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
-
-     (list :timestamp-milli-seconds 4000
-	   :midi-events (list
-			 (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
-     (list :timestamp-milli-seconds 5000
-	   :midi-events (list
-			 (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
-
-     (list :timestamp-milli-seconds 6000
-	   :midi-events (list
-			 (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
-     (list :timestamp-milli-seconds 7000
-	   :midi-events (list
-			 (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
-
-     (list :timestamp-milli-seconds 8000
-	   :midi-events (list
-			 (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
-     (list :timestamp-milli-seconds 9000
-	   :midi-events (list
-			 (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
-     ))))
+   :attach-speaker *attach-speaker*))
 
 ;; (play)

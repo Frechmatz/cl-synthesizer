@@ -52,6 +52,7 @@
 				     (:file "envelope")
 				     (:file "vca")
 				     (:file "midi-interface")
+				     (:file "midi-sequencer")
 				     (:file "fixed-output")
 				     ))
 	       (:module "src/device"
@@ -59,8 +60,7 @@
 			:components ((:file "packages")
 				     (:file "speaker")
 				     (:file "wave-file-writer")
-				     (:file "midi-device")
-				     (:file "midi-sequencer")))
+				     (:file "midi-device")))
 	       (:module "src/monitor"
 			:serial t
 			:components ((:file "packages")

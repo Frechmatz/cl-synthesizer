@@ -9,16 +9,19 @@
 
 (in-package :cl-synthesizer-playground-envelope)
 
-(defparameter *adsr-environment* (cl-synthesizer:make-environment))
-
-(defun synthesizer-playground-adsr ()
+(defun synthesizer-playground-adsr (&key midi-events)
   "Envelope-Example"
-  (let ((rack (cl-synthesizer:make-rack :environment *adsr-environment*)))
+  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
 
-    ;; Set up MIDI Interface and connect it to the MIDI input of the Rack
+    (cl-synthesizer:add-module
+     rack
+     "MIDI-SEQUENCER"
+     #'cl-synthesizer-modules-midi-sequencer:midi-sequencer :events midi-events)
+
+    ;; Set up MIDI Interface and connect it with the midi-sequencer
     (cl-synthesizer:add-module rack "MIDI-IFC"
 				#'cl-synthesizer-modules-midi-interface:midi-interface :voice-count 1)
-    (cl-synthesizer:add-patch rack "MIDI-IN" :midi-events "MIDI-IFC" :midi-events)
+    (cl-synthesizer:add-patch rack "MIDI-SEQUENCER" :midi-events "MIDI-IFC" :midi-events)
 
     ;; Add VCO, ADSR, VCA
     (cl-synthesizer:add-module rack "VCO" #'cl-synthesizer-modules-vco:vco-exponential
@@ -67,14 +70,8 @@
 
 (defun play ()
   (cl-synthesizer-util:play-rack
-   (synthesizer-playground-adsr)
-   10 
-   :attach-speaker t
-   :midi-device
-   (cl-synthesizer-device-midi-sequencer:midi-sequencer
-    "Midi-Device"
-    *adsr-environment*
-    :events
+   (synthesizer-playground-adsr
+    :midi-events
     (list 
      (list :timestamp-milli-seconds 20
 	   :midi-events (list
@@ -82,59 +79,48 @@
      (list :timestamp-milli-seconds 2020
 	   :midi-events (list
 			 (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
-
      (list :timestamp-milli-seconds 3020
 	   :midi-events (list
 			 (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
      (list :timestamp-milli-seconds 3520
 	   :midi-events (list
-			 (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
-     ))))
+			 (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))))
+   10 
+   :attach-speaker t))
+
 
 ;; (play)
 
 (defun play2 ()
   (cl-synthesizer-util:play-rack
-   (synthesizer-playground-adsr)
-   7 
-   :attach-speaker t
-   :midi-device
-   (cl-synthesizer-device-midi-sequencer:midi-sequencer
-    "Midi-Device"
-    *adsr-environment*
-    :events
+   (synthesizer-playground-adsr
+    :midi-events
     (list 
      (list :timestamp-milli-seconds 20
 	   :midi-events (list
 			 (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
      (list :timestamp-milli-seconds 4020
 	   :midi-events (list
-			 (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
-
-     ))))
+			 (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))))
+   7 
+   :attach-speaker t))
 
 ;; (play2)
 
 
 (defun play3 ()
   (cl-synthesizer-util:play-rack
-   (synthesizer-playground-adsr)
-   10 
-   :attach-speaker t
-   :midi-device
-   (cl-synthesizer-device-midi-sequencer:midi-sequencer
-    "Midi-Device"
-    *adsr-environment*
-    :events
+   (synthesizer-playground-adsr
+    :midi-events
     (list 
      (list :timestamp-milli-seconds 20
 	   :midi-events (list
 			 (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
      (list :timestamp-milli-seconds 700
 	   :midi-events (list
-			 (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
-
-     ))))
+			 (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))))
+   10 
+   :attach-speaker t))
 
 ;; (play3)
 

@@ -8,11 +8,6 @@
   (:export
    :midi-device))
 
-(defpackage :cl-synthesizer-device-midi-sequencer
-  (:use :cl)
-  (:export
-   :midi-sequencer))
-
 (defpackage :cl-synthesizer-device-wave-file-writer
   (:use :cl)
   (:export

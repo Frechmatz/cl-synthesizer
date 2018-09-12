@@ -27,3 +27,8 @@
 (defpackage :cl-synthesizer-modules-fixed-output
   (:use :cl)
   (:export :fixed-output))
+
+(defpackage ::cl-synthesizer-modules-midi-sequencer
+  (:use :cl)
+  (:export :midi-sequencer))
+
