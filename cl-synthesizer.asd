@@ -98,5 +98,8 @@
 			:serial t
 			:components ((:file "example-1")
 				     (:file "example-2")))
+	       (:module "src/modules/midi-sequencer"
+			:serial t
+			:components ((:file "example-1")))
 	       ))
 
