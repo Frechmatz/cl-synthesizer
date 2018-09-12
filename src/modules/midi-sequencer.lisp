@@ -2,13 +2,27 @@
 ;;
 ;; A simple MIDI sequencer
 ;;
-;; Work in progress
 ;;
 
 (in-package :cl-synthesizer-modules-midi-sequencer)
 
 (defun midi-sequencer (name environment &key events)
-  "events: List of (:timestamp-milli-seconds time-ms :midi-events (list midi-event))"
+  "Creates a Midi-Sequencer module.
+	The function has the following arguments:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:events A list of Midi event declarations. Each declaration
+	    entry is a property list with the following keys:
+	    <ul>
+		<li>:timestamp-milli-seconds Point of time when events are to be fired.</li>
+		<li>:midi-events List of Midi events to be fired. For the format of a single
+		    Midi event see /src/midi/event.lisp.</li>
+	    </ul>
+	</li>
+    </ul>
+    The module has no inputs.
+    The module has one output socket :midi-events."
   (declare (ignore name))
   (let ((lookup-hash (make-hash-table :test #'eq))
 	(ticks-per-milli-second (/ (getf environment :sample-rate) 1000))
