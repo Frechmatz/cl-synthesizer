@@ -59,13 +59,13 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "speaker")
-				     (:file "wave-file-writer")
 				     (:file "midi-device")))
 	       (:module "src/monitor"
 			:serial t
 			:components ((:file "packages")
 				     (:file "monitor")
-				     (:file "wave-file-handler")))
+				     (:file "wave-file-handler")
+				     (:file "wave-file-writer")))
 	       (:module "src/vendor"
 			:serial t
 			:components ((:file "packages")

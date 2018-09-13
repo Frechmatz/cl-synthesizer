@@ -10,7 +10,7 @@
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((handler 
 	 ;; https://stackoverflow.com/questions/2627262/how-do-i-splice-into-a-list-outside-of-a-macro-in-common-lisp
-	 (apply #'cl-synthesizer-device-wave-file-writer:wave-file-writer
+	 (apply #'cl-synthesizer-monitor-wave-file-writer:wave-file-writer
 	  name
 	  environment
 	  :filename filename

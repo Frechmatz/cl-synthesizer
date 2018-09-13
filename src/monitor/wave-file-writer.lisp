@@ -1,9 +1,10 @@
 ;;
 ;;
-;; A Wave-File-Writer Device
+;; A Wave-File-Writer Monitor Backend
 ;;
 ;;
-(in-package :cl-synthesizer-device-wave-file-writer)
+
+(in-package :cl-synthesizer-monitor-wave-file-writer)
 
 (defun wave-writer-float-to-int16 (value)
   (cond
@@ -20,27 +21,27 @@
    (/ f v-peak)))
 
 (defun wave-file-writer (name environment &key channel-count filename (v-peak 5.0))
-  "Creates a wave-file-writer device. The device writes files in \"Waveform Audio File\" (\"WAV\") format.
+  "Creates a wave-file-writer. Writes files in \"Waveform Audio File\" (\"WAV\") format.
     The function has the following arguments:
   <ul>
-    <li>name Name of the device.</li>
+    <li>name Name of the writer.</li>
     <li>environment The synthesizer environment.</li>
     <li>:channel-count Number of channels.</li>
     <li>:filename The relative path of the file to be written. The filename will be concatenated
         with the base path as defined by the :output-directory property of the environment.</li>
-    <li>:v-peak Optional peak voltage. The inputs of the device will be scaled
+    <li>:v-peak Optional peak voltage. The inputs of the component will be scaled
 	to v-peak. If for example v-peak is set to 20.0 an incoming voltage
 	of 5.0 results in a sample value of 5.0 / 20.0 -> 0.25 and an incoming
 	voltage of -5.0 results in a sample value of -0.25. The default value
 	is 5.0. Incoming voltages will be clipped according to v-peak.</li>
   </ul>
-  The device has the following inputs:
+  The component has the following inputs:
   <ul>
       <li>:channel-1 ... :channel-n The sample values of the generated frames
 	  are written in order :channel-1 ... :channel-n</li>
   </ul>
-  The device has no outputs.
-  The actual wave-file is written by the :shutdown function exposed by the device."
+  The component has no outputs.
+  The actual wave-file is written by the :shutdown function exposed by the component."
   (if (<= channel-count 0)
       (cl-synthesizer:signal-assembly-error
        :format-control "~a: channel-count must be greater than 0: ~a"

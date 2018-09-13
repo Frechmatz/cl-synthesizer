@@ -10,3 +10,9 @@
    :wave-file-handler
    ))
 
+(defpackage :cl-synthesizer-monitor-wave-file-writer
+  (:use :cl)
+  (:export
+   :wave-file-writer
+   ))
+
