@@ -4,9 +4,9 @@
   (let ((symbol-name (getf device-settings :symbol-name))
 	(package-name (getf device-settings :package-name)))
     (if (not symbol-name)
-	(error "Device instantiation failed. :symbol-name is a mandatory device configuration setting")) 
+	(error "Device instantiation failed. :symbol-name is a mandatory device configuration property")) 
     (if (not package-name)
-	(error "Device instantiation failed. :package-name is a mandatory device configuration setting")) 
+	(error "Device instantiation failed. :package-name is a mandatory device configuration property")) 
     (format t "~%Instantiating device ~a::~a..." symbol-name package-name)
     (let ((ctor (find-symbol symbol-name package-name)))
       (if ctor
@@ -20,7 +20,7 @@
 	 settings
 	 name
 	 environment)
-	(error (format nil "Audio device required but not configured by environment")))))
+	(error (format nil "Audio device requested but not configured by environment")))))
 
 (defun make-midi-device (name environment)
   (let ((settings (getf environment :midi-device)))
@@ -29,7 +29,7 @@
 	 settings
 	 name
 	 environment)
-	(error (format nil "MIDI device required but not configured by environment")))))
+	(error (format nil "MIDI device requested but not configured by environment")))))
 
 (defun play-rack (rack duration-seconds &key (attach-speaker nil) (attach-midi nil))
   (let* ((environment (slot-value rack 'cl-synthesizer::environment)))
