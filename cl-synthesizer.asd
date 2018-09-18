@@ -8,12 +8,7 @@
   :description "An audio synthesizer"
   :long-description "An audio synthesizer"
   :depends-on (:alexandria
-	       :cl-out123
-	       :cl-wave
-	       :verbose
-	       :bordeaux-threads
-	       :coremidi
-	       :queues.simple-cqueue)
+	       :cl-wave)
   :components ((:module "src/util"
 			:serial t
 			:components ((:file "packages")
@@ -56,11 +51,6 @@
 				     (:file "midi-sequencer")
 				     (:file "fixed-output")
 				     ))
-	       (:module "src/device"
-			:serial t
-			:components ((:file "packages")
-				     (:file "speaker")
-				     (:file "midi-device")))
 	       (:module "src/monitor"
 			:serial t
 			:components ((:file "packages")
