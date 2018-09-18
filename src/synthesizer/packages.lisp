@@ -16,5 +16,6 @@
    :update
    :shutdown
    :get-line-out-adapter
-   :get-midi-in-adapter))
+   :get-midi-in-adapter
+   :play-rack))
 

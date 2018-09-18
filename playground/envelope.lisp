@@ -69,7 +69,7 @@
     rack))
 
 (defun play ()
-  (cl-synthesizer-util:play-rack
+  (cl-synthesizer:play-rack
    (synthesizer-playground-adsr
     :midi-events
     (list 
@@ -92,7 +92,7 @@
 ;; (play)
 
 (defun play2 ()
-  (cl-synthesizer-util:play-rack
+  (cl-synthesizer:play-rack
    (synthesizer-playground-adsr
     :midi-events
     (list 
@@ -109,7 +109,7 @@
 
 
 (defun play3 ()
-  (cl-synthesizer-util:play-rack
+  (cl-synthesizer:play-rack
    (synthesizer-playground-adsr
     :midi-events
     (list 

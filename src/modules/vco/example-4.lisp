@@ -41,6 +41,6 @@
     
     rack))
       
-;;(cl-synthesizer-util:play-rack (cl-synthesizer-modules-vco-example-4::example) 5 :attach-speaker *attach-speaker*)
+;;(cl-synthesizer:play-rack (cl-synthesizer-modules-vco-example-4::example) 5 :attach-speaker *attach-speaker*)
 
 

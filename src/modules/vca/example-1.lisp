@@ -57,7 +57,7 @@
     rack))
 
 (defun play-example()
-  (cl-synthesizer-util:play-rack
+  (cl-synthesizer:play-rack
    (example)
    5))
 

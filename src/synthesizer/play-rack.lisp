@@ -1,4 +1,4 @@
-(in-package :cl-synthesizer-util)
+(in-package :cl-synthesizer)
 
 (defun prepare-init-args (environment initargs)
   "Resolves init arguments that are defined as functions by calling the 
@@ -43,15 +43,15 @@
 	(error (format nil "MIDI device requested but not configured by environment")))))
 
 (defun play-rack (rack duration-seconds &key (attach-speaker nil) (attach-midi nil))
-  (let* ((environment (slot-value rack 'cl-synthesizer::environment)))
+  (let* ((environment (slot-value rack 'environment)))
     (if attach-speaker
-	(funcall (getf (cl-synthesizer:get-line-out-adapter rack) :set-device)
+	(funcall (getf (get-line-out-adapter rack) :set-device)
 		 (make-audio-device "SPEAKER" environment)))
     (if attach-midi
-	(funcall (getf (cl-synthesizer:get-midi-in-adapter rack) :set-device)
+	(funcall (getf (get-midi-in-adapter rack) :set-device)
 		 (make-midi-device "MIDI" environment)))
     (dotimes (i (* duration-seconds (getf environment :sample-rate)))
-      (cl-synthesizer:update rack))
-    (cl-synthesizer:shutdown rack)
+      (update rack))
+    (shutdown rack)
     "DONE"))
 

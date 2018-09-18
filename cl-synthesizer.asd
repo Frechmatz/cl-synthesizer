@@ -27,6 +27,7 @@
 				     (:file "rack")
 				     (:file "line-out-adapter")
 				     (:file "midi-in-adapter")
+				     (:file "play-rack")
 				     ))
 	       (:module "src/core"
 			:serial t
@@ -70,10 +71,6 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "arturiaminilabmk2")))
-	       (:module "util"
-			:serial t
-			:components ((:file "packages")
-				     (:file "play-rack")))
 	       (:module "examples"
 			:serial t
 			:components ((:file "packages")

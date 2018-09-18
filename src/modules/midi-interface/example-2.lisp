@@ -31,5 +31,5 @@
     rack))
 
 ;; Requires speaker and midi devices.
-;;(cl-synthesizer-util:play-rack (cl-synthesizer-modules-midi-interface-example-2::example) 10 :attach-speaker t :attach-midi t)
+;;(cl-synthesizer:play-rack (cl-synthesizer-modules-midi-interface-example-2::example) 10 :attach-speaker t :attach-midi t)
 
