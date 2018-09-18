@@ -7,14 +7,8 @@
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "An audio synthesizer"
   :long-description "An audio synthesizer"
-  :depends-on (
-	       ;;:cl-portaudio
-	       ;;:flexi-streams
-	       :alexandria
-	       :lisp-unit
-	       :cl-wave
-	       :verbose
-	       :bordeaux-threads)
+  :depends-on (:alexandria
+	       :lisp-unit)
   :components ((:module "src/util"
 			:serial t
 			:components ((:file "packages")
