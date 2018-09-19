@@ -35,12 +35,13 @@
   (slot-value (get-rm-module rack "MIDI-IN") 'module))
 
 (defun add-hook (rack hook)
-  "Hook consists a property list with the following properties:
-   - :update function without arguments
-   - :shutdown function without arguments
-   Hooks must not manipulate the rack.
-   Hooks may not be called in certain situations such as when
-   a rack is a embedded into another rack."
+  "Add a hook to a rack. A hook is called each time after the rack has updated its state.
+   A hook consists a property list with the following keys:
+   <ul>
+      <li>:update A function with no arguments that is called after the rack has updated its state.</li>
+      <li>:shutdown A function with no arguments that is called when the rack is shutting down.</li>
+   </ul>
+   Hooks must not modify the rack."
   (push hook (slot-value rack 'hooks)))
 
 (defun make-rack (&key environment)
