@@ -1,15 +1,34 @@
 (defpackage :cl-synthesizer-makedoc (:use :cl))
 (in-package :cl-synthesizer-makedoc)
 
+(defun lambda-list-arg-to-string (arg)
+  (cond
+    ((keywordp arg)
+     (format nil ":~a" arg))
+    ((symbolp arg)
+     (symbol-name arg))
+    ((listp arg)
+     (concatenate 'string
+		  "("
+		  (reduce
+		   (lambda(buffer item)
+		     (concatenate 'string buffer
+				  (if (> (length buffer) 0) " " "")
+				  (lambda-list-arg-to-string item)))
+		   arg
+		   :initial-value "")
+		  ")"))
+    (t (format nil "~a" arg))))
+
+    
+
 ;; uses sbcl extensions
 (defun make-function-declaration-string (f)
   (declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((f-name (symbol-name f))
 	(f-lambda-list-str
 	 (mapcar
-	  ;; if item is not a symbol then omit it
-	  ;; this is the case for default values of key arguments
-	  (lambda (item) (if (symbolp item) (symbol-name item) ""))
+	  (lambda (item) (lambda-list-arg-to-string item))
 	  (sb-introspect:function-lambda-list f))))
     (let ((ll (reduce
 	       (lambda(buffer item) (concatenate 'string buffer item " "))
@@ -34,33 +53,43 @@
    "</p>"))
 
 (defun current-date ()
+  (declare (optimize (debug 3) (speed 0) (space 0)))
   (multiple-value-bind (sec min hr day mon yr dow dst-p tz)
       (get-decoded-time)
     (declare (ignore dow dst-p tz))
     ;; 2018-09-19 21:28:16
-    (format nil "~4,'0d-~2,'0d-~2,'0d  ~2,0d:~2,0d:~2,0d" yr mon day hr min sec)))
+    (let ((str (format nil "~4,'0d-~2,'0d-~2,'0d  ~2,'0d:~2,'0d:~2,'0d" yr mon day hr min sec)))
+      ;;(break)
+      str)))
+
   
 (defun write-html ()
     (let ((docstr (concatenate
 		   'string
 		   "<html><body>"
 		   "<h1>cl-synthesizer</h1>"
-		   "An experimental modular audio synthesizer implemented in Common Lisp."
-		   "<p>Work in progress...</p>"
-		   "<h2>Rack</h2>"
+		   "An experimental modular audio synthesizer implemented in Common Lisp. The project is work in progress."
+		   "<p>" (documentation 'cl-synthesizer::rack 'type) "</p>"
+		   "<p>Example</p>"
+		   "<p>TODO</p>"
+		   "<h2>Installation</h2>"
+		   "<p>TODO</p>"
+		   "<h2>API Reference</h2>"
+		   "<h3>Environment</h3>"
+		   (make-function-string 'cl-synthesizer:make-environment)
+		   "<h3>Rack</h3>"
 		   (make-function-string 'cl-synthesizer:make-rack)
 		   (make-function-string 'cl-synthesizer:add-module)
 		   (make-function-string 'cl-synthesizer:add-patch)
 		   (make-function-string 'cl-synthesizer:update)
 		   (make-function-string 'cl-synthesizer:play-rack)
-		   (make-function-string 'cl-synthesizer:make-environment)
 		   (make-function-string 'cl-synthesizer:get-environment)
 		   (make-function-string 'cl-synthesizer:get-module)
 		   (make-function-string 'cl-synthesizer:get-patch)
 		   (make-function-string 'cl-synthesizer:get-line-out-adapter)
 		   (make-function-string 'cl-synthesizer:get-midi-in-adapter)
 		   (make-function-string 'cl-synthesizer:add-hook)
-		   "<h2>Modules</h2>"
+		   "<h3>Modules</h3>"
 		   (make-function-string 'cl-synthesizer-modules-vco:vco-linear)
 		   (make-function-string 'cl-synthesizer-modules-vco:vco-exponential)
 		   (make-function-string 'cl-synthesizer-modules-vca:vca)
@@ -69,10 +98,10 @@
 		   (make-function-string 'cl-synthesizer-modules-midi-interface:midi-interface)
 		   (make-function-string 'cl-synthesizer-modules-envelope:envelope)
 		   (make-function-string 'cl-synthesizer-modules-fixed-output:fixed-output)
-		   "<h2>Monitor</h2>"
+		   "<h3>Monitor</h3>"
 		   (make-function-string 'cl-synthesizer-monitor:add-monitor)
-		   (documentation 'cl-synthesizer-monitor:add-monitor 'function)
-		   "<h2>Devices</h2>"
+		   (make-function-string 'cl-synthesizer-monitor-wave-handler:wave-file-handler)
+		   "<h3>Devices</h3>"
 		   (make-function-string 'cl-synthesizer-device-speaker:speaker-cl-out123)
 		   (make-function-string 'cl-synthesizer-device-midi:midi-device)
 		   "<p><small>Readme generated " (current-date) "</small></p>"
@@ -81,7 +110,8 @@
       (with-open-file (fh "/Users/olli/src/lisp/cl-synthesizer/makedoc/doc.html"
 			  :direction :output
 			  :if-exists :supersede
-			  :if-does-not-exist :create)
+			  :if-does-not-exist :create
+			  :external-format :utf-8)
 	(format fh "~a" docstr))))
 
 ;;(write-html)
