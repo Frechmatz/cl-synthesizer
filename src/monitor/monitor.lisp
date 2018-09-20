@@ -38,24 +38,24 @@
 	     :format-control "Monitor: Input socket ~a of module ~a is not connected with a module"
 	     :format-arguments (list socket-key module-name ))))))
 
-(defun add-monitor (rack monitor-backend socket-mappings &rest additional-backend-args)
+(defun add-monitor (rack monitor-handler socket-mappings &rest additional-handler-args)
    "Adds a monitor to a rack. A monitor is a high-level Rack hook that
     collects module states (input/output sockets) and passes them
-    to a monitor backend. A monitor backend can for example be a
+    to a monitor handler. A monitor handler can for example be a
     Wave-File-Writer. The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
-	<li>monitor-backend A function that instantiates the monitor backend.
+	<li>monitor-handler A function that instantiates the monitor handler.
 	    This function is called with the following arguments:
 	    <ul>
 		<li>name A name.</li>
 		<li>environment The synthesizer environment.</li>
 		<li>output-keywords A list of keywords declaring the keyword
-		    parameters with which the monitor backend update function
+		    parameters with which the monitor handler update function
 		    will be called.</li>
-		<li>additional-backend-args Any additional keyword parameters as
+		<li>additional-handler-args Any additional keyword parameters as
 		    passed to the monitor function. These parameters can be
-		    used to initialize backend specific properties such as
+		    used to initialize handler specific properties such as
 		    a filename.</li>
 	    </ul>
 	    The function must return a property list with the following keys:
@@ -69,13 +69,13 @@
 	</li>
 	<li>socket-mappings Declares a list of mappings of specific sockets of
 	    specific modules to keyword parameters that will be passed to the
-	    update function of the backend. Each mapping entry has the following format:
+	    update function of the handler. Each mapping entry has the following format:
 	    <ul>
-		<li>key Keyword to be used as keyword parameter when the backend
-		    update function is called, for example :channel-1.
-		    For now this key must be one that is supported by the backend. For
-		    example the Wave-File-Writer backend only understands :channel-n
-		    keys. This might be changed in a later point of time.</li>
+		<li>key Keyword to be used as keyword parameter when calling
+		    the update function of the handler, for example :channel-1.
+		    For now this key must be one that is supported by the actual handler. 
+                    For example the Wave-File handler only supports :channel-n
+		    keys.</li>
 		<li>module-name Name of the module from which the state of
 		    a certain input/output socket is to be retrieved, for
 		    example \"ADSR\"</li>
@@ -83,13 +83,13 @@
 		    or the value of an output-socket. Must be :input-socket or
 		    :output-socket</li>
 		<li>socket A keyword that identifies one of the input/output sockets
-		    as provided by the module, for example :cv</li>
+		    provided by the module, for example :cv</li>
 	    </ul>
 	</li>
-	<li>&rest additional-backend-args Optional keyword arguments to be passed to
-	    the backend instantiation function.</li>
+	<li>&rest additional-handler-args Optional keyword arguments to be passed to
+	    the handler instantiation function.</li>
     </ul>
-    Example using the wave-file-handler monitor backend:
+    Example using as handler wave-file-handler:
     <pre><code>
     (cl-synthesizer-monitor:add-monitor
      rack
@@ -127,9 +127,9 @@
 	  (push (list key handler)  output-handlers))))
     (let* ((backend
 	    (apply
-	     monitor-backend
-	     "Monitor-Backend"
-	     (cl-synthesizer:get-environment rack) keys additional-backend-args))
+	     monitor-handler
+	     "Monitor-Handler"
+	     (cl-synthesizer:get-environment rack) keys additional-handler-args))
 	   (update-fn (getf backend :update)))
       (cl-synthesizer:add-hook
        rack

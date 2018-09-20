@@ -2,14 +2,16 @@
 (in-package :cl-synthesizer-monitor-wave-handler)
 
 (defun wave-file-handler (name environment outputs &rest rest &key filename &allow-other-keys)
-  "Monitor handler which writes its input into a Wave file. For now the keys
-   declared by the outputs list must match the input keys as defined by the 
-   wave writer module (channel-1 ... channel-n). If there is a mismatch
-   an assembly error is signalled. More features to come such as mapping 
-   of keys."
-  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
+  "Creates a monitor handler which writes its inputs into a Wave file.
+    The function has the following arguments:
+    <ul>
+	<li>name A name.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>outputs The output keys as defined by the Monitor Socket-Mapping. For now
+	these must be :channel-1 ... :channel-n.</li>
+	<li>:filename A file path relative to the output directory as defined by the environment.</li>
+    </ul>"
   (let ((handler 
-	 ;; https://stackoverflow.com/questions/2627262/how-do-i-splice-into-a-list-outside-of-a-macro-in-common-lisp
 	 (apply #'cl-synthesizer-monitor-wave-file-writer:wave-file-writer
 	  name
 	  environment

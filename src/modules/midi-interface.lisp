@@ -65,35 +65,33 @@
 	<li>:voice-count The number of voices to be exposed by the module. Each voice consists
 	    of the following output sockets:
 	    <ul>
-		<li>:GATE-n The gate signal, for example :GATE-1 n = 1..voice-count.</li>
-		<li>:CV-n A control voltage representing the note number, for example :CV-1.
+		<li>:gate-n The gate signal. n = 1..voice-count.</li>
+		<li>:cv-n A control voltage representing the note number.
 		    n = 1..voice-count</li>
 	    </ul>
-	    The default voice count is 1.</li>
+        </li>
 	<li>:channel Optional MIDI channel to which note events must belong. By default the
 	    channel is ignored. This setting does not effect the evaluation of
 	    CC-Events that are handled by controllers. Controllers must implement
 	    channel filtering on their own.</li>
 	<li>:note-number-to-cv An optional function that is called with a MIDI note number
-	    and returns a control-voltage. The default implementation is
-	    (lambda (note-number) (/ note-number 12)))</li>
+	    and returns a control-voltage.</li>
 	<li>:play-mode
 	    <ul>
-		<li>:PLAY-MODE-POLY Polyphonic play mode. Incoming note events will be
+		<li>:play-mode-poly Polyphonic play mode. Incoming note events will be
 		    dispatched to \"available\" voices, where a voice is available
 		    when it meets certain criteria. These criteria are defined
 		    and implemented by the cl-synthesizer-midi-voice-manager:voice-manager
 		    package.</li>
-		<li>:PLAY-MODE-UNISONO Monophonic play mode. All voices exposed by the module
+		<li>:play-mode-unisono Monophonic play mode. All voices exposed by the module
 		    are set to the current \"active\" note. Notes are stacked. When a note is
 		    released, the voice outputs switch to the previous note. This logic is
 		    also implemented by the cl-synthesizer-midi-voice-manager:voice-manager
 		    package.</li>
-	    </ul>
-	    The default value is :PLAY-MODE-POLY</li>
-	<li>:cv-gate-on The \"Gate on\" control voltage. The default value is 5.0</li>
-	<li>:cv-gate-off The \"Gate off\" control voltage. The default value is 0.0</li>
-	<li>:force-gate-retrigger If t then in :PLAY-MODE-UNISONO play mode each note
+	    </ul></li>
+	<li>:cv-gate-on The \"Gate on\" control voltage.</li>
+	<li>:cv-gate-off The \"Gate off\" control voltage.</li>
+	<li>:force-gate-retrigger If t then in :play-mode-unisono play mode each note
 	    event will cause a retriggering of the gate signal. Otherwise the gate signal
 	    will stay on when it is already on.</li>
 	<li>:controllers Controllers can be used to declare additional output sockets that are
@@ -115,12 +113,12 @@
     </ul>
     Gate transitions are implemented as follows:
     <ul>
-	<li>In :PLAY-MODE-POLY play mode each incoming note causes that the gate signal of the
+	<li>In :play-mode-poly play mode each incoming note causes that the gate signal of the
 	    assigned voice switches to On. If the gate signal of the assigned voice is already On
 	    (this happens when the available voices are exhausted and a voice is \"stolen\") then
 	    the gate signal switches to Off for the duration of one system tick and
 	    then to On again.</li>
-	<li>In :PLAY-MODE-UNISONO play mode incoming notes are stacked. The first note causes
+	<li>In :play-mode-unisono play mode incoming notes are stacked. The first note causes
 	    the gate signal to switch to On. Further \"nested\" note-on events only result
 	    in a change of the CV output but the gate signal will stay On.
 	    This behaviour can be overridden with the :force-gate-retrigger parameter.</li>
@@ -131,8 +129,8 @@
     </ul>
     The module has the following outputs:
     <ul>
-	<li>:GATE-1 ... :GATE-n</li>
-	<li>:CV-1 ... :CV-n</li>
+	<li>:gate-1 ... :gate-n</li>
+	<li>:cv-1 ... :cv-n</li>
 	<li>Outputs as defined by controllers</li>
     </ul>
     Example:

@@ -4,14 +4,16 @@
 ;;
 ;; Rack
 ;;
-;; Represents a grid of rack-modules
 ;;
 
 (defclass rack ()
   ((modules :initform nil)
    (hooks :initform nil)
    (environment :initform nil))
-  (:documentation "Represents a grid of rack-modules"))
+  (:documentation "A synthesizer is represented by an instance of a Rack. A rack contains all the modules 
+    and the patches (wiring) between them. A rack also provides an interface for system specific
+    devices such as MIDI and Audio. The synthesizer does not require any device implementations
+    but can be used \"out of the box\" to generate for example Wave-Files."))
 
 (defmethod initialize-instance :after ((r rack) &key environment)
   (declare (optimize (debug 3) (speed 0) (space 0)))
@@ -22,6 +24,7 @@
   (setf (slot-value r 'environment) environment))
 
 (defun get-environment (rack)
+  "Returns the environment of the rack."
   (slot-value rack 'environment))
 
 (defun set-state (rack state)
@@ -35,7 +38,7 @@
   (slot-value (get-rm-module rack "MIDI-IN") 'module))
 
 (defun add-hook (rack hook)
-  "Add a hook to a rack. A hook is called each time after the rack has updated its state.
+  "Adds a hook to the rack. A hook is called each time after the rack has updated its state.
    A hook consists a property list with the following keys:
    <ul>
       <li>:update A function with no arguments that is called after the rack has updated its state.</li>
@@ -45,6 +48,7 @@
   (push hook (slot-value rack 'hooks)))
 
 (defun make-rack (&key environment)
+  "Instantiates a rack"
   (let ((cur-rack (make-instance 'rack :environment environment)))
     ;; Add Device Interfaces
     (add-module cur-rack "LINE-OUT" #'line-out-adapter)

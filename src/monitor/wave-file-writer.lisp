@@ -1,6 +1,6 @@
 ;;
 ;;
-;; A Wave-File-Writer Monitor Backend
+;; A Wave-File-Writer Monitor Handler
 ;;
 ;;
 

@@ -15,15 +15,14 @@
     cannot really be used for real-time play using a Midi-Controller.
     The function has the following arguments:
   <ul>
-    <li>name Name of the module.</li>
+    <li>name A name.</li>
     <li>environment The synthesizer environment.</li>
     <li>:channel-count Number of output channels.</li>
     <li>:driver Driver to be used, for example \"coreaudio\".</li>
     <li>:v-peak Optional peak voltage. The inputs of the device will be normalized
-	to -1.0 ... 1.0 according to v-peak. Incoming voltages will not be clipped.
-	The default value is 5.0.</li>
+	to -1.0 ... 1.0 according to v-peak. Incoming voltages will not be clipped.</li>
     <li>:buf-length-frames Number of frames to be buffered until the audio data is
-	pushed to the driver. Default value is 1000.</li>
+	pushed to the driver.</li>
   </ul>
   The device has the following inputs:
   <ul>

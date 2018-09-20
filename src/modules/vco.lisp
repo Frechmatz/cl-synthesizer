@@ -111,7 +111,13 @@
 	    voltage of -1.0 results in a frequency of 220Hz.
 	</li>
     </ul>
-    For the outputs of the module see vco-base."
+    The module has the following outputs:
+    <ul>
+        <li>:sine</li> 
+        <li>:triangle</li> 
+        <li>:saw</li>
+        <li>:square</li>
+    </ul>"
   (if (not base-frequency)
       (cl-synthesizer:signal-assembly-error
        :format-control "base-frequency of VCO ~a must not be nil"
@@ -146,7 +152,13 @@
 	<li>:cv Frequency control voltage. For frequency calculation the absolute value
 	of the control voltage is used. The control voltage is clipped at :cv-max.</li>
     </ul>
-    For the outputs of the module see vco-base."
+    The module has the following outputs:
+    <ul>
+        <li>:sine</li> 
+        <li>:triangle</li> 
+        <li>:saw</li>
+        <li>:square</li>
+    </ul>"
   (if (not base-frequency)
       (cl-synthesizer:signal-assembly-error
        :format-control "base-frequency of VCO ~a must not be nil"

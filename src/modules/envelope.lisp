@@ -144,7 +144,7 @@ t                      t                           Validate controller settings
 	    Controller inputs do not affect the behaviour of the currently active segment.
 	</li>
 	<li>:gate-threshold An optional threshold which defines the minimum input value
-	    of the :gate input that is interpreted as gate on. The default value is 4.9</li>
+	    of the :gate input that is interpreted as gate on.</li>
     </ul>
     The module has the following inputs:
     <ul>

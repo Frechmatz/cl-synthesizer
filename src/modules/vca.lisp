@@ -56,8 +56,7 @@
 	<li>environment The synthesizer environment.</li>
 	<li>:cv-max The value of the effective amplification control voltage that represents the maximum
 	    amplification of 1.0.</li>
-	<li>:initial-gain An offset that is added to the amplification control voltage.
-	    Default value is 0.0.</li>
+	<li>:initial-gain An offset that is added to the amplification control voltage.</li>
     </ul>
     The module has the following inputs:
     <ul>
