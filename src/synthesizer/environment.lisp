@@ -1,6 +1,6 @@
 (in-package :cl-synthesizer)
 
-(defun make-environment (&key (sample-rate 44100) (channel-count 2))
+(defun make-environment (&key (sample-rate 44100) (channel-count 2) (output-directory "/Users/olli/"))
   "Creates an environment. The environment defines properties such as
     the sample rate of the rack and the number of its audio output channels.
     For now the function does not support all settings of the environment. Some
@@ -17,7 +17,7 @@
     (list
      :sample-rate sample-rate
      :channel-count channel-count
-     :output-directory "/Users/olli/"
+     :output-directory output-directory
      :audio-device (list
 		    :symbol-name "SPEAKER-CL-OUT123"
 		    :package-name "CL-SYNTHESIZER-DEVICE-SPEAKER"
