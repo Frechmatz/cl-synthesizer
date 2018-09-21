@@ -12,8 +12,8 @@
    (environment :initform nil))
   (:documentation "A synthesizer is represented by an instance of a Rack. A rack contains all the modules 
     and the patches (wiring) between them. A rack also provides an interface for system specific
-    devices such as MIDI and Audio. The synthesizer does not require any device implementations
-    but can be used \"out of the box\" to generate for example Wave-Files."))
+    devices such as MIDI and Audio. The implementation however does not depend on any system specific 
+    libraries such as CoreMidi or audio drivers."))
 
 (defmethod initialize-instance :after ((r rack) &key environment)
   (declare (optimize (debug 3) (speed 0) (space 0)))

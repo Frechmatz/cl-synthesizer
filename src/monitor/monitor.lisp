@@ -89,7 +89,7 @@
 	<li>&rest additional-handler-args Optional keyword arguments to be passed to
 	    the handler instantiation function.</li>
     </ul>
-    Example using as handler wave-file-handler:
+    Example:
     <pre><code>
     (cl-synthesizer-monitor:add-monitor
      rack

@@ -17,7 +17,7 @@
 	    frequencies will be clipped to 0Hz.</li>
 	<li>:f-max The maximum frequency of the oscillator. f-max must be greater than 0.</li>
 	<li>:v-peak Absolute value of the maximal voltage (positive/negative) emitted by the oscillator.</li>
-	<li>:duty-cycle The duty cycle of the square wave. 0 >= duty-cycle <= 1. Default value is 0.5.</li>
+	<li>:duty-cycle The duty cycle of the square wave. 0 >= duty-cycle <= 1.</li>
     </ul>
     The module has the following inputs:
     <ul>
@@ -111,13 +111,7 @@
 	    voltage of -1.0 results in a frequency of 220Hz.
 	</li>
     </ul>
-    The module has the following outputs:
-    <ul>
-        <li>:sine</li> 
-        <li>:triangle</li> 
-        <li>:saw</li>
-        <li>:square</li>
-    </ul>"
+    The module has the following outputs: See vco-base."
   (if (not base-frequency)
       (cl-synthesizer:signal-assembly-error
        :format-control "base-frequency of VCO ~a must not be nil"
@@ -152,13 +146,7 @@
 	<li>:cv Frequency control voltage. For frequency calculation the absolute value
 	of the control voltage is used. The control voltage is clipped at :cv-max.</li>
     </ul>
-    The module has the following outputs:
-    <ul>
-        <li>:sine</li> 
-        <li>:triangle</li> 
-        <li>:saw</li>
-        <li>:square</li>
-    </ul>"
+    The module has the following outputs: See vco-base."
   (if (not base-frequency)
       (cl-synthesizer:signal-assembly-error
        :format-control "base-frequency of VCO ~a must not be nil"
