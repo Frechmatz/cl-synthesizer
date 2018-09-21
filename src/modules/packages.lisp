@@ -2,6 +2,7 @@
 (defpackage :cl-synthesizer-modules-vco
   (:use :cl)
   (:export
+   :vco-base
    :vco-exponential
    :vco-linear))
 
