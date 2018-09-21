@@ -20,11 +20,8 @@
 		  ")"))
     (t (format nil "~a" arg))))
 
-    
-
 ;; uses sbcl extensions
 (defun make-function-declaration-string (f)
-  (declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((f-name (symbol-name f))
 	(f-lambda-list-str
 	 (mapcar
@@ -43,35 +40,44 @@
 		   " "
 		   (string-downcase ll)))))
 
-(defun make-function-string (f)
+(defun make-function-string (f &key (append-separator t))
   (concatenate
    'string
    "<p>"
    (make-function-declaration-string f)
    "</p><p>"
    (documentation f 'function)
-   "</p>"))
+   "</p>"
+   (if append-separator "<hr/>" "")))
 
 (defun current-date ()
-  (declare (optimize (debug 3) (speed 0) (space 0)))
   (multiple-value-bind (sec min hr day mon yr dow dst-p tz)
       (get-decoded-time)
     (declare (ignore dow dst-p tz))
     ;; 2018-09-19 21:28:16
     (let ((str (format nil "~4,'0d-~2,'0d-~2,'0d  ~2,'0d:~2,'0d:~2,'0d" yr mon day hr min sec)))
-      ;;(break)
       str)))
 
-  
+(defun read-text-file (path)
+  (with-output-to-string (s)
+    (with-open-file (fh path :direction :input :external-format :utf-8)
+      (loop 
+	 (let ((str (read-line fh nil)))
+	   (if (not str)
+	       (return)
+	       (format s "~a~%" str)))))))
+
 (defun write-html ()
     (let ((docstr (concatenate
 		   'string
 		   "<html><body>"
 		   "<h1>cl-synthesizer</h1>"
-		   "An experimental modular audio synthesizer implemented in Common Lisp. The project is work in progress."
+		   "An experimental modular audio synthesizer implemented in Common Lisp. Work in progress."
 		   "<p>" (documentation 'cl-synthesizer::rack 'type) "</p>"
-		   "<p>Example</p>"
-		   "<p>TODO</p>"
+		   "<p><b>Example:</b></p>"
+		   "<p><pre><code>"
+		   (read-text-file "/Users/olli/src/lisp/cl-synthesizer/src/modules/vco/example-4.lisp")
+		   "</code></pre></p>"
 		   "<h2>Installation</h2>"
 		   "<p>TODO</p>"
 		   "<h2>API Reference</h2>"
@@ -90,6 +96,7 @@
 		   (make-function-string 'cl-synthesizer:get-midi-in-adapter)
 		   (make-function-string 'cl-synthesizer:add-hook)
 		   "<h3>Modules</h3>"
+		   (make-function-string 'cl-synthesizer-modules-vco:vco-base)
 		   (make-function-string 'cl-synthesizer-modules-vco:vco-linear)
 		   (make-function-string 'cl-synthesizer-modules-vco:vco-exponential)
 		   (make-function-string 'cl-synthesizer-modules-vca:vca)
@@ -104,7 +111,7 @@
 		   "<h3>Devices</h3>"
 		   (make-function-string 'cl-synthesizer-device-speaker:speaker-cl-out123)
 		   (make-function-string 'cl-synthesizer-device-midi:midi-device)
-		   "<p><small>Readme generated " (current-date) "</small></p>"
+		   "<hr/><p><small>Generated " (current-date) "</small></p>"
 		   "</body></html>"
 		   )))
       (with-open-file (fh "/Users/olli/src/lisp/cl-synthesizer/makedoc/doc.html"
@@ -116,6 +123,3 @@
 
 ;;(write-html)
 
-	
-      
-			       
