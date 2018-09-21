@@ -1,13 +1,76 @@
 cl-synthesizer
 ==============
 
-An experimental modular audio synthesizer implemented in Common Lisp. The project is work in progress.
+An experimental modular audio synthesizer implemented in Common Lisp. Work in progress.
 
-A synthesizer is represented by an instance of a Rack. A rack contains all the modules and the patches (wiring) between them. A rack also provides an interface for system specific devices such as MIDI and Audio. The synthesizer does not require any device implementations but can be used "out of the box" to generate for example Wave-Files.
+A synthesizer is represented by an instance of a Rack. A rack contains all the modules and the patches (wiring) between them. A rack also provides an interface for system specific devices such as MIDI and Audio. The implementation however does not depend on any system specific libraries such as CoreMidi or audio drivers.
 
-Example
+**Example:**
 
-TODO
+    (defpackage :cl-synthesizer-modules-vco-example-4
+      (:use :cl))
+    
+    (in-package :cl-synthesizer-modules-vco-example-4)
+    
+    (defparameter *attach-speaker* nil)
+    
+    (defun example ()
+      "Modulate the frequency of a saw signal with a LFO."
+      (let ((rack (cl-synthesizer:make-rack
+    	       :environment
+    	       (cl-synthesizer:make-environment
+    		:output-directory "/Users/olli/waves/"))))
+    
+        (cl-synthesizer:add-module
+         rack "LFO-1"
+         #'cl-synthesizer-modules-vco:vco-linear
+         :base-frequency 1.0 :v-peak 1.0 :f-max 500 :cv-max 5)
+    
+        (cl-synthesizer:add-module
+         rack "LFO-2"
+         #'cl-synthesizer-modules-vco:vco-linear
+         :base-frequency 2.0 :v-peak 1.0 :f-max 500 :cv-max 5)
+    
+        (cl-synthesizer:add-module
+         rack "VCO-1"
+         #'cl-synthesizer-modules-vco:vco-linear
+         :base-frequency 440 :f-max 5000 :v-peak 5 :cv-max 5)
+    
+        (cl-synthesizer:add-module
+         rack "VCO-2"
+         #'cl-synthesizer-modules-vco:vco-linear
+         :base-frequency 442 :f-max 5000 :v-peak 5 :cv-max 5)
+        
+        (cl-synthesizer:add-patch rack "LFO-1" :sine "VCO-1" :cv)
+        (cl-synthesizer:add-patch rack "LFO-2" :sine "VCO-2" :cv)
+        (cl-synthesizer:add-patch rack "VCO-1" :saw "LINE-OUT" :channel-1)
+        (cl-synthesizer:add-patch rack "VCO-2" :saw "LINE-OUT" :channel-2)
+    
+        ;; Write LFO/VCO outputs to Wave-File
+        (cl-synthesizer-monitor:add-monitor
+         rack
+         #'cl-synthesizer-monitor-wave-handler:wave-file-handler
+         '((:channel-1 "LFO-1" :output-socket :sine)
+           (:channel-2 "LFO-2" :output-socket :sine)
+           (:channel-3 "VCO-1" :output-socket :saw)
+           (:channel-4 "VCO-2" :output-socket :saw))
+         :filename "vco-example-4-recorder.wav")
+        
+        ;; Write LINE-OUT to Wave-File
+        (cl-synthesizer-monitor:add-monitor
+         rack
+         #'cl-synthesizer-monitor-wave-handler:wave-file-handler
+         '((:channel-1 "LINE-OUT" :input-socket :channel-1)
+           (:channel-2 "LINE-OUT" :input-socket :channel-2))
+         :filename "vco-example-4.wav")
+        
+        rack))
+    
+    ;; Execute to run rack
+    ;;(cl-synthesizer:play-rack (example) 5 :attach-speaker *attach-speaker*)
+    
+    
+    
 
 Installation
 ------------
@@ -19,45 +82,69 @@ API Reference
 
 ### Environment
 
-**cl-synthesizer:make-environment** &key (sample-rate 44100) (channel-count 2)
+**cl-synthesizer:make-environment** &key (sample-rate 44100) (channel-count 2) (output-directory /users/olli/)
 
 Creates an environment. The environment defines properties such as the sample rate of the rack and the number of its audio output channels. For now the function does not support all settings of the environment. Some are hard coded. An enviroment is a property list with the following keys:
 
 *   :sample-rate Sample rate of the synthesizer.
-*   :channel-count The number of line-out sockets exposed to rack modules and audio output device.
+*   :channel-count The number of line-out sockets exposed to rack modules and an audio output device.
 *   :output-directory The base output directory for wave files etc.
 *   :audio-device The audio device to be instantiated when audio output is required. For more details see src/synthesizer/environment.lisp.
 *   :midi-device The MIDI device to be instantiated when MIDI input is required. For more details see src/synthesizer/environment.lisp.
+
+* * *
 
 ### Rack
 
 **cl-synthesizer:make-rack** &key environment
 
+Instantiates a rack
+
+* * *
+
 **cl-synthesizer:add-module** rack module-name module-fn &rest args
 
+* * *
+
 **cl-synthesizer:add-patch** rack source-rm-name source-output-socket destination-rm-name destination-input-socket
+
+* * *
 
 **cl-synthesizer:update** rack
 
 Process a tick
 
+* * *
+
 **cl-synthesizer:play-rack** rack duration-seconds &key (attach-speaker nil) (attach-midi nil)
+
+* * *
 
 **cl-synthesizer:get-environment** rack
 
 Returns the environment of the rack.
 
+* * *
+
 **cl-synthesizer:get-module** rack name
 
 Returns a module (as added via add-module) or nil
+
+* * *
 
 **cl-synthesizer:get-patch** rack module-name socket-type socket
 
 Returns values (name module socket) of connected module
 
+* * *
+
 **cl-synthesizer:get-line-out-adapter** rack
 
+* * *
+
 **cl-synthesizer:get-midi-in-adapter** rack
+
+* * *
 
 **cl-synthesizer:add-hook** rack hook
 
@@ -68,7 +155,35 @@ Adds a hook to the rack. A hook is called each time after the rack has updated i
 
 Hooks must not modify the rack.
 
+* * *
+
 ### Modules
+
+**cl-synthesizer-modules-vco:vco-base** name environment transfer-function &key f-max v-peak (duty-cycle 0.5)
+
+Creates a Voltage Controlled Oscillator module. The function has the following arguments:
+
+*   name Name of the module.
+*   environment The synthesizer environment.
+*   transfer-function A function that converts the frequency control voltage into a frequency. This function is called with the current frequency control voltage and must return a frequency. Frequencies greater than f-max will be clipped. Negative frequencies will be clipped to 0Hz.
+*   :f-max The maximum frequency of the oscillator. f-max must be greater than 0.
+*   :v-peak Absolute value of the maximal voltage (positive/negative) emitted by the oscillator.
+*   :duty-cycle The duty cycle of the square wave. 0 >= duty-cycle <= 1.
+
+The module has the following inputs:
+
+*   :cv Frequency control voltage.
+
+The module has the following outputs:
+
+*   :sine A sine wave.
+*   :triangle A triangle wave.
+*   :saw A saw wave.
+*   :square A square wave.
+
+See also modules vco-linear and vco-exponential.
+
+* * *
 
 **cl-synthesizer-modules-vco:vco-linear** name environment &key base-frequency f-max v-peak cv-max (duty-cycle 0.5)
 
@@ -86,12 +201,9 @@ The module has the following inputs:
 
 *   :cv Frequency control voltage. For frequency calculation the absolute value of the control voltage is used. The control voltage is clipped at :cv-max.
 
-The module has the following outputs:
+The module has the following outputs: See vco-base.
 
-*   :sine
-*   :triangle
-*   :saw
-*   :square
+* * *
 
 **cl-synthesizer-modules-vco:vco-exponential** name environment &key base-frequency f-max v-peak (duty-cycle 0.5)
 
@@ -108,12 +220,9 @@ The module has the following inputs:
 
 *   :cv Frequency control voltage. For a given base-frequency of 440Hz a control voltage of 1.0 results in a frequency of 880Hz and a control voltage of -1.0 results in a frequency of 220Hz.
 
-The module has the following outputs:
+The module has the following outputs: See vco-base.
 
-*   :sine
-*   :triangle
-*   :saw
-*   :square
+* * *
 
 **cl-synthesizer-modules-vca:vca** name environment &key cv-max (initial-gain 0.0)
 
@@ -137,6 +246,8 @@ The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.
 
 Examples can be found under /src/modules/vca/
 
+* * *
+
 **cl-synthesizer-modules-multiple:multiple** name environment &key output-count
 
 Creates a Multiple module. A multiple mirrors one input to n outputs. The function has the following arguments:
@@ -151,6 +262,8 @@ The module has the following inputs:
 
 The module has outputs :output-1 ... :output-n.
 
+* * *
+
 **cl-synthesizer-modules-midi-sequencer:midi-sequencer** name environment &key events
 
 Creates a Midi-Sequencer module. The function has the following arguments:
@@ -162,6 +275,8 @@ Creates a Midi-Sequencer module. The function has the following arguments:
     *   :midi-events List of Midi events to be fired. For the format of a single Midi event see /src/midi/event.lisp.
 
 The module has no inputs. The module has one output socket :midi-events.
+
+* * *
 
 **cl-synthesizer-modules-midi-interface:midi-interface** name environment &key (voice-count 1) (channel nil) (note-number-to-cv (lambda (note-number) (/ note-number 12))) (play-mode :play-mode-poly) (cv-gate-on 5.0) (cv-gate-off 0.0) (controllers nil) (force-gate-retrigger nil)
 
@@ -226,6 +341,8 @@ Example:
     		              :cv-max 5))))))
         
 
+* * *
+
 **cl-synthesizer-modules-envelope:envelope** name environment &key segments (gate-threshold 4.9)
 
 Creates an envelope generator module. An envelope consists of a list of segments where each segment defines rules how to behave. The module generates linear envelopes. The function has the following arguments:
@@ -273,6 +390,8 @@ Example:
     					   (:duration-ms 300 :target-cv 0 :required-gate-state :off)))
         
 
+* * *
+
 **cl-synthesizer-modules-fixed-output:fixed-output** name environment &key value (output-socket :out)
 
 Creates a module with a fixed output value. The function has the following arguments:
@@ -283,6 +402,8 @@ Creates a module with a fixed output value. The function has the following argum
 *   :output-socket Optional keyword that declares the output socket identifier to be exposed by the module.
 
 The module has no inputs. The module has one output socket according to the :output-socket argument.
+
+* * *
 
 ### Monitor
 
@@ -308,7 +429,7 @@ Adds a monitor to a rack. A monitor is a high-level Rack hook that collects modu
     *   socket A keyword that identifies one of the input/output sockets provided by the module, for example :cv
 *   &rest additional-handler-args Optional keyword arguments to be passed to the handler instantiation function.
 
-Example using as handler wave-file-handler:
+Example:
 
     
         (cl-synthesizer-monitor:add-monitor
@@ -320,6 +441,8 @@ Example using as handler wave-file-handler:
          :filename "trace.wav")
         
 
+* * *
+
 **cl-synthesizer-monitor-wave-handler:wave-file-handler** name environment outputs &rest rest &key filename &allow-other-keys
 
 Creates a monitor handler which writes its inputs into a Wave file. The function has the following arguments:
@@ -328,6 +451,8 @@ Creates a monitor handler which writes its inputs into a Wave file. The function
 *   environment The synthesizer environment.
 *   outputs The output keys as defined by the Monitor Socket-Mapping. For now these must be :channel-1 ... :channel-n.
 *   :filename A file path relative to the output directory as defined by the environment.
+
+* * *
 
 ### Devices
 
@@ -348,6 +473,12 @@ The device has the following inputs:
 
 The module has no outputs. The current buffer is flushed when the :shutdown function as exposed by the device is being called.
 
+* * *
+
 **cl-synthesizer-device-midi:midi-device** name environment
 
-Readme generated 2018-09-20 22:49:57
+* * *
+
+* * *
+
+Generated 2018-09-22 00:26:50
