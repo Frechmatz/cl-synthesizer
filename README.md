@@ -7,10 +7,10 @@ A synthesizer is represented by an instance of a Rack. A rack contains all the m
 
 **Example:**
 
-    (defpackage :cl-synthesizer-modules-vco-example-4
+    (defpackage :cl-synthesizer-rack-example-1
       (:use :cl))
     
-    (in-package :cl-synthesizer-modules-vco-example-4)
+    (in-package :cl-synthesizer-rack-example-1)
     
     (defparameter *attach-speaker* nil)
     
@@ -18,8 +18,7 @@ A synthesizer is represented by an instance of a Rack. A rack contains all the m
       "Modulate the frequency of a saw signal with a LFO."
       (let ((rack (cl-synthesizer:make-rack
     	       :environment
-    	       (cl-synthesizer:make-environment
-    		:output-directory "/Users/olli/waves/"))))
+    	       (cl-synthesizer:make-environment))))
     
         (cl-synthesizer:add-module
          rack "LFO-1"
@@ -54,7 +53,7 @@ A synthesizer is represented by an instance of a Rack. A rack contains all the m
            (:channel-2 "LFO-2" :output-socket :sine)
            (:channel-3 "VCO-1" :output-socket :saw)
            (:channel-4 "VCO-2" :output-socket :saw))
-         :filename "vco-example-4-recorder.wav")
+         :filename "rack-example-1-vcos.wav")
         
         ;; Write LINE-OUT to Wave-File
         (cl-synthesizer-monitor:add-monitor
@@ -62,7 +61,7 @@ A synthesizer is represented by an instance of a Rack. A rack contains all the m
          #'cl-synthesizer-monitor-wave-handler:wave-file-handler
          '((:channel-1 "LINE-OUT" :input-socket :channel-1)
            (:channel-2 "LINE-OUT" :input-socket :channel-2))
-         :filename "vco-example-4.wav")
+         :filename "rack-example-1.wav")
         
         rack))
     
@@ -82,17 +81,15 @@ API Reference
 
 ### Environment
 
-**cl-synthesizer:make-environment** &key (sample-rate 44100) (channel-count 2) (output-directory /users/olli/)
+**cl-synthesizer:make-environment** &key (sample-rate 44100) (channel-count 2) (home-directory nil)
 
-Creates an environment. The environment defines properties such as the sample rate of the rack and the number of its audio output channels. For now the function does not support all settings of the environment. Some are hard coded. An enviroment is a property list with the following keys:
+Creates an environment. The environment defines properties such as the sample rate of the rack and the number of its audio output channels. An enviroment is a property list with the following keys:
 
 *   :sample-rate Sample rate of the synthesizer.
 *   :channel-count The number of line-out sockets exposed to rack modules and an audio output device.
-*   :output-directory The base output directory for wave files etc.
-*   :audio-device The audio device to be instantiated when audio output is required. For more details see src/synthesizer/environment.lisp.
-*   :midi-device The MIDI device to be instantiated when MIDI input is required. For more details see src/synthesizer/environment.lisp.
-
-* * *
+*   :home-directory The base output directory for wave files etc. Default value is the home directory of the current user.
+*   :audio-device The audio device to be instantiated when audio output is required. For the format of this argument see function make-device.
+*   :midi-device The MIDI device to be instantiated when MIDI input is required. For the format of this argument see function make-device.
 
 ### Rack
 
@@ -154,8 +151,6 @@ Adds a hook to the rack. A hook is called each time after the rack has updated i
 *   :shutdown A function with no arguments that is called when the rack is shutting down.
 
 Hooks must not modify the rack.
-
-* * *
 
 ### Modules
 
@@ -403,8 +398,6 @@ Creates a module with a fixed output value. The function has the following argum
 
 The module has no inputs. The module has one output socket according to the :output-socket argument.
 
-* * *
-
 ### Monitor
 
 **cl-synthesizer-monitor:add-monitor** rack monitor-handler socket-mappings &rest additional-handler-args
@@ -452,9 +445,40 @@ Creates a monitor handler which writes its inputs into a Wave file. The function
 *   outputs The output keys as defined by the Monitor Socket-Mapping. For now these must be :channel-1 ... :channel-n.
 *   :filename A file path relative to the output directory as defined by the environment.
 
-* * *
+### Device
 
-### Devices
+**cl-synthesizer:make-device** name environment device-settings
+
+Creates a device. The function has the following arguments:
+
+*   name Name of the device.
+*   environment The synthesizer environment.
+*   device-settings The device settings consist of a property list with the following keys:
+    *   :symbol-name Symbol name of the device instantiation function, for example "SPEAKER-CL-OUT123"
+    *   :package-name Package name of the device instantiation function, for example "CL-SYNTHESIZER-DEVICE-SPEAKER"
+    *   :init-args A list of additional arguments to be passed to the device instantiation function. An argument may consist of a function. In this case the value of the argument to be passed to the device instantiation function will be evaluated by calling the given function with the environment as parameter. Example: `(:channel-count (lambda (environment) (getf environment :channel-count)) :driver "coreaudio"))`
+
+The device instantiation function is called with the following arguments:
+
+*   name Name of the device.
+*   environment The synthesizer environment.
+*   Any additional arguments as declared by :init-args
+
+If the device represents a MIDI input device then the device instantiation function must return a property list with the following keys (keys are not finalized yet by implementation):
+
+*   :inputs nil
+*   :outputs (:midi-events).
+*   :get-output A function that returns the current output of the underlying device as a list of Midi-Events.
+*   :shutdown An optional shutdown function that is called when the rack is shutting down.
+
+If the device represents an Audio output device then the device instantiation function must return a property list with the following keys (keys are not finalized yet by implementation):
+
+*   :inputs (:channel-1 ... :channel-n) Where n is the number of output channels as declared by the environment.
+*   :outputs nil.
+*   :update Function that is called with keywords parameters :channel-1 ... :channel-n in order to push audio data to the underlying device.
+*   :shutdown An optional shutdown function that is called when the rack is shutting down.
+
+* * *
 
 **cl-synthesizer-device-speaker:speaker-cl-out123** name environment &key channel-count driver (buf-length-frames 1000) (v-peak 5.0)
 
@@ -479,6 +503,4 @@ The module has no outputs. The current buffer is flushed when the :shutdown func
 
 * * *
 
-* * *
-
-Generated 2018-09-22 00:26:50
+Generated 2018-09-24 21:26:45
