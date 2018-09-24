@@ -4,18 +4,18 @@
   (let ((settings (getf environment :audio-device)))
     (if settings
 	(make-device
-	 settings
 	 name
-	 environment)
+	 environment
+	 settings)
 	(error (format nil "Audio device requested but not configured by environment")))))
 
 (defun make-midi-device (name environment)
   (let ((settings (getf environment :midi-device)))
     (if settings
 	(make-device
-	 settings
 	 name
-	 environment)
+	 environment
+	 settings)
 	(error (format nil "MIDI device requested but not configured by environment")))))
 
 (defun play-rack (rack duration-seconds &key (attach-speaker nil) (attach-midi nil))

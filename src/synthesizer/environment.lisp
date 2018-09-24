@@ -9,10 +9,10 @@
 	<li>:channel-count The number of line-out sockets exposed to rack modules and an audio output device.</li>
 	<li>:home-directory The base output directory for wave files etc. Default value is the home directory
         of the current user.</li>
-	<li>:audio-device The audio device to be instantiated when audio output is required. For more details see
-	    src/synthesizer/environment.lisp.</li>
-	<li>:midi-device The MIDI device to be instantiated when MIDI input is required. For more details see
-	    src/synthesizer/environment.lisp.</li>
+	<li>:audio-device The audio device to be instantiated when audio output is required. For the format
+            of this argument see function make-device.</li>
+	<li>:midi-device The MIDI device to be instantiated when MIDI input is required. For the format
+            of this argument see function make-device.</li>
     </ul>"
     (list
      :sample-rate sample-rate
@@ -40,8 +40,47 @@
 	    (push item prepared))))
     (reverse prepared)))
 
-(defun make-device (device-settings name environment)
-  "Creates a device."
+(defun make-device (name environment device-settings)
+  "Creates a device. The function has the following arguments:
+    <ul>
+	<li>name Name of the device.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>device-settings The device settings consist of a property list with the following keys:
+	    <ul>
+		<li>:symbol-name Symbol name of the device instantiation function, for example \"SPEAKER-CL-OUT123\"</li>
+		<li>:package-name Package name of the device instantiation function, for example \"CL-SYNTHESIZER-DEVICE-SPEAKER\"</li>
+		<li>:init-args A list of additional arguments to be passed to the device instantiation function. An
+		    argument may consist of a function. In this case the value of the argument to be passed to the
+		    device instantiation function will be evaluated by calling the given function with the environment as
+		    parameter. Example: <code>(:channel-count (lambda (environment) (getf environment :channel-count))
+		    :driver \"coreaudio\"))</code></li>
+	    </ul>
+	</li>
+    </ul>
+    The device instantiation function is called with the following arguments:
+    <ul>
+	<li>name Name of the device.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>Any additional arguments as declared by :init-args</li>
+    </ul>
+    If the device represents a MIDI input device then the device instantiation function must return a property
+    list with the following keys (keys are not finalized yet by implementation):
+    <ul>
+	<li>:inputs nil</li>
+	<li>:outputs (:midi-events).</li>
+	<li>:get-output A function that returns the current output of the underlying device as
+	a list of Midi-Events.</li>
+	<li>:shutdown An optional shutdown function that is called when the rack is shutting down.</li>
+    </ul>
+    If the device represents an Audio output device then the device instantiation function must return a property
+    list with the following keys (keys are not finalized yet by implementation):
+    <ul>
+	<li>:inputs (:channel-1 ... :channel-n) Where n is the number of output channels as declared by the environment.</li>
+	<li>:outputs nil.</li>
+	<li>:update Function that is called with keywords parameters :channel-1 ... :channel-n in order to
+	push audio data to the underlying device.</li>
+	<li>:shutdown An optional shutdown function that is called when the rack is shutting down.</li>
+    </ul>"
   (let ((symbol-name (getf device-settings :symbol-name))
 	(package-name (getf device-settings :package-name)))
     (if (not symbol-name)

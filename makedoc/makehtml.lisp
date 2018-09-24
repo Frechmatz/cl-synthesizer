@@ -84,8 +84,7 @@
 		   "<p>TODO</p>"
 		   "<h2>API Reference</h2>"
 		   "<h3>Environment</h3>"
-		   (make-function-string 'cl-synthesizer:make-environment)
-		   (make-function-string 'cl-synthesizer:make-device :append-separator nil)
+		   (make-function-string 'cl-synthesizer:make-environment :append-separator nil)
 		   "<h3>Rack</h3>"
 		   (make-function-string 'cl-synthesizer:make-rack)
 		   (make-function-string 'cl-synthesizer:add-module)
@@ -111,7 +110,8 @@
 		   "<h3>Monitor</h3>"
 		   (make-function-string 'cl-synthesizer-monitor:add-monitor)
 		   (make-function-string 'cl-synthesizer-monitor-wave-handler:wave-file-handler :append-separator nil)
-		   "<h3>Devices</h3>"
+		   "<h3>Device</h3>"
+		   (make-function-string 'cl-synthesizer:make-device)
 		   (make-function-string 'cl-synthesizer-device-speaker:speaker-cl-out123)
 		   (make-function-string 'cl-synthesizer-device-midi:midi-device :append-separator nil)
 		   "<hr/><p><small>Generated " (current-date) "</small></p>"
