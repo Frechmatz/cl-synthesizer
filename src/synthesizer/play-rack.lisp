@@ -1,33 +1,9 @@
 (in-package :cl-synthesizer)
 
-(defun prepare-init-args (environment initargs)
-  "Resolves init arguments that are defined as functions by calling the 
-  corresponding function with the environment as argument."
-  (let ((prepared nil))
-    (dotimes (i (length initargs))
-      (let ((item (nth i initargs)))
-	(if (functionp item)
-	    (push (funcall item environment) prepared)
-	    (push item prepared))))
-    (reverse prepared)))
-
-(defun instantiate-device (device-settings name environment)
-  (let ((symbol-name (getf device-settings :symbol-name))
-	(package-name (getf device-settings :package-name)))
-    (if (not symbol-name)
-	(error "Device instantiation failed. :symbol-name is a mandatory device configuration property")) 
-    (if (not package-name)
-	(error "Device instantiation failed. :package-name is a mandatory device configuration property")) 
-    (format t "~%Instantiating device ~a::~a..." symbol-name package-name)
-    (let ((ctor (find-symbol symbol-name package-name)))
-      (if ctor
-	  (apply ctor name environment (prepare-init-args environment (getf device-settings :init-args)))
-	  (error (format nil "Device instantiation failed. Symbol ~a::~a not found" symbol-name package-name))))))
-
 (defun make-audio-device (name environment)
   (let ((settings (getf environment :audio-device)))
     (if settings
-	(instantiate-device
+	(make-device
 	 settings
 	 name
 	 environment)
@@ -36,7 +12,7 @@
 (defun make-midi-device (name environment)
   (let ((settings (getf environment :midi-device)))
     (if settings
-	(instantiate-device
+	(make-device
 	 settings
 	 name
 	 environment)

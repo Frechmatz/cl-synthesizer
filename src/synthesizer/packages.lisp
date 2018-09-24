@@ -7,6 +7,7 @@
    :signal-invalid-arguments-error
    :make-environment
    :get-environment
+   :make-device
    :make-rack
    :add-module
    :add-patch
