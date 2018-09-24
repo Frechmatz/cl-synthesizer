@@ -1,7 +1,7 @@
-(defpackage :cl-synthesizer-modules-vco-example-4
+(defpackage :cl-synthesizer-rack-example-1
   (:use :cl))
 
-(in-package :cl-synthesizer-modules-vco-example-4)
+(in-package :cl-synthesizer-rack-example-1)
 
 (defparameter *attach-speaker* nil)
 
@@ -9,8 +9,7 @@
   "Modulate the frequency of a saw signal with a LFO."
   (let ((rack (cl-synthesizer:make-rack
 	       :environment
-	       (cl-synthesizer:make-environment
-		:output-directory "/Users/olli/waves/"))))
+	       (cl-synthesizer:make-environment))))
 
     (cl-synthesizer:add-module
      rack "LFO-1"
@@ -45,7 +44,7 @@
        (:channel-2 "LFO-2" :output-socket :sine)
        (:channel-3 "VCO-1" :output-socket :saw)
        (:channel-4 "VCO-2" :output-socket :saw))
-     :filename "vco-example-4-recorder.wav")
+     :filename "rack-example-1-vcos.wav")
     
     ;; Write LINE-OUT to Wave-File
     (cl-synthesizer-monitor:add-monitor
@@ -53,7 +52,7 @@
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "LINE-OUT" :input-socket :channel-1)
        (:channel-2 "LINE-OUT" :input-socket :channel-2))
-     :filename "vco-example-4.wav")
+     :filename "rack-example-1.wav")
     
     rack))
 

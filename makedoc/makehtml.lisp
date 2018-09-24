@@ -7,6 +7,8 @@
      (format nil ":~a" arg))
     ((symbolp arg)
      (symbol-name arg))
+    ((stringp arg)
+     (format nil "\"~a\"" arg))
     ((listp arg)
      (concatenate 'string
 		  "("
@@ -76,13 +78,14 @@
 		   "<p>" (documentation 'cl-synthesizer::rack 'type) "</p>"
 		   "<p><b>Example:</b></p>"
 		   "<p><pre><code>"
-		   (read-text-file "/Users/olli/src/lisp/cl-synthesizer/src/modules/vco/example-4.lisp")
+		   (read-text-file "/Users/olli/src/lisp/cl-synthesizer/src/synthesizer/rack/example-1.lisp")
 		   "</code></pre></p>"
 		   "<h2>Installation</h2>"
 		   "<p>TODO</p>"
 		   "<h2>API Reference</h2>"
 		   "<h3>Environment</h3>"
 		   (make-function-string 'cl-synthesizer:make-environment)
+		   (make-function-string 'cl-synthesizer:make-device :append-separator nil)
 		   "<h3>Rack</h3>"
 		   (make-function-string 'cl-synthesizer:make-rack)
 		   (make-function-string 'cl-synthesizer:add-module)
@@ -94,7 +97,7 @@
 		   (make-function-string 'cl-synthesizer:get-patch)
 		   (make-function-string 'cl-synthesizer:get-line-out-adapter)
 		   (make-function-string 'cl-synthesizer:get-midi-in-adapter)
-		   (make-function-string 'cl-synthesizer:add-hook)
+		   (make-function-string 'cl-synthesizer:add-hook :append-separator nil)
 		   "<h3>Modules</h3>"
 		   (make-function-string 'cl-synthesizer-modules-vco:vco-base)
 		   (make-function-string 'cl-synthesizer-modules-vco:vco-linear)
@@ -104,13 +107,13 @@
 		   (make-function-string 'cl-synthesizer-modules-midi-sequencer:midi-sequencer)
 		   (make-function-string 'cl-synthesizer-modules-midi-interface:midi-interface)
 		   (make-function-string 'cl-synthesizer-modules-envelope:envelope)
-		   (make-function-string 'cl-synthesizer-modules-fixed-output:fixed-output)
+		   (make-function-string 'cl-synthesizer-modules-fixed-output:fixed-output :append-separator nil)
 		   "<h3>Monitor</h3>"
 		   (make-function-string 'cl-synthesizer-monitor:add-monitor)
-		   (make-function-string 'cl-synthesizer-monitor-wave-handler:wave-file-handler)
+		   (make-function-string 'cl-synthesizer-monitor-wave-handler:wave-file-handler :append-separator nil)
 		   "<h3>Devices</h3>"
 		   (make-function-string 'cl-synthesizer-device-speaker:speaker-cl-out123)
-		   (make-function-string 'cl-synthesizer-device-midi:midi-device)
+		   (make-function-string 'cl-synthesizer-device-midi:midi-device :append-separator nil)
 		   "<hr/><p><small>Generated " (current-date) "</small></p>"
 		   "</body></html>"
 		   )))

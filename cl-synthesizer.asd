@@ -68,6 +68,9 @@
 	       ;;
 	       ;; Examples provided by module implementations.
 	       ;;
+	       (:module "src/synthesizer/rack"
+			:serial t
+			:components ((:file "example-1")))
 	       (:module "src/modules/vca"
 			:serial t
 			:components ((:file "example-1")
@@ -76,8 +79,7 @@
 			:serial t
 			:components ((:file "example-1")
 				     (:file "example-2")
-				     (:file "example-3")
-				     (:file "example-4")))
+				     (:file "example-3")))
 	       (:module "src/modules/envelope"
 			:serial t
 			:components ((:file "example-1")))
