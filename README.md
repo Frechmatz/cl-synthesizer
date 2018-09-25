@@ -95,15 +95,54 @@ Creates an environment. The environment defines properties such as the sample ra
 
 **cl-synthesizer:make-rack** &key environment
 
-Instantiates a rack
+Creates a rack. The function has the following arguments:
+
+*   :environment The synthesizer environment.
+
+A rack is initialized with the virtual modules "LINE-OUT" and "MIDI-IN" that represent the interface to so called devices. A device is a system specific implementation that provides audio output or integration of MIDI controllers. The "LINE-OUT" module exposes input sockets :channel-1 ... :channel-n where n is the channel-count as given by the :channel-count property of the environment. The "MIDI-IN" module exposes the output socket :midi-events which provides a list of midi-events as fired by a MIDI device. The devices to be used are declared by the environment properties :audio-device and :midi-device. The declared devices will only be instantiated when audio or MIDI are explicitly requested. Modules can be patched with MIDI/Audio input/output even if the environment does not declare device implementations or if the implementations are not supported by the current system.
 
 * * *
 
 **cl-synthesizer:add-module** rack module-name module-fn &rest args
 
+Adds a module to a rack. The function has the following arguments:
+
+*   rack The rack.
+*   module-name Unique name of the module, for example "VCO-1". If the name is already used by another module an assembly-error is signalled.
+*   module-fn A function that instantiates the module. This function is called by the rack with the following arguments:
+    
+    *   name Name of the module.
+    *   environment The synthesizer environment.
+    *   module-args Any additional arguments passed to add-module.
+    
+    The module instantiation function must return a property list with the following keys:
+    *   :inputs A function with no arguments that returns a list of keywords that represent the input sockets to be exposed by the module.
+    *   :outputs A function with no arguments that returns a list of keywords that represent the output sockets to be exposed by the module.
+    *   :update A function that is called in order to update the values of the modules output sockets according to the values of its input sockets. The value of each input socket is represented by a keyword parameter.
+    *   :get-output A function that is called in order to get the value of a specific output socket. The function is called with a keyword that identifies the output socket whose state is to be returned. The function must not modify the value of the given or any other output socket.
+    *   :shutdown An optional function with no arguments that is called when the rack is shutting down.The input/output sockets exposed by the module are not buffered by the rack. Therefore the module should return either a quoted list or keep it in an internal variable. The module must not add or remove input/output sockets after it has been instantiated.
+*   &rest args Arbitrary additional arguments to be passed to the module instantiation function. These arguments typically consist of keyword parameters.
+
 * * *
 
 **cl-synthesizer:add-patch** rack source-rm-name source-output-socket destination-rm-name destination-input-socket
+
+Adds a patch to the rack. A patch is an unidirectional connection between an output socket of a source module and an input socket of a destination module. The rack supports cycles which means that an output socket of a module can be patched with one of its inputs (typically via multiple hops through other modules). The function has the following arguments:
+
+*   rack The rack.
+*   source-rm-name Name of the source module.
+*   source-output-socket A keyword representing one of the output sockets of the source module.
+*   destination-rm-name Name of the destination module.
+*   destination-input-socket A keyword representing one of the input sockets of the destination module.
+
+The rack signals an assembly-error in the following cases:
+
+*   A module with the given source name does not exist.
+*   A module with the given destination name does not exist.
+*   The given source-output-socket is already connected with a module
+*   The given source-output-socket is not exposed by the source module.
+*   The given destination-input-socket is already connected with a module.
+*   The given destination-input-socket is not exposed by the destination module.
 
 * * *
 
@@ -503,4 +542,4 @@ The module has no outputs. The current buffer is flushed when the :shutdown func
 
 * * *
 
-Generated 2018-09-24 21:26:45
+Generated 2018-09-26 00:07:43
