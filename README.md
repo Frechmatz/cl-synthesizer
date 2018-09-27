@@ -156,6 +156,15 @@ Updates the state of a rack by calling the update function of all its modules. T
 
 **cl-synthesizer:play-rack** rack duration-seconds &key (attach-speaker nil) (attach-midi nil)
 
+A utility function that "plays" the rack by consecutively calling its update function for a given number of "ticks". The function has the following arguments:
+
+*   rack The rack.
+*   duration-seconds Duration in seconds of how long to play the rack. If for example the duration is 2 seconds and the sample rate of the rack as declared by its environment is 44100, then the update function of the rack will be called 88200 times.
+*   :attach-speaker If t then the audio device as declared by the environment of the rack will be instantiated and attached to the LINE-OUT virtual module of the rack.
+*   :attach-midi If t then the MIDI device as declared by the environment of the rack will be instantiated and attached to the MIDI-IN virtual module of the rack.
+
+The current implementation of the play-rack function assumes that an audio device is blocking.
+
 * * *
 
 **cl-synthesizer:get-environment** rack
@@ -171,7 +180,7 @@ Get a module of a rack. The function has the following arguments:
 *   rack The rack.
 *   name The name of the module
 
-Returns the module (represented as property list) or nil if a module with the given name has not been added to the rack.
+Returns the module (represented as a property list) or nil if a module with the given name has not been added to the rack.
 
 * * *
 
@@ -659,4 +668,4 @@ The module has no outputs. The current buffer is flushed when the :shutdown func
 
 * * *
 
-Generated 2018-09-27 22:32:04
+Generated 2018-09-27 23:49:02
