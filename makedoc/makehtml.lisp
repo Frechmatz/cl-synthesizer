@@ -107,6 +107,22 @@
 		   (make-function-string 'cl-synthesizer-modules-midi-interface:midi-interface)
 		   (make-function-string 'cl-synthesizer-modules-envelope:envelope)
 		   (make-function-string 'cl-synthesizer-modules-fixed-output:fixed-output :append-separator nil)
+		   "<h3>MIDI</h3>"
+		   "<h4>MIDI Event</h4>"
+		   (make-function-string 'cl-synthesizer-midi-event:make-control-change-event)
+		   (make-function-string 'cl-synthesizer-midi-event:make-note-on-event)
+		   (make-function-string 'cl-synthesizer-midi-event:make-note-off-event)
+		   (make-function-string 'cl-synthesizer-midi-event:control-change-eventp)
+		   (make-function-string 'cl-synthesizer-midi-event:note-on-eventp)
+		   (make-function-string 'cl-synthesizer-midi-event:note-off-eventp)
+		   (make-function-string 'cl-synthesizer-midi-event:get-channel)
+		   (make-function-string 'cl-synthesizer-midi-event:get-controller-number)
+		   (make-function-string 'cl-synthesizer-midi-event:get-controller-value)
+		   (make-function-string 'cl-synthesizer-midi-event:get-note-number)
+		   (make-function-string 'cl-synthesizer-midi-event:get-velocity :append-separator nil)
+		   "<h4>MIDI Utilities</h4>"
+		   (make-function-string 'cl-synthesizer-midi:get-note-number-frequency)
+		   (make-function-string 'cl-synthesizer-midi:relative-cc-handler :append-separator nil)
 		   "<h3>Monitor</h3>"
 		   (make-function-string 'cl-synthesizer-monitor:add-monitor)
 		   (make-function-string 'cl-synthesizer-monitor-wave-handler:wave-file-handler :append-separator nil)
