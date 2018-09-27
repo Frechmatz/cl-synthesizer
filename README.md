@@ -148,7 +148,9 @@ The rack signals an assembly-error in the following cases:
 
 **cl-synthesizer:update** rack
 
-Process a tick
+Updates the state of a rack by calling the update function of all its modules. The function has the following arguments:
+
+*   rack The rack.
 
 * * *
 
@@ -164,13 +166,29 @@ Returns the environment of the rack.
 
 **cl-synthesizer:get-module** rack name
 
-Returns a module (as added via add-module) or nil
+Get a module of a rack. The function has the following arguments:
+
+*   rack The rack.
+*   name The name of the module
+
+Returns the module (represented as property list) or nil if a module with the given name has not been added to the rack.
 
 * * *
 
 **cl-synthesizer:get-patch** rack module-name socket-type socket
 
-Returns values (name module socket) of connected module
+Returns the destination module and input/output socket, to which a given source module and one if its input/output sockets is connected. The function has the following arguments:
+
+*   rack The rack.
+*   module-name Name of the source module.
+*   socket-type :input-socket if the patch of an input socket is required or :output-socket for the patch of an output socket of the source module.
+*   socket A keyword identifying an input or output socket of the source module.
+
+The function returns nil if the source module does not exist or if the source module does not expose the given socket or if the given socket is not connected with a module. Otherwise it returns a list with the following entries:
+
+*   name Name of the destination module.
+*   module The destination module represented as a property list.
+*   socket A keyword that identifies the input or output socket of the destination module. If the socket type of the source module is :input-socket then this keyword represents an output socket of the destination module. Otherwise it represents an input socket.
 
 * * *
 
@@ -437,6 +455,105 @@ Creates a module with a fixed output value. The function has the following argum
 
 The module has no inputs. The module has one output socket according to the :output-socket argument.
 
+### MIDI
+
+#### MIDI Event
+
+**cl-synthesizer-midi-event:make-control-change-event** channel controller-number value
+
+Creates a MIDI control change event.
+
+* * *
+
+**cl-synthesizer-midi-event:make-note-on-event** channel note-number velocity
+
+Creates a MIDI Note-On event.
+
+* * *
+
+**cl-synthesizer-midi-event:make-note-off-event** channel note-number velocity
+
+Creates a MIDI Note-Off event.
+
+* * *
+
+**cl-synthesizer-midi-event:control-change-eventp** event
+
+Returns t if the given MIDI event is a Control-Change event.
+
+* * *
+
+**cl-synthesizer-midi-event:note-on-eventp** event
+
+Returns t if the given MIDI event is a Note-On event.
+
+* * *
+
+**cl-synthesizer-midi-event:note-off-eventp** event
+
+Returns t if the given MIDI event is a Note-Off event.
+
+* * *
+
+**cl-synthesizer-midi-event:get-channel** event
+
+Returns the MIDI channel number to which the event belongs.
+
+* * *
+
+**cl-synthesizer-midi-event:get-controller-number** event
+
+Returns the controller number of the MIDI event.
+
+* * *
+
+**cl-synthesizer-midi-event:get-controller-value** event
+
+Returns the controller value of the MIDI event.
+
+* * *
+
+**cl-synthesizer-midi-event:get-note-number** event
+
+Returns the note number of the MIDI event.
+
+* * *
+
+**cl-synthesizer-midi-event:get-velocity** event
+
+Returns the velocity of the MIDI event.
+
+#### MIDI Utilities
+
+**cl-synthesizer-midi:get-note-number-frequency** note-number
+
+Returns the frequency of a given note number. Note number 69 results in a frequency of 440Hz. This function implements a simple mapping and might be useful in some cases. For more details about the implementation refer to the source code.
+
+* * *
+
+**cl-synthesizer-midi:relative-cc-handler** midi-controller controllers &key cv-initial cv-min cv-max (channel nil)
+
+Creates a handler that maps MIDI events of n >= 1 relative MIDI CC-Controllers to a single target value. The function has the following arguments:
+
+*   midi-controller A property list with the keys
+    *   :get-controller-number A function with one argument that is called with a keyword that identifies the controller, for example :encoder-1 and returns the controller number, for example 112.
+    *   :get-controller-value-offset A function with one argument that is called with the value of a relative CC event, for example 62, and returns a positive or negative offset, for example -3.
+*   controllers A list of property lists with the keys
+    *   :controller-id A keyword that identifies an encoder of the given midi-controller, for example :encoder-1
+    *   :weight The weight of the controller in percent that defines how much the target value will be increased/decreased when the controller is turned. The value is relative to the total control voltage range as defined by cv-min and cv-max.
+    *   :turn-speed An optional function that is called with the absolute value of the increase/decrease offset as returned by the :get-controller-value-offset function of the midi-controller. The offset typically depends on the speed with which the encoder is turned. The function must return the absolute value of the new offset. This function can for example be used to disable turn-speed specific increments/decrements by simply returning 1. Example: (:turn-speed (lambda (offs) 1))
+*   :cv-initial The initial output value of the handler function.
+*   :cv-min The minimum output value of the handler function. Clipping is applied to ensure this.
+*   :cv-max The maximum output value of the handler function. Clipping is applied to ensure this.
+*   :channel Optional number of the MIDI channel to which the controller events must belong. By default the channel number is ignored.
+
+The returned handler is a property list with the following keys:
+
+*   :update A function that is to be called with a list of midi-events.
+*   :get-output A function that returns the current output value.
+
+Examples: see modules/midi-interface/
+
 ### Monitor
 
 **cl-synthesizer-monitor:add-monitor** rack monitor-handler socket-mappings &rest additional-handler-args
@@ -542,4 +659,4 @@ The module has no outputs. The current buffer is flushed when the :shutdown func
 
 * * *
 
-Generated 2018-09-26 00:07:43
+Generated 2018-09-27 22:32:04
