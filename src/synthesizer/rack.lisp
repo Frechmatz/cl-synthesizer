@@ -161,10 +161,17 @@
 ;;
 
 (defun get-rm-module (rack name)
+  "Helper function that returns internal representation of a module or nil."
   (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (slot-value rack 'modules)))
 
 (defun get-module (rack name)
-  "Returns a module (as added via add-module) or nil"
+  "Get a module of a rack. The function has the following arguments:
+    <ul>
+      <li>rack The rack.</li>
+      <li>name The name of the module</li>
+    </ul>
+   Returns the module (represented as property list) or nil if a module
+   with the given name has not been added to the rack."
   (let ((rm (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (slot-value rack 'modules))))
     (if rm
 	(slot-value rm 'module)
@@ -290,7 +297,11 @@
 	  (make-rack-module-patch destination-rm destination-input-socket))))
 
 (defun update (rack)
-  "Process a tick" 
+  "Updates the state of a rack by calling the update function of all its modules.
+    The function has the following arguments:
+    <ul>
+	<li>rack The rack.</li>
+    </ul>" 
   ;; (declare (optimize (debug 3) (speed 0) (space 0)))
   (set-state rack :PROCESS-TICK)
   (labels
@@ -303,7 +314,6 @@
 	   (if (not (eq state :PROCESS-TICK))
 	       (progn
 		 ;; module is already processing -> do nothing
-		 ;; (break)
 		 nil)
 	       (progn
 		 (set-rack-module-state rm :PROCESSING-TICK)
@@ -342,9 +352,29 @@
     (if (getf m :shutdown)
 	(funcall (getf m :shutdown)))))
   
-;; TODO Fix inefficient implementation. Maybe rack must hold some mapping hashes.
 (defun get-patch (rack module-name socket-type socket)
-  "Returns values (name module socket) of connected module"
+  "Returns the destination module and input/output socket, to which a given
+    source module and one if its input/output sockets is connected.
+    The function has the following arguments:
+    <ul>
+	<li>rack The rack.</li>
+	<li>module-name Name of the source module.</li>
+	<li>socket-type :input-socket if the patch of an input socket is required or
+	    :output-socket for the patch of an output socket of the source module.</li>
+	<li>socket A keyword identifying an input or output socket of the source module.</li>
+    </ul>
+    The function returns nil if the source module does not exist or if the source module
+    does not expose the given socket or if the given socket is not connected with a module.
+    Otherwise it returns a list with the following entries:
+    <ul>
+	<li>name Name of the destination module.</li>
+	<li>module The destination module represented as a property list.</li>
+	<li>socket A keyword that identifies the input or output socket of the destination
+	    module. If the socket type of the source module is :input-socket then this
+	    keyword represents an output socket of the destination module. Otherwise
+	    it represents an input socket.
+	</li>
+    </ul>"
   (if (not (or (eq :input-socket socket-type) (eq :output-socket socket-type)))
       (signal-invalid-arguments-error
        :format-control "get-patch: socket must be one of :input-socket or :output-socket"

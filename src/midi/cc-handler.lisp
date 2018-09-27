@@ -1,13 +1,13 @@
 (in-package :cl-synthesizer-midi)
 
 (defun relative-cc-handler (midi-controller controllers &key cv-initial cv-min cv-max (channel nil))
-  "Creates a handler function that maps MIDI events of n >= 1 relative MIDI CC-Controllers
-  to a single target value. The generator function has the following arguments:
+  "Creates a handler that maps MIDI events of n >= 1 relative MIDI CC-Controllers
+  to a single target value. The function has the following arguments:
   <ul>
     <li>midi-controller A property list with the keys
       <ul>
 	  <li>:get-controller-number A function with one argument that is called with a
-	      keyword that identifies the controller, for example :ENCODER-1 and returns
+	      keyword that identifies the controller, for example :encoder-1 and returns
 	      the controller number, for example 112.</li>
 	  <li>:get-controller-value-offset A function with one argument that is called with
 	      the value of a relative CC event, for example 62, and returns a positive or
@@ -16,7 +16,7 @@
       <li>controllers A list of property lists with the keys
 	  <ul>
 	      <li>:controller-id A keyword that identifies an encoder of the given midi-controller, 
-		  for example :ENCODER-1</li>
+		  for example :encoder-1</li>
 	      <li>:weight The weight of the controller in percent that defines how much the target value will 
 		  be increased/decreased when the controller is turned. The value is relative to the total 
 		  control voltage range as defined by cv-min and cv-max.</li>
@@ -35,7 +35,7 @@
 	  the channel number is ignored.</li>
     </li>
   </ul>
-  The returned handler function is a property list with the following keys:
+  The returned handler is a property list with the following keys:
   <ul>
       <li>:update A function that is to be called with a list of midi-events.</li>
       <li>:get-output A function that returns the current output value.</li>
