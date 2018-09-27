@@ -170,7 +170,7 @@
       <li>rack The rack.</li>
       <li>name The name of the module</li>
     </ul>
-   Returns the module (represented as property list) or nil if a module
+   Returns the module (represented as a property list) or nil if a module
    with the given name has not been added to the rack."
   (let ((rm (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (slot-value rack 'modules))))
     (if rm

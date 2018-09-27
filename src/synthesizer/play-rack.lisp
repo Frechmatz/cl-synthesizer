@@ -19,6 +19,20 @@
 	(error (format nil "MIDI device requested but not configured by environment")))))
 
 (defun play-rack (rack duration-seconds &key (attach-speaker nil) (attach-midi nil))
+  "A utility function that \"plays\" the rack by consecutively calling its update function
+    for a given number of \"ticks\". The function has the following arguments:
+    <ul>
+	<li>rack The rack.</li>
+	<li>duration-seconds Duration in seconds of how long to play the rack. If for
+	    example the duration is 2 seconds and the sample rate of the rack as declared
+	    by its environment is 44100, then the update function of the rack will be called 88200 times.</li>
+	<li>:attach-speaker If t then the audio device as declared by the environment of
+	    the rack will be instantiated and attached to the LINE-OUT virtual module of the rack.
+	</li>
+	<li>:attach-midi If t then the MIDI device as declared by the environment of the rack
+	    will be instantiated and attached to the MIDI-IN virtual module of the rack.</li>
+    </ul>
+    The current implementation of the play-rack function assumes that an audio device is blocking."
   (let* ((environment (slot-value rack 'environment)))
     (if attach-speaker
 	(funcall (getf (get-line-out-adapter rack) :set-device)
