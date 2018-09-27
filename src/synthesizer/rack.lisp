@@ -217,7 +217,7 @@
 			     :module (apply module-fn `(,module-name ,environment ,@args))
 			     :name module-name)))
       (push rm (slot-value rack 'modules))
-      rm)))
+      nil)))
 
 (defun add-patch (rack source-rm-name source-output-socket destination-rm-name destination-input-socket)
   "Adds a patch to the rack. A patch is an unidirectional connection between an output socket
