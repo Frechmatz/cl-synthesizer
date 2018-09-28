@@ -24,13 +24,11 @@
     <li>:buf-length-frames Number of frames to be buffered until the audio data is
 	pushed to the driver.</li>
   </ul>
-  The device has the following inputs:
-  <ul>
-      <li>:channel-1 ... :channel-n In a stereo setup left is represented
-	  by :channel-1 and right by :channel-2</li>
-  </ul>
-  The module has no outputs. The current buffer is flushed when the :shutdown
-  function as exposed by the device is being called."
+  The update function of the device must be called with keyword arguments :channel-1 ... :channel-n,
+  where n is the number of channels. In a stereo setup left is represented by :channel-1 and 
+  right by :channel-2
+  The current buffer of the device is flushed when the :shutdown function as exposed by the 
+  device is called."
   (if (<= channel-count 0)
       (cl-synthesizer:signal-assembly-error
        :format-control "~a: channel-count must be greater than 0: ~a"
@@ -60,8 +58,6 @@
 		   (cl-out123:play out buffer buffer-pos)
 		   (setf buffer-pos 0)))))
       (list
-       :inputs (lambda () inputs)
-       :outputs (lambda () '())
        :update (lambda (&rest args)
 		 (init-out)
 		 (flush-buffer nil)

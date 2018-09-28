@@ -64,19 +64,15 @@
 	<li>Any additional arguments as declared by :init-args</li>
     </ul>
     If the device represents a MIDI input device then the device instantiation function must return a property
-    list with the following keys (keys are not finalized yet by implementation):
+    list with the following keys:
     <ul>
-	<li>:inputs nil</li>
-	<li>:outputs (:midi-events).</li>
 	<li>:get-output A function that returns the current output of the underlying device as
 	a list of Midi-Events.</li>
 	<li>:shutdown An optional shutdown function that is called when the rack is shutting down.</li>
     </ul>
     If the device represents an Audio output device then the device instantiation function must return a property
-    list with the following keys (keys are not finalized yet by implementation):
+    list with the following keys:
     <ul>
-	<li>:inputs (:channel-1 ... :channel-n) Where n is the number of output channels as declared by the environment.</li>
-	<li>:outputs nil.</li>
 	<li>:update Function that is called with keywords parameters :channel-1 ... :channel-n in order to
 	push audio data to the underlying device.</li>
 	<li>:shutdown An optional shutdown function that is called when the rack is shutting down.</li>

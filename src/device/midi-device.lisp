@@ -33,8 +33,6 @@
        ;;(format t "[NOTE-OFF] Channel: ~d  Notenum: ~d  Velocity: ~d~%" chan note vel)
        (queues:qpush event-queue (cl-synthesizer-midi-event:make-note-off-event chan note vel))))
     (list
-     :inputs (lambda () '())
-     :outputs (lambda () '(:midi-output))
      :get-output (lambda (output)
 		   "Returns list of MIDI-Events where the oldest one is the first entry of the list"
 		   (declare (ignore output))
