@@ -1,0 +1,654 @@
+<html><body><h1>cl-synthesizer</h1>An experimental modular audio synthesizer implemented in Common Lisp. Work in progress.<p>A synthesizer is represented by an instance of a Rack. A rack contains all the modules 
+    and the patches (wiring) between them. A rack also provides an interface for system specific
+    devices such as MIDI and Audio. The implementation however does not depend on any system specific 
+    libraries such as CoreMidi or audio drivers.</p><p><b>Example:</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-1
+  (:use :cl))
+
+(in-package :cl-synthesizer-rack-example-1)
+
+(defparameter *attach-speaker* nil)
+
+(defun example ()
+  "Modulate the frequency of a saw signal with a LFO."
+  (let ((rack (cl-synthesizer:make-rack
+	       :environment
+	       (cl-synthesizer:make-environment))))
+
+    (cl-synthesizer:add-module
+     rack "LFO-1"
+     #'cl-synthesizer-modules-vco:vco-linear
+     :base-frequency 1.0 :v-peak 1.0 :f-max 500 :cv-max 5)
+
+    (cl-synthesizer:add-module
+     rack "LFO-2"
+     #'cl-synthesizer-modules-vco:vco-linear
+     :base-frequency 2.0 :v-peak 1.0 :f-max 500 :cv-max 5)
+
+    (cl-synthesizer:add-module
+     rack "VCO-1"
+     #'cl-synthesizer-modules-vco:vco-linear
+     :base-frequency 440 :f-max 5000 :v-peak 5 :cv-max 5)
+
+    (cl-synthesizer:add-module
+     rack "VCO-2"
+     #'cl-synthesizer-modules-vco:vco-linear
+     :base-frequency 442 :f-max 5000 :v-peak 5 :cv-max 5)
+    
+    (cl-synthesizer:add-patch rack "LFO-1" :sine "VCO-1" :cv)
+    (cl-synthesizer:add-patch rack "LFO-2" :sine "VCO-2" :cv)
+    (cl-synthesizer:add-patch rack "VCO-1" :saw "LINE-OUT" :channel-1)
+    (cl-synthesizer:add-patch rack "VCO-2" :saw "LINE-OUT" :channel-2)
+
+    ;; Write LFO/VCO outputs to Wave-File
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
+     '((:channel-1 "LFO-1" :output-socket :sine)
+       (:channel-2 "LFO-2" :output-socket :sine)
+       (:channel-3 "VCO-1" :output-socket :saw)
+       (:channel-4 "VCO-2" :output-socket :saw))
+     :filename "rack-example-1-vcos.wav")
+    
+    ;; Write LINE-OUT to Wave-File
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
+     '((:channel-1 "LINE-OUT" :input-socket :channel-1)
+       (:channel-2 "LINE-OUT" :input-socket :channel-2))
+     :filename "rack-example-1.wav")
+    
+    rack))
+
+;; Execute to run rack
+;;(cl-synthesizer:play-rack (example) 5 :attach-speaker *attach-speaker*)
+
+
+</code></pre></p><h2>Installation</h2><p>TODO</p><h2>API Reference</h2><h3>Environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (channel-count 2) (home-directory nil) </p><p>Creates an environment. The environment defines properties such as
+    the sample rate of the rack and the number of its audio output channels.
+    An enviroment is a property list with the following keys:
+    <ul>
+	<li>:sample-rate Sample rate of the synthesizer.</li>
+	<li>:channel-count The number of line-out sockets exposed to rack modules and an audio output device.</li>
+	<li>:home-directory The base output directory for wave files etc. Default value is the home directory
+        of the current user.</li>
+	<li>:audio-device The audio device to be instantiated when audio output is required. For the format
+            of this argument see function make-device.</li>
+	<li>:midi-device The MIDI device to be instantiated when MIDI input is required. For the format
+            of this argument see function make-device.</li>
+    </ul></p><h3>Rack</h3><p><b>cl-synthesizer:make-rack</b> &key environment </p><p>Creates a rack. The function has the following arguments:
+    <ul>
+	<li>:environment The synthesizer environment.</li>
+    </ul>
+    A rack is initialized with the virtual modules "LINE-OUT" and 
+    "MIDI-IN" that represent the interface to so called devices.
+    A device is a system specific implementation that provides audio
+    output or integration of MIDI controllers. The "LINE-OUT" module
+    exposes input sockets :channel-1 ... :channel-n where n is the
+    channel-count as given by the :channel-count property of the environment.
+    The "MIDI-IN" module exposes the output socket :midi-events which provides a list
+    of midi-events as fired by a MIDI device.
+    The devices to be used are declared by the environment properties :audio-device
+    and :midi-device. The declared devices will only be instantiated when audio or
+    MIDI are explicitly requested.
+    Modules can be patched with MIDI/Audio input/output even if the environment
+    does not declare device implementations or if the implementations are
+    not supported by the current system.</p><hr/><p><b>cl-synthesizer:add-module</b> rack module-name module-fn &rest args </p><p>Adds a module to a rack. The function has the following arguments:
+    <ul>
+	<li>rack The rack.</li>
+	<li>module-name Unique name of the module, for example "VCO-1". If the name
+	    is already used by another module an assembly-error is signalled.</li>
+	<li>module-fn A function that instantiates the module. This function is
+	    called by the rack with the following arguments:
+	    <ul>
+		<li>name Name of the module.</li>
+		<li>environment The synthesizer environment.</li>
+		<li>module-args Any additional arguments passed to add-module.</li>
+	    </ul>
+	    The module instantiation function must return a property list with the following keys:
+	    <ul>
+		<li>:inputs A function with no arguments that returns a list of keywords that represent the
+		    input sockets to be exposed by the module.</li>
+		<li>:outputs A function with no arguments that returns a list of keywords that represent the
+		    output sockets to be exposed by the module.</li>
+		<li>:update A function that is called in order to update the values of the modules
+		    output sockets according to the values of its input sockets. The value of each
+		    input socket is represented by a keyword parameter.</li>
+		<li>:get-output A function that is called in order to get the value of a specific
+		    output socket. The function is called with a keyword that identifies the output socket
+		    whose state is to be returned. The function must not modify the value
+		    of the given or any other output socket.</li>
+		<li>:shutdown An optional function with no arguments that is called when the rack
+		    is shutting down.</li>
+	    </ul>
+	    The input/output sockets exposed by the module are not buffered by the rack. Therefore the
+	    module should return either a quoted list or keep it in an internal variable. The module must
+	    not add or remove input/output sockets after it has been instantiated.
+	</li>
+	<li>&rest args Arbitrary additional arguments to be passed to the module instantiation function.
+	    These arguments typically consist of keyword parameters.</li>
+    </ul></p><hr/><p><b>cl-synthesizer:add-patch</b> rack source-rm-name source-output-socket destination-rm-name destination-input-socket </p><p>Adds a patch to the rack. A patch is an unidirectional connection between an output socket
+    of a source module and an input socket of a destination module. The rack supports cycles which means that an
+    output socket of a module can be patched with one of its inputs (typically via
+    multiple hops through other modules). The function has the following arguments:
+    <ul>
+	<li>rack The rack.</li>
+	<li>source-rm-name Name of the source module.</li>
+	<li>source-output-socket A keyword representing one of the output sockets of the
+	    source module.</li>
+	<li>destination-rm-name Name of the destination module.</li>
+	<li>destination-input-socket A keyword representing one of the input sockets of the
+	    destination module.</li>
+    </ul>
+    The rack signals an assembly-error in the following cases:
+    <ul>
+	<li>A module with the given source name does not exist.</li>
+	<li>A module with the given destination name does not exist.</li>
+	<li>The given source-output-socket is already connected with a module</li>
+	<li>The given source-output-socket is not exposed by the source module.</li>
+	<li>The given destination-input-socket is already connected with a module.</li>
+	<li>The given destination-input-socket is not exposed by the destination module.</li>
+	<ul>
+    </ul></p><hr/><p><b>cl-synthesizer:update</b> rack </p><p>Updates the state of the rack by calling the update function of all its modules.
+    If the rack has already be shut down the function does nothing and returns nil.
+    Othwerwise it updates the rack and returns t.</p><hr/><p><b>cl-synthesizer:play-rack</b> rack duration-seconds &key (attach-speaker nil) (attach-midi nil) </p><p>A utility function that "plays" the rack by consecutively calling its update function
+    for a given number of "ticks". The function has the following arguments:
+    <ul>
+	<li>rack The rack.</li>
+	<li>duration-seconds Duration in seconds of how long to play the rack. If for
+	    example the duration is 2 seconds and the sample rate of the rack as declared
+	    by its environment is 44100, then the update function of the rack will be called 88200 times.</li>
+	<li>:attach-speaker If t then the audio device as declared by the environment of
+	    the rack will be instantiated and attached to the LINE-OUT virtual module of the rack.
+	</li>
+	<li>:attach-midi If t then the MIDI device as declared by the environment of the rack
+	    will be instantiated and attached to the MIDI-IN virtual module of the rack.</li>
+    </ul>
+    The current implementation of the play-rack function assumes that an audio device is blocking.</p><hr/><p><b>cl-synthesizer:get-environment</b> rack </p><p>Returns the environment of the rack.</p><hr/><p><b>cl-synthesizer:get-module</b> rack name </p><p>Get a module of a rack. The function has the following arguments:
+    <ul>
+      <li>rack The rack.</li>
+      <li>name The name of the module</li>
+    </ul>
+   Returns the module (represented as a property list) or nil if a module
+   with the given name has not been added to the rack.</p><hr/><p><b>cl-synthesizer:get-patch</b> rack module-name socket-type socket </p><p>Returns the destination module and input/output socket, to which a given
+    source module and one if its input/output sockets is connected.
+    The function has the following arguments:
+    <ul>
+	<li>rack The rack.</li>
+	<li>module-name Name of the source module.</li>
+	<li>socket-type :input-socket if the patch of an input socket is required or
+	    :output-socket for the patch of an output socket of the source module.</li>
+	<li>socket A keyword identifying an input or output socket of the source module.</li>
+    </ul>
+    The function returns nil if the source module does not exist or if the source module
+    does not expose the given socket or if the given socket is not connected with a module.
+    Otherwise it returns a list with the following entries:
+    <ul>
+	<li>name Name of the destination module.</li>
+	<li>module The destination module represented as a property list.</li>
+	<li>socket A keyword that identifies the input or output socket of the destination
+	    module. If the socket type of the source module is :input-socket then this
+	    keyword represents an output socket of the destination module. Otherwise
+	    it represents an input socket.
+	</li>
+    </ul></p><hr/><p><b>cl-synthesizer:add-hook</b> rack hook </p><p>Adds a hook to the rack. A hook is called each time after the rack has updated its state.
+   A hook consists a property list with the following keys:
+   <ul>
+      <li>:update A function with no arguments that is called after the rack has updated its state.</li>
+      <li>:shutdown A function with no arguments that is called when the rack is shutting down.</li>
+   </ul>
+   Hooks must not modify the rack.</p><hr/><p><b>cl-synthesizer:shutdown</b> rack </p><p>Shuts the rack down by calling the shutdown handlers of all modules, devices and hooks of the rack.
+   After a rack has been shut down, further invocations of the update function are allowed but the function
+   will immediately return nil and will not call any modules, devices or hooks.</p><h3>Modules</h3><p><b>cl-synthesizer-modules-vco:vco-base</b> name environment transfer-function &key f-max v-peak (duty-cycle 0.5) </p><p>Creates a Voltage Controlled Oscillator module. The function has the following arguments:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>transfer-function A function that converts the frequency control voltage into
+	    a frequency. This function is called with the current frequency control voltage and
+	    must return a frequency. Frequencies greater than f-max will be clipped. Negative
+	    frequencies will be clipped to 0Hz.</li>
+	<li>:f-max The maximum frequency of the oscillator. f-max must be greater than 0.</li>
+	<li>:v-peak Absolute value of the maximal voltage (positive/negative) emitted by the oscillator.</li>
+	<li>:duty-cycle The duty cycle of the square wave. 0 >= duty-cycle <= 1.</li>
+    </ul>
+    The module has the following inputs:
+    <ul>
+	<li>:cv Frequency control voltage.</li>
+    </ul>
+    The module has the following outputs:
+    <ul>
+	<li>:sine A sine wave.</li>
+	<li>:triangle A triangle wave.</li>
+	<li>:saw A saw wave.</li>
+	<li>:square A square wave.</li>
+    </ul>
+    See also modules vco-linear and vco-exponential.</p><hr/><p><b>cl-synthesizer-modules-vco:vco-linear</b> name environment &key base-frequency f-max v-peak cv-max (duty-cycle 0.5) </p><p>Creates a Voltage Controlled Oscillator module with linear characteristic.
+   The function has the following arguments:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:cv-max The frequency control voltage which represents the maximum frequency of the oscillator.</li>
+	<li>:base-frequency The frequency emitted by the oscillator at a frequency control voltage of 0.</li>
+	<li>:f-max See vco-base.</li>
+	<li>:v-peak See vco-base.</li>
+	<li>:duty-cycle See vco-base.</li>
+    </ul>
+    The module has the following inputs:
+    <ul>
+	<li>:cv Frequency control voltage. For frequency calculation the absolute value
+	of the control voltage is used. The control voltage is clipped at :cv-max.</li>
+    </ul>
+    The module has the following outputs: See vco-base.</p><hr/><p><b>cl-synthesizer-modules-vco:vco-exponential</b> name environment &key base-frequency f-max v-peak (duty-cycle 0.5) </p><p>Creates a Voltage Controlled Oscillator module with 1V/Octave characteristic.
+   The function has the following arguments:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:base-frequency The frequency emitted by the oscillator at a frequency control voltage of 0.</li>
+	<li>:f-max See vco-base.</li>
+	<li>:v-peak See vco-base.</li>
+	<li>:duty-cycle See vco-base.</li>
+    </ul>
+    The module has the following inputs:
+    <ul>
+	<li>:cv Frequency control voltage. For a given base-frequency of 440Hz a
+	    control voltage of 1.0 results in a frequency of 880Hz and a control
+	    voltage of -1.0 results in a frequency of 220Hz.
+	</li>
+    </ul>
+    The module has the following outputs: See vco-base.</p><hr/><p><b>cl-synthesizer-modules-vca:vca</b> name environment &key cv-max (initial-gain 0.0) </p><p>Creates a Voltage Controlled Amplifier/Attenuator module. The VCA multiplies an
+    incoming signal with a factor of 0..1. The function has the following arguments:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:cv-max The value of the effective amplification control voltage that represents the maximum
+	    amplification of 1.0.</li>
+	<li>:initial-gain An offset that is added to the amplification control voltage.</li>
+    </ul>
+    The module has the following inputs:
+    <ul>
+	<li>:cv Amplification control voltage.</li>
+	<li>:input Input signal to be amplified. The amplitude of this voltage is
+	    unknown to the VCA. It can have any value.</li>
+	<li>:gain An offset that is added to the amplification control voltage.</li>
+    </ul>
+    The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.0 <= v <= :cv-max.
+    The module has the following outputs:
+    <ul>
+	<li>:output-linear Amplified input signal with linear amplification characteristic.</li>
+	<li>:output-exponential Amplified input signal with exponential amplification characteristic.</li>
+    </ul>
+
+    Examples can be found under /src/modules/vca/</p><hr/><p><b>cl-synthesizer-modules-multiple:multiple</b> name environment &key output-count </p><p>Creates a Multiple module. A multiple mirrors one input to n outputs.
+   The function has the following arguments:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:output-count The number of outputs.</li>
+    </ul>
+    The module has the following inputs:
+    <ul>
+	<li>:input The input signal to be mirrored to the outputs.</li>
+    </ul>
+    The module has outputs :output-1 ... :output-n.</p><hr/><p><b>cl-synthesizer-modules-midi-sequencer:midi-sequencer</b> name environment &key events </p><p>Creates a Midi-Sequencer module.
+	The function has the following arguments:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:events A list of Midi event declarations. Each declaration
+	    entry is a property list with the following keys:
+	    <ul>
+		<li>:timestamp-milli-seconds Point of time when events are to be fired.</li>
+		<li>:midi-events List of Midi events to be fired. For the format of a single
+		    Midi event see /src/midi/event.lisp.</li>
+	    </ul>
+	</li>
+    </ul>
+    The module has no inputs.
+    The module has one output socket :midi-events.</p><hr/><p><b>cl-synthesizer-modules-midi-interface:midi-interface</b> name environment &key (voice-count 1) (channel nil) (note-number-to-cv (lambda (note-number) (/ note-number 12))) (play-mode :play-mode-poly) (cv-gate-on 5.0) (cv-gate-off 0.0) (controllers nil) (force-gate-retrigger nil) </p><p>Creates a MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
+    voice is represented by a control-voltage and a gate signal. The module supports the
+    mapping of MIDI CC-Events to arbitary output sockets. The function has the following arguments:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:voice-count The number of voices to be exposed by the module. Each voice consists
+	    of the following output sockets:
+	    <ul>
+		<li>:gate-n The gate signal. n = 1..voice-count.</li>
+		<li>:cv-n A control voltage representing the note number.
+		    n = 1..voice-count</li>
+	    </ul>
+        </li>
+	<li>:channel Optional MIDI channel to which note events must belong. By default the
+	    channel is ignored. This setting does not effect the evaluation of
+	    CC-Events that are handled by controllers. Controllers must implement
+	    channel filtering on their own.</li>
+	<li>:note-number-to-cv An optional function that is called with a MIDI note number
+	    and returns a control-voltage.</li>
+	<li>:play-mode
+	    <ul>
+		<li>:play-mode-poly Polyphonic play mode. Incoming note events will be
+		    dispatched to "available" voices, where a voice is available
+		    when it meets certain criteria. These criteria are defined
+		    and implemented by the cl-synthesizer-midi-voice-manager:voice-manager
+		    package.</li>
+		<li>:play-mode-unisono Monophonic play mode. All voices exposed by the module
+		    are set to the current "active" note. Notes are stacked. When a note is
+		    released, the voice outputs switch to the previous note. This logic is
+		    also implemented by the cl-synthesizer-midi-voice-manager:voice-manager
+		    package.</li>
+	    </ul></li>
+	<li>:cv-gate-on The "Gate on" control voltage.</li>
+	<li>:cv-gate-off The "Gate off" control voltage.</li>
+	<li>:force-gate-retrigger If t then in :play-mode-unisono play mode each note
+	    event will cause a retriggering of the gate signal. Otherwise the gate signal
+	    will stay on when it is already on.</li>
+	<li>:controllers Controllers can be used to declare additional output sockets that are
+	    exposed by the module. The controllers argument consists of a list of property lists
+	    with the following keys:
+	    <ul>
+		<li>:socket A keyword that defines the output socket to be exposed by the modules.</li>
+		<li>:handler A property list that defines the keys
+		    <ul>
+			<li>:update A function that is called with the MIDI events passed to the update
+			    function of the module.</li>
+			<li>:get-output A function with no arguments that returns the current value
+			    of the controller.</li>
+		    </ul>
+		    For typical use cases refer to cl-synthesizer-midi:relative-cc-handler
+		</li>
+	    </ul>
+	</li>
+    </ul>
+    Gate transitions are implemented as follows:
+    <ul>
+	<li>In :play-mode-poly play mode each incoming note causes that the gate signal of the
+	    assigned voice switches to On. If the gate signal of the assigned voice is already On
+	    (this happens when the available voices are exhausted and a voice is "stolen") then
+	    the gate signal switches to Off for the duration of one system tick and
+	    then to On again.</li>
+	<li>In :play-mode-unisono play mode incoming notes are stacked. The first note causes
+	    the gate signal to switch to On. Further "nested" note-on events only result
+	    in a change of the CV output but the gate signal will stay On.
+	    This behaviour can be overridden with the :force-gate-retrigger parameter.</li>
+    </ul>
+    The module has the following inputs:
+    <ul>
+	<li>:midi-events A list of MIDI events.</li>
+    </ul>
+    The module has the following outputs:
+    <ul>
+	<li>:gate-1 ... :gate-n</li>
+	<li>:cv-1 ... :cv-n</li>
+	<li>Outputs as defined by controllers</li>
+    </ul>
+    Example:
+    <pre><code>
+    (cl-synthesizer:add-module
+        rack
+        "MIDI-IFC"
+        #'cl-synthesizer-modules-midi-interface:midi-interface
+        :voice-count 2
+        :play-mode :PLAY-MODE-POLY
+	:controllers
+	(list
+	    (list :socket
+                  :controller-1
+	          :handler
+                      (cl-synthesizer-midi:relative-cc-handler
+		      cl-synthesizer-vendor:*arturia-minilab-mk2*
+		      (list
+                          (list
+                              :controller-id :ENCODER-1
+                              :weight 0.01
+			      :cv-initial 2.5
+			      :cv-min 0
+		              :cv-max 5))))))
+    </code></pre></p><hr/><p><b>cl-synthesizer-modules-envelope:envelope</b> name environment &key segments (gate-threshold 4.9) </p><p>Creates an envelope generator module. An envelope consists of a list of segments where
+    each segment defines rules how to behave. The module generates linear envelopes.
+    The function has the following arguments:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:segments The segments of the envelope. Each segment consists of
+	    a property list with the following keys:
+	    <ul>
+		<li>:duration-ms Optional duration of the segment in milli-seconds. The effective
+		    duration depends on the sample rate as specified by
+		the environment.</li>
+		<li>:target-cv Optional target voltage to which the segment shall climb.</li>
+		<li>:required-gate-state One of :on :off :ignore</li>
+		<li>:duration-controller Declares a controller with which the
+		    duration of the segment can be modulated.</li>
+		<li>:target-cv-controller Declares a controller with which the
+		    target voltage of the segment can be modulated.</li>
+	    </ul>
+	    A Controller represents an external input that is exposed by the module and can be
+	    used to modulate a certain property of the segment. External input values
+	    are mapped by a linear function to the actual values that are processed by the segment.
+	    Controllers are represented as property lists with the following keys:
+	    <ul>
+		<li>:socket A keyword that defines the input socket that will be exposed by the
+		    envelope module and to which other modules can be connected.</li>
+		<li>:input-min The minimum input value of the socket.</li>
+		<li>:input-max The maximum input value of the socket.</li>
+		<li>:output-min The minimum target value of the mapping.</li>
+		<li>:output-max The maximum target value of the mapping.</li>
+	    </ul>
+	    Clipping is generally not applied except for cases such as a negative segment
+	    duration. Controller inputs are always offsets that are added to the initial
+	    value as provided by :duration-ms or :target-cv.
+	    Controller inputs do not affect the behaviour of the currently active segment.
+	</li>
+	<li>:gate-threshold An optional threshold which defines the minimum input value
+	    of the :gate input that is interpreted as gate on.</li>
+    </ul>
+    The module has the following inputs:
+    <ul>
+	<li>:gate The gate signal as provided for example by a MIDI sequencer. If the gate switches from
+	:off to :on the output voltage is reset to 0.0 and the module switches to the first segment.</li>
+	<li>Inputs as defined by segment controllers.</li>
+    </ul>
+    The module has the following outputs:
+    <ul>
+	<li>:cv The current value of the envelope. The initial value is 0.0</li>
+    </ul>
+    Example:
+    <pre><code>
+    (cl-synthesizer:add-module rack "ADSR" #'cl-synthesizer-modules-envelope:envelope
+			       :segments '((:duration-ms 200 :target-cv 5 :required-gate-state :on
+					    :duration-controller
+					    (:socket :attack-duration
+					     :input-min -5.0
+					     :input-max 5.0
+					     :output-min -1000
+					     :output-max 1000))
+					   (:duration-ms 100 :target-cv 3 :required-gate-state :on)
+					   (:required-gate-state :on)
+					   (:duration-ms 300 :target-cv 0 :required-gate-state :off)))
+    </code></pre></p><hr/><p><b>cl-synthesizer-modules-fixed-output:fixed-output</b> name environment &key value (output-socket :out) </p><p>Creates a module with a fixed output value.
+   The function has the following arguments:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:value The value of the module output.</li>
+	<li>:output-socket Optional keyword that declares the output socket
+	    identifier to be exposed by the module.</li>
+    </ul>
+    The module has no inputs.
+    The module has one output socket according to the :output-socket argument.</p><h3>MIDI</h3><h4>MIDI Event</h4><p><b>cl-synthesizer-midi-event:make-control-change-event</b> channel controller-number value </p><p>Creates a MIDI control change event.</p><hr/><p><b>cl-synthesizer-midi-event:make-note-on-event</b> channel note-number velocity </p><p>Creates a MIDI Note-On event.</p><hr/><p><b>cl-synthesizer-midi-event:make-note-off-event</b> channel note-number velocity </p><p>Creates a MIDI Note-Off event.</p><hr/><p><b>cl-synthesizer-midi-event:control-change-eventp</b> event </p><p>Returns t if the given MIDI event is a Control-Change event.</p><hr/><p><b>cl-synthesizer-midi-event:note-on-eventp</b> event </p><p>Returns t if the given MIDI event is a Note-On event.</p><hr/><p><b>cl-synthesizer-midi-event:note-off-eventp</b> event </p><p>Returns t if the given MIDI event is a Note-Off event.</p><hr/><p><b>cl-synthesizer-midi-event:get-channel</b> event </p><p>Returns the MIDI channel number to which the event belongs.</p><hr/><p><b>cl-synthesizer-midi-event:get-controller-number</b> event </p><p>Returns the controller number of the MIDI event.</p><hr/><p><b>cl-synthesizer-midi-event:get-controller-value</b> event </p><p>Returns the controller value of the MIDI event.</p><hr/><p><b>cl-synthesizer-midi-event:get-note-number</b> event </p><p>Returns the note number of the MIDI event.</p><hr/><p><b>cl-synthesizer-midi-event:get-velocity</b> event </p><p>Returns the velocity of the MIDI event.</p><h4>MIDI Utilities</h4><p><b>cl-synthesizer-midi:get-note-number-frequency</b> note-number </p><p>Returns the frequency of a given note number. Note number 69 results in a frequency of 440Hz.
+   This function implements a simple mapping and might be useful in some cases. For more
+   details about the implementation refer to the source code.</p><hr/><p><b>cl-synthesizer-midi:relative-cc-handler</b> midi-controller controllers &key cv-initial cv-min cv-max (channel nil) </p><p>Creates a handler that maps MIDI events of n >= 1 relative MIDI CC-Controllers
+  to a single target value. The function has the following arguments:
+  <ul>
+    <li>midi-controller A property list with the keys
+      <ul>
+	  <li>:get-controller-number A function with one argument that is called with a
+	      keyword that identifies the controller, for example :encoder-1 and returns
+	      the controller number, for example 112.</li>
+	  <li>:get-controller-value-offset A function with one argument that is called with
+	      the value of a relative CC event, for example 62, and returns a positive or
+	      negative offset, for example -3.</li>
+      </ul>
+      <li>controllers A list of property lists with the keys
+	  <ul>
+	      <li>:controller-id A keyword that identifies an encoder of the given midi-controller, 
+		  for example :encoder-1</li>
+	      <li>:weight The weight of the controller in percent that defines how much the target value will 
+		  be increased/decreased when the controller is turned. The value is relative to the total 
+		  control voltage range as defined by cv-min and cv-max.</li>
+	      <li>:turn-speed An optional function that is called with the absolute value of the increase/decrease
+		  offset as returned by the :get-controller-value-offset function of the midi-controller. The offset 
+		  typically depends on the speed with which the encoder is turned. The function must return the 
+		  absolute value of the new offset. This function can for example be used to disable turn-speed 
+		  specific increments/decrements by simply returning 1.
+		  Example: (:turn-speed (lambda (offs) 1))</li>
+	  </ul>
+      </li>
+      <li>:cv-initial The initial output value of the handler function.</li>
+      <li>:cv-min The minimum output value of the handler function. Clipping is applied to ensure this.</li>
+      <li>:cv-max The maximum output value of the handler function. Clipping is applied to ensure this.</li>
+      <li>:channel Optional number of the MIDI channel to which the controller events must belong. By default
+	  the channel number is ignored.</li>
+    </li>
+  </ul>
+  The returned handler is a property list with the following keys:
+  <ul>
+      <li>:update A function that is to be called with a list of midi-events.</li>
+      <li>:get-output A function that returns the current output value.</li>
+  </ul>
+  Examples: see modules/midi-interface/</p><h3>Monitor</h3><p><b>cl-synthesizer-monitor:add-monitor</b> rack monitor-handler socket-mappings &rest additional-handler-args </p><p>Adds a monitor to a rack. A monitor is a high-level Rack hook that
+    collects module states (input/output sockets) and passes them
+    to a monitor handler. A monitor handler can for example be a
+    Wave-File-Writer. The function has the following arguments:
+    <ul>
+	<li>rack The rack.</li>
+	<li>monitor-handler A function that instantiates the monitor handler.
+	    This function is called with the following arguments:
+	    <ul>
+		<li>name A name.</li>
+		<li>environment The synthesizer environment.</li>
+		<li>output-keywords A list of keywords declaring the keyword
+		    parameters with which the monitor handler update function
+		    will be called.</li>
+		<li>additional-handler-args Any additional keyword parameters as
+		    passed to the monitor function. These parameters can be
+		    used to initialize handler specific properties such as
+		    a filename.</li>
+	    </ul>
+	    The function must return a property list with the following keys:
+	    <ul>
+		<li>:update A function that is called after each tick of the rack.
+		    It is called with keyword parameters as declared by the
+		    output-keywords argument described above.</li>
+		<li>:shutdown An optional function with no arguments that is
+		    called when the rack shuts down.</li>
+	    </ul>
+	</li>
+	<li>socket-mappings Declares a list of mappings of specific sockets of
+	    specific modules to keyword parameters that will be passed to the
+	    update function of the handler. Each mapping entry has the following format:
+	    <ul>
+		<li>key Keyword to be used as keyword parameter when calling
+		    the update function of the handler, for example :channel-1.
+		    For now this key must be one that is supported by the actual handler. 
+                    For example the Wave-File handler only supports :channel-n
+		    keys.</li>
+		<li>module-name Name of the module from which the state of
+		    a certain input/output socket is to be retrieved, for
+		    example "ADSR"</li>
+		<li>socket-type Defines if the value of an input-socket is requested
+		    or the value of an output-socket. Must be :input-socket or
+		    :output-socket</li>
+		<li>socket A keyword that identifies one of the input/output sockets
+		    provided by the module, for example :cv</li>
+	    </ul>
+	</li>
+	<li>&rest additional-handler-args Optional keyword arguments to be passed to
+	    the handler instantiation function.</li>
+    </ul>
+    Example:
+    <pre><code>
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
+     '((:channel-1 "LFO" :output-socket :saw)
+       (:channel-2 "ADSR" :output-socket :cv)
+       (:channel-3 "LINE-OUT" :input-socket :channel-1))
+     :filename "trace.wav")
+    </code></pre></p><hr/><p><b>cl-synthesizer-monitor-wave-handler:wave-file-handler</b> name environment outputs &rest rest &key filename &allow-other-keys </p><p>Creates a monitor handler which writes its inputs into a Wave file.
+    The function has the following arguments:
+    <ul>
+	<li>name A name.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>outputs The output keys as defined by the Monitor Socket-Mapping. For now
+	these must be :channel-1 ... :channel-n.</li>
+	<li>:filename A file path relative to the output directory as defined by the environment.</li>
+    </ul></p><h3>Device</h3><p><b>cl-synthesizer:attach-audio-device</b> rack device </p><p>Attaches an audio output device to the rack.</p><hr/><p><b>cl-synthesizer:attach-midi-in-device</b> rack device </p><p>Attaches a MIDI input device to the rack. The rack currently supports one MIDI input device.</p><hr/><p><b>cl-synthesizer:make-device</b> name environment device-settings </p><p>Creates a device. The function has the following arguments:
+    <ul>
+	<li>name Name of the device.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>device-settings The device settings consist of a property list with the following keys:
+	    <ul>
+		<li>:symbol-name Symbol name of the device instantiation function, for example "SPEAKER-CL-OUT123"</li>
+		<li>:package-name Package name of the device instantiation function, for example "CL-SYNTHESIZER-DEVICE-SPEAKER"</li>
+		<li>:init-args A list of additional arguments to be passed to the device instantiation function. An
+		    argument may consist of a function. In this case the value of the argument to be passed to the
+		    device instantiation function will be evaluated by calling the given function with the environment as
+		    parameter. Example: <code>(:channel-count (lambda (environment) (getf environment :channel-count))
+		    :driver "coreaudio"))</code></li>
+	    </ul>
+	</li>
+    </ul>
+    The device instantiation function is called with the following arguments:
+    <ul>
+	<li>name Name of the device.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>Any additional arguments as declared by :init-args</li>
+    </ul>
+    If the device represents a MIDI input device then the device instantiation function must return a property
+    list with the following keys:
+    <ul>
+	<li>:get-output A function that returns the current output of the underlying device as
+	a list of Midi-Events.</li>
+	<li>:shutdown An optional shutdown function that is called when the rack is shutting down.</li>
+    </ul>
+    If the device represents an Audio output device then the device instantiation function must return a property
+    list with the following keys:
+    <ul>
+	<li>:update Function that is called with keywords parameters :channel-1 ... :channel-n in order to
+	push audio data to the underlying device.</li>
+	<li>:shutdown An optional shutdown function that is called when the rack is shutting down.</li>
+    </ul></p><hr/><p><b>cl-synthesizer-device-speaker:speaker-cl-out123</b> name environment &key channel-count driver (buf-length-frames 1000) (v-peak 5.0) </p><p>Creates a speaker device using the "cl-out123" package to
+    push audio data to a system speaker driver. The :update function as exposed by
+    the device is blocking. This means that when the maximum buffer size
+    has been reached, the function will not return until the speaker driver
+    has accepted the buffer. This behaviour can be used to synchronize the
+    synthesizer. The device has a latency of about 300-400ms and therefore
+    cannot really be used for real-time play using a Midi-Controller.
+    The function has the following arguments:
+  <ul>
+    <li>name A name.</li>
+    <li>environment The synthesizer environment.</li>
+    <li>:channel-count Number of output channels.</li>
+    <li>:driver Driver to be used, for example "coreaudio".</li>
+    <li>:v-peak Optional peak voltage. The inputs of the device will be normalized
+	to -1.0 ... 1.0 according to v-peak. Incoming voltages will not be clipped.</li>
+    <li>:buf-length-frames Number of frames to be buffered until the audio data is
+	pushed to the driver.</li>
+  </ul>
+  The :update function of the device must be called with keyword arguments :channel-1 ... :channel-n,
+  where n is the number of channels. In a stereo setup left is represented by :channel-1 and 
+  right by :channel-2
+  The current buffer of the device is flushed when the :shutdown function is called.</p><hr/><p><b>cl-synthesizer-device-midi:midi-device</b> name environment &key (source-index 1) </p><p>Creates a MIDI device using the "coremidi" package to receive MIDI events.
+    The function has the following arguments:
+    <ul>
+	<li>name A name.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:source-index The source index argument as required by the midi:get-source function
+            of the coremidi package.</li>
+    </ul>
+    The :get-output function returns a list of MIDI events. The events are sorted by
+    their timestamp in ascending order, which means that the first event of the list
+    is the "oldest" one.</p><h3>Conditions</h3><b>assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
+   because for example a module name is not unique, a patch is added for
+   a non-existing module, a patch is added to an already patched socket
+   and so on.</p><hr/><p><small>Generated 2018-09-28  19:57:45</small></p></body></html>
