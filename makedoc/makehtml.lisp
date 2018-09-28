@@ -141,7 +141,7 @@
 		   (make-function-string 'cl-synthesizer-device-speaker:speaker-cl-out123)
 		   (make-function-string 'cl-synthesizer-device-midi:midi-device :append-separator nil)
 		   "<h3>Conditions</h3>"
-		   (make-condition-string 'cl-synthesizer:assembly-error)
+		   (make-condition-string 'cl-synthesizer:assembly-error :append-separator nil)
 		   ;;(documentation 'cl-synthesizer:assembly-error 'type)
 		   "<hr/><p><small>Generated " (current-date) "</small></p>"
 		   "</body></html>"
