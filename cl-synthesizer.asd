@@ -20,10 +20,7 @@
 				     (:file "invalid-arguments-error")
 				     (:file "environment")
 				     (:file "rack")
-				     (:file "line-out")
-				     (:file "midi-in")
-				     (:file "play-rack")
-				     ))
+				     (:file "play-rack")))
 	       (:module "src/core"
 			:serial t
 			:components ((:file "packages")

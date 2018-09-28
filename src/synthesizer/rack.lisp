@@ -2,6 +2,55 @@
 
 ;;
 ;;
+;; Internal modules for Audio and MIDI support
+;;
+;;
+
+(defun line-out (name environment)
+  (declare (ignore name))
+  (let ((device nil)
+	(inputs (cl-synthesizer-macro-util:make-keyword-list
+		 "channel"
+		 (getf environment :channel-count))))
+    (list
+     :set-device (lambda (d) (setf device d))
+     :shutdown (lambda ()
+		 (if device
+		     (let ((f (getf device :shutdown)))
+		       (if f (funcall f)))))
+     :inputs (lambda () inputs)
+     :outputs (lambda () nil)
+     :get-output (lambda (output)
+		   (declare (ignore output))
+		   nil)
+     :update (lambda (&rest args) ;; to be called with lambda list (:channel-1 v :channel-2 v ...)
+	       (if device
+		   (let ((f (getf device :update)))
+		     (if f (apply f args))))))))
+
+(defun midi-in (name environment)
+  (declare (ignore name))
+  (declare (ignore environment))
+  (let ((device nil))
+    (list
+     :set-device (lambda (d) (setf device d))
+     :shutdown (lambda ()
+		 (if device
+		     (let ((f (getf device :shutdown)))
+		       (if f (funcall f)))))
+     :inputs (lambda () nil)
+     :outputs (lambda () '(:midi-events))
+     :get-output (lambda (output)
+		   (declare (ignore output))
+		   (if device
+		       (let ((f (getf device :get-output)))
+			 (if f (funcall f :midi-events) nil))
+		       nil))
+     :update (lambda ()
+	       nil))))
+
+;;
+;;
 ;; Rack
 ;;
 ;;
@@ -31,11 +80,13 @@
   (dolist (m (slot-value rack 'modules))
     (setf (slot-value m 'state) state)))
 
-(defun get-line-out (rack)
-  (slot-value (get-rm-module rack "LINE-OUT") 'module))
+(defun attach-audio-device (rack device)
+  (let ((line-out (slot-value (get-rm-module rack "LINE-OUT") 'module)))
+    (funcall (getf line-out :set-device) device)))
 
-(defun get-midi-in (rack)
-  (slot-value (get-rm-module rack "MIDI-IN") 'module))
+(defun attach-midi-in-device (rack device)
+  (let ((midi-in (slot-value (get-rm-module rack "MIDI-IN") 'module)))
+    (funcall (getf midi-in :set-device) device)))
 
 (defun add-hook (rack hook)
   "Adds a hook to the rack. A hook is called each time after the rack has updated its state.

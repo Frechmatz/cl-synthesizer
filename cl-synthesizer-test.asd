@@ -19,9 +19,7 @@
 				     (:file "assembly-error")
 				     (:file "invalid-arguments-error")
 				     (:file "environment")
-				     (:file "rack")
-				     (:file "line-out")
-				     (:file "midi-in")))
+				     (:file "rack")))
 	       (:module "src/core"
 			:serial t
 			:components ((:file "packages")

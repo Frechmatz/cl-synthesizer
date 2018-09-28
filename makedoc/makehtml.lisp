@@ -94,8 +94,6 @@
 		   (make-function-string 'cl-synthesizer:get-environment)
 		   (make-function-string 'cl-synthesizer:get-module)
 		   (make-function-string 'cl-synthesizer:get-patch)
-		   (make-function-string 'cl-synthesizer:get-line-out)
-		   (make-function-string 'cl-synthesizer:get-midi-in)
 		   (make-function-string 'cl-synthesizer:add-hook :append-separator nil)
 		   "<h3>Modules</h3>"
 		   (make-function-string 'cl-synthesizer-modules-vco:vco-base)
@@ -127,6 +125,8 @@
 		   (make-function-string 'cl-synthesizer-monitor:add-monitor)
 		   (make-function-string 'cl-synthesizer-monitor-wave-handler:wave-file-handler :append-separator nil)
 		   "<h3>Device</h3>"
+		   (make-function-string 'cl-synthesizer:attach-audio-device)
+		   (make-function-string 'cl-synthesizer:attach-midi-in-device)
 		   (make-function-string 'cl-synthesizer:make-device)
 		   (make-function-string 'cl-synthesizer-device-speaker:speaker-cl-out123)
 		   (make-function-string 'cl-synthesizer-device-midi:midi-device :append-separator nil)
