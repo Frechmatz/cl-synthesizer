@@ -52,6 +52,15 @@
    "</p>"
    (if append-separator "<hr/>" "")))
 
+(defun make-condition-string (f &key (append-separator t))
+  (concatenate
+   'string
+   "<b>" (string-downcase (symbol-name f)) "</b>"
+   "<p>"
+   (documentation f 'type)
+   "</p>"
+   (if append-separator "<hr/>" "")))
+
 (defun current-date ()
   (multiple-value-bind (sec min hr day mon yr dow dst-p tz)
       (get-decoded-time)
@@ -94,7 +103,8 @@
 		   (make-function-string 'cl-synthesizer:get-environment)
 		   (make-function-string 'cl-synthesizer:get-module)
 		   (make-function-string 'cl-synthesizer:get-patch)
-		   (make-function-string 'cl-synthesizer:add-hook :append-separator nil)
+		   (make-function-string 'cl-synthesizer:add-hook)
+		   (make-function-string 'cl-synthesizer:shutdown :append-separator nil)
 		   "<h3>Modules</h3>"
 		   (make-function-string 'cl-synthesizer-modules-vco:vco-base)
 		   (make-function-string 'cl-synthesizer-modules-vco:vco-linear)
@@ -130,6 +140,9 @@
 		   (make-function-string 'cl-synthesizer:make-device)
 		   (make-function-string 'cl-synthesizer-device-speaker:speaker-cl-out123)
 		   (make-function-string 'cl-synthesizer-device-midi:midi-device :append-separator nil)
+		   "<h3>Conditions</h3>"
+		   (make-condition-string 'cl-synthesizer:assembly-error)
+		   ;;(documentation 'cl-synthesizer:assembly-error 'type)
 		   "<hr/><p><small>Generated " (current-date) "</small></p>"
 		   "</body></html>"
 		   )))

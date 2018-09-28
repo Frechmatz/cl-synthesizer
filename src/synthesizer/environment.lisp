@@ -27,7 +27,7 @@
      :midi-device (list
 		   :symbol-name "MIDI-DEVICE"
 		   :package-name "CL-SYNTHESIZER-DEVICE-MIDI"
-		   :init-args nil)))
+		   :init-args (list :source-index 1))))
 
 (defun prepare-init-args (environment initargs)
   "Resolves init arguments that are defined as functions by calling the 

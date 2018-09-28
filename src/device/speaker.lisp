@@ -6,7 +6,7 @@
 (in-package :cl-synthesizer-device-speaker)
 
 (defun speaker-cl-out123 (name environment &key channel-count driver (buf-length-frames 1000) (v-peak 5.0))
-  "Creates a speaker device. The device is using the cl-out123 package to
+  "Creates a speaker device using the \"cl-out123\" package to
     push audio data to a system speaker driver. The :update function as exposed by
     the device is blocking. This means that when the maximum buffer size
     has been reached, the function will not return until the speaker driver
@@ -24,11 +24,10 @@
     <li>:buf-length-frames Number of frames to be buffered until the audio data is
 	pushed to the driver.</li>
   </ul>
-  The update function of the device must be called with keyword arguments :channel-1 ... :channel-n,
+  The :update function of the device must be called with keyword arguments :channel-1 ... :channel-n,
   where n is the number of channels. In a stereo setup left is represented by :channel-1 and 
   right by :channel-2
-  The current buffer of the device is flushed when the :shutdown function as exposed by the 
-  device is called."
+  The current buffer of the device is flushed when the :shutdown function is called."
   (if (<= channel-count 0)
       (cl-synthesizer:signal-assembly-error
        :format-control "~a: channel-count must be greater than 0: ~a"
