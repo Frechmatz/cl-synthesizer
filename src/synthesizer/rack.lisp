@@ -31,10 +31,10 @@
   (dolist (m (slot-value rack 'modules))
     (setf (slot-value m 'state) state)))
 
-(defun get-line-out-adapter (rack)
+(defun get-line-out (rack)
   (slot-value (get-rm-module rack "LINE-OUT") 'module))
 
-(defun get-midi-in-adapter (rack)
+(defun get-midi-in (rack)
   (slot-value (get-rm-module rack "MIDI-IN") 'module))
 
 (defun add-hook (rack hook)
@@ -68,8 +68,8 @@
     not supported by the current system."
   (let ((cur-rack (make-instance 'rack :environment environment)))
     ;; Add Device Interfaces
-    (add-module cur-rack "LINE-OUT" #'line-out-adapter)
-    (add-module cur-rack "MIDI-IN" #'midi-in-adapter)
+    (add-module cur-rack "LINE-OUT" #'line-out)
+    (add-module cur-rack "MIDI-IN" #'midi-in)
     cur-rack))
 
 

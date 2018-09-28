@@ -4,7 +4,7 @@
 
 (in-package :cl-synthesizer)
 
-(defun line-out-adapter (name environment)
+(defun line-out (name environment)
   (declare (ignore name))
   (let ((device nil)
 	(inputs (cl-synthesizer-macro-util:make-keyword-list

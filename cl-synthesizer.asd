@@ -20,8 +20,8 @@
 				     (:file "invalid-arguments-error")
 				     (:file "environment")
 				     (:file "rack")
-				     (:file "line-out-adapter")
-				     (:file "midi-in-adapter")
+				     (:file "line-out")
+				     (:file "midi-in")
 				     (:file "play-rack")
 				     ))
 	       (:module "src/core"

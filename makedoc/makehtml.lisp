@@ -94,8 +94,8 @@
 		   (make-function-string 'cl-synthesizer:get-environment)
 		   (make-function-string 'cl-synthesizer:get-module)
 		   (make-function-string 'cl-synthesizer:get-patch)
-		   (make-function-string 'cl-synthesizer:get-line-out-adapter)
-		   (make-function-string 'cl-synthesizer:get-midi-in-adapter)
+		   (make-function-string 'cl-synthesizer:get-line-out)
+		   (make-function-string 'cl-synthesizer:get-midi-in)
 		   (make-function-string 'cl-synthesizer:add-hook :append-separator nil)
 		   "<h3>Modules</h3>"
 		   (make-function-string 'cl-synthesizer-modules-vco:vco-base)
