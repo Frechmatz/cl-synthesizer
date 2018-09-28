@@ -3,7 +3,5 @@
 *~
 .DS_Store
 makedoc/node_modules
-makedoc/doc.html
-makedoc/doc.md
 makedoc/temp.html
 
