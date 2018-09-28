@@ -12,7 +12,7 @@ A synthesizer is represented by an instance of a Rack. A rack contains all the m
     
     (in-package :cl-synthesizer-rack-example-1)
     
-    (defparameter *attach-speaker* nil)
+    (defparameter *attach-speaker* t)
     
     (defun example ()
       "Modulate the frequency of a saw signal with a LFO."
@@ -148,9 +148,7 @@ The rack signals an assembly-error in the following cases:
 
 **cl-synthesizer:update** rack
 
-Updates the state of a rack by calling the update function of all its modules. The function has the following arguments:
-
-*   rack The rack.
+Updates the state of the rack by calling the update function of all its modules. If the rack has already be shut down the function does nothing and returns nil. Othwerwise it updates the rack and returns t.
 
 * * *
 
@@ -201,14 +199,6 @@ The function returns nil if the source module does not exist or if the source mo
 
 * * *
 
-**cl-synthesizer:get-line-out-adapter** rack
-
-* * *
-
-**cl-synthesizer:get-midi-in-adapter** rack
-
-* * *
-
 **cl-synthesizer:add-hook** rack hook
 
 Adds a hook to the rack. A hook is called each time after the rack has updated its state. A hook consists a property list with the following keys:
@@ -217,6 +207,12 @@ Adds a hook to the rack. A hook is called each time after the rack has updated i
 *   :shutdown A function with no arguments that is called when the rack is shutting down.
 
 Hooks must not modify the rack.
+
+* * *
+
+**cl-synthesizer:shutdown** rack
+
+Shuts the rack down by calling the shutdown handlers of all modules, devices and hooks of the rack. After a rack has been shut down, further invocations of the update function are allowed but the function will immediately return nil and will not call any modules, devices or hooks.
 
 ### Modules
 
@@ -612,6 +608,18 @@ Creates a monitor handler which writes its inputs into a Wave file. The function
 
 ### Device
 
+**cl-synthesizer:attach-audio-device** rack device
+
+Attaches an audio output device to the rack.
+
+* * *
+
+**cl-synthesizer:attach-midi-in-device** rack device
+
+Attaches a MIDI input device to the rack. The rack currently supports one MIDI input device.
+
+* * *
+
 **cl-synthesizer:make-device** name environment device-settings
 
 Creates a device. The function has the following arguments:
@@ -629,17 +637,13 @@ The device instantiation function is called with the following arguments:
 *   environment The synthesizer environment.
 *   Any additional arguments as declared by :init-args
 
-If the device represents a MIDI input device then the device instantiation function must return a property list with the following keys (keys are not finalized yet by implementation):
+If the device represents a MIDI input device then the device instantiation function must return a property list with the following keys:
 
-*   :inputs nil
-*   :outputs (:midi-events).
 *   :get-output A function that returns the current output of the underlying device as a list of Midi-Events.
 *   :shutdown An optional shutdown function that is called when the rack is shutting down.
 
-If the device represents an Audio output device then the device instantiation function must return a property list with the following keys (keys are not finalized yet by implementation):
+If the device represents an Audio output device then the device instantiation function must return a property list with the following keys:
 
-*   :inputs (:channel-1 ... :channel-n) Where n is the number of output channels as declared by the environment.
-*   :outputs nil.
 *   :update Function that is called with keywords parameters :channel-1 ... :channel-n in order to push audio data to the underlying device.
 *   :shutdown An optional shutdown function that is called when the rack is shutting down.
 
@@ -647,7 +651,7 @@ If the device represents an Audio output device then the device instantiation fu
 
 **cl-synthesizer-device-speaker:speaker-cl-out123** name environment &key channel-count driver (buf-length-frames 1000) (v-peak 5.0)
 
-Creates a speaker device. The device is using the cl-out123 package to push audio data to a system speaker driver. The :update function as exposed by the device is blocking. This means that when the maximum buffer size has been reached, the function will not return until the speaker driver has accepted the buffer. This behaviour can be used to synchronize the synthesizer. The device has a latency of about 300-400ms and therefore cannot really be used for real-time play using a Midi-Controller. The function has the following arguments:
+Creates a speaker device using the "cl-out123" package to push audio data to a system speaker driver. The :update function as exposed by the device is blocking. This means that when the maximum buffer size has been reached, the function will not return until the speaker driver has accepted the buffer. This behaviour can be used to synchronize the synthesizer. The device has a latency of about 300-400ms and therefore cannot really be used for real-time play using a Midi-Controller. The function has the following arguments:
 
 *   name A name.
 *   environment The synthesizer environment.
@@ -656,16 +660,28 @@ Creates a speaker device. The device is using the cl-out123 package to push audi
 *   :v-peak Optional peak voltage. The inputs of the device will be normalized to -1.0 ... 1.0 according to v-peak. Incoming voltages will not be clipped.
 *   :buf-length-frames Number of frames to be buffered until the audio data is pushed to the driver.
 
-The device has the following inputs:
-
-*   :channel-1 ... :channel-n In a stereo setup left is represented by :channel-1 and right by :channel-2
-
-The module has no outputs. The current buffer is flushed when the :shutdown function as exposed by the device is being called.
+The :update function of the device must be called with keyword arguments :channel-1 ... :channel-n, where n is the number of channels. In a stereo setup left is represented by :channel-1 and right by :channel-2 The current buffer of the device is flushed when the :shutdown function is called.
 
 * * *
 
-**cl-synthesizer-device-midi:midi-device** name environment
+**cl-synthesizer-device-midi:midi-device** name environment &key (source-index 1)
+
+Creates a MIDI device using the "coremidi" package to receive MIDI events. The function has the following arguments:
+
+*   name A name.
+*   environment The synthesizer environment.
+*   :source-index The source index argument as required by the midi:get-source function of the coremidi package.
+
+The :get-output function returns a list of MIDI events. The events are sorted by their timestamp in ascending order, which means that the first event of the list is the "oldest" one.
+
+### Conditions
+
+**assembly-error**
+
+This condition is signalled in cases where the assembly of a rack fails, because for example a module name is not unique, a patch is added for a non-existing module, a patch is added to an already patched socket and so on.
 
 * * *
 
-Generated 2018-09-27 23:49:02
+* * *
+
+Generated 2018-09-28 19:54:21
