@@ -1,6 +1,7 @@
 (in-package :cl-synthesizer)
 
-(defun make-environment (&key (sample-rate 44100) (channel-count 2) (home-directory nil))
+(defun make-environment (&key (sample-rate 44100) (channel-count 2) (home-directory nil)
+			   (audio-device nil) (midi-device nil))
   "Creates an environment. The environment defines properties such as
     the sample rate of the rack and the number of its audio output channels.
     An enviroment is a property list with the following keys:
@@ -9,25 +10,25 @@
 	<li>:channel-count The number of line-out sockets exposed to rack modules and an audio output device.</li>
 	<li>:home-directory The base output directory for wave files etc. Default value is the home directory
         of the current user.</li>
-	<li>:audio-device The audio device to be instantiated when audio output is required. For the format
+	<li>:audio-device An optional audio device to be instantiated when audio output is requested. For the format
             of this argument see function make-device.</li>
-	<li>:midi-device The MIDI device to be instantiated when MIDI input is required. For the format
+	<li>:midi-device An optional MIDI device to be instantiated when MIDI input is requested. For the format
             of this argument see function make-device.</li>
     </ul>"
     (list
      :sample-rate sample-rate
      :channel-count channel-count
      :home-directory (if (not home-directory) (user-homedir-pathname) home-directory) 
-     :audio-device (list
+     :audio-device (if audio-device audio-device (list
 		    :symbol-name "SPEAKER-CL-OUT123"
 		    :package-name "CL-SYNTHESIZER-DEVICE-SPEAKER"
 		    :init-args (list
 				:channel-count (lambda (environment) (getf environment :channel-count))
-				:driver "coreaudio"))
-     :midi-device (list
+				:driver "coreaudio")))
+     :midi-device (if midi-device midi-device (list
 		   :symbol-name "MIDI-DEVICE"
 		   :package-name "CL-SYNTHESIZER-DEVICE-MIDI"
-		   :init-args (list :source-index 1))))
+		   :init-args (list :source-index 1)))))
 
 (defun prepare-init-args (environment initargs)
   "Resolves init arguments that are defined as functions by calling the 
