@@ -78,6 +78,17 @@
 	       (return)
 	       (format s "~a~%" str)))))))
 
+(defun example-code (path &key (example-number nil))
+  (concatenate 'string
+	       "<p><b>Example"
+	       (if example-number (format nil " ~a" example-number) "")
+	       ":</b></p>"
+	       "<p><pre><code>"
+	       (read-text-file path)
+	       "</code></pre></p>"))
+
+  
+
 (defun write-html ()
     (let ((docstr (concatenate
 		   'string
@@ -85,10 +96,7 @@
 		   "<h1>cl-synthesizer</h1>"
 		   "An experimental modular audio synthesizer implemented in Common Lisp. Work in progress."
 		   "<p>" (documentation 'cl-synthesizer::rack 'type) "</p>"
-		   "<p><b>Example:</b></p>"
-		   "<p><pre><code>"
-		   (read-text-file "/Users/olli/src/lisp/cl-synthesizer/src/synthesizer/rack/example-1.lisp")
-		   "</code></pre></p>"
+		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/synthesizer/rack/example-1.lisp")
 		   "<h2>Installation</h2>"
 		   "<p>TODO</p>"
 		   "<h2>API Reference</h2>"
@@ -107,13 +115,18 @@
 		   (make-function-string 'cl-synthesizer:shutdown :append-separator nil)
 		   "<h3>Modules</h3>"
 		   (make-function-string 'cl-synthesizer-modules-vco:vco-base)
-		   (make-function-string 'cl-synthesizer-modules-vco:vco-linear)
+		   (make-function-string 'cl-synthesizer-modules-vco:vco-linear :append-separator nil)
+		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/modules/vco/example-1.lisp")
 		   (make-function-string 'cl-synthesizer-modules-vco:vco-exponential)
-		   (make-function-string 'cl-synthesizer-modules-vca:vca)
+		   (make-function-string 'cl-synthesizer-modules-vca:vca :append-separator nil)
+		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/modules/vca/example-1.lisp")
 		   (make-function-string 'cl-synthesizer-modules-multiple:multiple)
-		   (make-function-string 'cl-synthesizer-modules-midi-sequencer:midi-sequencer)
-		   (make-function-string 'cl-synthesizer-modules-midi-interface:midi-interface)
-		   (make-function-string 'cl-synthesizer-modules-envelope:envelope)
+		   (make-function-string 'cl-synthesizer-modules-midi-sequencer:midi-sequencer :append-separator nil)
+		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/modules/midi-sequencer/example-1.lisp")
+		   (make-function-string 'cl-synthesizer-modules-midi-interface:midi-interface :append-separator nil)
+		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/modules/midi-interface/example-1.lisp")
+		   (make-function-string 'cl-synthesizer-modules-envelope:envelope :append-separator nil)
+		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/modules/envelope/example-1.lisp")
 		   (make-function-string 'cl-synthesizer-modules-fixed-output:fixed-output :append-separator nil)
 		   "<h3>MIDI</h3>"
 		   "<h4>MIDI Event</h4>"
@@ -131,6 +144,8 @@
 		   "<h4>MIDI Utilities</h4>"
 		   (make-function-string 'cl-synthesizer-midi:get-note-number-frequency)
 		   (make-function-string 'cl-synthesizer-midi:relative-cc-handler :append-separator nil)
+		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/midi/cc-handler/example-1.lisp" :example-number 1)
+		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/midi/cc-handler/example-2.lisp" :example-number 2)
 		   "<h3>Monitor</h3>"
 		   (make-function-string 'cl-synthesizer-monitor:add-monitor)
 		   (make-function-string 'cl-synthesizer-monitor-wave-handler:wave-file-handler :append-separator nil)

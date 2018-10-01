@@ -88,17 +88,7 @@
 	</li>
 	<li>&rest additional-handler-args Optional keyword arguments to be passed to
 	    the handler instantiation function.</li>
-    </ul>
-    Example:
-    <pre><code>
-    (cl-synthesizer-monitor:add-monitor
-     rack
-     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-     '((:channel-1 \"LFO\" :output-socket :saw)
-       (:channel-2 \"ADSR\" :output-socket :cv)
-       (:channel-3 \"LINE-OUT\" :input-socket :channel-1))
-     :filename \"trace.wav\")
-    </code></pre>"
+    </ul>"
   (let ((output-handlers nil)
 	(keys nil))
     (dolist (socket-mapping socket-mappings)

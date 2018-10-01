@@ -77,10 +77,4 @@
     
     rack))
 
-(defun play ()
-  (cl-synthesizer:play-rack
-   (example)
-   5 
-   :attach-speaker *attach-speaker*))
-
-;; (play)
+;;(cl-synthesizer:play-rack (example) 5 :attach-speaker *attach-speaker*)

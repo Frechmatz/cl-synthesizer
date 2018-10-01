@@ -12,12 +12,12 @@
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
-	<li>:events A list of Midi event declarations. Each declaration
-	    entry is a property list with the following keys:
+	<li>:events A list of Midi events and their timestamps. Each
+	    entry consists of a property list with the following keys:
 	    <ul>
-		<li>:timestamp-milli-seconds Point of time when events are to be fired.</li>
-		<li>:midi-events List of Midi events to be fired. For the format of a single
-		    Midi event see /src/midi/event.lisp.</li>
+		<li>:timestamp-milli-seconds Point of time when events are to be fired. The very first
+                timestamp of the synthesizer is 0.</li>
+		<li>:midi-events List of Midi events to be fired.</li>
 	    </ul>
 	</li>
     </ul>

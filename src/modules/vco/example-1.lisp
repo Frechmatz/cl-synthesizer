@@ -23,5 +23,5 @@
 
     rack))
       
-;;(cl-synthesizer:play-rack (cl-synthesizer-modules-vco-example-1::example) 3)
+;;(cl-synthesizer:play-rack (example) 3)
 

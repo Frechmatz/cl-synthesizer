@@ -56,7 +56,6 @@
     
     rack))
 
-;; Execute to run rack
 ;;(cl-synthesizer:play-rack (example) 5 :attach-speaker *attach-speaker*)
 
 

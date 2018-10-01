@@ -61,9 +61,8 @@
    (environment :initform nil)
    (rack-has-shut-down :initform nil))
   (:documentation "A synthesizer is represented by an instance of a Rack. A rack contains all the modules 
-    and the patches (wiring) between them. A rack also provides an interface for system specific
-    devices such as MIDI and Audio. The implementation however does not depend on any system specific 
-    libraries such as CoreMidi or audio drivers."))
+    and the patches (wiring) between them. MIDI input and audio output can be attached to a rack via so
+    called devices. The cl-synthesizer system does not depend on any native MIDI or audio libraries."))
 
 (defmethod initialize-instance :after ((r rack) &key environment)
   (declare (optimize (debug 3) (speed 0) (space 0)))
@@ -109,17 +108,15 @@
     A rack is initialized with the virtual modules \"LINE-OUT\" and 
     \"MIDI-IN\" that represent the interface to so called devices.
     A device is a system specific implementation that provides audio
-    output or integration of MIDI controllers. The \"LINE-OUT\" module
-    exposes input sockets :channel-1 ... :channel-n where n is the
-    channel-count as given by the :channel-count property of the environment.
+    output or integration of MIDI controllers. 
+    <p>    
+    The \"LINE-OUT\" module
+    exposes the input sockets :channel-1 ... :channel-n where n is the
+    number of channels as given by the :channel-count property of the environment.
+    </p><p>
     The \"MIDI-IN\" module exposes the output socket :midi-events which provides a list
     of midi-events as fired by a MIDI device.
-    The devices to be used are declared by the environment properties :audio-device
-    and :midi-device. The declared devices will only be instantiated when audio or
-    MIDI are explicitly requested.
-    Modules can be patched with MIDI/Audio input/output even if the environment
-    does not declare device implementations or if the implementations are
-    not supported by the current system."
+    </p>"
   (let ((cur-rack (make-instance 'rack :environment environment)))
     ;; Add Device Interfaces
     (add-module cur-rack "LINE-OUT" #'line-out)
@@ -260,9 +257,11 @@
 		<li>:shutdown An optional function with no arguments that is called when the rack
 		    is shutting down.</li>
 	    </ul>
+            <p>
 	    The input/output sockets exposed by the module are not buffered by the rack. Therefore the
 	    module should return either a quoted list or keep it in an internal variable. The module must
 	    not add or remove input/output sockets after it has been instantiated.
+            </p>
 	</li>
 	<li>&rest args Arbitrary additional arguments to be passed to the module instantiation function.
 	    These arguments typically consist of keyword parameters.</li>
@@ -352,7 +351,7 @@
 
 (defun update (rack)
   "Updates the state of the rack by calling the update function of all its modules.
-    If the rack has already be shut down the function does nothing and returns nil.
+    If the rack has already been shut down the function does nothing and returns nil.
     Othwerwise it updates the rack and returns t." 
   ;; (declare (optimize (debug 3) (speed 0) (space 0)))
   (if (slot-value rack 'rack-has-shut-down)

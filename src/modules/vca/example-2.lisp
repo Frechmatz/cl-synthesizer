@@ -1,10 +1,3 @@
-;;
-;; How to run this example:
-;; (asdf:load-system :cl-synthesizer :force t)
-;; Load this file (slime-load-file)
-;; Execute function cl-synthesizer-modules-vca-example-2::play-example
-;;
-
 (defpackage :cl-synthesizer-modules-vca-example-2
   (:use :cl))
 
@@ -12,9 +5,8 @@
 
 
 (defun example ()
-  "Amplification of a 10kHz sine wave with a bipolar triangular amplification signal. A 
-   gain of 2.5 will be added to the amplification  signal.
-  The input and output signals of the VCA are written into a 4-Channel Wave-File"
+  "Amplification of a 10kHz sine wave with a bipolar triangular signal. A 
+   gain of 2.5 will be added to the amplification signal."
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
 
     ;; Set up oszillator modulating the amplification
@@ -58,10 +50,5 @@
 
     rack))
 
-(defun play-example()
-  (cl-synthesizer:play-rack
-   (example)
-   5))
-
-;; (cl-synthesizer-modules-vca-example-2::play-example)
+;;(cl-synthesizer:play-rack (example) 5)
 

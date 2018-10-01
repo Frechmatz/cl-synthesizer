@@ -30,18 +30,18 @@
   (second event))
 
 (defun get-controller-number (event)
-  "Returns the controller number of the MIDI event."
+  "Returns the controller number of a Control-Change MIDI event."
   (third event))
 
 (defun get-controller-value (event)
-  "Returns the controller value of the MIDI event."
+  "Returns the controller value of a Control-Change MIDI event."
   (fourth event))
 
 (defun get-note-number (event)
-  "Returns the note number of the MIDI event."
+  "Returns the note number of Note-On/Off MIDI event."
   (third event))
 
 (defun get-velocity (event)
-  "Returns the velocity of the MIDI event."
+  "Returns the velocity of a Note-On/Off MIDI event."
   (fourth event))
 

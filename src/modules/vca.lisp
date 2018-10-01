@@ -70,9 +70,7 @@
     <ul>
 	<li>:output-linear Amplified input signal with linear amplification characteristic.</li>
 	<li>:output-exponential Amplified input signal with exponential amplification characteristic.</li>
-    </ul>
-
-    Examples can be found under /src/modules/vca/"
+    </ul>"
   (declare (ignore environment name))
   ;; (declare (optimize (debug 3) (speed 0) (space 0)))
   (if (> 0.0 cv-max)

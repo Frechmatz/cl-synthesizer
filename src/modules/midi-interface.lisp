@@ -98,7 +98,7 @@
 	    exposed by the module. The controllers argument consists of a list of property lists
 	    with the following keys:
 	    <ul>
-		<li>:socket A keyword that defines the output socket to be exposed by the modules.</li>
+		<li>:socket A keyword that defines the output socket to be exposed by the module.</li>
 		<li>:handler A property list that defines the keys
 		    <ul>
 			<li>:update A function that is called with the MIDI events passed to the update
@@ -132,30 +132,7 @@
 	<li>:gate-1 ... :gate-n</li>
 	<li>:cv-1 ... :cv-n</li>
 	<li>Outputs as defined by controllers</li>
-    </ul>
-    Example:
-    <pre><code>
-    (cl-synthesizer:add-module
-        rack
-        \"MIDI-IFC\"
-        #'cl-synthesizer-modules-midi-interface:midi-interface
-        :voice-count 2
-        :play-mode :PLAY-MODE-POLY
-	:controllers
-	(list
-	    (list :socket
-                  :controller-1
-	          :handler
-                      (cl-synthesizer-midi:relative-cc-handler
-		      cl-synthesizer-vendor:*arturia-minilab-mk2*
-		      (list
-                          (list
-                              :controller-id :ENCODER-1
-                              :weight 0.01
-			      :cv-initial 2.5
-			      :cv-min 0
-		              :cv-max 5))))))
-    </code></pre>"
+    </ul>"
   (declare (ignore environment))
   (let* ((outputs nil)
 	 (voice-states (make-array voice-count))

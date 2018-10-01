@@ -39,8 +39,7 @@
   <ul>
       <li>:update A function that is to be called with a list of midi-events.</li>
       <li>:get-output A function that returns the current output value.</li>
-  </ul>
-  Examples: see modules/midi-interface/"
+  </ul>"
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (if (< cv-max cv-min)
       (cl-synthesizer:signal-assembly-error

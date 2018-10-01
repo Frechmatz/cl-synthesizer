@@ -155,21 +155,7 @@ t                      t                           Validate controller settings
     The module has the following outputs:
     <ul>
 	<li>:cv The current value of the envelope. The initial value is 0.0</li>
-    </ul>
-    Example:
-    <pre><code>
-    (cl-synthesizer:add-module rack \"ADSR\" #'cl-synthesizer-modules-envelope:envelope
-			       :segments '((:duration-ms 200 :target-cv 5 :required-gate-state :on
-					    :duration-controller
-					    (:socket :attack-duration
-					     :input-min -5.0
-					     :input-max 5.0
-					     :output-min -1000
-					     :output-max 1000))
-					   (:duration-ms 100 :target-cv 3 :required-gate-state :on)
-					   (:required-gate-state :on)
-					   (:duration-ms 300 :target-cv 0 :required-gate-state :off)))
-    </code></pre>"
+    </ul>"
   (declare (ignore name))
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((segment-def nil)
