@@ -61,7 +61,29 @@
 ;;(cl-synthesizer:play-rack (example) 5 :attach-speaker *attach-speaker*)
 
 
-</code></pre></p><h2>Installation</h2><p>TODO</p><h2>API Reference</h2><h3>Environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (channel-count 2) (home-directory nil) (audio-device nil) (midi-device nil) </p><p>Creates an environment. The environment defines properties such as
+</code></pre></p><h2>Installation</h2><pre><code>
+cd ~/quicklisp/local-projects
+git clone https://github.com/Frechmatz/cl-wave.git
+git clone https://github.com/Frechmatz/cl-synthesizer.git
+(ql:quickload "cl-synthesizer")
+</code></pre>
+<p>
+  The cl-wave repository is a fork of the wave file reader/writer library implemented
+  by <a href="https://github.com/RyanTKing/cl-wave">Ryan King</a>
+  where a dependency has been replaced with code kindly provided by Ryan.
+</p>
+<p>
+  MIDI and Audio support for MacOS:
+</p>
+<pre><code>
+cd ~/quicklisp/local-projects
+git clone https://github.com/byulparan/CoreMIDI.git
+ln -s cl-synthesizer cl-synthesizer-macos-device
+(ql:quickload "cl-synthesizer-macos-device")
+</code></pre>
+Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
+<b>cl-synthesizer-device-speaker:speaker-cl-out123</b>.
+<h2>API Reference</h2><h3>Environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (channel-count 2) (home-directory nil) (audio-device nil) (midi-device nil) </p><p>Creates an environment. The environment defines properties such as
     the sample rate of the rack and the number of its audio output channels.
     An enviroment is a property list with the following keys:
     <ul>
@@ -879,4 +901,4 @@
     is the "oldest" one.</p><h3>Conditions</h3><b>assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
    because for example a module name is not unique, a patch is added for
    a non-existing module, a patch is added to an already patched socket
-   and so on.</p><hr/><p><small>Generated 2018-10-01  22:22:23</small></p></body></html>
+   and so on.</p><hr/><p><small>Generated 2018-10-05  22:35:37</small></p></body></html>

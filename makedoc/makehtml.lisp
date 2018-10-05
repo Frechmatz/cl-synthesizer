@@ -87,8 +87,6 @@
 	       (read-text-file path)
 	       "</code></pre></p>"))
 
-  
-
 (defun write-html ()
     (let ((docstr (concatenate
 		   'string
@@ -98,7 +96,7 @@
 		   "<p>" (documentation 'cl-synthesizer::rack 'type) "</p>"
 		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/synthesizer/rack/example-1.lisp")
 		   "<h2>Installation</h2>"
-		   "<p>TODO</p>"
+		   (read-text-file "/Users/olli/src/lisp/cl-synthesizer/makedoc/installation.html")
 		   "<h2>API Reference</h2>"
 		   "<h3>Environment</h3>"
 		   (make-function-string 'cl-synthesizer:make-environment :append-separator nil)

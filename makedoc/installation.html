@@ -1,0 +1,22 @@
+<pre><code>
+cd ~/quicklisp/local-projects
+git clone https://github.com/Frechmatz/cl-wave.git
+git clone https://github.com/Frechmatz/cl-synthesizer.git
+(ql:quickload "cl-synthesizer")
+</code></pre>
+<p>
+  The cl-wave repository is a fork of the wave file reader/writer library implemented
+  by <a href="https://github.com/RyanTKing/cl-wave">Ryan King</a>
+  where a dependency has been replaced with code kindly provided by Ryan.
+</p>
+<p>
+  MIDI and Audio support for MacOS:
+</p>
+<pre><code>
+cd ~/quicklisp/local-projects
+git clone https://github.com/byulparan/CoreMIDI.git
+ln -s cl-synthesizer cl-synthesizer-macos-device
+(ql:quickload "cl-synthesizer-macos-device")
+</code></pre>
+Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
+<b>cl-synthesizer-device-speaker:speaker-cl-out123</b>.
