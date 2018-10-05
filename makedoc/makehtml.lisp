@@ -98,6 +98,17 @@
 		   "<h2>Installation</h2>"
 		   (read-text-file "/Users/olli/src/lisp/cl-synthesizer/makedoc/installation.html")
 		   "<h2>API Reference</h2>"
+		   ;; Table of content in Github flavored markdown
+		   ;; https://gist.github.com/asabaylus/3071099
+		   "<ul>"
+		   "<li><a href=\"#environment\">Environment</a></li>"
+		   "<li><a href=\"#rack\">Rack</a></li>"
+		   "<li><a href=\"#modules\">Modules</a></li>"
+		   "<li><a href=\"#midi\">MIDI</a></li>"
+		   "<li><a href=\"#monitor\">Monitor</a></li>"
+		   "<li><a href=\"#device\">Device</a></li>"
+		   "<li><a href=\"#conditions\">Conditions</a></li>"
+		   "</ul>"
 		   "<h3>Environment</h3>"
 		   (make-function-string 'cl-synthesizer:make-environment :append-separator nil)
 		   "<h3>Rack</h3>"
