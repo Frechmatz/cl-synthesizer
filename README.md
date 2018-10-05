@@ -96,6 +96,14 @@ Installs the devices **cl-synthesizer-device-midi:midi-device** and **cl-synthes
 API Reference
 -------------
 
+*   [Environment](#environment)
+*   [Rack](#rack)
+*   [Modules](#modules)
+*   [MIDI](#midi)
+*   [Monitor](#monitor)
+*   [Device](#device)
+*   [Conditions](#conditions)
+
 ### Environment
 
 **cl-synthesizer:make-environment** &key (sample-rate 44100) (channel-count 2) (home-directory nil) (audio-device nil) (midi-device nil)
@@ -949,4 +957,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-10-05 22:35:37
+Generated 2018-10-05 23:38:17
