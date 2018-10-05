@@ -60,9 +60,9 @@
    (hooks :initform nil)
    (environment :initform nil)
    (rack-has-shut-down :initform nil))
-  (:documentation "A synthesizer is represented by an instance of a Rack. A rack contains all the modules 
-    and the patches (wiring) between them. MIDI input and audio output can be attached to a rack via so
-    called devices. The cl-synthesizer system does not depend on any native MIDI or audio libraries."))
+  (:documentation "A synthesizer is represented by an instance of a Rack. A rack holds all the modules 
+    and the patches (wiring) between them. Modules are components that consist of input and output sockets
+    and an update function."))
 
 (defmethod initialize-instance :after ((r rack) &key environment)
   (declare (optimize (debug 3) (speed 0) (space 0)))
@@ -247,9 +247,9 @@
 		    input sockets to be exposed by the module.</li>
 		<li>:outputs A function with no arguments that returns a list of keywords that represent the
 		    output sockets to be exposed by the module.</li>
-		<li>:update A function that is called in order to update the values of the modules
-		    output sockets according to the values of its input sockets. The value of each
-		    input socket is represented by a keyword parameter.</li>
+		<li>:update A function that is called with the values of the modules input sockets
+                    in order to update the state of the module (the state of its output sockets).
+		    The value of each input socket is passed via a keyword parameter.</li>
 		<li>:get-output A function that is called in order to get the value of a specific
 		    output socket. The function is called with a keyword that identifies the output socket
 		    whose state is to be returned. The function must not modify the value
