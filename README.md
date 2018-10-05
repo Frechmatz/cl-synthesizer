@@ -73,7 +73,25 @@ A synthesizer is represented by an instance of a Rack. A rack contains all the m
 Installation
 ------------
 
-TODO
+    
+    cd ~/quicklisp/local-projects
+    git clone https://github.com/Frechmatz/cl-wave.git
+    git clone https://github.com/Frechmatz/cl-synthesizer.git
+    (ql:quickload "cl-synthesizer")
+    
+
+The cl-wave repository is a fork of the wave file reader/writer library implemented by [Ryan King](https://github.com/RyanTKing/cl-wave) where a dependency has been replaced with code kindly provided by Ryan.
+
+MIDI and Audio support for MacOS:
+
+    
+    cd ~/quicklisp/local-projects
+    git clone https://github.com/byulparan/CoreMIDI.git
+    ln -s cl-synthesizer cl-synthesizer-macos-device
+    (ql:quickload "cl-synthesizer-macos-device")
+    
+
+Installs the devices **cl-synthesizer-device-midi:midi-device** and **cl-synthesizer-device-speaker:speaker-cl-out123**.
 
 API Reference
 -------------
@@ -931,4 +949,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-10-01 22:22:23
+Generated 2018-10-05 22:35:37
