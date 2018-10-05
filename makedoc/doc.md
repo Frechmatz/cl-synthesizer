@@ -5,6 +5,12 @@ An experimental modular audio synthesizer implemented in Common Lisp. Work in pr
 
 A synthesizer is represented by an instance of a Rack. A rack contains all the modules and the patches (wiring) between them. MIDI input and audio output can be attached to a rack via so called devices. The cl-synthesizer system does not depend on any native MIDI or audio libraries.
 
+# TOC
+
+[Installation](#installation)
+
+# Example
+
 **Example:**
 
     (defpackage :cl-synthesizer-rack-example-1
