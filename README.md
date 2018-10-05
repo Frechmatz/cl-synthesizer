@@ -3,7 +3,7 @@ cl-synthesizer
 
 An experimental modular audio synthesizer implemented in Common Lisp. Work in progress.
 
-A synthesizer is represented by an instance of a Rack. A rack contains all the modules and the patches (wiring) between them. MIDI input and audio output can be attached to a rack via so called devices. The cl-synthesizer system does not depend on any native MIDI or audio libraries.
+A synthesizer is represented by an instance of a Rack. A rack holds all the modules and the patches (wiring) between them. Modules are components that consist of input and output sockets and an update function.
 
 **Example:**
 
@@ -148,7 +148,7 @@ Adds a module to a rack. The function has the following arguments:
     
     *   :inputs A function with no arguments that returns a list of keywords that represent the input sockets to be exposed by the module.
     *   :outputs A function with no arguments that returns a list of keywords that represent the output sockets to be exposed by the module.
-    *   :update A function that is called in order to update the values of the modules output sockets according to the values of its input sockets. The value of each input socket is represented by a keyword parameter.
+    *   :update A function that is called with the values of the modules input sockets in order to update the state of the module (the state of its output sockets). The value of each input socket is passed via a keyword parameter.
     *   :get-output A function that is called in order to get the value of a specific output socket. The function is called with a keyword that identifies the output socket whose state is to be returned. The function must not modify the value of the given or any other output socket.
     *   :shutdown An optional function with no arguments that is called when the rack is shutting down.
     
@@ -957,4 +957,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-10-05 23:38:17
+Generated 2018-10-06 00:38:26
