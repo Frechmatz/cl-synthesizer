@@ -1,7 +1,7 @@
 cl-synthesizer
 ==============
 
-An experimental modular audio synthesizer implemented in Common Lisp. Work in progress.
+An experimental modular audio synthesizer implemented in Common Lisp. The synthesizer is work in progress. Some modules such as a filter or a mixer are not implemented yet.
 
 A synthesizer is represented by an instance of a Rack. A rack holds all the modules and the patches (wiring) between them. Modules are components that consist of input and output sockets and an update function.
 
@@ -99,6 +99,13 @@ API Reference
 *   [Environment](#environment)
 *   [Rack](#rack)
 *   [Modules](#modules)
+    *   [VCO](#vco)
+    *   [VCA](#vca)
+    *   [Multiple](#multiple)
+    *   [MIDI Sequencer](#midi-sequencer)
+    *   [MIDI Interface](#midi-interface)
+    *   [Envelope](#envelope)
+    *   [Fixed Output](#fixed-output)
 *   [MIDI](#midi)
 *   [Monitor](#monitor)
 *   [Device](#device)
@@ -249,6 +256,8 @@ Shuts the rack down by calling the shutdown handlers of all modules, devices and
 
 ### Modules
 
+#### VCO
+
 **cl-synthesizer-modules-vco:vco-base** name environment transfer-function &key f-max v-peak (duty-cycle 0.5)
 
 Creates a Voltage Controlled Oscillator module. The function has the following arguments:
@@ -343,6 +352,8 @@ For the output sockets of the module see vco-base.
 
 * * *
 
+#### VCA
+
 **cl-synthesizer-modules-vca:vca** name environment &key cv-max (initial-gain 0.0)
 
 Creates a Voltage Controlled Amplifier/Attenuator module. The VCA multiplies an incoming signal with a factor of 0..1. The function has the following arguments:
@@ -417,6 +428,8 @@ The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.
     ;;(cl-synthesizer:play-rack (example) 5)
     
 
+#### Multiple
+
 **cl-synthesizer-modules-multiple:multiple** name environment &key output-count
 
 Creates a Multiple module. A multiple mirrors one input to n outputs. The function has the following arguments:
@@ -432,6 +445,8 @@ The module has the following inputs:
 The module has outputs :output-1 ... :output-n.
 
 * * *
+
+#### MIDI Sequencer
 
 **cl-synthesizer-modules-midi-sequencer:midi-sequencer** name environment &key events
 
@@ -529,6 +544,8 @@ The module has no inputs. The module has one output socket :midi-events.
     ;;(cl-synthesizer:play-rack (example) 5 :attach-speaker *attach-speaker*)
     
 
+#### MIDI Interface
+
 **cl-synthesizer-modules-midi-interface:midi-interface** name environment &key (voice-count 1) (channel nil) (note-number-to-cv (lambda (note-number) (/ note-number 12))) (play-mode :play-mode-poly) (cv-gate-on 5.0) (cv-gate-off 0.0) (controllers nil) (force-gate-retrigger nil)
 
 Creates a MIDI interface module. The module dispatches MIDI-Note events to so called voices where each voice is represented by a control-voltage and a gate signal. The module supports the mapping of MIDI CC-Events to arbitary output sockets. The function has the following arguments:
@@ -596,6 +613,8 @@ The module has the following outputs:
     ;;(cl-synthesizer:play-rack (example) 10 :attach-speaker *attach-speaker* :attach-midi *attach-midi*)
     
 
+#### Envelope
+
 **cl-synthesizer-modules-envelope:envelope** name environment &key segments (gate-threshold 4.9)
 
 Creates an envelope generator module. An envelope consists of a list of segments where each segment defines rules how to behave. The module generates linear envelopes. The function has the following arguments:
@@ -656,6 +675,8 @@ The module has the following outputs:
         rack))
     
     
+
+#### Fixed Output
 
 **cl-synthesizer-modules-fixed-output:fixed-output** name environment &key value (output-socket :out)
 
@@ -957,4 +978,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-10-06 00:38:26
+Generated 2018-10-09 20:01:29
