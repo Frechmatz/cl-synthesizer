@@ -1,4 +1,4 @@
-<html><body><h1>cl-synthesizer</h1>An experimental modular audio synthesizer implemented in Common Lisp. Work in progress.<p>A synthesizer is represented by an instance of a Rack. A rack holds all the modules 
+<html><body><h1>cl-synthesizer</h1>An experimental modular audio synthesizer implemented in Common Lisp. The synthesizer is work in progress. Some modules such as a filter or a mixer are not implemented yet.<p>A synthesizer is represented by an instance of a Rack. A rack holds all the modules 
     and the patches (wiring) between them. Modules are components that consist of input and output sockets
     and an update function.</p><p><b>Example:</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-1
   (:use :cl))
@@ -83,7 +83,7 @@ ln -s cl-synthesizer cl-synthesizer-macos-device
 </code></pre>
 Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 <b>cl-synthesizer-device-speaker:speaker-cl-out123</b>.
-<h2>API Reference</h2><ul><li><a href="#environment">Environment</a></li><li><a href="#rack">Rack</a></li><li><a href="#modules">Modules</a></li><li><a href="#midi">MIDI</a></li><li><a href="#monitor">Monitor</a></li><li><a href="#device">Device</a></li><li><a href="#conditions">Conditions</a></li></ul><h3>Environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (channel-count 2) (home-directory nil) (audio-device nil) (midi-device nil) </p><p>Creates an environment. The environment defines properties such as
+<h2>API Reference</h2><ul><li><a href="#environment">Environment</a></li><li><a href="#rack">Rack</a></li><li><a href="#modules">Modules</a><ul><li><a href="#vco">VCO</a></li><li><a href="#vca">VCA</a></li><li><a href="#multiple">Multiple</a></li><li><a href="#midi-sequencer">MIDI Sequencer</a></li><li><a href="#midi-interface">MIDI Interface</a></li><li><a href="#envelope">Envelope</a></li><li><a href="#fixed-output">Fixed Output</a></li></ul></li><li><a href="#midi">MIDI</a></li><li><a href="#monitor">Monitor</a></li><li><a href="#device">Device</a></li><li><a href="#conditions">Conditions</a></li></ul><h3>Environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (channel-count 2) (home-directory nil) (audio-device nil) (midi-device nil) </p><p>Creates an environment. The environment defines properties such as
     the sample rate of the rack and the number of its audio output channels.
     An enviroment is a property list with the following keys:
     <ul>
@@ -217,7 +217,7 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
    </ul>
    Hooks must not modify the rack.</p><hr/><p><b>cl-synthesizer:shutdown</b> rack </p><p>Shuts the rack down by calling the shutdown handlers of all modules, devices and hooks of the rack.
    After a rack has been shut down, further invocations of the update function are allowed but the function
-   will immediately return nil and will not call any modules, devices or hooks.</p><h3>Modules</h3><p><b>cl-synthesizer-modules-vco:vco-base</b> name environment transfer-function &key f-max v-peak (duty-cycle 0.5) </p><p>Creates a Voltage Controlled Oscillator module. The function has the following arguments:
+   will immediately return nil and will not call any modules, devices or hooks.</p><h3>Modules</h3><h4>VCO</h4><p><b>cl-synthesizer-modules-vco:vco-base</b> name environment transfer-function &key f-max v-peak (duty-cycle 0.5) </p><p>Creates a Voltage Controlled Oscillator module. The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
@@ -300,7 +300,7 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 	    voltage of -1.0 results in a frequency of 220Hz.
 	</li>
     </ul>
-    For the output sockets of the module see vco-base.</p><hr/><p><b>cl-synthesizer-modules-vca:vca</b> name environment &key cv-max (initial-gain 0.0) </p><p>Creates a Voltage Controlled Amplifier/Attenuator module. The VCA multiplies an
+    For the output sockets of the module see vco-base.</p><hr/><h4>VCA</h4><p><b>cl-synthesizer-modules-vca:vca</b> name environment &key cv-max (initial-gain 0.0) </p><p>Creates a Voltage Controlled Amplifier/Attenuator module. The VCA multiplies an
     incoming signal with a factor of 0..1. The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
@@ -371,7 +371,7 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
     rack))
 
 ;;(cl-synthesizer:play-rack (example) 5)
-</code></pre></p><p><b>cl-synthesizer-modules-multiple:multiple</b> name environment &key output-count </p><p>Creates a Multiple module. A multiple mirrors one input to n outputs.
+</code></pre></p><h4>Multiple</h4><p><b>cl-synthesizer-modules-multiple:multiple</b> name environment &key output-count </p><p>Creates a Multiple module. A multiple mirrors one input to n outputs.
    The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
@@ -382,7 +382,7 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
     <ul>
 	<li>:input The input signal to be mirrored to the outputs.</li>
     </ul>
-    The module has outputs :output-1 ... :output-n.</p><hr/><p><b>cl-synthesizer-modules-midi-sequencer:midi-sequencer</b> name environment &key events </p><p>Creates a Midi-Sequencer module.
+    The module has outputs :output-1 ... :output-n.</p><hr/><h4>MIDI Sequencer</h4><p><b>cl-synthesizer-modules-midi-sequencer:midi-sequencer</b> name environment &key events </p><p>Creates a Midi-Sequencer module.
 	The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
@@ -477,7 +477,7 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
     rack))
 
 ;;(cl-synthesizer:play-rack (example) 5 :attach-speaker *attach-speaker*)
-</code></pre></p><p><b>cl-synthesizer-modules-midi-interface:midi-interface</b> name environment &key (voice-count 1) (channel nil) (note-number-to-cv (lambda (note-number) (/ note-number 12))) (play-mode :play-mode-poly) (cv-gate-on 5.0) (cv-gate-off 0.0) (controllers nil) (force-gate-retrigger nil) </p><p>Creates a MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
+</code></pre></p><h4>MIDI Interface</h4><p><b>cl-synthesizer-modules-midi-interface:midi-interface</b> name environment &key (voice-count 1) (channel nil) (note-number-to-cv (lambda (note-number) (/ note-number 12))) (play-mode :play-mode-poly) (cv-gate-on 5.0) (cv-gate-off 0.0) (controllers nil) (force-gate-retrigger nil) </p><p>Creates a MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
     voice is represented by a control-voltage and a gate signal. The module supports the
     mapping of MIDI CC-Events to arbitary output sockets. The function has the following arguments:
     <ul>
@@ -578,7 +578,7 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
     rack))
 
 ;;(cl-synthesizer:play-rack (example) 10 :attach-speaker *attach-speaker* :attach-midi *attach-midi*)
-</code></pre></p><p><b>cl-synthesizer-modules-envelope:envelope</b> name environment &key segments (gate-threshold 4.9) </p><p>Creates an envelope generator module. An envelope consists of a list of segments where
+</code></pre></p><h4>Envelope</h4><p><b>cl-synthesizer-modules-envelope:envelope</b> name environment &key segments (gate-threshold 4.9) </p><p>Creates an envelope generator module. An envelope consists of a list of segments where
     each segment defines rules how to behave. The module generates linear envelopes.
     The function has the following arguments:
     <ul>
@@ -652,7 +652,7 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 
     rack))
 
-</code></pre></p><p><b>cl-synthesizer-modules-fixed-output:fixed-output</b> name environment &key value (output-socket :out) </p><p>Creates a module with a fixed output value.
+</code></pre></p><h4>Fixed Output</h4><p><b>cl-synthesizer-modules-fixed-output:fixed-output</b> name environment &key value (output-socket :out) </p><p>Creates a module with a fixed output value.
    The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
@@ -901,4 +901,4 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
     is the "oldest" one.</p><h3>Conditions</h3><b>assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
    because for example a module name is not unique, a patch is added for
    a non-existing module, a patch is added to an already patched socket
-   and so on.</p><hr/><p><small>Generated 2018-10-06  00:38:26</small></p></body></html>
+   and so on.</p><hr/><p><small>Generated 2018-10-09  20:01:29</small></p></body></html>
