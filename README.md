@@ -447,11 +447,15 @@ Creates an envelope generator module. An envelope consists of a list of segments
     *   :target-cv-controller Declares a controller with which the target voltage of the segment can be modulated.
     
     A Controller represents an external input that is exposed by the module and can be used to modulate a certain property of the segment. External input values are mapped by a linear function to the actual values that are processed by the segment. Controllers are represented as property lists with the following keys:
+    
     *   :socket A keyword that defines the input socket that will be exposed by the envelope module and to which other modules can be connected.
     *   :input-min The minimum input value of the socket.
     *   :input-max The maximum input value of the socket.
     *   :output-min The minimum target value of the mapping.
-    *   :output-max The maximum target value of the mapping.Clipping is generally not applied except for cases such as a negative segment duration. Controller inputs are always offsets that are added to the initial value as provided by :duration-ms or :target-cv. Controller inputs do not affect the behaviour of the currently active segment.
+    *   :output-max The maximum target value of the mapping.
+    
+    Clipping is generally not applied except for cases such as a negative segment duration. Controller inputs are always offsets that are added to the initial value as provided by :duration-ms or :target-cv. Controller inputs do not affect the behaviour of the currently active segment.
+    
 *   :gate-threshold An optional threshold which defines the minimum input value of the :gate input that is interpreted as gate on.
 
 The module has the following inputs:
@@ -980,4 +984,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-10-09 20:22:10
+Generated 2018-10-09 20:36:18

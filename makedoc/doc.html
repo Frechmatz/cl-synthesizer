@@ -402,10 +402,12 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 		<li>:output-min The minimum target value of the mapping.</li>
 		<li>:output-max The maximum target value of the mapping.</li>
 	    </ul>
+            <p>
 	    Clipping is generally not applied except for cases such as a negative segment
 	    duration. Controller inputs are always offsets that are added to the initial
 	    value as provided by :duration-ms or :target-cv.
 	    Controller inputs do not affect the behaviour of the currently active segment.
+            </p>
 	</li>
 	<li>:gate-threshold An optional threshold which defines the minimum input value
 	    of the :gate input that is interpreted as gate on.</li>
@@ -901,4 +903,4 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
     is the "oldest" one.</p><h3>Conditions</h3><b>assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
    because for example a module name is not unique, a patch is added for
    a non-existing module, a patch is added to an already patched socket
-   and so on.</p><hr/><p><small>Generated 2018-10-09  20:22:10</small></p></body></html>
+   and so on.</p><hr/><p><small>Generated 2018-10-09  20:36:18</small></p></body></html>
