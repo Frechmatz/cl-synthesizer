@@ -101,12 +101,14 @@ API Reference
 *   [Modules](#modules)
     *   [VCO](#vco)
     *   [VCA](#vca)
-    *   [Multiple](#multiple)
-    *   [MIDI Sequencer](#midi-sequencer)
-    *   [MIDI Interface](#midi-interface)
     *   [Envelope](#envelope)
+    *   [Multiple](#multiple)
+    *   [MIDI Interface](#midi-interface)
+    *   [MIDI Sequencer](#midi-sequencer)
     *   [Fixed Output](#fixed-output)
 *   [MIDI](#midi)
+    *   [MIDI Event](#midi-event)
+    *   [MIDI Utilities](#midi-utilities)
 *   [Monitor](#monitor)
 *   [Device](#device)
 *   [Conditions](#conditions)
@@ -428,6 +430,69 @@ The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.
     ;;(cl-synthesizer:play-rack (example) 5)
     
 
+#### Envelope
+
+**cl-synthesizer-modules-envelope:envelope** name environment &key segments (gate-threshold 4.9)
+
+Creates an envelope generator module. An envelope consists of a list of segments where each segment defines rules how to behave. The module generates linear envelopes. The function has the following arguments:
+
+*   name Name of the module.
+*   environment The synthesizer environment.
+*   :segments The segments of the envelope. Each segment consists of a property list with the following keys:
+    
+    *   :duration-ms Optional duration of the segment in milli-seconds. The effective duration depends on the sample rate as specified by the environment.
+    *   :target-cv Optional target voltage to which the segment shall climb.
+    *   :required-gate-state One of :on :off :ignore
+    *   :duration-controller Declares a controller with which the duration of the segment can be modulated.
+    *   :target-cv-controller Declares a controller with which the target voltage of the segment can be modulated.
+    
+    A Controller represents an external input that is exposed by the module and can be used to modulate a certain property of the segment. External input values are mapped by a linear function to the actual values that are processed by the segment. Controllers are represented as property lists with the following keys:
+    *   :socket A keyword that defines the input socket that will be exposed by the envelope module and to which other modules can be connected.
+    *   :input-min The minimum input value of the socket.
+    *   :input-max The maximum input value of the socket.
+    *   :output-min The minimum target value of the mapping.
+    *   :output-max The maximum target value of the mapping.Clipping is generally not applied except for cases such as a negative segment duration. Controller inputs are always offsets that are added to the initial value as provided by :duration-ms or :target-cv. Controller inputs do not affect the behaviour of the currently active segment.
+*   :gate-threshold An optional threshold which defines the minimum input value of the :gate input that is interpreted as gate on.
+
+The module has the following inputs:
+
+*   :gate The gate signal as provided for example by a MIDI sequencer. If the gate switches from :off to :on the output voltage is reset to 0.0 and the module switches to the first segment.
+*   Inputs as defined by segment controllers.
+
+The module has the following outputs:
+
+*   :cv The current value of the envelope. The initial value is 0.0
+
+**Example:**
+
+    (defpackage :cl-synthesizer-modules-envelope-example-1
+      (:use :cl))
+    
+    (in-package :cl-synthesizer-modules-envelope-example-1)
+    
+    (defun example ()
+      "Simple envelope example"
+      (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+    
+        (cl-synthesizer:add-module
+         rack "ADSR"
+         #'cl-synthesizer-modules-envelope:envelope
+         :segments
+         '(;; Attack (duration can be modulated via input socket :attack-duration)
+           (:duration-ms 100 :target-cv 5 :required-gate-state :on
+    	:duration-controller
+    	(:socket :attack-duration :input-min 0.0 :input-max 5.0 :output-min 0 :output-max 800))
+           ;; Decay
+           (:duration-ms 50 :target-cv 3 :required-gate-state :on)
+           ;; Sustain
+           (:required-gate-state :on)
+           ;; Release
+           (:duration-ms 100 :target-cv 0 :required-gate-state :off)))
+    
+        rack))
+    
+    
+
 #### Multiple
 
 **cl-synthesizer-modules-multiple:multiple** name environment &key output-count
@@ -445,6 +510,75 @@ The module has the following inputs:
 The module has outputs :output-1 ... :output-n.
 
 * * *
+
+#### MIDI Interface
+
+**cl-synthesizer-modules-midi-interface:midi-interface** name environment &key (voice-count 1) (channel nil) (note-number-to-cv (lambda (note-number) (/ note-number 12))) (play-mode :play-mode-poly) (cv-gate-on 5.0) (cv-gate-off 0.0) (controllers nil) (force-gate-retrigger nil)
+
+Creates a MIDI interface module. The module dispatches MIDI-Note events to so called voices where each voice is represented by a control-voltage and a gate signal. The module supports the mapping of MIDI CC-Events to arbitary output sockets. The function has the following arguments:
+
+*   name Name of the module.
+*   environment The synthesizer environment.
+*   :voice-count The number of voices to be exposed by the module. Each voice consists of the following output sockets:
+    *   :gate-n The gate signal. n = 1..voice-count.
+    *   :cv-n A control voltage representing the note number. n = 1..voice-count
+*   :channel Optional MIDI channel to which note events must belong. By default the channel is ignored. This setting does not effect the evaluation of CC-Events that are handled by controllers. Controllers must implement channel filtering on their own.
+*   :note-number-to-cv An optional function that is called with a MIDI note number and returns a control-voltage.
+*   :play-mode
+    *   :play-mode-poly Polyphonic play mode. Incoming note events will be dispatched to "available" voices, where a voice is available when it meets certain criteria. These criteria are defined and implemented by the cl-synthesizer-midi-voice-manager:voice-manager package.
+    *   :play-mode-unisono Monophonic play mode. All voices exposed by the module are set to the current "active" note. Notes are stacked. When a note is released, the voice outputs switch to the previous note. This logic is also implemented by the cl-synthesizer-midi-voice-manager:voice-manager package.
+*   :cv-gate-on The "Gate on" control voltage.
+*   :cv-gate-off The "Gate off" control voltage.
+*   :force-gate-retrigger If t then in :play-mode-unisono play mode each note event will cause a retriggering of the gate signal. Otherwise the gate signal will stay on when it is already on.
+*   :controllers Controllers can be used to declare additional output sockets that are exposed by the module. The controllers argument consists of a list of property lists with the following keys:
+    *   :socket A keyword that defines the output socket to be exposed by the module.
+    *   :handler A property list that defines the keys
+        *   :update A function that is called with the MIDI events passed to the update function of the module.
+        *   :get-output A function with no arguments that returns the current value of the controller.For typical use cases refer to cl-synthesizer-midi:relative-cc-handler
+
+Gate transitions are implemented as follows:
+
+*   In :play-mode-poly play mode each incoming note causes that the gate signal of the assigned voice switches to On. If the gate signal of the assigned voice is already On (this happens when the available voices are exhausted and a voice is "stolen") then the gate signal switches to Off for the duration of one system tick and then to On again.
+*   In :play-mode-unisono play mode incoming notes are stacked. The first note causes the gate signal to switch to On. Further "nested" note-on events only result in a change of the CV output but the gate signal will stay On. This behaviour can be overridden with the :force-gate-retrigger parameter.
+
+The module has the following inputs:
+
+*   :midi-events A list of MIDI events.
+
+The module has the following outputs:
+
+*   :gate-1 ... :gate-n
+*   :cv-1 ... :cv-n
+*   Outputs as defined by controllers
+
+**Example:**
+
+    (defpackage :cl-synthesizer-modules-midi-interface-example-1
+      (:use :cl))
+    
+    (in-package :cl-synthesizer-modules-midi-interface-example-1)
+    
+    (defparameter *attach-midi* t)
+    (defparameter *attach-speaker* t)
+    
+    (defun example ()
+      "Very simple midi-interface example that does not care about the gate signal."
+      (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment :channel-count 1))))
+        (cl-synthesizer:add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
+    			       :voice-count 1)
+        (cl-synthesizer:add-module rack "VCO-1"
+    			       #'cl-synthesizer-modules-vco:vco-exponential
+    			       :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
+    			       :f-max 13000
+    			       :v-peak 5)
+    
+        (cl-synthesizer:add-patch rack "MIDI-IN" :midi-events "MIDI-IFC" :midi-events)
+        (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO-1" :cv)
+        (cl-synthesizer:add-patch rack "VCO-1" :saw "LINE-OUT" :channel-1)
+        rack))
+    
+    ;;(cl-synthesizer:play-rack (example) 10 :attach-speaker *attach-speaker* :attach-midi *attach-midi*)
+    
 
 #### MIDI Sequencer
 
@@ -542,138 +676,6 @@ The module has no inputs. The module has one output socket :midi-events.
         rack))
     
     ;;(cl-synthesizer:play-rack (example) 5 :attach-speaker *attach-speaker*)
-    
-
-#### MIDI Interface
-
-**cl-synthesizer-modules-midi-interface:midi-interface** name environment &key (voice-count 1) (channel nil) (note-number-to-cv (lambda (note-number) (/ note-number 12))) (play-mode :play-mode-poly) (cv-gate-on 5.0) (cv-gate-off 0.0) (controllers nil) (force-gate-retrigger nil)
-
-Creates a MIDI interface module. The module dispatches MIDI-Note events to so called voices where each voice is represented by a control-voltage and a gate signal. The module supports the mapping of MIDI CC-Events to arbitary output sockets. The function has the following arguments:
-
-*   name Name of the module.
-*   environment The synthesizer environment.
-*   :voice-count The number of voices to be exposed by the module. Each voice consists of the following output sockets:
-    *   :gate-n The gate signal. n = 1..voice-count.
-    *   :cv-n A control voltage representing the note number. n = 1..voice-count
-*   :channel Optional MIDI channel to which note events must belong. By default the channel is ignored. This setting does not effect the evaluation of CC-Events that are handled by controllers. Controllers must implement channel filtering on their own.
-*   :note-number-to-cv An optional function that is called with a MIDI note number and returns a control-voltage.
-*   :play-mode
-    *   :play-mode-poly Polyphonic play mode. Incoming note events will be dispatched to "available" voices, where a voice is available when it meets certain criteria. These criteria are defined and implemented by the cl-synthesizer-midi-voice-manager:voice-manager package.
-    *   :play-mode-unisono Monophonic play mode. All voices exposed by the module are set to the current "active" note. Notes are stacked. When a note is released, the voice outputs switch to the previous note. This logic is also implemented by the cl-synthesizer-midi-voice-manager:voice-manager package.
-*   :cv-gate-on The "Gate on" control voltage.
-*   :cv-gate-off The "Gate off" control voltage.
-*   :force-gate-retrigger If t then in :play-mode-unisono play mode each note event will cause a retriggering of the gate signal. Otherwise the gate signal will stay on when it is already on.
-*   :controllers Controllers can be used to declare additional output sockets that are exposed by the module. The controllers argument consists of a list of property lists with the following keys:
-    *   :socket A keyword that defines the output socket to be exposed by the module.
-    *   :handler A property list that defines the keys
-        *   :update A function that is called with the MIDI events passed to the update function of the module.
-        *   :get-output A function with no arguments that returns the current value of the controller.For typical use cases refer to cl-synthesizer-midi:relative-cc-handler
-
-Gate transitions are implemented as follows:
-
-*   In :play-mode-poly play mode each incoming note causes that the gate signal of the assigned voice switches to On. If the gate signal of the assigned voice is already On (this happens when the available voices are exhausted and a voice is "stolen") then the gate signal switches to Off for the duration of one system tick and then to On again.
-*   In :play-mode-unisono play mode incoming notes are stacked. The first note causes the gate signal to switch to On. Further "nested" note-on events only result in a change of the CV output but the gate signal will stay On. This behaviour can be overridden with the :force-gate-retrigger parameter.
-
-The module has the following inputs:
-
-*   :midi-events A list of MIDI events.
-
-The module has the following outputs:
-
-*   :gate-1 ... :gate-n
-*   :cv-1 ... :cv-n
-*   Outputs as defined by controllers
-
-**Example:**
-
-    (defpackage :cl-synthesizer-modules-midi-interface-example-1
-      (:use :cl))
-    
-    (in-package :cl-synthesizer-modules-midi-interface-example-1)
-    
-    (defparameter *attach-midi* t)
-    (defparameter *attach-speaker* t)
-    
-    (defun example ()
-      "Very simple midi-interface example that does not care about the gate signal."
-      (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment :channel-count 1))))
-        (cl-synthesizer:add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
-    			       :voice-count 1)
-        (cl-synthesizer:add-module rack "VCO-1"
-    			       #'cl-synthesizer-modules-vco:vco-exponential
-    			       :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
-    			       :f-max 13000
-    			       :v-peak 5)
-    
-        (cl-synthesizer:add-patch rack "MIDI-IN" :midi-events "MIDI-IFC" :midi-events)
-        (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO-1" :cv)
-        (cl-synthesizer:add-patch rack "VCO-1" :saw "LINE-OUT" :channel-1)
-        rack))
-    
-    ;;(cl-synthesizer:play-rack (example) 10 :attach-speaker *attach-speaker* :attach-midi *attach-midi*)
-    
-
-#### Envelope
-
-**cl-synthesizer-modules-envelope:envelope** name environment &key segments (gate-threshold 4.9)
-
-Creates an envelope generator module. An envelope consists of a list of segments where each segment defines rules how to behave. The module generates linear envelopes. The function has the following arguments:
-
-*   name Name of the module.
-*   environment The synthesizer environment.
-*   :segments The segments of the envelope. Each segment consists of a property list with the following keys:
-    
-    *   :duration-ms Optional duration of the segment in milli-seconds. The effective duration depends on the sample rate as specified by the environment.
-    *   :target-cv Optional target voltage to which the segment shall climb.
-    *   :required-gate-state One of :on :off :ignore
-    *   :duration-controller Declares a controller with which the duration of the segment can be modulated.
-    *   :target-cv-controller Declares a controller with which the target voltage of the segment can be modulated.
-    
-    A Controller represents an external input that is exposed by the module and can be used to modulate a certain property of the segment. External input values are mapped by a linear function to the actual values that are processed by the segment. Controllers are represented as property lists with the following keys:
-    *   :socket A keyword that defines the input socket that will be exposed by the envelope module and to which other modules can be connected.
-    *   :input-min The minimum input value of the socket.
-    *   :input-max The maximum input value of the socket.
-    *   :output-min The minimum target value of the mapping.
-    *   :output-max The maximum target value of the mapping.Clipping is generally not applied except for cases such as a negative segment duration. Controller inputs are always offsets that are added to the initial value as provided by :duration-ms or :target-cv. Controller inputs do not affect the behaviour of the currently active segment.
-*   :gate-threshold An optional threshold which defines the minimum input value of the :gate input that is interpreted as gate on.
-
-The module has the following inputs:
-
-*   :gate The gate signal as provided for example by a MIDI sequencer. If the gate switches from :off to :on the output voltage is reset to 0.0 and the module switches to the first segment.
-*   Inputs as defined by segment controllers.
-
-The module has the following outputs:
-
-*   :cv The current value of the envelope. The initial value is 0.0
-
-**Example:**
-
-    (defpackage :cl-synthesizer-modules-envelope-example-1
-      (:use :cl))
-    
-    (in-package :cl-synthesizer-modules-envelope-example-1)
-    
-    (defun example ()
-      "Simple envelope example"
-      (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
-    
-        (cl-synthesizer:add-module
-         rack "ADSR"
-         #'cl-synthesizer-modules-envelope:envelope
-         :segments
-         '(;; Attack (duration can be modulated via input socket :attack-duration)
-           (:duration-ms 100 :target-cv 5 :required-gate-state :on
-    	:duration-controller
-    	(:socket :attack-duration :input-min 0.0 :input-max 5.0 :output-min 0 :output-max 800))
-           ;; Decay
-           (:duration-ms 50 :target-cv 3 :required-gate-state :on)
-           ;; Sustain
-           (:required-gate-state :on)
-           ;; Release
-           (:duration-ms 100 :target-cv 0 :required-gate-state :off)))
-    
-        rack))
-    
     
 
 #### Fixed Output
@@ -978,4 +980,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-10-09 20:01:29
+Generated 2018-10-09 20:22:10
