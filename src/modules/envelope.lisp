@@ -138,10 +138,12 @@ t                      t                           Validate controller settings
 		<li>:output-min The minimum target value of the mapping.</li>
 		<li>:output-max The maximum target value of the mapping.</li>
 	    </ul>
+            <p>
 	    Clipping is generally not applied except for cases such as a negative segment
 	    duration. Controller inputs are always offsets that are added to the initial
 	    value as provided by :duration-ms or :target-cv.
 	    Controller inputs do not affect the behaviour of the currently active segment.
+            </p>
 	</li>
 	<li>:gate-threshold An optional threshold which defines the minimum input value
 	    of the :gate input that is interpreted as gate on.</li>
