@@ -1,4 +1,4 @@
-<html><body><h1>cl-synthesizer</h1>An experimental modular audio synthesizer implemented in Common Lisp. The synthesizer is work in progress. Some modules such as a filter or a mixer are not implemented yet.<p>A synthesizer is represented by an instance of a Rack. A rack holds all the modules 
+<html><body><h1>cl-synthesizer</h1>An experimental modular audio synthesizer implemented in Common Lisp. The synthesizer is work in progress, as a filter or a mixer are not implemented yet.<p>A synthesizer is represented by an instance of a Rack. A rack holds all the modules 
     and the patches (wiring) between them. Modules are components that consist of input and output sockets
     and an update function.</p><p><b>Example:</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-1
   (:use :cl))
@@ -903,4 +903,4 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
     is the "oldest" one.</p><h3>Conditions</h3><b>assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
    because for example a module name is not unique, a patch is added for
    a non-existing module, a patch is added to an already patched socket
-   and so on.</p><hr/><p><small>Generated 2018-10-09  20:36:18</small></p></body></html>
+   and so on.</p><hr/><p><small>Generated 2018-10-09  20:46:46</small></p></body></html>
