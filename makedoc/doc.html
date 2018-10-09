@@ -83,7 +83,7 @@ ln -s cl-synthesizer cl-synthesizer-macos-device
 </code></pre>
 Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 <b>cl-synthesizer-device-speaker:speaker-cl-out123</b>.
-<h2>API Reference</h2><ul><li><a href="#environment">Environment</a></li><li><a href="#rack">Rack</a></li><li><a href="#modules">Modules</a><ul><li><a href="#vco">VCO</a></li><li><a href="#vca">VCA</a></li><li><a href="#multiple">Multiple</a></li><li><a href="#midi-sequencer">MIDI Sequencer</a></li><li><a href="#midi-interface">MIDI Interface</a></li><li><a href="#envelope">Envelope</a></li><li><a href="#fixed-output">Fixed Output</a></li></ul></li><li><a href="#midi">MIDI</a></li><li><a href="#monitor">Monitor</a></li><li><a href="#device">Device</a></li><li><a href="#conditions">Conditions</a></li></ul><h3>Environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (channel-count 2) (home-directory nil) (audio-device nil) (midi-device nil) </p><p>Creates an environment. The environment defines properties such as
+<h2>API Reference</h2><ul><li><a href="#environment">Environment</a></li><li><a href="#rack">Rack</a></li><li><a href="#modules">Modules</a><ul><li><a href="#vco">VCO</a></li><li><a href="#vca">VCA</a></li><li><a href="#envelope">Envelope</a></li><li><a href="#multiple">Multiple</a></li><li><a href="#midi-interface">MIDI Interface</a></li><li><a href="#midi-sequencer">MIDI Sequencer</a></li><li><a href="#fixed-output">Fixed Output</a></li></ul></li><li><a href="#midi">MIDI</a><ul><li><a href="#midi-event">MIDI Event</a></li><li><a href="#midi-utilities">MIDI Utilities</a></li></ul></li><li><a href="#monitor">Monitor</a></li><li><a href="#device">Device</a></li><li><a href="#conditions">Conditions</a></li></ul><h3>Environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (channel-count 2) (home-directory nil) (audio-device nil) (midi-device nil) </p><p>Creates an environment. The environment defines properties such as
     the sample rate of the rack and the number of its audio output channels.
     An enviroment is a property list with the following keys:
     <ul>
@@ -371,6 +371,80 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
     rack))
 
 ;;(cl-synthesizer:play-rack (example) 5)
+</code></pre></p><h4>Envelope</h4><p><b>cl-synthesizer-modules-envelope:envelope</b> name environment &key segments (gate-threshold 4.9) </p><p>Creates an envelope generator module. An envelope consists of a list of segments where
+    each segment defines rules how to behave. The module generates linear envelopes.
+    The function has the following arguments:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:segments The segments of the envelope. Each segment consists of
+	    a property list with the following keys:
+	    <ul>
+		<li>:duration-ms Optional duration of the segment in milli-seconds. The effective
+		    duration depends on the sample rate as specified by
+		the environment.</li>
+		<li>:target-cv Optional target voltage to which the segment shall climb.</li>
+		<li>:required-gate-state One of :on :off :ignore</li>
+		<li>:duration-controller Declares a controller with which the
+		    duration of the segment can be modulated.</li>
+		<li>:target-cv-controller Declares a controller with which the
+		    target voltage of the segment can be modulated.</li>
+	    </ul>
+	    A Controller represents an external input that is exposed by the module and can be
+	    used to modulate a certain property of the segment. External input values
+	    are mapped by a linear function to the actual values that are processed by the segment.
+	    Controllers are represented as property lists with the following keys:
+	    <ul>
+		<li>:socket A keyword that defines the input socket that will be exposed by the
+		    envelope module and to which other modules can be connected.</li>
+		<li>:input-min The minimum input value of the socket.</li>
+		<li>:input-max The maximum input value of the socket.</li>
+		<li>:output-min The minimum target value of the mapping.</li>
+		<li>:output-max The maximum target value of the mapping.</li>
+	    </ul>
+	    Clipping is generally not applied except for cases such as a negative segment
+	    duration. Controller inputs are always offsets that are added to the initial
+	    value as provided by :duration-ms or :target-cv.
+	    Controller inputs do not affect the behaviour of the currently active segment.
+	</li>
+	<li>:gate-threshold An optional threshold which defines the minimum input value
+	    of the :gate input that is interpreted as gate on.</li>
+    </ul>
+    The module has the following inputs:
+    <ul>
+	<li>:gate The gate signal as provided for example by a MIDI sequencer. If the gate switches from
+	:off to :on the output voltage is reset to 0.0 and the module switches to the first segment.</li>
+	<li>Inputs as defined by segment controllers.</li>
+    </ul>
+    The module has the following outputs:
+    <ul>
+	<li>:cv The current value of the envelope. The initial value is 0.0</li>
+    </ul></p><p><b>Example:</b></p><p><pre><code>(defpackage :cl-synthesizer-modules-envelope-example-1
+  (:use :cl))
+
+(in-package :cl-synthesizer-modules-envelope-example-1)
+
+(defun example ()
+  "Simple envelope example"
+  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+
+    (cl-synthesizer:add-module
+     rack "ADSR"
+     #'cl-synthesizer-modules-envelope:envelope
+     :segments
+     '(;; Attack (duration can be modulated via input socket :attack-duration)
+       (:duration-ms 100 :target-cv 5 :required-gate-state :on
+	:duration-controller
+	(:socket :attack-duration :input-min 0.0 :input-max 5.0 :output-min 0 :output-max 800))
+       ;; Decay
+       (:duration-ms 50 :target-cv 3 :required-gate-state :on)
+       ;; Sustain
+       (:required-gate-state :on)
+       ;; Release
+       (:duration-ms 100 :target-cv 0 :required-gate-state :off)))
+
+    rack))
+
 </code></pre></p><h4>Multiple</h4><p><b>cl-synthesizer-modules-multiple:multiple</b> name environment &key output-count </p><p>Creates a Multiple module. A multiple mirrors one input to n outputs.
    The function has the following arguments:
     <ul>
@@ -382,102 +456,7 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
     <ul>
 	<li>:input The input signal to be mirrored to the outputs.</li>
     </ul>
-    The module has outputs :output-1 ... :output-n.</p><hr/><h4>MIDI Sequencer</h4><p><b>cl-synthesizer-modules-midi-sequencer:midi-sequencer</b> name environment &key events </p><p>Creates a Midi-Sequencer module.
-	The function has the following arguments:
-    <ul>
-	<li>name Name of the module.</li>
-	<li>environment The synthesizer environment.</li>
-	<li>:events A list of Midi events and their timestamps. Each
-	    entry consists of a property list with the following keys:
-	    <ul>
-		<li>:timestamp-milli-seconds Point of time when events are to be fired. The very first
-                timestamp of the synthesizer is 0.</li>
-		<li>:midi-events List of Midi events to be fired.</li>
-	    </ul>
-	</li>
-    </ul>
-    The module has no inputs.
-    The module has one output socket :midi-events.</p><p><b>Example:</b></p><p><pre><code>(defpackage :cl-synthesizer-modules-midi-sequencer-example-1
-  (:use :cl))
-
-(in-package :cl-synthesizer-modules-midi-sequencer-example-1)
-
-(defparameter *attach-speaker* t)
-
-(defun example ()
-  "Midi-Sequencer example"
-  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
-
-    ;; Add sequencer
-    (cl-synthesizer:add-module
-     rack
-     "MIDI-SEQUENCER"
-     #'cl-synthesizer-modules-midi-sequencer:midi-sequencer :events
-     (list 
-      (list :timestamp-milli-seconds 0
-	    :midi-events (list
-			  (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
-      (list :timestamp-milli-seconds 1000
-	    :midi-events (list
-			  (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
-      (list :timestamp-milli-seconds 2000
-	    :midi-events (list
-			  (cl-synthesizer-midi-event:make-note-on-event 1 75 100)))
-      (list :timestamp-milli-seconds 2500
-	    :midi-events (list
-			  (cl-synthesizer-midi-event:make-note-off-event 1 75 100)))))
-
-    ;; Add MIDI Interface and connect it with the MIDI Sequencer
-    (cl-synthesizer:add-module
-     rack
-     "MIDI-IFC"
-     #'cl-synthesizer-modules-midi-interface:midi-interface :voice-count 1)
-    (cl-synthesizer:add-patch rack "MIDI-SEQUENCER" :midi-events "MIDI-IFC" :midi-events)
-
-    ;; Add VCO
-    (cl-synthesizer:add-module
-     rack "VCO" #'cl-synthesizer-modules-vco:vco-exponential
-     :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
-     :f-max 12000
-     :v-peak 5)
-
-    ;; Add ADSR
-    (cl-synthesizer:add-module
-     rack "ADSR"
-     #'cl-synthesizer-modules-envelope:envelope
-     :segments
-     '(;; Attack
-       (:duration-ms 100 :target-cv 5 :required-gate-state :on)
-       ;; Decay
-       (:duration-ms 50 :target-cv 3 :required-gate-state :on)
-       ;; Sustain
-       (:required-gate-state :on)
-       ;; Release
-       (:duration-ms 100 :target-cv 0 :required-gate-state :off)))
-    
-    ;; Add VCA
-    (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:vca :cv-max 5.0)
-
-    ;; Connect VCA with ADSR and VCO
-    (cl-synthesizer:add-patch rack "VCA" :output-linear "LINE-OUT" :channel-1)
-    (cl-synthesizer:add-patch rack "ADSR" :cv "VCA" :cv)
-    (cl-synthesizer:add-patch rack "VCO" :triangle "VCA" :input)
-    
-    ;; Connect Midi interface with ADSR and VCO
-    (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv)
-    (cl-synthesizer:add-patch rack "MIDI-IFC" :gate-1 "ADSR" :gate)
-
-    ;; Record LINE-OUT into a wave file
-    (cl-synthesizer-monitor:add-monitor
-     rack
-     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-     '((:channel-1 "LINE-OUT" :input-socket :channel-1))
-     :filename "waves/midi-sequencer-example-1.wav")
-    
-    rack))
-
-;;(cl-synthesizer:play-rack (example) 5 :attach-speaker *attach-speaker*)
-</code></pre></p><h4>MIDI Interface</h4><p><b>cl-synthesizer-modules-midi-interface:midi-interface</b> name environment &key (voice-count 1) (channel nil) (note-number-to-cv (lambda (note-number) (/ note-number 12))) (play-mode :play-mode-poly) (cv-gate-on 5.0) (cv-gate-off 0.0) (controllers nil) (force-gate-retrigger nil) </p><p>Creates a MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
+    The module has outputs :output-1 ... :output-n.</p><hr/><h4>MIDI Interface</h4><p><b>cl-synthesizer-modules-midi-interface:midi-interface</b> name environment &key (voice-count 1) (channel nil) (note-number-to-cv (lambda (note-number) (/ note-number 12))) (play-mode :play-mode-poly) (cv-gate-on 5.0) (cv-gate-off 0.0) (controllers nil) (force-gate-retrigger nil) </p><p>Creates a MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
     voice is represented by a control-voltage and a gate signal. The module supports the
     mapping of MIDI CC-Events to arbitary output sockets. The function has the following arguments:
     <ul>
@@ -578,80 +557,101 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
     rack))
 
 ;;(cl-synthesizer:play-rack (example) 10 :attach-speaker *attach-speaker* :attach-midi *attach-midi*)
-</code></pre></p><h4>Envelope</h4><p><b>cl-synthesizer-modules-envelope:envelope</b> name environment &key segments (gate-threshold 4.9) </p><p>Creates an envelope generator module. An envelope consists of a list of segments where
-    each segment defines rules how to behave. The module generates linear envelopes.
-    The function has the following arguments:
+</code></pre></p><h4>MIDI Sequencer</h4><p><b>cl-synthesizer-modules-midi-sequencer:midi-sequencer</b> name environment &key events </p><p>Creates a Midi-Sequencer module.
+	The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
-	<li>:segments The segments of the envelope. Each segment consists of
-	    a property list with the following keys:
+	<li>:events A list of Midi events and their timestamps. Each
+	    entry consists of a property list with the following keys:
 	    <ul>
-		<li>:duration-ms Optional duration of the segment in milli-seconds. The effective
-		    duration depends on the sample rate as specified by
-		the environment.</li>
-		<li>:target-cv Optional target voltage to which the segment shall climb.</li>
-		<li>:required-gate-state One of :on :off :ignore</li>
-		<li>:duration-controller Declares a controller with which the
-		    duration of the segment can be modulated.</li>
-		<li>:target-cv-controller Declares a controller with which the
-		    target voltage of the segment can be modulated.</li>
+		<li>:timestamp-milli-seconds Point of time when events are to be fired. The very first
+                timestamp of the synthesizer is 0.</li>
+		<li>:midi-events List of Midi events to be fired.</li>
 	    </ul>
-	    A Controller represents an external input that is exposed by the module and can be
-	    used to modulate a certain property of the segment. External input values
-	    are mapped by a linear function to the actual values that are processed by the segment.
-	    Controllers are represented as property lists with the following keys:
-	    <ul>
-		<li>:socket A keyword that defines the input socket that will be exposed by the
-		    envelope module and to which other modules can be connected.</li>
-		<li>:input-min The minimum input value of the socket.</li>
-		<li>:input-max The maximum input value of the socket.</li>
-		<li>:output-min The minimum target value of the mapping.</li>
-		<li>:output-max The maximum target value of the mapping.</li>
-	    </ul>
-	    Clipping is generally not applied except for cases such as a negative segment
-	    duration. Controller inputs are always offsets that are added to the initial
-	    value as provided by :duration-ms or :target-cv.
-	    Controller inputs do not affect the behaviour of the currently active segment.
 	</li>
-	<li>:gate-threshold An optional threshold which defines the minimum input value
-	    of the :gate input that is interpreted as gate on.</li>
     </ul>
-    The module has the following inputs:
-    <ul>
-	<li>:gate The gate signal as provided for example by a MIDI sequencer. If the gate switches from
-	:off to :on the output voltage is reset to 0.0 and the module switches to the first segment.</li>
-	<li>Inputs as defined by segment controllers.</li>
-    </ul>
-    The module has the following outputs:
-    <ul>
-	<li>:cv The current value of the envelope. The initial value is 0.0</li>
-    </ul></p><p><b>Example:</b></p><p><pre><code>(defpackage :cl-synthesizer-modules-envelope-example-1
+    The module has no inputs.
+    The module has one output socket :midi-events.</p><p><b>Example:</b></p><p><pre><code>(defpackage :cl-synthesizer-modules-midi-sequencer-example-1
   (:use :cl))
 
-(in-package :cl-synthesizer-modules-envelope-example-1)
+(in-package :cl-synthesizer-modules-midi-sequencer-example-1)
+
+(defparameter *attach-speaker* t)
 
 (defun example ()
-  "Simple envelope example"
+  "Midi-Sequencer example"
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
 
+    ;; Add sequencer
+    (cl-synthesizer:add-module
+     rack
+     "MIDI-SEQUENCER"
+     #'cl-synthesizer-modules-midi-sequencer:midi-sequencer :events
+     (list 
+      (list :timestamp-milli-seconds 0
+	    :midi-events (list
+			  (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+      (list :timestamp-milli-seconds 1000
+	    :midi-events (list
+			  (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
+      (list :timestamp-milli-seconds 2000
+	    :midi-events (list
+			  (cl-synthesizer-midi-event:make-note-on-event 1 75 100)))
+      (list :timestamp-milli-seconds 2500
+	    :midi-events (list
+			  (cl-synthesizer-midi-event:make-note-off-event 1 75 100)))))
+
+    ;; Add MIDI Interface and connect it with the MIDI Sequencer
+    (cl-synthesizer:add-module
+     rack
+     "MIDI-IFC"
+     #'cl-synthesizer-modules-midi-interface:midi-interface :voice-count 1)
+    (cl-synthesizer:add-patch rack "MIDI-SEQUENCER" :midi-events "MIDI-IFC" :midi-events)
+
+    ;; Add VCO
+    (cl-synthesizer:add-module
+     rack "VCO" #'cl-synthesizer-modules-vco:vco-exponential
+     :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
+     :f-max 12000
+     :v-peak 5)
+
+    ;; Add ADSR
     (cl-synthesizer:add-module
      rack "ADSR"
      #'cl-synthesizer-modules-envelope:envelope
      :segments
-     '(;; Attack (duration can be modulated via input socket :attack-duration)
-       (:duration-ms 100 :target-cv 5 :required-gate-state :on
-	:duration-controller
-	(:socket :attack-duration :input-min 0.0 :input-max 5.0 :output-min 0 :output-max 800))
+     '(;; Attack
+       (:duration-ms 100 :target-cv 5 :required-gate-state :on)
        ;; Decay
        (:duration-ms 50 :target-cv 3 :required-gate-state :on)
        ;; Sustain
        (:required-gate-state :on)
        ;; Release
        (:duration-ms 100 :target-cv 0 :required-gate-state :off)))
+    
+    ;; Add VCA
+    (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:vca :cv-max 5.0)
 
+    ;; Connect VCA with ADSR and VCO
+    (cl-synthesizer:add-patch rack "VCA" :output-linear "LINE-OUT" :channel-1)
+    (cl-synthesizer:add-patch rack "ADSR" :cv "VCA" :cv)
+    (cl-synthesizer:add-patch rack "VCO" :triangle "VCA" :input)
+    
+    ;; Connect Midi interface with ADSR and VCO
+    (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv)
+    (cl-synthesizer:add-patch rack "MIDI-IFC" :gate-1 "ADSR" :gate)
+
+    ;; Record LINE-OUT into a wave file
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
+     '((:channel-1 "LINE-OUT" :input-socket :channel-1))
+     :filename "waves/midi-sequencer-example-1.wav")
+    
     rack))
 
+;;(cl-synthesizer:play-rack (example) 5 :attach-speaker *attach-speaker*)
 </code></pre></p><h4>Fixed Output</h4><p><b>cl-synthesizer-modules-fixed-output:fixed-output</b> name environment &key value (output-socket :out) </p><p>Creates a module with a fixed output value.
    The function has the following arguments:
     <ul>
@@ -901,4 +901,4 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
     is the "oldest" one.</p><h3>Conditions</h3><b>assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
    because for example a module name is not unique, a patch is added for
    a non-existing module, a patch is added to an already patched socket
-   and so on.</p><hr/><p><small>Generated 2018-10-09  20:01:29</small></p></body></html>
+   and so on.</p><hr/><p><small>Generated 2018-10-09  20:22:10</small></p></body></html>

@@ -108,14 +108,19 @@
 		   "<ul>"
 		   "<li><a href=\"#vco\">VCO</a></li>"
 		   "<li><a href=\"#vca\">VCA</a></li>"
-		   "<li><a href=\"#multiple\">Multiple</a></li>"
-		   "<li><a href=\"#midi-sequencer\">MIDI Sequencer</a></li>"
-		   "<li><a href=\"#midi-interface\">MIDI Interface</a></li>"
 		   "<li><a href=\"#envelope\">Envelope</a></li>"
+		   "<li><a href=\"#multiple\">Multiple</a></li>"
+		   "<li><a href=\"#midi-interface\">MIDI Interface</a></li>"
+		   "<li><a href=\"#midi-sequencer\">MIDI Sequencer</a></li>"
 		   "<li><a href=\"#fixed-output\">Fixed Output</a></li>"
 		   "</ul>"
 		   "</li>"
-		   "<li><a href=\"#midi\">MIDI</a></li>"
+		   "<li><a href=\"#midi\">MIDI</a>"
+		   "<ul>"
+		   "<li><a href=\"#midi-event\">MIDI Event</a></li>"
+		   "<li><a href=\"#midi-utilities\">MIDI Utilities</a></li>"
+		   "</ul>"
+		   "</li>"
 		   "<li><a href=\"#monitor\">Monitor</a></li>"
 		   "<li><a href=\"#device\">Device</a></li>"
 		   "<li><a href=\"#conditions\">Conditions</a></li>"
@@ -142,17 +147,17 @@
 		   "<h4>VCA</h4>"
 		   (make-function-string 'cl-synthesizer-modules-vca:vca :append-separator nil)
 		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/modules/vca/example-1.lisp")
-		   "<h4>Multiple</h4>"
-		   (make-function-string 'cl-synthesizer-modules-multiple:multiple)
-		   "<h4>MIDI Sequencer</h4>"
-		   (make-function-string 'cl-synthesizer-modules-midi-sequencer:midi-sequencer :append-separator nil)
-		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/modules/midi-sequencer/example-1.lisp")
-		   "<h4>MIDI Interface</h4>"
-		   (make-function-string 'cl-synthesizer-modules-midi-interface:midi-interface :append-separator nil)
-		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/modules/midi-interface/example-1.lisp")
 		   "<h4>Envelope</h4>"
 		   (make-function-string 'cl-synthesizer-modules-envelope:envelope :append-separator nil)
 		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/modules/envelope/example-1.lisp")
+		   "<h4>Multiple</h4>"
+		   (make-function-string 'cl-synthesizer-modules-multiple:multiple)
+		   "<h4>MIDI Interface</h4>"
+		   (make-function-string 'cl-synthesizer-modules-midi-interface:midi-interface :append-separator nil)
+		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/modules/midi-interface/example-1.lisp")
+		   "<h4>MIDI Sequencer</h4>"
+		   (make-function-string 'cl-synthesizer-modules-midi-sequencer:midi-sequencer :append-separator nil)
+		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/modules/midi-sequencer/example-1.lisp")
 		   "<h4>Fixed Output</h4>"
 		   (make-function-string 'cl-synthesizer-modules-fixed-output:fixed-output :append-separator nil)
 		   "<h3>MIDI</h3>"
