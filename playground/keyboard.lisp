@@ -5,9 +5,12 @@
 ;; Work in progress
 ;;
 
-(in-package :cl-synthesizer-examples)
+(defpackage :cl-synthesizer-playground-keyboard
+  (:use :cl))
 
-(defun synthesizer-example-keyboard ()
+(in-package :cl-synthesizer-playground-keyboard)
+
+(defun keyboard ()
   "Keyboard"
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
     ;; two voices assigned to left/right of line out due to absence of a mixer module
@@ -77,7 +80,7 @@
        :filename "waves/adsr.wav")
       rack)))
 
-;;(cl-synthesizer:play-rack (cl-synthesizer-examples::synthesizer-example-keyboard) 10 :attach-speaker t :attach-midi t)
+;;(cl-synthesizer:play-rack (keyboard) 10 :attach-speaker t :attach-midi t)
 
 
 
