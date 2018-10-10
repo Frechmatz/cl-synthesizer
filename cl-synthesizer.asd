@@ -58,10 +58,6 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "arturiaminilabmk2")))
-	       (:module "examples"
-			:serial t
-			:components ((:file "packages")
-				     (:file "keyboard")))
 	       ;;
 	       ;; Examples provided by module implementations.
 	       ;;
