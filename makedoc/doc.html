@@ -169,8 +169,8 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 	<li>The given destination-input-socket is not exposed by the destination module.</li>
 	<ul>
     </ul></p><hr/><p><b>cl-synthesizer:update</b> rack </p><p>Updates the state of the rack by calling the update function of all its modules.
-    If the rack has already been shut down the function does nothing and returns nil.
-    Othwerwise it updates the rack and returns t.</p><hr/><p><b>cl-synthesizer:play-rack</b> rack duration-seconds &key (attach-speaker nil) (attach-midi nil) </p><p>A utility function that "plays" the rack by consecutively calling its update function
+    If the rack has already been shut down the function immediately returns <b>nil</b>.
+    Othwerwise it updates the rack and returns <b>t</b>.</p><hr/><p><b>cl-synthesizer:play-rack</b> rack duration-seconds &key (attach-speaker nil) (attach-midi nil) </p><p>A utility function that "plays" the rack by consecutively calling its update function
     for a given number of "ticks". The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
@@ -216,8 +216,7 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
       <li>:shutdown A function with no arguments that is called when the rack is shutting down.</li>
    </ul>
    Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>.</p><hr/><p><b>cl-synthesizer:shutdown</b> rack </p><p>Shuts the rack down by calling the shutdown handlers of all modules, devices and hooks of the rack.
-   After a rack has been shut down, further invocations of the update function are allowed but the function
-   will immediately return nil and will not call any modules, devices or hooks.</p><h3>Modules</h3><h4>VCO</h4><p><b>cl-synthesizer-modules-vco:vco-base</b> name environment transfer-function &key f-max v-peak (duty-cycle 0.5) </p><p>Creates a Voltage Controlled Oscillator module. The function has the following arguments:
+   If the rack has already been shut down the function does not call any handlers.</p><h3>Modules</h3><h4>VCO</h4><p><b>cl-synthesizer-modules-vco:vco-base</b> name environment transfer-function &key f-max v-peak (duty-cycle 0.5) </p><p>Creates a Voltage Controlled Oscillator module. The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
@@ -436,8 +435,8 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
      :segments
      '(;; Attack (duration can be modulated via input socket :attack-duration)
        (:duration-ms 100 :target-cv 5 :required-gate-state :on
-	:duration-controller
-	(:socket :attack-duration :input-min 0.0 :input-max 5.0 :output-min 0 :output-max 800))
+        :duration-controller
+        (:socket :attack-duration :input-min 0.0 :input-max 5.0 :output-min 0 :output-max 800))
        ;; Decay
        (:duration-ms 50 :target-cv 3 :required-gate-state :on)
        ;; Sustain
@@ -931,4 +930,4 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
     is the "oldest" one.</p><h3>Conditions</h3><b>assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
    because for example a module name is not unique, a patch is added for
    a non-existing module, a patch is added to an already patched socket
-   and so on.</p><hr/><p><small>Generated 2018-10-10  19:55:17</small></p></body></html>
+   and so on.</p><hr/><p><small>Generated 2018-10-10  20:17:46</small></p></body></html>

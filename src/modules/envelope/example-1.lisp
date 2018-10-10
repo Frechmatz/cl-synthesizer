@@ -13,8 +13,8 @@
      :segments
      '(;; Attack (duration can be modulated via input socket :attack-duration)
        (:duration-ms 100 :target-cv 5 :required-gate-state :on
-	:duration-controller
-	(:socket :attack-duration :input-min 0.0 :input-max 5.0 :output-min 0 :output-max 800))
+        :duration-controller
+        (:socket :attack-duration :input-min 0.0 :input-max 5.0 :output-min 0 :output-max 800))
        ;; Decay
        (:duration-ms 50 :target-cv 3 :required-gate-state :on)
        ;; Sustain

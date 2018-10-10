@@ -351,8 +351,8 @@
 
 (defun update (rack)
   "Updates the state of the rack by calling the update function of all its modules.
-    If the rack has already been shut down the function does nothing and returns nil.
-    Othwerwise it updates the rack and returns t." 
+    If the rack has already been shut down the function immediately returns <b>nil</b>.
+    Othwerwise it updates the rack and returns <b>t</b>." 
   ;; (declare (optimize (debug 3) (speed 0) (space 0)))
   (if (slot-value rack 'rack-has-shut-down)
       nil
@@ -401,8 +401,7 @@
 
 (defun shutdown (rack)
   "Shuts the rack down by calling the shutdown handlers of all modules, devices and hooks of the rack.
-   After a rack has been shut down, further invocations of the update function are allowed but the function
-   will immediately return nil and will not call any modules, devices or hooks."
+   If the rack has already been shut down the function does not call any handlers."
   (if (not (slot-value rack 'rack-has-shut-down))
       (progn
 	(setf (slot-value rack 'rack-has-shut-down) t)
