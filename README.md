@@ -106,10 +106,10 @@ API Reference
     *   [MIDI Interface](#midi-interface)
     *   [MIDI Sequencer](#midi-sequencer)
     *   [Fixed Output](#fixed-output)
+*   [Monitor](#monitor)
 *   [MIDI](#midi)
     *   [MIDI Event](#midi-event)
     *   [MIDI Utilities](#midi-utilities)
-*   [Monitor](#monitor)
 *   [Device](#device)
 *   [Conditions](#conditions)
 
@@ -248,7 +248,7 @@ Adds a hook to the rack. A hook is called each time after the rack has updated i
 *   :update A function with no arguments that is called after the rack has updated its state.
 *   :shutdown A function with no arguments that is called when the rack is shutting down.
 
-Hooks must not modify the rack.
+Hooks must not modify the rack. See also **cl-synthesizer-monitor:add-monitor**.
 
 * * *
 
@@ -501,17 +501,19 @@ The module has the following outputs:
 
 **cl-synthesizer-modules-multiple:multiple** name environment &key output-count
 
-Creates a Multiple module. A multiple mirrors one input to n outputs. The function has the following arguments:
+Creates a Multiple module. A multiple passes the value of exactly one input socket to as many output sockets as defined by output-count. The function has the following arguments:
 
 *   name Name of the module.
 *   environment The synthesizer environment.
-*   :output-count The number of outputs.
+*   :output-count The number of output sockets.
 
 The module has the following inputs:
 
-*   :input The input signal to be mirrored to the outputs.
+*   :input The input signal to be passed to the outputs.
 
-The module has outputs :output-1 ... :output-n.
+The module has the following outputs:
+
+*   :output-1 ... :output-n. Where n is the output-count.
 
 * * *
 
@@ -525,20 +527,24 @@ Creates a MIDI interface module. The module dispatches MIDI-Note events to so ca
 *   environment The synthesizer environment.
 *   :voice-count The number of voices to be exposed by the module. Each voice consists of the following output sockets:
     *   :gate-n The gate signal. n = 1..voice-count.
-    *   :cv-n A control voltage representing the note number. n = 1..voice-count
-*   :channel Optional MIDI channel to which note events must belong. By default the channel is ignored. This setting does not effect the evaluation of CC-Events that are handled by controllers. Controllers must implement channel filtering on their own.
+    *   :cv-n A control voltage representing the note number. n = 1..voice-count.
+*   :channel Optional MIDI channel to which note events (not CC-Events) must belong. By default the channel is ignored.
 *   :note-number-to-cv An optional function that is called with a MIDI note number and returns a control-voltage.
 *   :play-mode
-    *   :play-mode-poly Polyphonic play mode. Incoming note events will be dispatched to "available" voices, where a voice is available when it meets certain criteria. These criteria are defined and implemented by the cl-synthesizer-midi-voice-manager:voice-manager package.
-    *   :play-mode-unisono Monophonic play mode. All voices exposed by the module are set to the current "active" note. Notes are stacked. When a note is released, the voice outputs switch to the previous note. This logic is also implemented by the cl-synthesizer-midi-voice-manager:voice-manager package.
+    
+    *   :play-mode-poly Polyphonic play mode. Incoming note events will be dispatched to "available" voices.
+    *   :play-mode-unisono Monophonic play mode. All voices exposed by the module are set to the current "active" note. Notes are stacked. When a note is released, the voice outputs switch to the previous note.
+    
+    The handling of play-modes is implemented by the package cl-synthesizer-midi-voice-manager:voice-manager.
+    
 *   :cv-gate-on The "Gate on" control voltage.
 *   :cv-gate-off The "Gate off" control voltage.
-*   :force-gate-retrigger If t then in :play-mode-unisono play mode each note event will cause a retriggering of the gate signal. Otherwise the gate signal will stay on when it is already on.
+*   :force-gate-retrigger If t then in :play-mode-unisono play mode each note event will cause a retriggering of the gate signal. Otherwise the gate signal will just stay on when it is already on.
 *   :controllers Controllers can be used to declare additional output sockets that are exposed by the module. The controllers argument consists of a list of property lists with the following keys:
     *   :socket A keyword that defines the output socket to be exposed by the module.
     *   :handler A property list that defines the keys
-        *   :update A function that is called with the MIDI events passed to the update function of the module.
-        *   :get-output A function with no arguments that returns the current value of the controller.For typical use cases refer to cl-synthesizer-midi:relative-cc-handler
+        *   :update A function that is called with the MIDI events passed to the update function of the module. The module does not apply channel filtering.
+        *   :get-output A function with no arguments that returns the current value of the controller.
 
 Gate transitions are implemented as follows:
 
@@ -554,6 +560,8 @@ The module has the following outputs:
 *   :gate-1 ... :gate-n
 *   :cv-1 ... :cv-n
 *   Outputs as defined by controllers
+
+See also **cl-synthesizer-midi:relative-cc-handler**
 
 **Example:**
 
@@ -694,6 +702,69 @@ Creates a module with a fixed output value. The function has the following argum
 *   :output-socket Optional keyword that declares the output socket identifier to be exposed by the module.
 
 The module has no inputs. The module has one output socket according to the :output-socket argument.
+
+### Monitor
+
+**cl-synthesizer-monitor:add-monitor** rack monitor-handler socket-mappings &rest additional-handler-args
+
+Adds a monitor to a rack. A monitor is a high-level Rack hook that collects module states (values of input/output sockets) and passes them to a monitor handler. A monitor handler can for example be a Wave-File-Writer. The function has the following arguments:
+
+*   rack The rack.
+*   monitor-handler A function that instantiates the monitor handler. This function is called with the following arguments:
+    
+    *   name A name.
+    *   environment The synthesizer environment.
+    *   input-keywords A list of keywords declaring the keyword parameters with which the monitor handler update function will be called.
+    *   additional-handler-args Any additional keyword parameters as passed to the monitor function. These parameters can be used to initialize handler specific properties such as a filename.
+    
+    The function must return a property list with the following keys:
+    *   :update A function that is called after each tick of the rack. It is called with keyword parameters as declared by the input-keywords argument described above.
+    *   :shutdown An optional function with no arguments that is called when the rack shuts down.
+*   socket-mappings Declares a list of mappings of specific sockets of specific modules to keyword parameters that will be passed to the update function of the handler. Each mapping entry has the following format:
+    *   key Keyword to be used as keyword input parameter when calling the update function of the handler, for example :channel-1. For now this key must be one that is supported by the actual handler. For example the Wave-File handler only supports input keys :channel-1 ... :channel-n.
+    *   module-name Name of the module from which the state of a certain input/output socket is to be retrieved, for example "ADSR"
+    *   socket-type Defines if the value of an input-socket is to be passed to the handler or the value of an output-socket. Must be :input-socket or :output-socket
+    *   socket A keyword that identifies one of the input/output sockets provided by the module, for example :cv
+*   &rest additional-handler-args Optional keyword arguments to be passed to the handler instantiation function.
+
+**Example:**
+
+    (defpackage :cl-synthesizer-monitor-example-1
+      (:use :cl))
+    
+    (in-package :cl-synthesizer-monitor-example-1)
+    
+    (defun example ()
+      "Monitor example."
+      (let ((rack (cl-synthesizer:make-rack
+    	       :environment
+    	       (cl-synthesizer:make-environment))))
+    
+        ;;
+        ;; add modules...
+        ;;
+        
+        (cl-synthesizer-monitor:add-monitor
+         rack
+         #'cl-synthesizer-monitor-wave-handler:wave-file-handler
+         '((:channel-1 "ADSR" :input-socket :gate)
+           (:channel-2 "ADSR" :output-socket :cv))
+         :filename "monitor-example-1.wav")
+        
+        rack))
+    
+    
+    
+    
+
+**cl-synthesizer-monitor-wave-handler:wave-file-handler** name environment inputs &rest rest &key filename &allow-other-keys
+
+Creates a monitor handler which writes its inputs into a Wave file. The function has the following arguments:
+
+*   name A name.
+*   environment The synthesizer environment.
+*   inputs The input keys as defined by the Monitor Socket-Mapping. For now these must be :channel-1 ... :channel-n.
+*   :filename A file path relative to the output directory as defined by the environment.
 
 ### MIDI
 
@@ -873,41 +944,6 @@ The returned handler is a property list with the following keys:
     
     
 
-### Monitor
-
-**cl-synthesizer-monitor:add-monitor** rack monitor-handler socket-mappings &rest additional-handler-args
-
-Adds a monitor to a rack. A monitor is a high-level Rack hook that collects module states (input/output sockets) and passes them to a monitor handler. A monitor handler can for example be a Wave-File-Writer. The function has the following arguments:
-
-*   rack The rack.
-*   monitor-handler A function that instantiates the monitor handler. This function is called with the following arguments:
-    
-    *   name A name.
-    *   environment The synthesizer environment.
-    *   output-keywords A list of keywords declaring the keyword parameters with which the monitor handler update function will be called.
-    *   additional-handler-args Any additional keyword parameters as passed to the monitor function. These parameters can be used to initialize handler specific properties such as a filename.
-    
-    The function must return a property list with the following keys:
-    *   :update A function that is called after each tick of the rack. It is called with keyword parameters as declared by the output-keywords argument described above.
-    *   :shutdown An optional function with no arguments that is called when the rack shuts down.
-*   socket-mappings Declares a list of mappings of specific sockets of specific modules to keyword parameters that will be passed to the update function of the handler. Each mapping entry has the following format:
-    *   key Keyword to be used as keyword parameter when calling the update function of the handler, for example :channel-1. For now this key must be one that is supported by the actual handler. For example the Wave-File handler only supports :channel-n keys.
-    *   module-name Name of the module from which the state of a certain input/output socket is to be retrieved, for example "ADSR"
-    *   socket-type Defines if the value of an input-socket is requested or the value of an output-socket. Must be :input-socket or :output-socket
-    *   socket A keyword that identifies one of the input/output sockets provided by the module, for example :cv
-*   &rest additional-handler-args Optional keyword arguments to be passed to the handler instantiation function.
-
-* * *
-
-**cl-synthesizer-monitor-wave-handler:wave-file-handler** name environment outputs &rest rest &key filename &allow-other-keys
-
-Creates a monitor handler which writes its inputs into a Wave file. The function has the following arguments:
-
-*   name A name.
-*   environment The synthesizer environment.
-*   outputs The output keys as defined by the Monitor Socket-Mapping. For now these must be :channel-1 ... :channel-n.
-*   :filename A file path relative to the output directory as defined by the environment.
-
 ### Device
 
 **cl-synthesizer:attach-audio-device** rack device
@@ -984,4 +1020,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-10-09 20:46:46
+Generated 2018-10-10 19:55:17
