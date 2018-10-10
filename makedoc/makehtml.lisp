@@ -115,13 +115,13 @@
 		   "<li><a href=\"#fixed-output\">Fixed Output</a></li>"
 		   "</ul>"
 		   "</li>"
+		   "<li><a href=\"#monitor\">Monitor</a></li>"
 		   "<li><a href=\"#midi\">MIDI</a>"
 		   "<ul>"
 		   "<li><a href=\"#midi-event\">MIDI Event</a></li>"
 		   "<li><a href=\"#midi-utilities\">MIDI Utilities</a></li>"
 		   "</ul>"
 		   "</li>"
-		   "<li><a href=\"#monitor\">Monitor</a></li>"
 		   "<li><a href=\"#device\">Device</a></li>"
 		   "<li><a href=\"#conditions\">Conditions</a></li>"
 		   "</ul>"
@@ -160,6 +160,10 @@
 		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/modules/midi-sequencer/example-1.lisp")
 		   "<h4>Fixed Output</h4>"
 		   (make-function-string 'cl-synthesizer-modules-fixed-output:fixed-output :append-separator nil)
+		   "<h3>Monitor</h3>"
+		   (make-function-string 'cl-synthesizer-monitor:add-monitor :append-separator nil)
+		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/monitor/monitor/example-1.lisp")
+		   (make-function-string 'cl-synthesizer-monitor-wave-handler:wave-file-handler :append-separator nil)
 		   "<h3>MIDI</h3>"
 		   "<h4>MIDI Event</h4>"
 		   (make-function-string 'cl-synthesizer-midi-event:make-control-change-event)
@@ -178,9 +182,6 @@
 		   (make-function-string 'cl-synthesizer-midi:relative-cc-handler :append-separator nil)
 		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/midi/cc-handler/example-1.lisp" :example-number 1)
 		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/midi/cc-handler/example-2.lisp" :example-number 2)
-		   "<h3>Monitor</h3>"
-		   (make-function-string 'cl-synthesizer-monitor:add-monitor)
-		   (make-function-string 'cl-synthesizer-monitor-wave-handler:wave-file-handler :append-separator nil)
 		   "<h3>Device</h3>"
 		   (make-function-string 'cl-synthesizer:attach-audio-device)
 		   (make-function-string 'cl-synthesizer:attach-midi-in-device)

@@ -97,7 +97,7 @@
       <li>:update A function with no arguments that is called after the rack has updated its state.</li>
       <li>:shutdown A function with no arguments that is called when the rack is shutting down.</li>
    </ul>
-   Hooks must not modify the rack."
+   Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>."
   (push hook (slot-value rack 'hooks)))
 
 (defun make-rack (&key environment)

@@ -67,33 +67,31 @@
 	    <ul>
 		<li>:gate-n The gate signal. n = 1..voice-count.</li>
 		<li>:cv-n A control voltage representing the note number.
-		    n = 1..voice-count</li>
+		    n = 1..voice-count.</li>
 	    </ul>
         </li>
-	<li>:channel Optional MIDI channel to which note events must belong. By default the
-	    channel is ignored. This setting does not effect the evaluation of
-	    CC-Events that are handled by controllers. Controllers must implement
-	    channel filtering on their own.</li>
+	<li>:channel Optional MIDI channel to which note events (not CC-Events) must belong. By default the
+	    channel is ignored.</li>
 	<li>:note-number-to-cv An optional function that is called with a MIDI note number
 	    and returns a control-voltage.</li>
 	<li>:play-mode
 	    <ul>
 		<li>:play-mode-poly Polyphonic play mode. Incoming note events will be
-		    dispatched to \"available\" voices, where a voice is available
-		    when it meets certain criteria. These criteria are defined
-		    and implemented by the cl-synthesizer-midi-voice-manager:voice-manager
-		    package.</li>
+		    dispatched to \"available\" voices.</li>
 		<li>:play-mode-unisono Monophonic play mode. All voices exposed by the module
 		    are set to the current \"active\" note. Notes are stacked. When a note is
-		    released, the voice outputs switch to the previous note. This logic is
-		    also implemented by the cl-synthesizer-midi-voice-manager:voice-manager
-		    package.</li>
-	    </ul></li>
+		    released, the voice outputs switch to the previous note.</li>
+	    </ul>
+            <p>
+            The handling of play-modes is implemented by the package 
+            cl-synthesizer-midi-voice-manager:voice-manager.
+            </p>
+        </li>
 	<li>:cv-gate-on The \"Gate on\" control voltage.</li>
 	<li>:cv-gate-off The \"Gate off\" control voltage.</li>
 	<li>:force-gate-retrigger If t then in :play-mode-unisono play mode each note
 	    event will cause a retriggering of the gate signal. Otherwise the gate signal
-	    will stay on when it is already on.</li>
+	    will just stay on when it is already on.</li>
 	<li>:controllers Controllers can be used to declare additional output sockets that are
 	    exposed by the module. The controllers argument consists of a list of property lists
 	    with the following keys:
@@ -102,11 +100,10 @@
 		<li>:handler A property list that defines the keys
 		    <ul>
 			<li>:update A function that is called with the MIDI events passed to the update
-			    function of the module.</li>
+			    function of the module. The module does not apply channel filtering.</li>
 			<li>:get-output A function with no arguments that returns the current value
 			    of the controller.</li>
 		    </ul>
-		    For typical use cases refer to cl-synthesizer-midi:relative-cc-handler
 		</li>
 	    </ul>
 	</li>
@@ -132,7 +129,8 @@
 	<li>:gate-1 ... :gate-n</li>
 	<li>:cv-1 ... :cv-n</li>
 	<li>Outputs as defined by controllers</li>
-    </ul>"
+    </ul>
+    <p>See also <b>cl-synthesizer-midi:relative-cc-handler</b></p>"
   (declare (ignore environment))
   (let* ((outputs nil)
 	 (voice-states (make-array voice-count))

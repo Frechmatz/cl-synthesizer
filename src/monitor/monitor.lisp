@@ -40,7 +40,7 @@
 
 (defun add-monitor (rack monitor-handler socket-mappings &rest additional-handler-args)
    "Adds a monitor to a rack. A monitor is a high-level Rack hook that
-    collects module states (input/output sockets) and passes them
+    collects module states (values of input/output sockets) and passes them
     to a monitor handler. A monitor handler can for example be a
     Wave-File-Writer. The function has the following arguments:
     <ul>
@@ -50,7 +50,7 @@
 	    <ul>
 		<li>name A name.</li>
 		<li>environment The synthesizer environment.</li>
-		<li>output-keywords A list of keywords declaring the keyword
+		<li>input-keywords A list of keywords declaring the keyword
 		    parameters with which the monitor handler update function
 		    will be called.</li>
 		<li>additional-handler-args Any additional keyword parameters as
@@ -62,7 +62,7 @@
 	    <ul>
 		<li>:update A function that is called after each tick of the rack.
 		    It is called with keyword parameters as declared by the
-		    output-keywords argument described above.</li>
+		    input-keywords argument described above.</li>
 		<li>:shutdown An optional function with no arguments that is
 		    called when the rack shuts down.</li>
 	    </ul>
@@ -71,17 +71,17 @@
 	    specific modules to keyword parameters that will be passed to the
 	    update function of the handler. Each mapping entry has the following format:
 	    <ul>
-		<li>key Keyword to be used as keyword parameter when calling
+		<li>key Keyword to be used as keyword input parameter when calling
 		    the update function of the handler, for example :channel-1.
 		    For now this key must be one that is supported by the actual handler. 
-                    For example the Wave-File handler only supports :channel-n
-		    keys.</li>
+                    For example the Wave-File handler only supports input keys
+                    :channel-1 ... :channel-n.</li>
 		<li>module-name Name of the module from which the state of
 		    a certain input/output socket is to be retrieved, for
 		    example \"ADSR\"</li>
-		<li>socket-type Defines if the value of an input-socket is requested
-		    or the value of an output-socket. Must be :input-socket or
-		    :output-socket</li>
+		<li>socket-type Defines if the value of an input-socket is to be
+                    passed to the handler or the value of an output-socket. 
+                    Must be :input-socket or :output-socket</li>
 		<li>socket A keyword that identifies one of the input/output sockets
 		    provided by the module, for example :cv</li>
 	    </ul>
