@@ -1,7 +1,7 @@
 cl-synthesizer
 ==============
 
-An experimental modular audio synthesizer implemented in Common Lisp. The synthesizer is work in progress, as a filter or a mixer are not implemented yet.
+A modular audio synthesizer implemented in Common Lisp. The synthesizer is work in progress.
 
 A synthesizer is represented by an instance of a Rack. A rack holds all the modules and the patches (wiring) between them. Modules are components that consist of input and output sockets and an update function.
 
@@ -1020,4 +1020,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-10-10 20:17:46
+Generated 2018-10-10 22:20:15

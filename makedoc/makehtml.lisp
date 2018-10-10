@@ -92,8 +92,8 @@
 		   'string
 		   "<html><body>"
 		   "<h1>cl-synthesizer</h1>"
-		   "An experimental modular audio synthesizer implemented in Common Lisp. The synthesizer is "
-		   "work in progress, as a filter or a mixer are not implemented yet."
+		   "A modular audio synthesizer implemented in Common Lisp. The synthesizer is "
+		   "work in progress."
 		   "<p>" (documentation 'cl-synthesizer::rack 'type) "</p>"
 		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/synthesizer/rack/example-1.lisp")
 		   "<h2>Installation</h2>"
