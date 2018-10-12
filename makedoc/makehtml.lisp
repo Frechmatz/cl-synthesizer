@@ -151,7 +151,8 @@
 		   (make-function-string 'cl-synthesizer-modules-envelope:envelope :append-separator nil)
 		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/modules/envelope/example-1.lisp")
 		   "<h4>Multiple</h4>"
-		   (make-function-string 'cl-synthesizer-modules-multiple:multiple)
+		   (make-function-string 'cl-synthesizer-modules-multiple:multiple :append-separator nil)
+		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/modules/multiple/example-1.lisp")
 		   "<h4>MIDI Interface</h4>"
 		   (make-function-string 'cl-synthesizer-modules-midi-interface:midi-interface :append-separator nil)
 		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/modules/midi-interface/example-1.lisp")
@@ -160,6 +161,7 @@
 		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/modules/midi-sequencer/example-1.lisp")
 		   "<h4>Fixed Output</h4>"
 		   (make-function-string 'cl-synthesizer-modules-fixed-output:fixed-output :append-separator nil)
+		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/modules/fixed-output/example-1.lisp")
 		   "<h3>Monitor</h3>"
 		   (make-function-string 'cl-synthesizer-monitor:add-monitor :append-separator nil)
 		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/monitor/monitor/example-1.lisp")

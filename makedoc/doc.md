@@ -515,7 +515,32 @@ The module has the following outputs:
 
 *   :output-1 ... :output-n. Where n is the output-count.
 
-* * *
+**Example:**
+
+    (defpackage :cl-synthesizer-modules-multiple-example-1
+      (:use :cl))
+    
+    (in-package :cl-synthesizer-modules-multiple-example-1)
+    
+    (defun example ()
+      "Multiple example"
+      (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+        
+        (cl-synthesizer:add-module
+         rack "LFO"
+         #'cl-synthesizer-modules-vco:vco-linear
+         :base-frequency 1.0 :v-peak 1.0 :f-max 500 :cv-max 5)
+        
+        (cl-synthesizer:add-module rack "MULTIPLE"
+    			       #'cl-synthesizer-modules-multiple:multiple :output-count 5)
+        (cl-synthesizer:add-patch rack "LFO" :sine "MULTIPLE" :input)
+        (cl-synthesizer:add-patch rack "MULTIPLE" :output-1 "LINE-OUT" :channel-1)
+        (cl-synthesizer:add-patch rack "MULTIPLE" :output-2 "LINE-OUT" :channel-2)
+    
+        rack))
+    
+    ;;(cl-synthesizer:play-rack (example) 1)
+    
 
 #### MIDI Interface
 
@@ -702,6 +727,28 @@ Creates a module with a fixed output value. The function has the following argum
 *   :output-socket Optional keyword that declares the output socket identifier to be exposed by the module.
 
 The module has no inputs. The module has one output socket according to the :output-socket argument.
+
+**Example:**
+
+    (defpackage :cl-synthesizer-modules-fixed-output-example-1
+      (:use :cl))
+    
+    (in-package :cl-synthesizer-modules-fixed-output-example-1)
+    
+    (defun example ()
+      "Fixed-Output example"
+      (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+        
+        (cl-synthesizer:add-module rack "FIXED-OUTPUT"
+    			       #'cl-synthesizer-modules-fixed-output:fixed-output
+    			       :value 3.0
+    			       :output-socket :fixed)
+        (cl-synthesizer:add-patch rack "FIXED-OUTPUT" :fixed "LINE-OUT" :channel-1)
+    
+        rack))
+    
+    ;;(cl-synthesizer:play-rack (example) 1)
+    
 
 ### Monitor
 
@@ -1020,4 +1067,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-10-10 22:20:15
+Generated 2018-10-12 21:34:18

@@ -86,6 +86,12 @@
 	       (:module "src/modules/midi-sequencer"
 			:serial t
 			:components ((:file "example-1")))
+	       (:module "src/modules/multiple"
+			:serial t
+			:components ((:file "example-1")))
+	       (:module "src/modules/fixed-output"
+			:serial t
+			:components ((:file "example-1")))
 	       (:module "src/monitor/monitor"
 			:serial t
 			:components ((:file "example-1")))

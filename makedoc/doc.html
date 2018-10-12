@@ -461,7 +461,30 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
     The module has the following outputs:
     <ul>
         <li>:output-1 ... :output-n. Where n is the output-count.</li>
-    </ul></p><hr/><h4>MIDI Interface</h4><p><b>cl-synthesizer-modules-midi-interface:midi-interface</b> name environment &key (voice-count 1) (channel nil) (note-number-to-cv (lambda (note-number) (/ note-number 12))) (play-mode :play-mode-poly) (cv-gate-on 5.0) (cv-gate-off 0.0) (controllers nil) (force-gate-retrigger nil) </p><p>Creates a MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
+    </ul></p><p><b>Example:</b></p><p><pre><code>(defpackage :cl-synthesizer-modules-multiple-example-1
+  (:use :cl))
+
+(in-package :cl-synthesizer-modules-multiple-example-1)
+
+(defun example ()
+  "Multiple example"
+  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+    
+    (cl-synthesizer:add-module
+     rack "LFO"
+     #'cl-synthesizer-modules-vco:vco-linear
+     :base-frequency 1.0 :v-peak 1.0 :f-max 500 :cv-max 5)
+    
+    (cl-synthesizer:add-module rack "MULTIPLE"
+			       #'cl-synthesizer-modules-multiple:multiple :output-count 5)
+    (cl-synthesizer:add-patch rack "LFO" :sine "MULTIPLE" :input)
+    (cl-synthesizer:add-patch rack "MULTIPLE" :output-1 "LINE-OUT" :channel-1)
+    (cl-synthesizer:add-patch rack "MULTIPLE" :output-2 "LINE-OUT" :channel-2)
+
+    rack))
+
+;;(cl-synthesizer:play-rack (example) 1)
+</code></pre></p><h4>MIDI Interface</h4><p><b>cl-synthesizer-modules-midi-interface:midi-interface</b> name environment &key (voice-count 1) (channel nil) (note-number-to-cv (lambda (note-number) (/ note-number 12))) (play-mode :play-mode-poly) (cv-gate-on 5.0) (cv-gate-off 0.0) (controllers nil) (force-gate-retrigger nil) </p><p>Creates a MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
     voice is represented by a control-voltage and a gate signal. The module supports the
     mapping of MIDI CC-Events to arbitary output sockets. The function has the following arguments:
     <ul>
@@ -665,7 +688,25 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 	    identifier to be exposed by the module.</li>
     </ul>
     The module has no inputs.
-    The module has one output socket according to the :output-socket argument.</p><h3>Monitor</h3><p><b>cl-synthesizer-monitor:add-monitor</b> rack monitor-handler socket-mappings &rest additional-handler-args </p><p>Adds a monitor to a rack. A monitor is a high-level Rack hook that
+    The module has one output socket according to the :output-socket argument.</p><p><b>Example:</b></p><p><pre><code>(defpackage :cl-synthesizer-modules-fixed-output-example-1
+  (:use :cl))
+
+(in-package :cl-synthesizer-modules-fixed-output-example-1)
+
+(defun example ()
+  "Fixed-Output example"
+  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+    
+    (cl-synthesizer:add-module rack "FIXED-OUTPUT"
+			       #'cl-synthesizer-modules-fixed-output:fixed-output
+			       :value 3.0
+			       :output-socket :fixed)
+    (cl-synthesizer:add-patch rack "FIXED-OUTPUT" :fixed "LINE-OUT" :channel-1)
+
+    rack))
+
+;;(cl-synthesizer:play-rack (example) 1)
+</code></pre></p><h3>Monitor</h3><p><b>cl-synthesizer-monitor:add-monitor</b> rack monitor-handler socket-mappings &rest additional-handler-args </p><p>Adds a monitor to a rack. A monitor is a high-level Rack hook that
     collects module states (values of input/output sockets) and passes them
     to a monitor handler. A monitor handler can for example be a
     Wave-File-Writer. The function has the following arguments:
@@ -930,4 +971,4 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
     is the "oldest" one.</p><h3>Conditions</h3><b>assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
    because for example a module name is not unique, a patch is added for
    a non-existing module, a patch is added to an already patched socket
-   and so on.</p><hr/><p><small>Generated 2018-10-10  22:20:15</small></p></body></html>
+   and so on.</p><hr/><p><small>Generated 2018-10-12  21:34:18</small></p></body></html>
