@@ -34,9 +34,9 @@
     The current implementation of the play-rack function assumes that an audio device is blocking."
   (let* ((environment (getf rack :environment)))
     (if attach-speaker
-	(attach-audio-device rack (make-audio-device "SPEAKER" environment)))
+	(attach-audio-device rack #'make-audio-device))
     (if attach-midi
-	(attach-midi-in-device rack (make-midi-device "MIDI" environment)))
+	(attach-midi-in-device rack #'make-midi-device))
     (dotimes (i (* duration-seconds (getf environment :sample-rate)))
       (update rack))
     (shutdown rack)
