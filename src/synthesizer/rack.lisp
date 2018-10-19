@@ -2,77 +2,9 @@
 
 ;;
 ;;
-;; Internal modules for Audio and MIDI support
-;;
-;;
-
-(defun line-out (name environment)
-  (declare (ignore name))
-  (let ((device nil)
-	(inputs (cl-synthesizer-macro-util:make-keyword-list
-		 "channel"
-		 (getf environment :channel-count))))
-    (list
-     :set-device (lambda (d) (setf device d))
-     :shutdown (lambda ()
-		 (if device
-		     (let ((f (getf device :shutdown)))
-		       (if f (funcall f)))))
-     :inputs (lambda () inputs)
-     :outputs (lambda () nil)
-     :get-output (lambda (output)
-		   (declare (ignore output))
-		   nil)
-     :update (lambda (&rest args) ;; to be called with lambda list (:channel-1 v :channel-2 v ...)
-	       (if device
-		   (let ((f (getf device :update)))
-		     (if f (apply f args))))))))
-
-(defun midi-in (name environment)
-  (declare (ignore name))
-  (declare (ignore environment))
-  (let ((device nil))
-    (list
-     :set-device (lambda (d) (setf device d))
-     :shutdown (lambda ()
-		 (if device
-		     (let ((f (getf device :shutdown)))
-		       (if f (funcall f)))))
-     :inputs (lambda () nil)
-     :outputs (lambda () '(:midi-events))
-     :get-output (lambda (output)
-		   (declare (ignore output))
-		   (if device
-		       (let ((f (getf device :get-output)))
-			 (if f (funcall f :midi-events) nil))
-		       nil))
-     :update (lambda ()
-	       nil))))
-
-;;
-;;
 ;; Rack
 ;;
 ;;
-
-#|
-(defclass rack ()
-  ((modules :initform nil)
-   (hooks :initform nil)
-   (environment :initform nil)
-   (rack-has-shut-down :initform nil))
-  (:documentation "A synthesizer is represented by an instance of a Rack. A rack holds all the modules 
-    and the patches (wiring) between them. Modules are components that consist of input and output sockets
-    and an update function."))
-
-(defmethod initialize-instance :after ((r rack) &key environment)
-  (declare (optimize (debug 3) (speed 0) (space 0)))
-  (if (not environment)
-      (signal-invalid-arguments-error
-       :format-control "Environment must not be nil"
-       :format-arguments nil))
-  (setf (slot-value r 'environment) environment))
-|#
 
 (defun get-environment (rack)
   "Returns the environment of the rack."
@@ -82,15 +14,17 @@
   (dolist (m (getf rack :modules))
     (setf (slot-value m 'state) state)))
 
-(defun attach-audio-device (rack device)
+(defun attach-audio-device (rack device-ctor)
   "Attaches an audio output device to the rack."
-  (let ((line-out (slot-value (get-rm-module rack "LINE-OUT") 'module)))
-    (funcall (getf line-out :set-device) device)))
-
-(defun attach-midi-in-device (rack device)
+  (add-module rack "SPEAKER" device-ctor)
+  ;; TODO for now not a loop but just two channels
+  (add-patch rack "LINE-OUT" :channel-1 "SPEAKER" :channel-1)
+  (add-patch rack "LINE-OUT" :channel-2 "SPEAKER" :channel-2))
+  
+(defun attach-midi-in-device (rack device-ctor)
   "Attaches a MIDI input device to the rack. The rack currently supports one MIDI input device."
-  (let ((midi-in (slot-value (get-rm-module rack "MIDI-IN") 'module)))
-    (funcall (getf midi-in :set-device) device)))
+  (add-module rack "MIDI" device-ctor)
+  (add-patch rack "MIDI" :midi-events "MIDI-IN" :midi-events))
 
 (defun add-hook (rack hook)
   "Adds a hook to the rack. A hook is called each time after the rack has updated its state.
@@ -102,7 +36,20 @@
    Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>."
   (push hook (getf rack :hooks)))
 
-(defun make-rack (&key environment)
+
+(defun buffer (name environment &key sockets)
+  (declare (ignore name environment))
+  (let ((outputs (make-hash-table :test #'eq)))
+    (list
+     :inputs (lambda() sockets)
+     :outputs (lambda() sockets)
+     :get-output (lambda (output)
+		   (gethash output outputs))
+     :update (lambda (&rest args)
+	       (dolist (socket sockets)
+		 (setf (gethash socket outputs) (getf args socket)))))))
+
+(defun make-rack (&key environment (additional-input-sockets nil) (additional-output-sockets))
   "Creates a rack. The function has the following arguments:
     <ul>
 	<li>:environment The synthesizer environment.</li>
@@ -119,21 +66,55 @@
     The \"MIDI-IN\" module exposes the output socket :midi-events which provides a list
     of midi-events as fired by a MIDI device.
     </p>"
+  (declare (ignore additional-input-sockets additional-output-sockets))
+  (declare (optimize (debug 3) (speed 0) (space 0)))
   (if (not environment)
       (signal-invalid-arguments-error
        :format-control "Environment must not be nil"
        :format-arguments nil))
-  
-  (let ((rack (list
-	       :environment environment
-	       :is-rack t
-	       :modules nil
-	       :hooks nil
-	       :rack-has-shut-down nil)))
-    ;; Add Device Interfaces
-    (add-module rack "LINE-OUT" #'line-out)
-    (add-module rack "MIDI-IN" #'midi-in)
-    rack))
+
+  (let ((input-sockets (list :midi-events))
+	(output-sockets (cl-synthesizer-macro-util:make-keyword-list
+		 "channel"
+		 (getf environment :channel-count)))
+	(input-args nil)
+	(this nil)
+	)
+    (let ((rack (list
+		 :environment environment
+		 :is-rack t
+		 :modules nil
+		 :hooks nil
+		 :rack-has-shut-down nil
+		 :update (lambda (&rest args)
+			   (setf input-args args)
+			   ;; todo: update inner modules
+			   ;; via call to update-rack
+			   nil)
+		 :get-output (lambda (socket)
+			       (funcall (getf (get-module this "LINE-OUT") :get-output) socket))
+		 )))
+      (setf this rack)
+      ;; Add Device Interfaces
+      (add-module rack "MIDI-IN"
+		  (lambda (name environment)
+		    (declare (ignore name environment))
+		    (list
+		     :inputs (lambda() input-sockets)
+		     :outputs (lambda() input-sockets)
+		     :update (lambda (&rest args)
+			       ;;(if (getf args :midi-events)
+			       ;;  (break))
+			       (setf input-args args)
+			       nil)
+		     :get-output (lambda (socket)
+				   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
+				   ;;(if (getf input-args socket)
+				   ;;(format t "Got midi event~%"))
+				   (getf input-args socket)))))
+      
+      (add-module rack "LINE-OUT" #'buffer :sockets output-sockets)
+      rack)))
 
 ;
 ;; Rack-Module
