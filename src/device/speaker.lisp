@@ -57,6 +57,8 @@
 		   (cl-out123:play out buffer buffer-pos)
 		   (setf buffer-pos 0)))))
       (list
+       :inputs (lambda() inputs)
+       :outputs (lambda() nil)
        :update (lambda (&rest args)
 		 (init-out)
 		 (flush-buffer nil)
