@@ -55,6 +55,7 @@
 ;;
 ;;
 
+#|
 (defclass rack ()
   ((modules :initform nil)
    (hooks :initform nil)
@@ -71,13 +72,14 @@
        :format-control "Environment must not be nil"
        :format-arguments nil))
   (setf (slot-value r 'environment) environment))
+|#
 
 (defun get-environment (rack)
   "Returns the environment of the rack."
-  (slot-value rack 'environment))
+  (getf rack :environment))
 
 (defun set-state (rack state)
-  (dolist (m (slot-value rack 'modules))
+  (dolist (m (getf rack :modules))
     (setf (slot-value m 'state) state)))
 
 (defun attach-audio-device (rack device)
@@ -98,7 +100,7 @@
       <li>:shutdown A function with no arguments that is called when the rack is shutting down.</li>
    </ul>
    Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>."
-  (push hook (slot-value rack 'hooks)))
+  (push hook (getf rack :hooks)))
 
 (defun make-rack (&key environment)
   "Creates a rack. The function has the following arguments:
@@ -117,18 +119,23 @@
     The \"MIDI-IN\" module exposes the output socket :midi-events which provides a list
     of midi-events as fired by a MIDI device.
     </p>"
-  (let ((cur-rack (make-instance 'rack :environment environment)))
+  (if (not environment)
+      (signal-invalid-arguments-error
+       :format-control "Environment must not be nil"
+       :format-arguments nil))
+  
+  (let ((rack (list
+	       :environment environment
+	       :is-rack t
+	       :modules nil
+	       :hooks nil
+	       :rack-has-shut-down nil)))
     ;; Add Device Interfaces
-    (add-module cur-rack "LINE-OUT" #'line-out)
-    (add-module cur-rack "MIDI-IN" #'midi-in)
-    cur-rack))
+    (add-module rack "LINE-OUT" #'line-out)
+    (add-module rack "MIDI-IN" #'midi-in)
+    rack))
 
-
-;;
-;; Helper classes
-;;
-
-;;
+;
 ;; Rack-Module
 ;; 
 
@@ -213,7 +220,7 @@
 
 (defun get-rm-module (rack name)
   "Helper function that returns internal representation of a module or nil."
-  (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (slot-value rack 'modules)))
+  (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (getf rack :modules)))
 
 (defun get-module (rack name)
   "Get a module of a rack. The function has the following arguments:
@@ -223,7 +230,7 @@
     </ul>
    Returns the module (represented as a property list) or nil if a module
    with the given name has not been added to the rack."
-  (let ((rm (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (slot-value rack 'modules))))
+  (let ((rm (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (getf rack :modules))))
     (if rm
 	(slot-value rm 'module)
 	nil)))
@@ -272,11 +279,11 @@
        :format-control "A module with name ~a has already been added to the rack"
        :format-arguments (list module-name)))
 
-  (let ((environment (slot-value rack 'environment)))
+  (let ((environment (getf rack :environment)))
     (let ((rm (make-instance 'rack-module
 			     :module (apply module-fn `(,module-name ,environment ,@args))
 			     :name module-name)))
-      (push rm (slot-value rack 'modules))
+      (push rm (getf rack :modules))
       nil)))
 
 (defun add-patch (rack source-rm-name source-output-socket destination-rm-name destination-input-socket)
@@ -318,12 +325,10 @@
 	(signal-assembly-error
 	 :format-control "Module ~a does not have output socket ~a"
 	 :format-arguments (list (get-rack-module-name source-rm) source-output-socket)))
-
     (if (not (find destination-input-socket (get-rack-module-input-sockets destination-rm)))
 	(signal-assembly-error
 	 :format-control "Module ~a does not have input socket ~a"
 	 :format-arguments (list (get-rack-module-name destination-rm) destination-input-socket)))
-    
     (let ((p (get-rack-module-input-patch destination-rm destination-input-socket)))
       (if p
 	  (signal-assembly-error
@@ -354,7 +359,7 @@
     If the rack has already been shut down the function immediately returns <b>nil</b>.
     Othwerwise it updates the rack and returns <b>t</b>." 
   ;; (declare (optimize (debug 3) (speed 0) (space 0)))
-  (if (slot-value rack 'rack-has-shut-down)
+  (if (getf rack :rack-has-shut-down)
       nil
       (progn
 	(set-state rack :PROCESS-TICK)
@@ -392,22 +397,22 @@
 			 (set-rack-module-state rm :PROCESSED-TICK)
 			 ))))))
 	  ;; for all modules
-	  (dolist (rm (slot-value rack 'modules))
+	  (dolist (rm (getf rack :modules))
 	    (update-rm rm))
 	  ;; for all hooks
-	  (dolist (m (slot-value rack 'hooks))
+	  (dolist (m (getf rack :hooks))
 	    (funcall (getf m :update))))
 	  t)))
 
 (defun shutdown (rack)
   "Shuts the rack down by calling the shutdown handlers of all modules, devices and hooks of the rack.
    If the rack has already been shut down the function does not call any handlers."
-  (if (not (slot-value rack 'rack-has-shut-down))
+  (if (not (getf rack :rack-has-shut-down))
       (progn
-	(setf (slot-value rack 'rack-has-shut-down) t)
-	(dolist (rm (slot-value rack 'modules))
+	(setf (getf rack :rack-has-shut-down) t)
+	(dolist (rm (getf rack :modules))
 	  (funcall (get-rack-module-shutdown-fn rm)))
-	(dolist (m (slot-value rack 'hooks))
+	(dolist (m (getf rack :hooks))
 	  (if (getf m :shutdown)
 	      (funcall (getf m :shutdown)))))))
 

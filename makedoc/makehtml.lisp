@@ -94,7 +94,10 @@
 		   "<h1>cl-synthesizer</h1>"
 		   "A modular audio synthesizer implemented in Common Lisp. The synthesizer is "
 		   "work in progress."
-		   "<p>" (documentation 'cl-synthesizer::rack 'type) "</p>"
+		   ;;"<p>" (documentation 'cl-synthesizer::rack 'type) "</p>"
+		   "<p>A synthesizer is represented by an instance of a Rack. A rack holds all the modules 
+                    and the patches (wiring) between them. Modules are components that consist of input and output sockets
+                    and an update function.</p>"
 		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/synthesizer/rack/example-1.lisp")
 		   "<h2>Installation</h2>"
 		   (read-text-file "/Users/olli/src/lisp/cl-synthesizer/makedoc/installation.html")

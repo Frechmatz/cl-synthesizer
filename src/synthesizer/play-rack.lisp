@@ -32,7 +32,7 @@
             is instantiated and attached to the rack.</li>
     </ul>
     The current implementation of the play-rack function assumes that an audio device is blocking."
-  (let* ((environment (slot-value rack 'environment)))
+  (let* ((environment (getf rack :environment)))
     (if attach-speaker
 	(attach-audio-device rack (make-audio-device "SPEAKER" environment)))
     (if attach-midi
