@@ -65,6 +65,13 @@
     </p><p>
     The \"MIDI-IN\" module exposes the output socket :midi-events which provides a list
     of midi-events as fired by a MIDI device.
+    </p><p>
+    The update function of the rack calls the update function of all its modules.
+    If the rack has already been shut down it immediately returns <b>nil</b>.
+    Othwerwise it returns <b>t</b>.
+    </p><p>
+    The shutdown function shuts the rack down by calling the shutdown handlers of all modules, devices 
+    and hooks of the rack. If the rack has already been shut down the function does not call any handlers.
     </p>"
   (declare (ignore additional-input-sockets additional-output-sockets))
   (declare (optimize (debug 3) (speed 0) (space 0)))
@@ -75,25 +82,79 @@
 
   (let ((input-sockets (list :midi-events))
 	(output-sockets (cl-synthesizer-macro-util:make-keyword-list
-		 "channel"
-		 (getf environment :channel-count)))
+			 "channel"
+			 (getf environment :channel-count)))
 	(input-args nil)
-	(this nil)
-	)
-    (let ((rack (list
-		 :environment environment
-		 :is-rack t
-		 :modules nil
-		 :hooks nil
-		 :rack-has-shut-down nil
-		 :update (lambda (&rest args)
-			   (setf input-args args)
-			   ;; todo: update inner modules
-			   ;; via call to update-rack
-			   nil)
-		 :get-output (lambda (socket)
-			       (funcall (getf (get-module this "LINE-OUT") :get-output) socket))
-		 )))
+	(this nil))
+    (let ((rack
+	   (list
+	    :environment environment
+	    :is-rack t ;; TODO Do we need this flag?
+	    :modules nil ;; TODO Move to outer closure context
+	    :hooks nil ;; TODO Move to outer closure context
+	    :rack-has-shut-down nil ;; TODO Move to outer closure context
+	    :update
+	    (lambda (&rest args)
+	      (declare (ignore args))
+	      (declare (optimize (debug 3) (speed 0) (space 0)))
+	      ;;(break)
+	      (if (getf this :rack-has-shut-down)
+		  nil
+		  (progn
+		    (set-state this :PROCESS-TICK)
+		    (labels
+			((update-rm (rm)
+			   ;; Update a module
+			   ;; If module is already updating do nothing
+			   ;; Otherwise update all input modules and then update outputs
+			   (let ((state (get-rack-module-state rm)))
+			     (if (not (eq state :PROCESS-TICK))
+				 nil ;; module is already processing -> do nothing
+				 (progn
+				   (set-rack-module-state rm :PROCESSING-TICK)
+				   ;; update input modules
+				   (dolist (cur-input-socket (get-rack-module-input-sockets rm))
+				     (let ((patch (get-rack-module-input-patch rm cur-input-socket)))
+				       (if patch 
+					   (update-rm (get-rack-patch-module patch)))))
+				   ;; update this
+				   (let ((lambdalist nil))
+				     ;; collect inputs
+				     (dolist (cur-input-socket (get-rack-module-input-sockets rm))
+				       (let ((patch (get-rack-module-input-patch rm cur-input-socket))
+					     (socket-input-value nil))
+					 (if patch
+					     (let* ((source-rm (get-rack-patch-module patch))
+						    (source-rm-socket (get-rack-patch-socket patch))
+						    (output-fn (get-rack-module-output-fn source-rm)))
+					       (setf socket-input-value (funcall output-fn source-rm-socket))))
+					 (push cur-input-socket lambdalist)
+					 (push socket-input-value lambdalist)))
+				     ;; call update function on this
+				     (apply (get-rack-module-update-fn rm) (nreverse lambdalist))
+				     (set-rack-module-state rm :PROCESSED-TICK)
+				     ))))))
+		      ;; for all modules
+		      (dolist (rm (getf this :modules))
+			(update-rm rm))
+		      ;; for all hooks
+		      (dolist (m (getf this :hooks))
+			(funcall (getf m :update))))
+		    t)))
+	    :get-output
+	    (lambda (socket)
+	      (funcall (getf (get-module this "LINE-OUT") :get-output) socket))
+	    :shutdown
+	    (lambda()
+	      (if (not (getf this :rack-has-shut-down))
+		  (progn
+		    (setf (getf this :rack-has-shut-down) t)
+		    (dolist (rm (getf this :modules))
+		      (funcall (get-rack-module-shutdown-fn rm)))
+		    (dolist (m (getf this :hooks))
+		      (if (getf m :shutdown)
+			  (funcall (getf m :shutdown)))))))
+	    )))
       (setf this rack)
       ;; Add Device Interfaces
       (add-module rack "MIDI-IN"
@@ -116,7 +177,7 @@
       (add-module rack "LINE-OUT" #'buffer :sockets output-sockets)
       rack)))
 
-;
+;;
 ;; Rack-Module
 ;; 
 
@@ -334,69 +395,6 @@
 	  (make-rack-module-patch source-rm source-output-socket))
     (setf (gethash source-output-socket (slot-value source-rm 'output-patches))
 	  (make-rack-module-patch destination-rm destination-input-socket))))
-
-(defun update (rack)
-  "Updates the state of the rack by calling the update function of all its modules.
-    If the rack has already been shut down the function immediately returns <b>nil</b>.
-    Othwerwise it updates the rack and returns <b>t</b>." 
-  ;; (declare (optimize (debug 3) (speed 0) (space 0)))
-  (if (getf rack :rack-has-shut-down)
-      nil
-      (progn
-	(set-state rack :PROCESS-TICK)
-	(labels
-	    ((update-rm (rm)
-	       ;; Update a module
-	       ;; If module is already updating do nothing
-	       ;; Otherwise update all input modules and then update outputs
-	       (let ((state (get-rack-module-state rm)))
-		 (if (not (eq state :PROCESS-TICK))
-		     (progn
-		       ;; module is already processing -> do nothing
-		       nil)
-		     (progn
-		       (set-rack-module-state rm :PROCESSING-TICK)
-		       ;; update input modules
-		       (dolist (cur-input-socket (get-rack-module-input-sockets rm))
-			 (let ((patch (get-rack-module-input-patch rm cur-input-socket)))
-			   (if patch 
-			       (update-rm (get-rack-patch-module patch)))))
-		       ;; update this
-		       (let ((lambdalist nil))
-			 ;; collect inputs
-			 (dolist (cur-input-socket (get-rack-module-input-sockets rm))
-			   (let ((patch (get-rack-module-input-patch rm cur-input-socket)) (socket-input-value nil))
-			     (if patch
-				 (let* ((source-rm (get-rack-patch-module patch))
-					(source-rm-socket (get-rack-patch-socket patch))
-					(output-fn (get-rack-module-output-fn source-rm)))
-				   (setf socket-input-value (funcall output-fn source-rm-socket))))
-			     (push cur-input-socket lambdalist)
-			     (push socket-input-value lambdalist)))
-			 ;; call update function on this
-			 (apply (get-rack-module-update-fn rm) (nreverse lambdalist))
-			 (set-rack-module-state rm :PROCESSED-TICK)
-			 ))))))
-	  ;; for all modules
-	  (dolist (rm (getf rack :modules))
-	    (update-rm rm))
-	  ;; for all hooks
-	  (dolist (m (getf rack :hooks))
-	    (funcall (getf m :update))))
-	  t)))
-
-(defun shutdown (rack)
-  "Shuts the rack down by calling the shutdown handlers of all modules, devices and hooks of the rack.
-   If the rack has already been shut down the function does not call any handlers."
-  (if (not (getf rack :rack-has-shut-down))
-      (progn
-	(setf (getf rack :rack-has-shut-down) t)
-	(dolist (rm (getf rack :modules))
-	  (funcall (get-rack-module-shutdown-fn rm)))
-	(dolist (m (getf rack :hooks))
-	  (if (getf m :shutdown)
-	      (funcall (getf m :shutdown)))))))
-
   
 (defun get-patch (rack module-name socket-type socket)
   "Returns the destination module and input/output socket, to which a given

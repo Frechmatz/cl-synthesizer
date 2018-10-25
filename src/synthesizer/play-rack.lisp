@@ -37,8 +37,9 @@
 	(attach-audio-device rack #'make-audio-device))
     (if attach-midi
 	(attach-midi-in-device rack #'make-midi-device))
-    (dotimes (i (* duration-seconds (getf environment :sample-rate)))
-      (update rack))
-    (shutdown rack)
+    (let ((f (getf rack :update)))
+      (dotimes (i (* duration-seconds (getf environment :sample-rate)))
+	(funcall f nil)))
+    (funcall (getf rack :shutdown))
     "DONE"))
 

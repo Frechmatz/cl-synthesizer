@@ -14,8 +14,6 @@
    :add-hook
    :get-module
    :get-patch
-   :update
-   :shutdown
    :attach-audio-device
    :attach-midi-in-device
    :play-rack))
