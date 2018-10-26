@@ -58,7 +58,8 @@
 		   "Returns list of MIDI-Events where the oldest one is the first entry of the list"
 		   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
 		   (declare (ignore output))
-		   cur-midi-events))))
+		   cur-midi-events)
+     :shutdown (lambda() nil))))
 
 
      

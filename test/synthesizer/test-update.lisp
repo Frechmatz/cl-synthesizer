@@ -6,7 +6,7 @@
     (cl-synthesizer:add-module rack "Counter" #'cl-synthesizer-test::test-module-counter)
     (cl-synthesizer:add-module rack "Multiplier" #'cl-synthesizer-test::test-module-multiply-by-two)
     ;; plus 2 default modules of the rack
-    (assert-eq 6 (length (getf rack :modules)))
+    (assert-eq 4 (length (getf rack :modules)))
     (let ((found-module-1 (cl-synthesizer::get-rm-module rack "Counter"))
 	  (found-module-2 (cl-synthesizer::get-rm-module rack "Multiplier")))
       (assert-true found-module-1)
@@ -40,7 +40,7 @@
     (cl-synthesizer:add-module rack "Counter 2" #'cl-synthesizer-test::test-module-counter)
     (cl-synthesizer:add-module rack "Adder" #'cl-synthesizer-test::test-module-adder)
     ;; plus 2 default modules of the rack
-    (assert-eq 7 (length (getf rack :modules)))
+    (assert-eq 5 (length (getf rack :modules)))
     (let ((found-module-1 (cl-synthesizer::get-rm-module rack "Counter 1"))
 	  (found-module-2 (cl-synthesizer::get-rm-module rack "Counter 2"))
 	  (found-module-3 (cl-synthesizer::get-rm-module rack "Adder")))
@@ -84,7 +84,7 @@
     (cl-synthesizer:add-module rack "Counter" #'cl-synthesizer-test::test-module-counter)
     (cl-synthesizer:add-module rack "Adder" #'cl-synthesizer-test::test-module-adder)
     ;; plus 2 default modules of the rack
-    (assert-eq 6 (length (getf rack :modules)))
+    (assert-eq 4 (length (getf rack :modules)))
     (let ((found-module-1 (cl-synthesizer::get-rm-module rack "Counter"))
 	  (found-module-2 (cl-synthesizer::get-rm-module rack "Adder")))
       (assert-true found-module-1)

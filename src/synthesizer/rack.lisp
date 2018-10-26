@@ -31,18 +31,6 @@
 	(slot-value rm 'module)
 	nil)))
 
-(defun attach-audio-device (rack device-ctor)
-  "Attaches an audio output device to the rack."
-  (add-module rack "SPEAKER" device-ctor)
-  ;; TODO for now not a loop but just two channels
-  (add-patch rack "LINE-OUT" :channel-1 "SPEAKER" :channel-1)
-  (add-patch rack "LINE-OUT" :channel-2 "SPEAKER" :channel-2))
-  
-(defun attach-midi-in-device (rack device-ctor)
-  "Attaches a MIDI input device to the rack. The rack currently supports one MIDI input device."
-  (add-module rack "MIDI" device-ctor)
-  (add-patch rack "MIDI" :midi-events "MIDI-IN" :midi-events))
-
 (defun add-hook (rack hook)
   "Adds a hook to the rack. A hook is called each time after the rack has updated its state.
    A hook consists a property list with the following keys:
@@ -183,40 +171,6 @@
 		    output-module))
       (setf output-rm (get-rm-module rack "OUTPUT"))
 
-      ;; Add MIDI-IN Interface (Legacy, to be replaced with rack input sockets)
-      (add-module
-       rack "MIDI-IN"
-       (let ((input-args nil))
-	 (lambda (name environment)
-	   (declare (ignore name environment))
-	   (list
-	    :inputs (lambda() '(:midi-events))
-	    :outputs (lambda() '(:midi-events))
-	    :update (lambda (&rest args)
-		      (setf input-args args)
-		      nil)
-	    :get-output (lambda (socket)
-			  (getf input-args socket))))))
-
-      ;; Add LINE-OUT Interface (Legacy, to be replaced with rack output sockets)
-      (add-module
-       rack "LINE-OUT"
-       (lambda (name environment)
-	 (declare (ignore name))
-	 (let ((sockets
-		(cl-synthesizer-macro-util:make-keyword-list
-		 "channel"
-		 (getf environment :channel-count)))
-	       (input-args))
-	   (list
-	    :inputs (lambda() sockets)
-	    :outputs (lambda() sockets)
-	    :update (lambda (&rest args)
-		      (setf input-args args)
-		      nil)
-	    :get-output (lambda (socket)
-			  (getf input-args socket))))))
-      
       rack)))
 
 ;;

@@ -5,7 +5,7 @@
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module rack "Module 1" #'cl-synthesizer-test::test-module)
     ;; Module 1 plus 2 default modules of the rack
-    (assert-eq 5 (length (getf rack :modules)))
+    (assert-eq 3 (length (getf rack :modules)))
     (assert-true (cl-synthesizer::get-rm-module rack "Module 1"))))
 
 (define-test test-add-module-to-rack-2 ()
@@ -13,7 +13,7 @@
     (cl-synthesizer:add-module rack "Module 1" #'cl-synthesizer-test::test-module)
     (cl-synthesizer:add-module rack "Module 2" #'cl-synthesizer-test::test-module)
     ;; plus 2 default modules of the rack
-    (assert-eq 6 (length (getf rack :modules)))
+    (assert-eq 4 (length (getf rack :modules)))
     (let ((found-module-1 (cl-synthesizer::get-rm-module rack "Module 1"))
 	  (found-module-2 (cl-synthesizer::get-rm-module rack "Module 2")))
       (assert-true found-module-1)
@@ -28,7 +28,7 @@
     (expect-assembly-exception
       (cl-synthesizer:add-module rack "Module 1" #'cl-synthesizer-test::test-module))
     ;; plus 2 default modules of the rack
-    (assert-eq 5 (length (getf rack :modules)))
+    (assert-eq 3 (length (getf rack :modules)))
     (let ((found-module-1 (cl-synthesizer::get-rm-module rack "Module 1"))
 	  (found-module-2 (cl-synthesizer::get-rm-module rack "Module 2")))
       (assert-true found-module-1)
