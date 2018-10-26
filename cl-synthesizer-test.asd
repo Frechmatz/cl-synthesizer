@@ -82,5 +82,6 @@
 			:serial t
 			:components ((:file "test-assembly")
 				     (:file "test-patching")
-				     (:file "test-update")))))
+				     (:file "test-update")
+				     (:file "test-nested-racks")))))
 

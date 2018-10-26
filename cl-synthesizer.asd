@@ -63,7 +63,8 @@
 	       ;;
 	       (:module "src/synthesizer/rack"
 			:serial t
-			:components ((:file "example-1")))
+			:components ((:file "example-1")
+				     (:file "example-2")))
 	       (:module "src/midi/cc-handler"
 			:serial t
 			:components ((:file "example-1")
