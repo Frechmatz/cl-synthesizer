@@ -80,12 +80,7 @@
        :format-control "Environment must not be nil"
        :format-arguments nil))
 
-  (let ((input-sockets (list :midi-events))
-	(output-sockets (cl-synthesizer-macro-util:make-keyword-list
-			 "channel"
-			 (getf environment :channel-count)))
-	(input-args nil)
-	(this nil))
+  (let ((this nil))
     (let ((rack
 	   (list
 	    :environment environment
@@ -156,28 +151,31 @@
 			  (funcall (getf m :shutdown)))))))
 	    )))
       (setf this rack)
+
       ;; Add Device Interfaces
-      (add-module rack "MIDI-IN"
-		  (lambda (name environment)
-		    (declare (ignore name environment))
-		    (list
-		     :inputs (lambda() input-sockets)
-		     :outputs (lambda() input-sockets)
-		     :update (lambda (&rest args)
-			       ;;(if (getf args :midi-events)
-			       ;;  (break))
-			       (setf input-args args)
-			       nil)
-		     :get-output (lambda (socket)
-				   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-				   ;;(if (getf input-args socket)
-				   ;;(format t "Got midi event~%"))
-				   (getf input-args socket)))))
-      
-      (add-module rack "LINE-OUT" #'buffer :sockets output-sockets)
+      (add-module
+       rack "MIDI-IN"
+       (let ((input-args nil))
+	 (lambda (name environment)
+	   (declare (ignore name environment))
+	   (list
+	    :inputs (lambda() '(:midi-events))
+	    :outputs (lambda() '(:midi-events))
+	    :update (lambda (&rest args)
+		      (setf input-args args)
+		      nil)
+	    :get-output (lambda (socket)
+			  (getf input-args socket))))))
+
+      (add-module
+       rack "LINE-OUT" #'buffer :sockets
+       (cl-synthesizer-macro-util:make-keyword-list
+	"channel"
+	(getf environment :channel-count)))
+
       rack)))
 
-;;
+;:
 ;; Rack-Module
 ;; 
 
