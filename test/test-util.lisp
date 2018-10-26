@@ -38,7 +38,7 @@
      )))
 
 (defun test-module-multiply-by-two (name environment)
-  "Module that increments its output on each tick"
+  "Module that multiplies its input by two"
   (declare (ignore environment name))
   (let ((out 0))
     (list
