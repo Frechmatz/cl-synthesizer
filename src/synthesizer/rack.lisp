@@ -138,7 +138,9 @@
 		    t)))
 	    :get-output
 	    (lambda (socket)
-	      (funcall (getf (get-module this "LINE-OUT") :get-output) socket))
+	      (declare (ignore socket))
+	      ;; todo get output socket of output buffer
+	      nil)
 	    :shutdown
 	    (lambda()
 	      (if (not (getf this :rack-has-shut-down))
@@ -152,7 +154,7 @@
 	    )))
       (setf this rack)
 
-      ;; Add Device Interfaces
+      ;; Add MIDI-IN Interface
       (add-module
        rack "MIDI-IN"
        (let ((input-args nil))
@@ -167,14 +169,26 @@
 	    :get-output (lambda (socket)
 			  (getf input-args socket))))))
 
+      ;; Add LINE-OUT Interface
       (add-module
-       rack "LINE-OUT" #'buffer :sockets
-       (cl-synthesizer-macro-util:make-keyword-list
-	"channel"
-	(getf environment :channel-count)))
-
+       rack "LINE-OUT"
+       (lambda (name environment)
+	 (declare (ignore name))
+	 (let ((sockets
+		(cl-synthesizer-macro-util:make-keyword-list
+		 "channel"
+		 (getf environment :channel-count)))
+	       (input-args))
+	   (list
+	    :inputs (lambda() sockets)
+	    :outputs (lambda() sockets)
+	    :update (lambda (&rest args)
+		      (setf input-args args)
+		      nil)
+	    :get-output (lambda (socket)
+			  (getf input-args socket))))))
+      
       rack)))
-
 ;:
 ;; Rack-Module
 ;; 
