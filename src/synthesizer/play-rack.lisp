@@ -57,10 +57,8 @@
 		*audio-device-settings*))
 	      (getter (make-audio-output-getter)))
 	  (values
-	   (lambda () 
-	     (apply (getf device :update) (funcall getter)))
-	   (lambda ()
-	     (funcall (getf device :shutdown))))))))
+	   (lambda () (apply (getf device :update) (funcall getter)))
+	   (lambda () (funcall (getf device :shutdown))))))))
 
 (defun make-midi-handlers (rack environment attach-midi midi-input-socket)
   (declare (ignore rack))
@@ -76,10 +74,8 @@
 	(let* ((device (make-device "MIDI" environment nil *midi-device-settings*))
 	       (getter (make-midi-input-getter device)))
 	  (values
-	   (lambda () 
-	     (funcall getter))
-	   (lambda ()
-	     (funcall (getf device :shutdown))))))))
+	   (lambda () (funcall getter))
+	   (lambda () (funcall (getf device :shutdown))))))))
 	
 
 (defun play-rack (rack duration-seconds &key (attach-audio nil) (audio-output-sockets nil)
