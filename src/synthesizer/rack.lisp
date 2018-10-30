@@ -1,6 +1,86 @@
 (in-package :cl-synthesizer)
 
 ;;
+;; Rack-Module
+;; 
+
+(defclass rack-module ()
+  ((state :initarg nil :documentation ":PROCESS-TICK, :PROCESSING-TICK, :TICK-PROCESSED")
+   (name :initarg nil)
+   (module :initarg nil)
+   (input-patches :initform (make-hash-table))
+   (output-patches :initform (make-hash-table)))
+  (:documentation "Represents a module holding input/output connections to other modules"))
+
+(defmethod initialize-instance :after ((rm rack-module) &key name module)
+  (setf (slot-value rm 'name) name)
+  (setf (slot-value rm 'module) module))
+
+(defun get-rack-module-name (rm)
+  (slot-value rm 'name))
+
+(defun get-rack-module-state (rm)
+  (slot-value rm 'state))
+
+(defun set-rack-module-state (rm state)
+  (setf (slot-value rm 'state) state))
+
+(defun get-rack-module-input-sockets (rm)
+  (let ((f (getf (slot-value rm 'module) :inputs)))
+    (if f (funcall f) nil)))
+
+(defun get-rack-module-output-sockets (rm)
+  (let ((f (getf (slot-value rm 'module) :outputs)))
+    (if f (funcall f) nil)))
+
+(defun get-rack-module-update-fn (rm)
+  (getf (slot-value rm 'module) :update))
+
+(defun get-rack-module-module (rm)
+  (slot-value rm 'module))
+
+(defun get-rack-module-output-fn (rm)
+  (getf (slot-value rm 'module) :get-output))
+
+(defun get-rack-module-output (rm socket)
+  (funcall (getf (slot-value rm 'module) :get-output) socket))
+
+(defun get-rack-module-shutdown-fn (rm)
+  (let ((f (getf (slot-value rm 'module) :shutdown)))
+    (if f f (lambda() ()))))
+
+(defun get-rack-module-input-patch (rm input-socket)
+  (gethash input-socket (slot-value rm 'input-patches)))
+
+(defun get-rack-module-output-patch (rm output-socket)
+  (gethash output-socket (slot-value rm 'output-patches)))
+
+
+;;
+;; Patch
+;;
+
+(defclass rack-module-patch ()
+  ((rack-module :initarg nil)
+   (socket :initarg nil))
+  (:documentation "Represents an end-point to which an input/output socket of a module is connected."))
+
+(defun get-rack-patch-target-name (patch)
+  (get-rack-module-name (slot-value patch 'rack-module)))
+
+(defun get-rack-patch-socket (patch)
+  (slot-value patch 'socket))
+
+(defun get-rack-patch-module (patch)
+  (slot-value patch 'rack-module))
+
+(defun make-rack-module-patch (rm socket)
+  (let ((c (make-instance 'rack-module-patch)))
+    (setf (slot-value c 'rack-module) rm)
+    (setf (slot-value c 'socket) socket)
+    c))
+
+;;
 ;;
 ;; Rack
 ;;
@@ -41,54 +121,91 @@
    Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>."
   (push hook (getf rack :hooks)))
 
+(defun add-module (rack module-name module-fn &rest args)
+  "Adds a module to a rack. The function has the following arguments:
+    <ul>
+	<li>rack The rack.</li>
+	<li>module-name Unique name of the module, for example \"VCO-1\". If the name
+	    is already used by another module an assembly-error is signalled.</li>
+	<li>module-fn A function that instantiates the module. This function is
+	    called by the rack with the following arguments:
+	    <ul>
+		<li>name Name of the module.</li>
+		<li>environment The synthesizer environment.</li>
+		<li>module-args Any additional arguments passed to add-module.</li>
+	    </ul>
+	    The module instantiation function must return a property list with the following keys:
+	    <ul>
+		<li>:inputs A function with no arguments that returns a list of keywords that represent the
+		    input sockets to be exposed by the module.</li>
+		<li>:outputs A function with no arguments that returns a list of keywords that represent the
+		    output sockets to be exposed by the module.</li>
+		<li>:update A function that is called with the values of the modules input sockets
+                    in order to update the state of the module (the state of its output sockets).
+		    The value of each input socket is passed via a keyword parameter.</li>
+		<li>:get-output A function that is called in order to get the value of a specific
+		    output socket. The function is called with a keyword that identifies the output socket
+		    whose state is to be returned. The function must not modify the value
+		    of the given or any other output socket.</li>
+		<li>:shutdown An optional function with no arguments that is called when the rack
+		    is shutting down.</li>
+	    </ul>
+            <p>
+	    The input/output socket lists exposed by the module are not buffered by the rack. Therefore the
+	    module should return either a quoted list or keep it in an internal variable. The module must
+	    not add or remove input/output sockets after it has been instantiated.
+            </p>
+	</li>
+	<li>&rest args Arbitrary additional arguments to be passed to the module instantiation function.
+	    These arguments typically consist of keyword parameters.</li>
+    </ul>"
+  (if (get-rm-module rack module-name)
+      (signal-assembly-error
+       :format-control "A module with name ~a has already been added to the rack"
+       :format-arguments (list module-name)))
+
+  (let ((environment (getf rack :environment)))
+    (let ((rm (make-instance 'rack-module
+			     :module (apply module-fn `(,module-name ,environment ,@args))
+			     :name module-name)))
+      (let ((m (get-rack-module-module rm)))
+	(dolist (property '(:inputs :outputs :update :get-output))
+	  (if (not (functionp (getf m property)))
+	      (signal-assembly-error
+	       :format-control "Invalid module ~a: Property ~a must be a function but is ~a"
+	       :format-arguments (list module-name property (getf m property))))))
+
+      (push rm (getf rack :modules))
+      nil)))
+
 (defun make-rack (&key environment (input-sockets nil) (output-sockets nil))
-  "Creates a rack. The function has the following arguments:
+  "Creates a rack. A rack is a module container and also a module, which means that racks 
+   can be added to other racks. The function has the following arguments:
     <ul>
 	<li>:environment The synthesizer environment.</li>
+        <li>:input-sockets The input sockets to be exposed by the rack. The inputs
+        can be accessed for patching of inner modules of the rack via the virtual 
+        module \"INPUT\".</li>
+        <li>:output-sockets The output sockets to be exposed by the rack. The outputs
+        can be accessed for patching of inner modules of the rack via the virtual 
+        module \"OUTPUT\".</li>
     </ul>
-    A rack is initialized with the virtual modules \"LINE-OUT\" and 
-    \"MIDI-IN\" that represent the interface to so called devices.
-    A device is a system specific implementation that provides audio
-    output or integration of MIDI controllers. 
     <p>    
-    The \"LINE-OUT\" module
-    exposes the input sockets :channel-1 ... :channel-n where n is the
-    number of channels as given by the :channel-count property of the environment.
-    </p><p>
-    The \"MIDI-IN\" module exposes the output socket :midi-events which provides a list
-    of midi-events as fired by a MIDI device.
-    </p><p>
-    The update function of the rack calls the update function of all its modules.
-    If the rack has already been shut down it immediately returns <b>nil</b>.
+    The update function of the rack calls the update function of all modules that have
+    been added to the rack. If the rack has already been shut down it immediately returns <b>nil</b>.
     Othwerwise it returns <b>t</b>.
     </p><p>
-    The shutdown function shuts the rack down by calling the shutdown handlers of all modules, devices 
+    The shutdown function shuts the rack down by calling the shutdown handlers of all modules 
     and hooks of the rack. If the rack has already been shut down the function does not call any handlers.
-    </p>"
-  (declare (optimize (debug 3) (speed 0) (space 0)))
+    </p>
+    <p>See also: add-module</p>"
+  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (if (not environment)
       (signal-invalid-arguments-error
        :format-control "Environment must not be nil"
        :format-arguments nil))
 
-  (let* ((this nil)
-	 (has-shut-down nil)
-	 (input-rm nil)
-	 (inputs nil)
-	 (input-module
-	  (list
-	   :inputs (lambda() nil)
-	   :outputs (lambda() input-sockets)
-	   :update (lambda (&rest args) (declare (ignore args)) nil)
-	   :get-output (lambda(socket) (getf inputs socket))))
-	 (output-rm nil)
-	 (outputs)
-	 (output-module
-	  (list
-	   :inputs (lambda() output-sockets)
-	   :outputs (lambda() nil)
-	   :update (lambda (&rest args) (setf outputs args))
-	   :get-output (lambda(socket) (getf outputs socket)))))
+  (let* ((this nil) (has-shut-down nil) (input-rm nil) (inputs nil) (output-rm nil) (outputs))
     (let ((rack
 	   (list
 	    :modules nil
@@ -157,166 +274,35 @@
 		      (if (getf m :shutdown)
 			  (funcall (getf m :shutdown)))))))
 	    :environment environment)))
+
       (setf this rack)
 
       (add-module rack "INPUT"
 		  (lambda(name environment)
 		    (declare (ignore name environment))
-		    input-module))
+		    (list
+		     :inputs (lambda() nil)
+		     :outputs (lambda() input-sockets)
+		     :update (lambda (&rest args) (declare (ignore args)) nil)
+		     :get-output (lambda(socket) (getf inputs socket)))))
       (setf input-rm (get-rm-module rack "INPUT"))
-
+      
       (add-module rack "OUTPUT"
 		  (lambda(name environment)
 		    (declare (ignore name environment))
-		    output-module))
+		    (list
+		     :inputs (lambda() output-sockets)
+		     :outputs (lambda() nil)
+		     :update (lambda (&rest args) (setf outputs args))
+		     :get-output (lambda(socket) (getf outputs socket)))))
       (setf output-rm (get-rm-module rack "OUTPUT"))
 
       rack)))
 
-;;
-;; Rack-Module
-;; 
-
-(defclass rack-module ()
-  ((state :initarg nil :documentation ":PROCESS-TICK, :PROCESSING-TICK, :TICK-PROCESSED")
-   (name :initarg nil)
-   (module :initarg nil)
-   (input-patches :initform (make-hash-table))
-   (output-patches :initform (make-hash-table)))
-  (:documentation "Represents a module holding input/output connections to other modules"))
-
-(defmethod initialize-instance :after ((rm rack-module) &key name module)
-  (setf (slot-value rm 'name) name)
-  (setf (slot-value rm 'module) module))
-
-(defun get-rack-module-name (rm)
-  (slot-value rm 'name))
-
-(defun get-rack-module-state (rm)
-  (slot-value rm 'state))
-
-(defun set-rack-module-state (rm state)
-  (setf (slot-value rm 'state) state))
-
-(defun get-rack-module-input-sockets (rm)
-  (let ((f (getf (slot-value rm 'module) :inputs)))
-    (if f (funcall f) nil)))
-
-(defun get-rack-module-output-sockets (rm)
-  (let ((f (getf (slot-value rm 'module) :outputs)))
-    (if f (funcall f) nil)))
-
-(defun get-rack-module-update-fn (rm)
-  (getf (slot-value rm 'module) :update))
-
-(defun get-rack-module-module (rm)
-  (slot-value rm 'module))
-
-(defun get-rack-module-output-fn (rm)
-  (getf (slot-value rm 'module) :get-output))
-
-(defun get-rack-module-output (rm socket)
-  (funcall (getf (slot-value rm 'module) :get-output) socket))
-
-(defun get-rack-module-shutdown-fn (rm)
-  (let ((f (getf (slot-value rm 'module) :shutdown)))
-    (if f f (lambda() ()))))
-
-(defun get-rack-module-input-patch (rm input-socket)
-  (gethash input-socket (slot-value rm 'input-patches)))
-
-(defun get-rack-module-output-patch (rm output-socket)
-  (gethash output-socket (slot-value rm 'output-patches)))
-
-;;
-;; Patch
-;;
-
-(defclass rack-module-patch ()
-  ((rack-module :initarg nil)
-   (socket :initarg nil))
-  (:documentation "Represents an end-point to which an input/output socket of a module is connected."))
-
-(defun get-rack-patch-target-name (patch)
-  (get-rack-module-name (slot-value patch 'rack-module)))
-
-(defun get-rack-patch-socket (patch)
-  (slot-value patch 'socket))
-
-(defun get-rack-patch-module (patch)
-  (slot-value patch 'rack-module))
-
-(defun make-rack-module-patch (rm socket)
-  (let ((c (make-instance 'rack-module-patch)))
-    (setf (slot-value c 'rack-module) rm)
-    (setf (slot-value c 'socket) socket)
-    c))
-
-;;
-;; Rack
-;;
-
-(defun add-module (rack module-name module-fn &rest args)
-  "Adds a module to a rack. The function has the following arguments:
-    <ul>
-	<li>rack The rack.</li>
-	<li>module-name Unique name of the module, for example \"VCO-1\". If the name
-	    is already used by another module an assembly-error is signalled.</li>
-	<li>module-fn A function that instantiates the module. This function is
-	    called by the rack with the following arguments:
-	    <ul>
-		<li>name Name of the module.</li>
-		<li>environment The synthesizer environment.</li>
-		<li>module-args Any additional arguments passed to add-module.</li>
-	    </ul>
-	    The module instantiation function must return a property list with the following keys:
-	    <ul>
-		<li>:inputs A function with no arguments that returns a list of keywords that represent the
-		    input sockets to be exposed by the module.</li>
-		<li>:outputs A function with no arguments that returns a list of keywords that represent the
-		    output sockets to be exposed by the module.</li>
-		<li>:update A function that is called with the values of the modules input sockets
-                    in order to update the state of the module (the state of its output sockets).
-		    The value of each input socket is passed via a keyword parameter.</li>
-		<li>:get-output A function that is called in order to get the value of a specific
-		    output socket. The function is called with a keyword that identifies the output socket
-		    whose state is to be returned. The function must not modify the value
-		    of the given or any other output socket.</li>
-		<li>:shutdown An optional function with no arguments that is called when the rack
-		    is shutting down.</li>
-	    </ul>
-            <p>
-	    The input/output sockets exposed by the module are not buffered by the rack. Therefore the
-	    module should return either a quoted list or keep it in an internal variable. The module must
-	    not add or remove input/output sockets after it has been instantiated.
-            </p>
-	</li>
-	<li>&rest args Arbitrary additional arguments to be passed to the module instantiation function.
-	    These arguments typically consist of keyword parameters.</li>
-    </ul>"
-  (if (get-rm-module rack module-name)
-      (signal-assembly-error
-       :format-control "A module with name ~a has already been added to the rack"
-       :format-arguments (list module-name)))
-
-  (let ((environment (getf rack :environment)))
-    (let ((rm (make-instance 'rack-module
-			     :module (apply module-fn `(,module-name ,environment ,@args))
-			     :name module-name)))
-      (let ((m (get-rack-module-module rm)))
-	(dolist (property '(:inputs :outputs :update :get-output))
-	  (if (not (functionp (getf m property)))
-	      (signal-assembly-error
-	       :format-control "Invalid module ~a: Property ~a must be a function but is ~a"
-	       :format-arguments (list module-name property (getf m property))))))
-
-      (push rm (getf rack :modules))
-      nil)))
-
 (defun add-patch (rack source-rm-name source-output-socket destination-rm-name destination-input-socket)
   "Adds a patch to the rack. A patch is an unidirectional connection between an output socket
-    of a source module and an input socket of a destination module. The rack supports cycles which means that an
-    output socket of a module can be patched with one of its inputs (typically via
+    of a source module and an input socket of a destination module. The rack supports cycles 
+    which means that an output socket of a module can be patched with one of its inputs (typically via
     multiple hops through other modules). The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>

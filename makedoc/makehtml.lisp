@@ -132,15 +132,14 @@
 		   (make-function-string 'cl-synthesizer:make-environment :append-separator nil)
 		   "<h3>Rack</h3>"
 		   (make-function-string 'cl-synthesizer:make-rack)
+		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/synthesizer/rack/example-2.lisp")
 		   (make-function-string 'cl-synthesizer:add-module)
 		   (make-function-string 'cl-synthesizer:add-patch)
-		   (make-function-string 'cl-synthesizer:update)
 		   (make-function-string 'cl-synthesizer:play-rack)
 		   (make-function-string 'cl-synthesizer:get-environment)
 		   (make-function-string 'cl-synthesizer:get-module)
 		   (make-function-string 'cl-synthesizer:get-patch)
-		   (make-function-string 'cl-synthesizer:add-hook)
-		   (make-function-string 'cl-synthesizer:shutdown :append-separator nil)
+		   (make-function-string 'cl-synthesizer:add-hook :append-separator nil)
 		   "<h3>Modules</h3>"
 		   "<h4>VCO</h4>"
 		   (make-function-string 'cl-synthesizer-modules-vco:vco-base)
@@ -188,9 +187,6 @@
 		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/midi/cc-handler/example-1.lisp" :example-number 1)
 		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/midi/cc-handler/example-2.lisp" :example-number 2)
 		   "<h3>Device</h3>"
-		   (make-function-string 'cl-synthesizer:attach-audio-device)
-		   (make-function-string 'cl-synthesizer:attach-midi-in-device)
-		   (make-function-string 'cl-synthesizer:make-device)
 		   (make-function-string 'cl-synthesizer-device-speaker:speaker-cl-out123)
 		   (make-function-string 'cl-synthesizer-device-midi:midi-device :append-separator nil)
 		   "<h3>Conditions</h3>"

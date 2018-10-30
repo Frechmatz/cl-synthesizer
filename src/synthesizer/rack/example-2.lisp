@@ -3,8 +3,7 @@
 
 (in-package :cl-synthesizer-rack-example-2)
 
-(defparameter *attach-speaker* nil)
-
+(defparameter *attach-audio* t)
 
 (defun make-voice (name environment &key lfo-frequency vco-frequency)
   (declare (ignore name))
@@ -32,26 +31,30 @@
   "Modulate the frequency of a saw signal with a LFO."
   (let ((rack (cl-synthesizer:make-rack
 	       :environment
-	       (cl-synthesizer:make-environment))))
+	       (cl-synthesizer:make-environment)
+	       :output-sockets '(:line-out-1 :line-out-2))))
 
     (cl-synthesizer:add-module
      rack "VOICE-1" #'make-voice :lfo-frequency 1.0 :vco-frequency 440)
     (cl-synthesizer:add-module
      rack "VOICE-2" #'make-voice :lfo-frequency 2.0 :vco-frequency 442)
     
-    (cl-synthesizer:add-patch rack "VOICE-1" :audio "LINE-OUT" :channel-1)
-    (cl-synthesizer:add-patch rack "VOICE-2" :audio "LINE-OUT" :channel-2)
+    (cl-synthesizer:add-patch rack "VOICE-1" :audio "OUTPUT" :line-out-1)
+    (cl-synthesizer:add-patch rack "VOICE-2" :audio "OUTPUT" :line-out-2)
 
     ;; Write LINE-OUT to Wave-File
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-     '((:channel-1 "LINE-OUT" :input-socket :channel-1)
-       (:channel-2 "LINE-OUT" :input-socket :channel-2))
+     '((:channel-1 "OUTPUT" :input-socket :line-out-1)
+       (:channel-2 "OUTPUT" :input-socket :line-out-2))
      :filename "rack-example-2.wav")
     
     rack))
 
-;;(cl-synthesizer:play-rack (example) 5 :attach-speaker *attach-speaker*)
+#|
+(cl-synthesizer:play-rack (example) 5 
+   :attach-audio *attach-audio* :audio-output-sockets '(:line-out-1 :line-out-2))
+|#
 
 

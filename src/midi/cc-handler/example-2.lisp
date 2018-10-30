@@ -8,7 +8,10 @@
 
 (defun example ()
   "Modulate frequency via two chained controllers"
-  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment :channel-count 1))))
+  (let ((rack (cl-synthesizer:make-rack
+	       :environment (cl-synthesizer:make-environment)
+	       :input-sockets '(:midi-events)
+	       :output-sockets '(:line-out))))
     (cl-synthesizer:add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
 			       :voice-count 1
 			       :controllers
@@ -28,10 +31,13 @@
 			       :f-max 5000
 			       :v-peak 5)
     
-    (cl-synthesizer:add-patch rack "MIDI-IN" :midi-events "MIDI-IFC" :midi-events)
+    (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-IFC" :midi-events)
     (cl-synthesizer:add-patch rack "MIDI-IFC" :controller-1 "VCO-1" :cv)
-    (cl-synthesizer:add-patch rack "VCO-1" :saw "LINE-OUT" :channel-1)
+    (cl-synthesizer:add-patch rack "VCO-1" :saw "OUTPUT" :line-out)
     rack))
 
-;;(cl-synthesizer:play-rack (example) 10 :attach-speaker *attach-speaker* :attach-midi *attach-midi*)
-
+#|
+(cl-synthesizer::play-rack (example) 10 
+    :attach-audio t :audio-output-sockets '(:line-out) 
+    :attach-midi t :midi-input-socket :midi-events)
+|#

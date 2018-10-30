@@ -42,7 +42,6 @@
     
     rack))
 
-
 (defun keyboard ()
   "Keyboard"
   (let ((rack (cl-synthesizer:make-rack
@@ -67,15 +66,13 @@
     (cl-synthesizer:add-patch rack "VOICE-1" :audio "OUTPUT" :line-out-1)
     (cl-synthesizer:add-patch rack "VOICE-2" :audio "OUTPUT" :line-out-2)
 
-    #|
     ;; Write LINE-OUT to Wave-File
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-     '((:channel-1 "LINE-OUT" :input-socket :channel-1)
-       (:channel-2 "LINE-OUT" :input-socket :channel-2))
+     '((:channel-1 "OUTPUT" :input-socket :line-out-1)
+       (:channel-2 "OUTPUT" :input-socket :line-out-2))
      :filename "keyboard.wav")
-    |#
     
     rack))
 

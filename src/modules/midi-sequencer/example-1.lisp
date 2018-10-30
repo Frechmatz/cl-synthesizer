@@ -3,11 +3,13 @@
 
 (in-package :cl-synthesizer-modules-midi-sequencer-example-1)
 
-(defparameter *attach-speaker* t)
+(defparameter *attach-audio* t)
 
 (defun example ()
   "Midi-Sequencer example"
-  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+  (let ((rack (cl-synthesizer:make-rack
+	       :environment (cl-synthesizer:make-environment)
+	       :output-sockets '(:line-out))))
 
     ;; Add sequencer
     (cl-synthesizer:add-module
@@ -60,7 +62,7 @@
     (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:vca :cv-max 5.0)
 
     ;; Connect VCA with ADSR and VCO
-    (cl-synthesizer:add-patch rack "VCA" :output-linear "LINE-OUT" :channel-1)
+    (cl-synthesizer:add-patch rack "VCA" :output-linear "OUTPUT" :line-out)
     (cl-synthesizer:add-patch rack "ADSR" :cv "VCA" :cv)
     (cl-synthesizer:add-patch rack "VCO" :triangle "VCA" :input)
     
@@ -72,9 +74,12 @@
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-     '((:channel-1 "LINE-OUT" :input-socket :channel-1))
+     '((:channel-1 "OUTPUT" :input-socket :line-out))
      :filename "waves/midi-sequencer-example-1.wav")
     
     rack))
 
-;;(cl-synthesizer:play-rack (example) 5 :attach-speaker *attach-speaker*)
+#|
+(cl-synthesizer::play-rack (example) 5 
+    :attach-audio t :audio-output-sockets '(:line-out))
+|#

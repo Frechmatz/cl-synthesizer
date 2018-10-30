@@ -5,7 +5,9 @@
 
 (defun example ()
   "Multiple example"
-  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+  (let ((rack (cl-synthesizer:make-rack
+	       :environment (cl-synthesizer:make-environment)
+	       :output-sockets '(:line-out-1 :line-out-2))))
     
     (cl-synthesizer:add-module
      rack "LFO"
@@ -15,8 +17,8 @@
     (cl-synthesizer:add-module rack "MULTIPLE"
 			       #'cl-synthesizer-modules-multiple:multiple :output-count 5)
     (cl-synthesizer:add-patch rack "LFO" :sine "MULTIPLE" :input)
-    (cl-synthesizer:add-patch rack "MULTIPLE" :output-1 "LINE-OUT" :channel-1)
-    (cl-synthesizer:add-patch rack "MULTIPLE" :output-2 "LINE-OUT" :channel-2)
+    (cl-synthesizer:add-patch rack "MULTIPLE" :output-1 "OUTPUT" :line-out-1)
+    (cl-synthesizer:add-patch rack "MULTIPLE" :output-2 "OUTPUT" :line-out-2)
 
     rack))
 

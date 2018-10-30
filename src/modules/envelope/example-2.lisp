@@ -3,11 +3,13 @@
 
 (in-package :cl-synthesizer-modules-envelope-example-2)
 
-(defparameter *attach-speaker* t)
+(defparameter *attach-audio* t)
 
 (defun example ()
   "Modulate Envelope Attack Time with LFO"
-  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+  (let ((rack (cl-synthesizer:make-rack
+	       :environment (cl-synthesizer:make-environment)
+	       :output-sockets '(:line-out))))
 
     (cl-synthesizer:add-module
      rack
@@ -89,7 +91,7 @@
 			       :cv-max 5.0)
     (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv)
     (cl-synthesizer:add-patch rack "VCO" :sine "VCA" :input)
-    (cl-synthesizer:add-patch rack "VCA" :output-linear "LINE-OUT" :channel-1)
+    (cl-synthesizer:add-patch rack "VCA" :output-linear "OUTPUT" :line-out)
     (cl-synthesizer:add-patch rack "ADSR" :cv "VCA" :cv)
 
     ;; Record ADSR-Output, LFO-Output and LINE-OUT into a wave file
@@ -98,9 +100,13 @@
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
      '((:channel-1 "ADSR" :output-socket :cv)
        (:channel-2 "LFO" :output-socket :saw)
-       (:channel-3 "LINE-OUT" :input-socket :channel-1))
+       (:channel-3 "OUTPUT" :input-socket :line-out))
      :filename "waves/envelope-example-1.wav")
     
     rack))
 
-;;(cl-synthesizer:play-rack (example) 10 :attach-speaker *attach-speaker*)
+#|
+(cl-synthesizer::play-rack (example) 10 
+    :attach-audio t :audio-output-sockets '(:line-out) 
+    :attach-midi t :midi-input-socket :midi-events)
+|#

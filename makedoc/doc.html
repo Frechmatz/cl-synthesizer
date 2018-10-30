@@ -1,17 +1,18 @@
 <html><body><h1>cl-synthesizer</h1>A modular audio synthesizer implemented in Common Lisp. The synthesizer is work in progress.<p>A synthesizer is represented by an instance of a Rack. A rack holds all the modules 
-    and the patches (wiring) between them. Modules are components that consist of input and output sockets
-    and an update function.</p><p><b>Example:</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-1
+                    and the patches (wiring) between them. Modules are components that consist of input and output sockets
+                    and an update function.</p><p><b>Example:</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-1
   (:use :cl))
 
 (in-package :cl-synthesizer-rack-example-1)
 
-(defparameter *attach-speaker* nil)
+(defparameter *attach-audio* nil)
 
 (defun example ()
   "Modulate the frequency of a saw signal with a LFO."
   (let ((rack (cl-synthesizer:make-rack
 	       :environment
-	       (cl-synthesizer:make-environment))))
+	       (cl-synthesizer:make-environment)
+	       :output-sockets '(:line-out-1 :line-out-2))))
 
     (cl-synthesizer:add-module
      rack "LFO-1"
@@ -35,8 +36,8 @@
     
     (cl-synthesizer:add-patch rack "LFO-1" :sine "VCO-1" :cv)
     (cl-synthesizer:add-patch rack "LFO-2" :sine "VCO-2" :cv)
-    (cl-synthesizer:add-patch rack "VCO-1" :saw "LINE-OUT" :channel-1)
-    (cl-synthesizer:add-patch rack "VCO-2" :saw "LINE-OUT" :channel-2)
+    (cl-synthesizer:add-patch rack "VCO-1" :saw "OUTPUT" :line-out-1)
+    (cl-synthesizer:add-patch rack "VCO-2" :saw "OUTPUT" :line-out-2)
 
     ;; Write LFO/VCO outputs to Wave-File
     (cl-synthesizer-monitor:add-monitor
@@ -47,18 +48,21 @@
        (:channel-3 "VCO-1" :output-socket :saw)
        (:channel-4 "VCO-2" :output-socket :saw))
      :filename "rack-example-1-vcos.wav")
-    
+
     ;; Write LINE-OUT to Wave-File
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-     '((:channel-1 "LINE-OUT" :input-socket :channel-1)
-       (:channel-2 "LINE-OUT" :input-socket :channel-2))
+     '((:channel-1 "OUTPUT" :input-socket :line-out-1)
+       (:channel-2 "OUTPUT" :input-socket :line-out-2))
      :filename "rack-example-1.wav")
     
     rack))
 
-;;(cl-synthesizer:play-rack (example) 5 :attach-speaker *attach-speaker*)
+#|
+(cl-synthesizer::play-rack (example) 5 
+:attach-audio *attach-audio* :audio-output-sockets '(:line-out-1 :line-out-2))
+|#
 
 
 </code></pre></p><h2>Installation</h2><pre><code>
@@ -83,34 +87,93 @@ ln -s cl-synthesizer cl-synthesizer-macos-device
 </code></pre>
 Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 <b>cl-synthesizer-device-speaker:speaker-cl-out123</b>.
-<h2>API Reference</h2><ul><li><a href="#environment">Environment</a></li><li><a href="#rack">Rack</a></li><li><a href="#modules">Modules</a><ul><li><a href="#vco">VCO</a></li><li><a href="#vca">VCA</a></li><li><a href="#envelope">Envelope</a></li><li><a href="#multiple">Multiple</a></li><li><a href="#midi-interface">MIDI Interface</a></li><li><a href="#midi-sequencer">MIDI Sequencer</a></li><li><a href="#fixed-output">Fixed Output</a></li></ul></li><li><a href="#monitor">Monitor</a></li><li><a href="#midi">MIDI</a><ul><li><a href="#midi-event">MIDI Event</a></li><li><a href="#midi-utilities">MIDI Utilities</a></li></ul></li><li><a href="#device">Device</a></li><li><a href="#conditions">Conditions</a></li></ul><h3>Environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (channel-count 2) (home-directory nil) (audio-device nil) (midi-device nil) </p><p>Creates an environment. The environment defines properties such as
-    the sample rate of the rack and the number of its audio output channels.
+<h2>API Reference</h2><ul><li><a href="#environment">Environment</a></li><li><a href="#rack">Rack</a></li><li><a href="#modules">Modules</a><ul><li><a href="#vco">VCO</a></li><li><a href="#vca">VCA</a></li><li><a href="#envelope">Envelope</a></li><li><a href="#multiple">Multiple</a></li><li><a href="#midi-interface">MIDI Interface</a></li><li><a href="#midi-sequencer">MIDI Sequencer</a></li><li><a href="#fixed-output">Fixed Output</a></li></ul></li><li><a href="#monitor">Monitor</a></li><li><a href="#midi">MIDI</a><ul><li><a href="#midi-event">MIDI Event</a></li><li><a href="#midi-utilities">MIDI Utilities</a></li></ul></li><li><a href="#device">Device</a></li><li><a href="#conditions">Conditions</a></li></ul><h3>Environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (home-directory nil) </p><p>Creates an environment. The environment defines properties such as
+    the sample rate of the rack.
     An enviroment is a property list with the following keys:
     <ul>
 	<li>:sample-rate Sample rate of the synthesizer.</li>
-	<li>:channel-count The number of line-out sockets exposed to rack modules and an audio output device.</li>
 	<li>:home-directory The base output directory for wave files etc. Default value is the home directory
         of the current user.</li>
-	<li>:audio-device An optional audio device to be instantiated when audio output is requested. For the format
-            of this argument see function make-device.</li>
-	<li>:midi-device An optional MIDI device to be instantiated when MIDI input is requested. For the format
-            of this argument see function make-device.</li>
-    </ul></p><h3>Rack</h3><p><b>cl-synthesizer:make-rack</b> &key environment </p><p>Creates a rack. The function has the following arguments:
+    </ul></p><h3>Rack</h3><p><b>cl-synthesizer:make-rack</b> &key environment (input-sockets nil) (output-sockets nil) </p><p>Creates a rack. A rack is a module container and also a module, which means that racks 
+   can be added to other racks. The function has the following arguments:
     <ul>
 	<li>:environment The synthesizer environment.</li>
+        <li>:input-sockets The input sockets to be exposed by the rack. The inputs
+        can be accessed for patching of inner modules of the rack via the virtual 
+        module "INPUT".</li>
+        <li>:output-sockets The output sockets to be exposed by the rack. The outputs
+        can be accessed for patching of inner modules of the rack via the virtual 
+        module "OUTPUT".</li>
     </ul>
-    A rack is initialized with the virtual modules "LINE-OUT" and 
-    "MIDI-IN" that represent the interface to so called devices.
-    A device is a system specific implementation that provides audio
-    output or integration of MIDI controllers. 
     <p>    
-    The "LINE-OUT" module
-    exposes the input sockets :channel-1 ... :channel-n where n is the
-    number of channels as given by the :channel-count property of the environment.
+    The update function of the rack calls the update function of all modules that have
+    been added to the rack. If the rack has already been shut down it immediately returns <b>nil</b>.
+    Othwerwise it returns <b>t</b>.
     </p><p>
-    The "MIDI-IN" module exposes the output socket :midi-events which provides a list
-    of midi-events as fired by a MIDI device.
-    </p></p><hr/><p><b>cl-synthesizer:add-module</b> rack module-name module-fn &rest args </p><p>Adds a module to a rack. The function has the following arguments:
+    The shutdown function shuts the rack down by calling the shutdown handlers of all modules 
+    and hooks of the rack. If the rack has already been shut down the function does not call any handlers.
+    </p>
+    <p>See also: add-module</p></p><hr/><p><b>Example:</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-2
+  (:use :cl))
+
+(in-package :cl-synthesizer-rack-example-2)
+
+(defparameter *attach-audio* t)
+
+(defun make-voice (name environment &key lfo-frequency vco-frequency)
+  (declare (ignore name))
+  (let ((rack (cl-synthesizer:make-rack
+	       :environment environment
+	       :input-sockets nil
+	       :output-sockets '(:audio))))
+    
+    (cl-synthesizer:add-module
+     rack "LFO"
+     #'cl-synthesizer-modules-vco:vco-linear
+     :base-frequency lfo-frequency :v-peak 1.0 :f-max 500 :cv-max 5)
+    
+    (cl-synthesizer:add-module
+     rack "VCO"
+     #'cl-synthesizer-modules-vco:vco-linear
+     :base-frequency vco-frequency :f-max 5000 :v-peak 5 :cv-max 5)
+    
+    (cl-synthesizer:add-patch rack "LFO" :sine "VCO" :cv)
+    (cl-synthesizer:add-patch rack "VCO" :saw "OUTPUT" :audio)
+    
+    rack))
+
+(defun example ()
+  "Modulate the frequency of a saw signal with a LFO."
+  (let ((rack (cl-synthesizer:make-rack
+	       :environment
+	       (cl-synthesizer:make-environment)
+	       :output-sockets '(:line-out-1 :line-out-2))))
+
+    (cl-synthesizer:add-module
+     rack "VOICE-1" #'make-voice :lfo-frequency 1.0 :vco-frequency 440)
+    (cl-synthesizer:add-module
+     rack "VOICE-2" #'make-voice :lfo-frequency 2.0 :vco-frequency 442)
+    
+    (cl-synthesizer:add-patch rack "VOICE-1" :audio "OUTPUT" :line-out-1)
+    (cl-synthesizer:add-patch rack "VOICE-2" :audio "OUTPUT" :line-out-2)
+
+    ;; Write LINE-OUT to Wave-File
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
+     '((:channel-1 "OUTPUT" :input-socket :line-out-1)
+       (:channel-2 "OUTPUT" :input-socket :line-out-2))
+     :filename "rack-example-2.wav")
+    
+    rack))
+
+#|
+(cl-synthesizer:play-rack (example) 5 
+   :attach-audio *attach-audio* :audio-output-sockets '(:line-out-1 :line-out-2))
+|#
+
+
+</code></pre></p><p><b>cl-synthesizer:add-module</b> rack module-name module-fn &rest args </p><p>Adds a module to a rack. The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
 	<li>module-name Unique name of the module, for example "VCO-1". If the name
@@ -139,7 +202,7 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 		    is shutting down.</li>
 	    </ul>
             <p>
-	    The input/output sockets exposed by the module are not buffered by the rack. Therefore the
+	    The input/output socket lists exposed by the module are not buffered by the rack. Therefore the
 	    module should return either a quoted list or keep it in an internal variable. The module must
 	    not add or remove input/output sockets after it has been instantiated.
             </p>
@@ -147,8 +210,8 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 	<li>&rest args Arbitrary additional arguments to be passed to the module instantiation function.
 	    These arguments typically consist of keyword parameters.</li>
     </ul></p><hr/><p><b>cl-synthesizer:add-patch</b> rack source-rm-name source-output-socket destination-rm-name destination-input-socket </p><p>Adds a patch to the rack. A patch is an unidirectional connection between an output socket
-    of a source module and an input socket of a destination module. The rack supports cycles which means that an
-    output socket of a module can be patched with one of its inputs (typically via
+    of a source module and an input socket of a destination module. The rack supports cycles 
+    which means that an output socket of a module can be patched with one of its inputs (typically via
     multiple hops through other modules). The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
@@ -168,21 +231,25 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 	<li>The given destination-input-socket is already connected with a module.</li>
 	<li>The given destination-input-socket is not exposed by the destination module.</li>
 	<ul>
-    </ul></p><hr/><p><b>cl-synthesizer:update</b> rack </p><p>Updates the state of the rack by calling the update function of all its modules.
-    If the rack has already been shut down the function immediately returns <b>nil</b>.
-    Othwerwise it updates the rack and returns <b>t</b>.</p><hr/><p><b>cl-synthesizer:play-rack</b> rack duration-seconds &key (attach-speaker nil) (attach-midi nil) </p><p>A utility function that "plays" the rack by consecutively calling its update function
+    </ul></p><hr/><p><b>cl-synthesizer:play-rack</b> rack duration-seconds &key (attach-audio nil) (audio-output-sockets nil) (attach-midi nil) (midi-input-socket nil) </p><p>A utility function that "plays" the rack by consecutively calling its update function
     for a given number of "ticks". The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
 	<li>duration-seconds Duration in seconds of how long to play the rack. If for
 	    example the duration is 2 seconds and the sample rate of the rack as declared
 	    by its environment is 44100, then the update function of the rack will be called 88200 times.</li>
-	<li>:attach-speaker If t then the audio device as declared by the environment property :audio-device 
+	<li>:attach-audio If t then the audio device as declared by the variable *audio-device-settings* 
+            is instantiated and attached to the given outputs of the rack.</li>
+        <li>:audio-output-sockets A list of keywords that declare the output sockets of the rack
+            providing the audio signal.</li>
+	<li>:attach-midi If t then the MIDI device as declared by the variable *midi-device-settings* 
             is instantiated and attached to the rack.</li>
-	<li>:attach-midi If t then the MIDI device as declared by the environment property :midi-device
-            is instantiated and attached to the rack.</li>
+        <li>:midi-input-socket A keyword that declares the input socket of the rack to
+            to which the MIDI input is to be routed.</li>
     </ul>
-    The current implementation of the play-rack function assumes that an audio device is blocking.</p><hr/><p><b>cl-synthesizer:get-environment</b> rack </p><p>Returns the environment of the rack.</p><hr/><p><b>cl-synthesizer:get-module</b> rack name </p><p>Get a module of a rack. The function has the following arguments:
+    The current implementation of the play-rack function assumes that an audio device is blocking.
+    <p>See also: cl-synthesizer-device-speaker:speaker-cl-out123</p>
+    <p>See also: cl-synthesizer-device-midi:midi-device</p></p><hr/><p><b>cl-synthesizer:get-environment</b> rack </p><p>Returns the environment of the rack.</p><hr/><p><b>cl-synthesizer:get-module</b> rack name </p><p>Get a module of a rack. The function has the following arguments:
     <ul>
       <li>rack The rack.</li>
       <li>name The name of the module</li>
@@ -215,8 +282,7 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
       <li>:update A function with no arguments that is called after the rack has updated its state.</li>
       <li>:shutdown A function with no arguments that is called when the rack is shutting down.</li>
    </ul>
-   Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>.</p><hr/><p><b>cl-synthesizer:shutdown</b> rack </p><p>Shuts the rack down by calling the shutdown handlers of all modules, devices and hooks of the rack.
-   If the rack has already been shut down the function does not call any handlers.</p><h3>Modules</h3><h4>VCO</h4><p><b>cl-synthesizer-modules-vco:vco-base</b> name environment transfer-function &key f-max v-peak (duty-cycle 0.5) </p><p>Creates a Voltage Controlled Oscillator module. The function has the following arguments:
+   Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>.</p><h3>Modules</h3><h4>VCO</h4><p><b>cl-synthesizer-modules-vco:vco-base</b> name environment transfer-function &key f-max v-peak (duty-cycle 0.5) </p><p>Creates a Voltage Controlled Oscillator module. The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
@@ -468,7 +534,9 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 
 (defun example ()
   "Multiple example"
-  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+  (let ((rack (cl-synthesizer:make-rack
+	       :environment (cl-synthesizer:make-environment)
+	       :output-sockets '(:line-out-1 :line-out-2))))
     
     (cl-synthesizer:add-module
      rack "LFO"
@@ -478,8 +546,8 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
     (cl-synthesizer:add-module rack "MULTIPLE"
 			       #'cl-synthesizer-modules-multiple:multiple :output-count 5)
     (cl-synthesizer:add-patch rack "LFO" :sine "MULTIPLE" :input)
-    (cl-synthesizer:add-patch rack "MULTIPLE" :output-1 "LINE-OUT" :channel-1)
-    (cl-synthesizer:add-patch rack "MULTIPLE" :output-2 "LINE-OUT" :channel-2)
+    (cl-synthesizer:add-patch rack "MULTIPLE" :output-1 "OUTPUT" :line-out-1)
+    (cl-synthesizer:add-patch rack "MULTIPLE" :output-2 "OUTPUT" :line-out-2)
 
     rack))
 
@@ -564,11 +632,14 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 (in-package :cl-synthesizer-modules-midi-interface-example-1)
 
 (defparameter *attach-midi* t)
-(defparameter *attach-speaker* t)
+(defparameter *attach-audio* t)
 
 (defun example ()
   "Very simple midi-interface example that does not care about the gate signal."
-  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment :channel-count 1))))
+  (let ((rack (cl-synthesizer:make-rack
+	       :environment (cl-synthesizer:make-environment)
+	       :input-sockets '(:midi-events)
+	       :output-sockets '(:line-out))))
     (cl-synthesizer:add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
 			       :voice-count 1)
     (cl-synthesizer:add-module rack "VCO-1"
@@ -577,12 +648,16 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 			       :f-max 13000
 			       :v-peak 5)
 
-    (cl-synthesizer:add-patch rack "MIDI-IN" :midi-events "MIDI-IFC" :midi-events)
+    (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-IFC" :midi-events)
     (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO-1" :cv)
-    (cl-synthesizer:add-patch rack "VCO-1" :saw "LINE-OUT" :channel-1)
+    (cl-synthesizer:add-patch rack "VCO-1" :saw "OUTPUT" :line-out)
     rack))
 
-;;(cl-synthesizer:play-rack (example) 10 :attach-speaker *attach-speaker* :attach-midi *attach-midi*)
+#|
+(cl-synthesizer::play-rack (example) 10 
+    :attach-audio t :audio-output-sockets '(:line-out) 
+    :attach-midi t :midi-input-socket :midi-events)
+|#
 </code></pre></p><h4>MIDI Sequencer</h4><p><b>cl-synthesizer-modules-midi-sequencer:midi-sequencer</b> name environment &key events </p><p>Creates a Midi-Sequencer module.
 	The function has the following arguments:
     <ul>
@@ -603,11 +678,13 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 
 (in-package :cl-synthesizer-modules-midi-sequencer-example-1)
 
-(defparameter *attach-speaker* t)
+(defparameter *attach-audio* t)
 
 (defun example ()
   "Midi-Sequencer example"
-  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+  (let ((rack (cl-synthesizer:make-rack
+	       :environment (cl-synthesizer:make-environment)
+	       :output-sockets '(:line-out))))
 
     ;; Add sequencer
     (cl-synthesizer:add-module
@@ -660,7 +737,7 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
     (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:vca :cv-max 5.0)
 
     ;; Connect VCA with ADSR and VCO
-    (cl-synthesizer:add-patch rack "VCA" :output-linear "LINE-OUT" :channel-1)
+    (cl-synthesizer:add-patch rack "VCA" :output-linear "OUTPUT" :line-out)
     (cl-synthesizer:add-patch rack "ADSR" :cv "VCA" :cv)
     (cl-synthesizer:add-patch rack "VCO" :triangle "VCA" :input)
     
@@ -672,12 +749,15 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-     '((:channel-1 "LINE-OUT" :input-socket :channel-1))
+     '((:channel-1 "OUTPUT" :input-socket :line-out))
      :filename "waves/midi-sequencer-example-1.wav")
     
     rack))
 
-;;(cl-synthesizer:play-rack (example) 5 :attach-speaker *attach-speaker*)
+#|
+(cl-synthesizer::play-rack (example) 5 
+    :attach-audio t :audio-output-sockets '(:line-out))
+|#
 </code></pre></p><h4>Fixed Output</h4><p><b>cl-synthesizer-modules-fixed-output:fixed-output</b> name environment &key value (output-socket :out) </p><p>Creates a module with a fixed output value.
    The function has the following arguments:
     <ul>
@@ -695,13 +775,15 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 
 (defun example ()
   "Fixed-Output example"
-  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+  (let ((rack (cl-synthesizer:make-rack
+	       :environment (cl-synthesizer:make-environment)
+	       :output-sockets '(:line-out))))
     
     (cl-synthesizer:add-module rack "FIXED-OUTPUT"
 			       #'cl-synthesizer-modules-fixed-output:fixed-output
 			       :value 3.0
 			       :output-socket :fixed)
-    (cl-synthesizer:add-patch rack "FIXED-OUTPUT" :fixed "LINE-OUT" :channel-1)
+    (cl-synthesizer:add-patch rack "FIXED-OUTPUT" :fixed "OUTPUT" :line-out)
 
     rack))
 
@@ -835,11 +917,15 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 (in-package :cl-synthesizer-modules-midi-cc-handler-example-1)
 
 (defparameter *attach-midi* t)
-(defparameter *attach-speaker* t)
+(defparameter *attach-audio* t)
 
 (defun example ()
   "Modulate frequency via one controller"
-  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment :channel-count 1))))
+  (let ((rack (cl-synthesizer:make-rack
+	       :environment (cl-synthesizer:make-environment)
+	       :input-sockets '(:midi-events)
+	       :output-sockets '(:line-out)
+	       )))
     (cl-synthesizer:add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
 			       :voice-count 1
 			       :controllers
@@ -859,12 +945,16 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 			       :cv-max 5
 			       :v-peak 5)
 
-    (cl-synthesizer:add-patch rack "MIDI-IN" :midi-events "MIDI-IFC" :midi-events)
+    (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-IFC" :midi-events)
     (cl-synthesizer:add-patch rack "MIDI-IFC" :controller-1 "VCO-1" :cv)
-    (cl-synthesizer:add-patch rack "VCO-1" :saw "LINE-OUT" :channel-1)
+    (cl-synthesizer:add-patch rack "VCO-1" :saw "OUTPUT" :line-out)
     rack))
 
-;;(cl-synthesizer:play-rack (example) 10 :attach-speaker *attach-speaker* :attach-midi *attach-midi*)
+#|
+(cl-synthesizer::play-rack (example) 10 
+    :attach-audio t :audio-output-sockets '(:line-out) 
+    :attach-midi t :midi-input-socket :midi-events)
+|#
 </code></pre></p><p><b>Example 2:</b></p><p><pre><code>(defpackage :cl-synthesizer-modules-midi-cc-handler-example-2
   (:use :cl))
 
@@ -875,7 +965,10 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 
 (defun example ()
   "Modulate frequency via two chained controllers"
-  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment :channel-count 1))))
+  (let ((rack (cl-synthesizer:make-rack
+	       :environment (cl-synthesizer:make-environment)
+	       :input-sockets '(:midi-events)
+	       :output-sockets '(:line-out))))
     (cl-synthesizer:add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
 			       :voice-count 1
 			       :controllers
@@ -895,49 +988,17 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 			       :f-max 5000
 			       :v-peak 5)
     
-    (cl-synthesizer:add-patch rack "MIDI-IN" :midi-events "MIDI-IFC" :midi-events)
+    (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-IFC" :midi-events)
     (cl-synthesizer:add-patch rack "MIDI-IFC" :controller-1 "VCO-1" :cv)
-    (cl-synthesizer:add-patch rack "VCO-1" :saw "LINE-OUT" :channel-1)
+    (cl-synthesizer:add-patch rack "VCO-1" :saw "OUTPUT" :line-out)
     rack))
 
-;;(cl-synthesizer:play-rack (example) 10 :attach-speaker *attach-speaker* :attach-midi *attach-midi*)
-
-</code></pre></p><h3>Device</h3><p><b>cl-synthesizer:attach-audio-device</b> rack device </p><p>Attaches an audio output device to the rack.</p><hr/><p><b>cl-synthesizer:attach-midi-in-device</b> rack device </p><p>Attaches a MIDI input device to the rack. The rack currently supports one MIDI input device.</p><hr/><p><b>cl-synthesizer:make-device</b> name environment device-settings </p><p>Creates a device. The function has the following arguments:
-    <ul>
-	<li>name Name of the device.</li>
-	<li>environment The synthesizer environment.</li>
-	<li>device-settings The device settings consist of a property list with the following keys:
-	    <ul>
-		<li>:symbol-name Symbol name of the device instantiation function, for example "SPEAKER-CL-OUT123"</li>
-		<li>:package-name Package name of the device instantiation function, for example "CL-SYNTHESIZER-DEVICE-SPEAKER"</li>
-		<li>:init-args A list of additional arguments to be passed to the device instantiation function. An
-		    argument may consist of a function. In this case the value of the argument to be passed to the
-		    device instantiation function will be evaluated by calling the given function with the environment as
-		    parameter. Example: <code>(:channel-count (lambda (environment) (getf environment :channel-count))
-		    :driver "coreaudio"))</code></li>
-	    </ul>
-	</li>
-    </ul>
-    The device instantiation function is called with the following arguments:
-    <ul>
-	<li>name Name of the device.</li>
-	<li>environment The synthesizer environment.</li>
-	<li>Any additional arguments as declared by :init-args</li>
-    </ul>
-    If the device represents a MIDI input device then the device instantiation function must return a property
-    list with the following keys:
-    <ul>
-	<li>:get-output A function that returns the current output of the underlying device as
-	a list of Midi-Events.</li>
-	<li>:shutdown An optional shutdown function that is called when the rack is shutting down.</li>
-    </ul>
-    If the device represents an Audio output device then the device instantiation function must return a property
-    list with the following keys:
-    <ul>
-	<li>:update Function that is called with keywords parameters :channel-1 ... :channel-n in order to
-	push audio data to the underlying device.</li>
-	<li>:shutdown An optional shutdown function that is called when the rack is shutting down.</li>
-    </ul></p><hr/><p><b>cl-synthesizer-device-speaker:speaker-cl-out123</b> name environment &key channel-count driver (buf-length-frames 1000) (v-peak 5.0) </p><p>Creates a speaker device using the "cl-out123" package to
+#|
+(cl-synthesizer::play-rack (example) 10 
+    :attach-audio t :audio-output-sockets '(:line-out) 
+    :attach-midi t :midi-input-socket :midi-events)
+|#
+</code></pre></p><h3>Device</h3><p><b>cl-synthesizer-device-speaker:speaker-cl-out123</b> name environment &key channel-count driver (buf-length-frames 1000) (v-peak 5.0) </p><p>Creates a speaker device using the "cl-out123" package to
     push audio data to a system speaker driver. The :update function as exposed by
     the device is blocking. This means that when the maximum buffer size
     has been reached, the function will not return until the speaker driver
@@ -971,4 +1032,4 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
     is the "oldest" one.</p><h3>Conditions</h3><b>assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
    because for example a module name is not unique, a patch is added for
    a non-existing module, a patch is added to an already patched socket
-   and so on.</p><hr/><p><small>Generated 2018-10-12  21:34:18</small></p></body></html>
+   and so on.</p><hr/><p><small>Generated 2018-10-30  20:17:53</small></p></body></html>
