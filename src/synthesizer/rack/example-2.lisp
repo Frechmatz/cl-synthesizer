@@ -3,7 +3,7 @@
 
 (in-package :cl-synthesizer-rack-example-2)
 
-(defparameter *attach-audio* t)
+(defparameter *attach-audio* nil)
 
 (defun make-voice (name environment &key lfo-frequency vco-frequency)
   (declare (ignore name))
