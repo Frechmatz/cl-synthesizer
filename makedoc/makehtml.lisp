@@ -97,7 +97,7 @@
 		   ;;"<p>" (documentation 'cl-synthesizer::rack 'type) "</p>"
 		   "<p>A synthesizer is represented by an instance of a Rack. A rack holds all the modules 
                     and the patches (wiring) between them. Modules are components that consist of input and output sockets
-                    and an update function.</p>"
+                    and a update function.</p>"
 		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/synthesizer/rack/example-1.lisp")
 		   "<h2>Installation</h2>"
 		   (read-text-file "/Users/olli/src/lisp/cl-synthesizer/makedoc/installation.html")
@@ -116,6 +116,7 @@
 		   "<li><a href=\"#midi-interface\">MIDI Interface</a></li>"
 		   "<li><a href=\"#midi-sequencer\">MIDI Sequencer</a></li>"
 		   "<li><a href=\"#fixed-output\">Fixed Output</a></li>"
+		   "<li><a href=\"#adder\">Adder</a></li>"
 		   "</ul>"
 		   "</li>"
 		   "<li><a href=\"#monitor\">Monitor</a></li>"
@@ -131,7 +132,7 @@
 		   "<h3>Environment</h3>"
 		   (make-function-string 'cl-synthesizer:make-environment :append-separator nil)
 		   "<h3>Rack</h3>"
-		   (make-function-string 'cl-synthesizer:make-rack)
+		   (make-function-string 'cl-synthesizer:make-rack :append-separator nil)
 		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/synthesizer/rack/example-2.lisp")
 		   (make-function-string 'cl-synthesizer:add-module)
 		   (make-function-string 'cl-synthesizer:add-patch)
@@ -164,6 +165,8 @@
 		   "<h4>Fixed Output</h4>"
 		   (make-function-string 'cl-synthesizer-modules-fixed-output:fixed-output :append-separator nil)
 		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/modules/fixed-output/example-1.lisp")
+		   "<h4>Adder</h4>"
+		   (make-function-string 'cl-synthesizer-modules-adder:adder :append-separator nil)
 		   "<h3>Monitor</h3>"
 		   (make-function-string 'cl-synthesizer-monitor:add-monitor :append-separator nil)
 		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/monitor/monitor/example-1.lisp")

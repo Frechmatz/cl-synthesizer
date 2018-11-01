@@ -1,6 +1,6 @@
 <html><body><h1>cl-synthesizer</h1>A modular audio synthesizer implemented in Common Lisp. The synthesizer is work in progress.<p>A synthesizer is represented by an instance of a Rack. A rack holds all the modules 
                     and the patches (wiring) between them. Modules are components that consist of input and output sockets
-                    and an update function.</p><p><b>Example:</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-1
+                    and a update function.</p><p><b>Example:</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-1
   (:use :cl))
 
 (in-package :cl-synthesizer-rack-example-1)
@@ -87,7 +87,7 @@ ln -s cl-synthesizer cl-synthesizer-macos-device
 </code></pre>
 Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 <b>cl-synthesizer-device-speaker:speaker-cl-out123</b>.
-<h2>API Reference</h2><ul><li><a href="#environment">Environment</a></li><li><a href="#rack">Rack</a></li><li><a href="#modules">Modules</a><ul><li><a href="#vco">VCO</a></li><li><a href="#vca">VCA</a></li><li><a href="#envelope">Envelope</a></li><li><a href="#multiple">Multiple</a></li><li><a href="#midi-interface">MIDI Interface</a></li><li><a href="#midi-sequencer">MIDI Sequencer</a></li><li><a href="#fixed-output">Fixed Output</a></li></ul></li><li><a href="#monitor">Monitor</a></li><li><a href="#midi">MIDI</a><ul><li><a href="#midi-event">MIDI Event</a></li><li><a href="#midi-utilities">MIDI Utilities</a></li></ul></li><li><a href="#device">Device</a></li><li><a href="#conditions">Conditions</a></li></ul><h3>Environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (home-directory nil) </p><p>Creates an environment. The environment defines properties such as
+<h2>API Reference</h2><ul><li><a href="#environment">Environment</a></li><li><a href="#rack">Rack</a></li><li><a href="#modules">Modules</a><ul><li><a href="#vco">VCO</a></li><li><a href="#vca">VCA</a></li><li><a href="#envelope">Envelope</a></li><li><a href="#multiple">Multiple</a></li><li><a href="#midi-interface">MIDI Interface</a></li><li><a href="#midi-sequencer">MIDI Sequencer</a></li><li><a href="#fixed-output">Fixed Output</a></li><li><a href="#adder">Adder</a></li></ul></li><li><a href="#monitor">Monitor</a></li><li><a href="#midi">MIDI</a><ul><li><a href="#midi-event">MIDI Event</a></li><li><a href="#midi-utilities">MIDI Utilities</a></li></ul></li><li><a href="#device">Device</a></li><li><a href="#conditions">Conditions</a></li></ul><h3>Environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (home-directory nil) </p><p>Creates an environment. The environment defines properties such as
     the sample rate of the rack.
     An enviroment is a property list with the following keys:
     <ul>
@@ -113,12 +113,12 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
     The shutdown function shuts the rack down by calling the shutdown handlers of all modules 
     and hooks of the rack. If the rack has already been shut down the function does not call any handlers.
     </p>
-    <p>See also: add-module</p></p><hr/><p><b>Example:</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-2
+    <p>See also: add-module</p></p><p><b>Example:</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-2
   (:use :cl))
 
 (in-package :cl-synthesizer-rack-example-2)
 
-(defparameter *attach-audio* t)
+(defparameter *attach-audio* nil)
 
 (defun make-voice (name environment &key lfo-frequency vco-frequency)
   (declare (ignore name))
@@ -244,7 +244,7 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
             providing the audio signal.</li>
 	<li>:attach-midi If t then the MIDI device as declared by the variable *midi-device-settings* 
             is instantiated and attached to the rack.</li>
-        <li>:midi-input-socket A keyword that declares the input socket of the rack to
+        <li>:midi-input-socket A keyword that declares the input socket of the rack
             to which the MIDI input is to be routed.</li>
     </ul>
     The current implementation of the play-rack function assumes that an audio device is blocking.
@@ -788,7 +788,21 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
     rack))
 
 ;;(cl-synthesizer:play-rack (example) 1)
-</code></pre></p><h3>Monitor</h3><p><b>cl-synthesizer-monitor:add-monitor</b> rack monitor-handler socket-mappings &rest additional-handler-args </p><p>Adds a monitor to a rack. A monitor is a high-level Rack hook that
+</code></pre></p><h4>Adder</h4><p><b>cl-synthesizer-modules-adder:adder</b> name environment &key input-count </p><p>Creates a simple voltage adder module. The function has the following arguments:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:input-count The number of input sockets.</li>
+    </ul>
+    The module has the following inputs:
+    <ul>
+        <li>:input-1 ... :input-n. Where n is the input-count. Input values
+        not of type <b>number</b> are ignored.</li>
+    </ul>
+    The module has the following outputs:
+    <ul>
+	<li>:output The output consisting of the sum of the inputs.</li>
+    </ul></p><h3>Monitor</h3><p><b>cl-synthesizer-monitor:add-monitor</b> rack monitor-handler socket-mappings &rest additional-handler-args </p><p>Adds a monitor to a rack. A monitor is a high-level Rack hook that
     collects module states (values of input/output sockets) and passes them
     to a monitor handler. A monitor handler can for example be a
     Wave-File-Writer. The function has the following arguments:
@@ -1032,4 +1046,4 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
     is the "oldest" one.</p><h3>Conditions</h3><b>assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
    because for example a module name is not unique, a patch is added for
    a non-existing module, a patch is added to an already patched socket
-   and so on.</p><hr/><p><small>Generated 2018-10-30  20:17:53</small></p></body></html>
+   and so on.</p><hr/><p><small>Generated 2018-11-01  20:24:48</small></p></body></html>
