@@ -3,7 +3,7 @@ cl-synthesizer
 
 A modular audio synthesizer implemented in Common Lisp. The synthesizer is work in progress.
 
-A synthesizer is represented by an instance of a Rack. A rack holds all the modules and the patches (wiring) between them. Modules are components that consist of input and output sockets and an update function.
+A synthesizer is represented by an instance of a Rack. A rack holds all the modules and the patches (wiring) between them. Modules are components that consist of input and output sockets and a update function.
 
 **Example:**
 
@@ -110,6 +110,7 @@ API Reference
     *   [MIDI Interface](#midi-interface)
     *   [MIDI Sequencer](#midi-sequencer)
     *   [Fixed Output](#fixed-output)
+    *   [Adder](#adder)
 *   [Monitor](#monitor)
 *   [MIDI](#midi)
     *   [MIDI Event](#midi-event)
@@ -142,8 +143,6 @@ The shutdown function shuts the rack down by calling the shutdown handlers of al
 
 See also: add-module
 
-* * *
-
 **Example:**
 
     (defpackage :cl-synthesizer-rack-example-2
@@ -151,7 +150,7 @@ See also: add-module
     
     (in-package :cl-synthesizer-rack-example-2)
     
-    (defparameter *attach-audio* t)
+    (defparameter *attach-audio* nil)
     
     (defun make-voice (name environment &key lfo-frequency vco-frequency)
       (declare (ignore name))
@@ -264,7 +263,7 @@ A utility function that "plays" the rack by consecutively calling its update fun
 *   :attach-audio If t then the audio device as declared by the variable \*audio-device-settings\* is instantiated and attached to the given outputs of the rack.
 *   :audio-output-sockets A list of keywords that declare the output sockets of the rack providing the audio signal.
 *   :attach-midi If t then the MIDI device as declared by the variable \*midi-device-settings\* is instantiated and attached to the rack.
-*   :midi-input-socket A keyword that declares the input socket of the rack to to which the MIDI input is to be routed.
+*   :midi-input-socket A keyword that declares the input socket of the rack to which the MIDI input is to be routed.
 
 The current implementation of the play-rack function assumes that an audio device is blocking.
 
@@ -827,6 +826,24 @@ The module has no inputs. The module has one output socket according to the :out
     ;;(cl-synthesizer:play-rack (example) 1)
     
 
+#### Adder
+
+**cl-synthesizer-modules-adder:adder** name environment &key input-count
+
+Creates a simple voltage adder module. The function has the following arguments:
+
+*   name Name of the module.
+*   environment The synthesizer environment.
+*   :input-count The number of input sockets.
+
+The module has the following inputs:
+
+*   :input-1 ... :input-n. Where n is the input-count. Input values not of type **number** are ignored.
+
+The module has the following outputs:
+
+*   :output The output consisting of the sum of the inputs.
+
 ### Monitor
 
 **cl-synthesizer-monitor:add-monitor** rack monitor-handler socket-mappings &rest additional-handler-args
@@ -1117,4 +1134,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-10-30 20:17:53
+Generated 2018-11-01 20:24:48
