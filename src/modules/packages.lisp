@@ -33,3 +33,6 @@
   (:use :cl)
   (:export :midi-sequencer))
 
+(defpackage :cl-synthesizer-modules-adder
+  (:use :cl)
+  (:export :adder))

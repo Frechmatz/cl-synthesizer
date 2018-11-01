@@ -47,6 +47,7 @@
 				     (:file "midi-interface")
 				     (:file "midi-sequencer")
 				     (:file "fixed-output")
+				     (:file "adder")
 				     ))
 	       (:module "src/monitor"
 			:serial t

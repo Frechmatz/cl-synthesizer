@@ -41,43 +41,39 @@
 				     (:file "midi-interface")
 				     (:file "vca")
 				     (:file "vco")
-				     (:file "envelope")))
+				     (:file "envelope")
+				     (:file "adder")))
 	       (:module "test"
 			:serial t
 			:components ((:file "packages")
 				     (:file "test-util")))
 	       (:module "test/core"
 			:serial t
-			:components (
-				     (:file "test-trigger")
+			:components ((:file "test-trigger")
 				     (:file "test-waveform")
-				     (:file "test-function-array")
-				     ))
+				     (:file "test-function-array")))
 	       (:module "test/midi"
 			:serial t
-			:components (
-				     (:file "test-voice-manager-voice")
+			:components ((:file "test-voice-manager-voice")
 				     (:file "test-voice-manager")
-				     (:file "test-cc-handler")
-				     ))
+				     (:file "test-cc-handler")))
 	       (:module "test/modules/midi-interface"
 			:serial t
 			:components ((:file "test-interface")
-				     (:file "test-cc")
-				     ))
+				     (:file "test-cc")))
 	       (:module "test/modules/envelope"
 			:serial t
 			:components ((:file "test-envelope")
-				     (:file "test-envelope-validation")
-				     ))
+				     (:file "test-envelope-validation")))
 	       (:module "test/modules/vca"
 			:serial t
-			:components ((:file "test-vca")
-				     ))
+			:components ((:file "test-vca")))
 	       (:module "test/modules/vco"
 			:serial t
-			:components ((:file "test-vco")
-				     ))
+			:components ((:file "test-vco")))
+	       (:module "test/modules/adder"
+			:serial t
+			:components ((:file "test-adder")))
 	       (:module "test/synthesizer"
 			:serial t
 			:components ((:file "test-assembly")
