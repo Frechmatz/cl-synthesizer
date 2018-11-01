@@ -93,7 +93,7 @@
             providing the audio signal.</li>
 	<li>:attach-midi If t then the MIDI device as declared by the variable *midi-device-settings* 
             is instantiated and attached to the rack.</li>
-        <li>:midi-input-socket A keyword that declares the input socket of the rack to
+        <li>:midi-input-socket A keyword that declares the input socket of the rack
             to which the MIDI input is to be routed.</li>
     </ul>
     The current implementation of the play-rack function assumes that an audio device is blocking.
