@@ -22,7 +22,7 @@
      :main-cv-gain 2.5)
     
     (cl-synthesizer:add-patch rack "VOICE-1" :audio "MIXER" :channel-1)
-    (cl-synthesizer:add-patch rack "VOICE-2" :audio "MIXER" :channel-1)
+    (cl-synthesizer:add-patch rack "VOICE-2" :audio "MIXER" :channel-2)
     (cl-synthesizer:add-patch rack "MIXER" :output "OUTPUT" :line-out)
     
     rack))
