@@ -11,8 +11,7 @@
     the device is blocking. This means that when the maximum buffer size
     has been reached, the function will not return until the speaker driver
     has accepted the buffer. This behaviour can be used to synchronize the
-    synthesizer. The device has a latency of about 300-400ms and therefore
-    cannot really be used for real-time play using a Midi-Controller.
+    synthesizer. The device has a latency of about 300-400ms.
     The function has the following arguments:
   <ul>
     <li>name A name.</li>
@@ -20,7 +19,7 @@
     <li>:channel-count Number of output channels.</li>
     <li>:driver Driver to be used, for example \"coreaudio\".</li>
     <li>:v-peak Optional peak voltage. The inputs of the device will be normalized
-	to -1.0 ... 1.0 according to v-peak. Incoming voltages will not be clipped.</li>
+	to -1.0 ... 1.0 according to v-peak.</li>
     <li>:buf-length-frames Number of frames to be buffered until the audio data is
 	pushed to the driver.</li>
   </ul>

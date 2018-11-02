@@ -137,9 +137,9 @@
 	    The module instantiation function must return a property list with the following keys:
 	    <ul>
 		<li>:inputs A function with no arguments that returns a list of keywords that represent the
-		    input sockets to be exposed by the module.</li>
+		    input sockets exposed by the module.</li>
 		<li>:outputs A function with no arguments that returns a list of keywords that represent the
-		    output sockets to be exposed by the module.</li>
+		    output sockets exposed by the module.</li>
 		<li>:update A function that is called with the values of the modules input sockets
                     in order to update the state of the module (the state of its output sockets).
 		    The value of each input socket is passed via a keyword parameter.</li>
