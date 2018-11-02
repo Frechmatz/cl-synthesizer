@@ -46,7 +46,7 @@
   "Keyboard"
   (let ((rack (cl-synthesizer:make-rack
 	       :environment (cl-synthesizer:make-environment)
-	       :output-sockets '(:line-out-1 :line-out-2)
+	       :output-sockets '(:line-out-1)
 	       :input-sockets '(:midi-events)
 	       )))
     ;; Add voices
@@ -62,16 +62,22 @@
     (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-2 "VOICE-2" :cv)
     (cl-synthesizer:add-patch rack "MIDI-IFC" :gate-2 "VOICE-2" :gate)
 
-    ;; Due to absence of a mixer simply connect with left/right audio output
-    (cl-synthesizer:add-patch rack "VOICE-1" :audio "OUTPUT" :line-out-1)
-    (cl-synthesizer:add-patch rack "VOICE-2" :audio "OUTPUT" :line-out-2)
+    (cl-synthesizer:add-module rack "MIXER" #'cl-synthesizer-modules-mixer:mixer
+			       :channel-count 2
+			       :channel-cv-max 5.0
+			       :channel-cv-gain 5.0
+			       :main-cv-max 5.0
+			       :main-cv-gain 2.5)
 
+    (cl-synthesizer:add-patch rack "VOICE-1" :audio "MIXER" :channel-1)
+    (cl-synthesizer:add-patch rack "VOICE-2" :audio "MIXER" :channel-2)
+    (cl-synthesizer:add-patch rack "MIXER" :output "OUTPUT" :line-out-1)
+    
     ;; Write LINE-OUT to Wave-File
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-     '((:channel-1 "OUTPUT" :input-socket :line-out-1)
-       (:channel-2 "OUTPUT" :input-socket :line-out-2))
+     '((:channel-1 "OUTPUT" :input-socket :line-out-1))
      :filename "keyboard.wav")
     
     rack))

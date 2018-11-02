@@ -42,7 +42,8 @@
 				     (:file "vca")
 				     (:file "vco")
 				     (:file "envelope")
-				     (:file "adder")))
+				     (:file "adder")
+				     (:file "mixer")))
 	       (:module "test"
 			:serial t
 			:components ((:file "packages")
@@ -74,6 +75,9 @@
 	       (:module "test/modules/adder"
 			:serial t
 			:components ((:file "test-adder")))
+	       (:module "test/modules/mixer"
+			:serial t
+			:components ((:file "test-mixer")))
 	       (:module "test/synthesizer"
 			:serial t
 			:components ((:file "test-assembly")

@@ -117,6 +117,7 @@
 		   "<li><a href=\"#midi-sequencer\">MIDI Sequencer</a></li>"
 		   "<li><a href=\"#fixed-output\">Fixed Output</a></li>"
 		   "<li><a href=\"#adder\">Adder</a></li>"
+		   "<li><a href=\"#mixer\">Mixer</a></li>"
 		   "</ul>"
 		   "</li>"
 		   "<li><a href=\"#monitor\">Monitor</a></li>"
@@ -167,6 +168,9 @@
 		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/modules/fixed-output/example-1.lisp")
 		   "<h4>Adder</h4>"
 		   (make-function-string 'cl-synthesizer-modules-adder:adder :append-separator nil)
+		   "<h4>Mixer</h4>"
+		   (make-function-string 'cl-synthesizer-modules-mixer:mixer :append-separator nil)
+		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/modules/mixer/example-1.lisp")
 		   "<h3>Monitor</h3>"
 		   (make-function-string 'cl-synthesizer-monitor:add-monitor :append-separator nil)
 		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/monitor/monitor/example-1.lisp")

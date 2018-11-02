@@ -36,3 +36,7 @@
 (defpackage :cl-synthesizer-modules-adder
   (:use :cl)
   (:export :adder))
+
+(defpackage :cl-synthesizer-modules-mixer
+  (:use :cl)
+  (:export :mixer))

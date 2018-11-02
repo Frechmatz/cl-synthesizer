@@ -111,6 +111,7 @@ API Reference
     *   [MIDI Sequencer](#midi-sequencer)
     *   [Fixed Output](#fixed-output)
     *   [Adder](#adder)
+    *   [Mixer](#mixer)
 *   [Monitor](#monitor)
 *   [MIDI](#midi)
     *   [MIDI Event](#midi-event)
@@ -844,6 +845,65 @@ The module has the following outputs:
 
 *   :output The output consisting of the sum of the inputs.
 
+#### Mixer
+
+**cl-synthesizer-modules-mixer:mixer** name environment &key channel-count (channel-cv-max 5.0) (channel-cv-gain 5.0) (main-cv-max 5.0) (main-cv-gain 5.0)
+
+Creates a mixer module. The mixer provides an attenuator for each input and a main attenuator for the mixer output. The function has the following arguments:
+
+*   name Name of the module.
+*   environment The synthesizer environment.
+*   :channel-count The number of channels.
+*   :channel-cv-max The value of a channel attenuation control voltage that represents an amplification of 1.0.
+*   :channel-cv-gain An offset that is added to the channel attenuation control voltage.
+*   :main-cv-max The value of the main attenuation input that represents an amplification of 1.0.
+*   :main-cv-gain An offset that is added to the main attenuation control voltage.
+
+The module has the following inputs:
+
+*   :channel-1 ... :channel-n. Channel input signal, where n is the channel-count.
+*   :cv-1 ... :cv-n. Channel attenuation control voltage, where n is the channel-count.
+*   :cv-main Attenuation control voltage of the mixer output.
+
+The module has the following outputs:
+
+*   :output The output consisting of the sum of the inputs.
+
+**Example:**
+
+    (defpackage :cl-synthesizer-modules-mixer-example-1
+      (:use :cl))
+    
+    (in-package :cl-synthesizer-modules-mixer-example-1)
+    
+    (defun example ()
+      "Mixer example."
+      (let ((rack (cl-synthesizer:make-rack
+    	       :environment (cl-synthesizer:make-environment)
+    	       :output-sockets '(:line-out))))
+    
+        ;;
+        ;; add modules...
+        ;;
+        
+        (cl-synthesizer:add-module
+         rack "MIXER" #'cl-synthesizer-modules-mixer:mixer
+         :channel-count 2
+         :channel-cv-max 5.0
+         :channel-cv-gain 5.0
+         :main-cv-max 5.0
+         :main-cv-gain 2.5)
+        
+        (cl-synthesizer:add-patch rack "VOICE-1" :audio "MIXER" :channel-1)
+        (cl-synthesizer:add-patch rack "VOICE-2" :audio "MIXER" :channel-1)
+        (cl-synthesizer:add-patch rack "MIXER" :output "OUTPUT" :line-out)
+        
+        rack))
+    
+    
+    
+    
+
 ### Monitor
 
 **cl-synthesizer-monitor:add-monitor** rack monitor-handler socket-mappings &rest additional-handler-args
@@ -1134,4 +1194,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-11-01 20:24:48
+Generated 2018-11-02 19:46:25

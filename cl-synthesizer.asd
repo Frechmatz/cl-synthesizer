@@ -48,6 +48,7 @@
 				     (:file "midi-sequencer")
 				     (:file "fixed-output")
 				     (:file "adder")
+				     (:file "mixer")
 				     ))
 	       (:module "src/monitor"
 			:serial t
@@ -92,6 +93,9 @@
 			:serial t
 			:components ((:file "example-1")))
 	       (:module "src/modules/fixed-output"
+			:serial t
+			:components ((:file "example-1")))
+	       (:module "src/modules/mixer"
 			:serial t
 			:components ((:file "example-1")))
 	       (:module "src/monitor/monitor"
