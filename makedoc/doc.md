@@ -849,7 +849,7 @@ The module has the following outputs:
 
 **cl-synthesizer-modules-mixer:mixer** name environment &key channel-count (channel-cv-max 5.0) (channel-cv-gain 5.0) (main-cv-max 5.0) (main-cv-gain 5.0)
 
-Creates a mixer module. The mixer provides an attenuator for each input and a main attenuator for the mixer output. The function has the following arguments:
+Creates a mixer module. The mixer provides an attenuator for each input and a main attenuator for the mixer output. All attenuators have linear amplification characteristic. The function has the following arguments:
 
 *   name Name of the module.
 *   environment The synthesizer environment.
@@ -895,7 +895,7 @@ The module has the following outputs:
          :main-cv-gain 2.5)
         
         (cl-synthesizer:add-patch rack "VOICE-1" :audio "MIXER" :channel-1)
-        (cl-synthesizer:add-patch rack "VOICE-2" :audio "MIXER" :channel-1)
+        (cl-synthesizer:add-patch rack "VOICE-2" :audio "MIXER" :channel-2)
         (cl-synthesizer:add-patch rack "MIXER" :output "OUTPUT" :line-out)
         
         rack))
@@ -1194,4 +1194,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-11-02 19:46:25
+Generated 2018-11-02 19:58:41
