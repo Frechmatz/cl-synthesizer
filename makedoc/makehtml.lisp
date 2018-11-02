@@ -92,12 +92,7 @@
 		   'string
 		   "<html><body>"
 		   "<h1>cl-synthesizer</h1>"
-		   "A modular audio synthesizer implemented in Common Lisp. The synthesizer is "
-		   "work in progress."
-		   ;;"<p>" (documentation 'cl-synthesizer::rack 'type) "</p>"
-		   "<p>A synthesizer is represented by an instance of a Rack. A rack holds all the modules 
-                    and the patches (wiring) between them. Modules are components that consist of input and output sockets
-                    and a update function.</p>"
+		   "A Modular Audio Synthesizer library implemented in Common Lisp."
 		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/synthesizer/rack/example-1.lisp")
 		   "<h2>Installation</h2>"
 		   (read-text-file "/Users/olli/src/lisp/cl-synthesizer/makedoc/installation.html")
@@ -133,8 +128,7 @@
 		   "<h3>Environment</h3>"
 		   (make-function-string 'cl-synthesizer:make-environment :append-separator nil)
 		   "<h3>Rack</h3>"
-		   (make-function-string 'cl-synthesizer:make-rack :append-separator nil)
-		   (example-code "/Users/olli/src/lisp/cl-synthesizer/src/synthesizer/rack/example-2.lisp")
+		   (make-function-string 'cl-synthesizer:make-rack)
 		   (make-function-string 'cl-synthesizer:add-module)
 		   (make-function-string 'cl-synthesizer:add-patch)
 		   (make-function-string 'cl-synthesizer:play-rack)
