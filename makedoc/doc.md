@@ -222,8 +222,8 @@ Adds a module to a rack. The function has the following arguments:
     
     The module instantiation function must return a property list with the following keys:
     
-    *   :inputs A function with no arguments that returns a list of keywords that represent the input sockets to be exposed by the module.
-    *   :outputs A function with no arguments that returns a list of keywords that represent the output sockets to be exposed by the module.
+    *   :inputs A function with no arguments that returns a list of keywords that represent the input sockets exposed by the module.
+    *   :outputs A function with no arguments that returns a list of keywords that represent the output sockets exposed by the module.
     *   :update A function that is called with the values of the modules input sockets in order to update the state of the module (the state of its output sockets). The value of each input socket is passed via a keyword parameter.
     *   :get-output A function that is called in order to get the value of a specific output socket. The function is called with a keyword that identifies the output socket whose state is to be returned. The function must not modify the value of the given or any other output socket.
     *   :shutdown An optional function with no arguments that is called when the rack is shutting down.
@@ -1163,13 +1163,13 @@ The returned handler is a property list with the following keys:
 
 **cl-synthesizer-device-speaker:speaker-cl-out123** name environment &key channel-count driver (buf-length-frames 1000) (v-peak 5.0)
 
-Creates a speaker device using the "cl-out123" package to push audio data to a system speaker driver. The :update function as exposed by the device is blocking. This means that when the maximum buffer size has been reached, the function will not return until the speaker driver has accepted the buffer. This behaviour can be used to synchronize the synthesizer. The device has a latency of about 300-400ms and therefore cannot really be used for real-time play using a Midi-Controller. The function has the following arguments:
+Creates a speaker device using the "cl-out123" package to push audio data to a system speaker driver. The :update function as exposed by the device is blocking. This means that when the maximum buffer size has been reached, the function will not return until the speaker driver has accepted the buffer. This behaviour can be used to synchronize the synthesizer. The device has a latency of about 300-400ms. The function has the following arguments:
 
 *   name A name.
 *   environment The synthesizer environment.
 *   :channel-count Number of output channels.
 *   :driver Driver to be used, for example "coreaudio".
-*   :v-peak Optional peak voltage. The inputs of the device will be normalized to -1.0 ... 1.0 according to v-peak. Incoming voltages will not be clipped.
+*   :v-peak Optional peak voltage. The inputs of the device will be normalized to -1.0 ... 1.0 according to v-peak.
 *   :buf-length-frames Number of frames to be buffered until the audio data is pushed to the driver.
 
 The :update function of the device must be called with keyword arguments :channel-1 ... :channel-n, where n is the number of channels. In a stereo setup left is represented by :channel-1 and right by :channel-2 The current buffer of the device is flushed when the :shutdown function is called.
@@ -1194,4 +1194,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-11-02 19:58:41
+Generated 2018-11-02 20:08:30
