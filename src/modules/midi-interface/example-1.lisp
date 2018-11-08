@@ -12,14 +12,18 @@
 	       :environment (cl-synthesizer:make-environment)
 	       :input-sockets '(:midi-events)
 	       :output-sockets '(:line-out))))
-    (cl-synthesizer:add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
-			       :voice-count 1)
-    (cl-synthesizer:add-module rack "VCO-1"
-			       #'cl-synthesizer-modules-vco:vco-exponential
-			       :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
-			       :f-max 13000
-			       :v-peak 5)
 
+    (cl-synthesizer:add-module
+     rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
+     :voice-count 1)
+
+    (cl-synthesizer:add-module
+     rack "VCO-1"
+     #'cl-synthesizer-modules-vco:vco-exponential
+     :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
+     :f-max 13000
+     :v-peak 5)
+    
     (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-IFC" :midi-events)
     (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO-1" :cv)
     (cl-synthesizer:add-patch rack "VCO-1" :saw "OUTPUT" :line-out)

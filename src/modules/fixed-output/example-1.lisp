@@ -9,10 +9,12 @@
 	       :environment (cl-synthesizer:make-environment)
 	       :output-sockets '(:line-out))))
     
-    (cl-synthesizer:add-module rack "FIXED-OUTPUT"
-			       #'cl-synthesizer-modules-fixed-output:fixed-output
-			       :value 3.0
-			       :output-socket :fixed)
+    (cl-synthesizer:add-module
+     rack "FIXED-OUTPUT"
+     #'cl-synthesizer-modules-fixed-output:fixed-output
+     :value 3.0
+     :output-socket :fixed)
+    
     (cl-synthesizer:add-patch rack "FIXED-OUTPUT" :fixed "OUTPUT" :line-out)
 
     rack))
