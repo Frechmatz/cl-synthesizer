@@ -97,8 +97,7 @@
             to which the MIDI input is to be routed.</li>
     </ul>
     The current implementation of the play-rack function assumes that an audio device is blocking.
-    <p>See also: cl-synthesizer-device-speaker:speaker-cl-out123</p>
-    <p>See also: cl-synthesizer-device-midi:midi-device</p>"
+    <p>See also: cl-synthesizer-device-speaker:speaker-cl-out123, cl-synthesizer-device-midi:midi-device</p>"
   (let ((environment (getf rack :environment)) (f (getf rack :update)))
     (multiple-value-bind (update-audio shutdown-audio)
 	(make-audio-handlers rack environment attach-audio audio-output-sockets)

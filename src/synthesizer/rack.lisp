@@ -321,7 +321,6 @@
 	<li>The given source-output-socket is not exposed by the source module.</li>
 	<li>The given destination-input-socket is already connected with a module.</li>
 	<li>The given destination-input-socket is not exposed by the destination module.</li>
-	<ul>
     </ul>"
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((source-rm (get-rm-module rack source-rm-name))
