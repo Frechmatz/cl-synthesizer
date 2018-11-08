@@ -74,9 +74,6 @@ A Modular Audio Synthesizer library implemented in Common Lisp.
     (cl-synthesizer:play-rack (example) 5 
         :attach-audio *attach-audio* :audio-output-sockets '(:left :right))
     |#
-    
-    
-    
 
 Installation
 ------------
@@ -210,9 +207,7 @@ A utility function that "plays" the rack by consecutively calling its update fun
 
 The current implementation of the play-rack function assumes that an audio device is blocking.
 
-See also: cl-synthesizer-device-speaker:speaker-cl-out123
-
-See also: cl-synthesizer-device-midi:midi-device
+See also: cl-synthesizer-device-speaker:speaker-cl-out123, cl-synthesizer-device-midi:midi-device
 
 * * *
 
@@ -335,8 +330,6 @@ For the output sockets of the module see vco-base.
         rack))
           
     ;;(cl-synthesizer:play-rack (example) 3)
-    
-    
 
 **cl-synthesizer-modules-vco:vco-exponential** name environment &key base-frequency f-max v-peak (duty-cycle 0.5)
 
@@ -431,7 +424,6 @@ The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.
         rack))
     
     ;;(cl-synthesizer:play-rack (example) 5)
-    
 
 #### Envelope
 
@@ -497,8 +489,6 @@ The module has the following outputs:
            (:duration-ms 100 :target-cv 0 :required-gate-state :off)))
     
         rack))
-    
-    
 
 #### Multiple
 
@@ -545,7 +535,6 @@ The module has the following outputs:
         rack))
     
     ;;(cl-synthesizer:play-rack (example) 1)
-    
 
 #### MIDI Interface
 
@@ -609,14 +598,18 @@ See also **cl-synthesizer-midi:relative-cc-handler**
     	       :environment (cl-synthesizer:make-environment)
     	       :input-sockets '(:midi-events)
     	       :output-sockets '(:line-out))))
-        (cl-synthesizer:add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
-    			       :voice-count 1)
-        (cl-synthesizer:add-module rack "VCO-1"
-    			       #'cl-synthesizer-modules-vco:vco-exponential
-    			       :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
-    			       :f-max 13000
-    			       :v-peak 5)
     
+        (cl-synthesizer:add-module
+         rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
+         :voice-count 1)
+    
+        (cl-synthesizer:add-module
+         rack "VCO-1"
+         #'cl-synthesizer-modules-vco:vco-exponential
+         :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
+         :f-max 13000
+         :v-peak 5)
+        
         (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-IFC" :midi-events)
         (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO-1" :cv)
         (cl-synthesizer:add-patch rack "VCO-1" :saw "OUTPUT" :line-out)
@@ -627,7 +620,6 @@ See also **cl-synthesizer-midi:relative-cc-handler**
         :attach-audio t :audio-output-sockets '(:line-out) 
         :attach-midi t :midi-input-socket :midi-events)
     |#
-    
 
 #### MIDI Sequencer
 
@@ -730,7 +722,6 @@ The module has no inputs. The module has one output socket :midi-events.
     (cl-synthesizer::play-rack (example) 5 
         :attach-audio t :audio-output-sockets '(:line-out))
     |#
-    
 
 #### Fixed Output
 
@@ -758,16 +749,17 @@ The module has no inputs. The module has one output socket according to the :out
     	       :environment (cl-synthesizer:make-environment)
     	       :output-sockets '(:line-out))))
         
-        (cl-synthesizer:add-module rack "FIXED-OUTPUT"
-    			       #'cl-synthesizer-modules-fixed-output:fixed-output
-    			       :value 3.0
-    			       :output-socket :fixed)
+        (cl-synthesizer:add-module
+         rack "FIXED-OUTPUT"
+         #'cl-synthesizer-modules-fixed-output:fixed-output
+         :value 3.0
+         :output-socket :fixed)
+        
         (cl-synthesizer:add-patch rack "FIXED-OUTPUT" :fixed "OUTPUT" :line-out)
     
         rack))
     
     ;;(cl-synthesizer:play-rack (example) 1)
-    
 
 #### Adder
 
@@ -841,10 +833,6 @@ The module has the following outputs:
         (cl-synthesizer:add-patch rack "MIXER" :output "OUTPUT" :line-out)
         
         rack))
-    
-    
-    
-    
 
 ### Monitor
 
@@ -895,10 +883,6 @@ Adds a monitor to a rack. A monitor is a high-level Rack hook that collects modu
          :filename "monitor-example-1.wav")
         
         rack))
-    
-    
-    
-    
 
 **cl-synthesizer-monitor-wave-handler:wave-file-handler** name environment inputs &rest rest &key filename &allow-other-keys
 
@@ -1023,25 +1007,28 @@ The returned handler is a property list with the following keys:
     	       :input-sockets '(:midi-events)
     	       :output-sockets '(:line-out)
     	       )))
-        (cl-synthesizer:add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
-    			       :voice-count 1
-    			       :controllers
-    			       (list
-    				(list :socket :controller-1
-    				      :handler (cl-synthesizer-midi:relative-cc-handler
-    						cl-synthesizer-vendor:*arturia-minilab-mk2*
-    						(list (list :controller-id :ENCODER-1 :weight 0.01
-    							    :turn-speed (lambda(offs) (declare (ignore offs)) 1)))
-    						:cv-initial 0
-    						:cv-min 0
-    						:cv-max 5))))
-        (cl-synthesizer:add-module rack "VCO-1"
-    			       #'cl-synthesizer-modules-vco:vco-linear
-    			       :base-frequency 440
-    			       :f-max 5000
-    			       :cv-max 5
-    			       :v-peak 5)
-    
+        (cl-synthesizer:add-module
+         rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
+         :voice-count 1
+         :controllers
+         (list
+          (list :socket :controller-1
+    	    :handler (cl-synthesizer-midi:relative-cc-handler
+    		      cl-synthesizer-vendor:*arturia-minilab-mk2*
+    		      (list (list :controller-id :ENCODER-1 :weight 0.01
+    				  :turn-speed (lambda(offs) (declare (ignore offs)) 1)))
+    		      :cv-initial 0
+    		      :cv-min 0
+    		      :cv-max 5))))
+        
+        (cl-synthesizer:add-module
+         rack "VCO-1"
+         #'cl-synthesizer-modules-vco:vco-linear
+         :base-frequency 440
+         :f-max 5000
+         :cv-max 5
+         :v-peak 5)
+        
         (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-IFC" :midi-events)
         (cl-synthesizer:add-patch rack "MIDI-IFC" :controller-1 "VCO-1" :cv)
         (cl-synthesizer:add-patch rack "VCO-1" :saw "OUTPUT" :line-out)
@@ -1052,7 +1039,6 @@ The returned handler is a property list with the following keys:
         :attach-audio t :audio-output-sockets '(:line-out) 
         :attach-midi t :midi-input-socket :midi-events)
     |#
-    
 
 **Example 2:**
 
@@ -1070,24 +1056,27 @@ The returned handler is a property list with the following keys:
     	       :environment (cl-synthesizer:make-environment)
     	       :input-sockets '(:midi-events)
     	       :output-sockets '(:line-out))))
-        (cl-synthesizer:add-module rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
-    			       :voice-count 1
-    			       :controllers
-    			       (list
-    				(list :socket :controller-1
-    				      :handler (cl-synthesizer-midi:relative-cc-handler
-    						cl-synthesizer-vendor:*arturia-minilab-mk2*
-    						(list (list :controller-id :ENCODER-1 :weight 0.001)
-    						      (list :controller-id :ENCODER-9 :weight 0.02))
-    						:cv-initial 0
-    						:cv-min 0
-    						:cv-max 5))))
-        (cl-synthesizer:add-module rack "VCO-1"
-    			       #'cl-synthesizer-modules-vco:vco-linear
-    			       :base-frequency 440
-    			       :cv-max 5
-    			       :f-max 5000
-    			       :v-peak 5)
+        (cl-synthesizer:add-module
+         rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
+         :voice-count 1
+         :controllers
+         (list
+          (list :socket :controller-1
+    	    :handler (cl-synthesizer-midi:relative-cc-handler
+    		      cl-synthesizer-vendor:*arturia-minilab-mk2*
+    		      (list (list :controller-id :ENCODER-1 :weight 0.001)
+    			    (list :controller-id :ENCODER-9 :weight 0.02))
+    		      :cv-initial 0
+    		      :cv-min 0
+    		      :cv-max 5))))
+        
+        (cl-synthesizer:add-module
+         rack "VCO-1"
+         #'cl-synthesizer-modules-vco:vco-linear
+         :base-frequency 440
+         :cv-max 5
+         :f-max 5000
+         :v-peak 5)
         
         (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-IFC" :midi-events)
         (cl-synthesizer:add-patch rack "MIDI-IFC" :controller-1 "VCO-1" :cv)
@@ -1099,7 +1088,6 @@ The returned handler is a property list with the following keys:
         :attach-audio t :audio-output-sockets '(:line-out) 
         :attach-midi t :midi-input-socket :midi-events)
     |#
-    
 
 ### Device
 
@@ -1136,4 +1124,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-11-02 23:16:24
+Generated 2018-11-08 20:45:13
