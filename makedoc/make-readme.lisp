@@ -111,7 +111,7 @@
 		   "<hr/><p><small>Generated " (current-date) "</small></p>"
 		   "</body></html>"
 		   )))
-      (with-open-file (fh (make-path "makedoc/doc.html")
+      (with-open-file (fh (make-path "makedoc/generated/readme.html")
 			  :direction :output
 			  :if-exists :supersede
 			  :if-does-not-exist :create
