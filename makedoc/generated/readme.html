@@ -87,7 +87,7 @@ ln -s cl-synthesizer cl-synthesizer-macos-device
 (ql:quickload "cl-synthesizer-macos-device")
 </code></pre>
 Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
-<b>cl-synthesizer-device-speaker:speaker-cl-out123</b>.<h2>API Reference</h2><ul><li><a href="#environment">Environment</a></li><li><a href="#rack">Rack</a></li><li><a href="#modules">Modules</a><ul><li><a href="#vco">VCO</a></li><li><a href="#vca">VCA</a></li><li><a href="#envelope">Envelope</a></li><li><a href="#multiple">Multiple</a></li><li><a href="#midi-interface">MIDI Interface</a></li><li><a href="#midi-sequencer">MIDI Sequencer</a></li><li><a href="#fixed-output">Fixed Output</a></li><li><a href="#adder">Adder</a></li><li><a href="#mixer">Mixer</a></li></ul></li><li><a href="#monitor">Monitor</a></li><li><a href="#midi">MIDI</a><ul><li><a href="#midi-event">MIDI Event</a></li><li><a href="#midi-utilities">MIDI Utilities</a></li></ul></li><li><a href="#device">Device</a></li><li><a href="#conditions">Conditions</a></li></ul><h3 id="environment">Environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (home-directory nil) </p><p>Creates an environment. The environment defines properties such as
+<b>cl-synthesizer-device-speaker:speaker-cl-out123</b>.<h2>API Reference</h2><ul><li><a href="#environment">Environment</a></li><li><a href="#rack">Rack</a></li><li><a href="#modules">Modules</a><ul><li><a href="#vco">VCO</a></li><li><a href="#vca">VCA</a></li><li><a href="#envelope">Envelope</a></li><li><a href="#multiple">Multiple</a></li><li><a href="#midi-interface">MIDI Interface</a></li><li><a href="#midi-sequencer">MIDI Sequencer</a></li><li><a href="#fixed-output">Fixed Output</a></li><li><a href="#adder">Adder</a></li><li><a href="#mixer">Mixer</a></li></ul></li><li><a href="#monitor">Monitor</a></li><li><a href="#midi">MIDI</a><ul><li><a href="#midi-event">MIDI Event</a></li><li><a href="#midi-utilities">MIDI Utilities</a></li></ul></li><li><a href="#conditions">Conditions</a></li></ul><h3 id="environment">Environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (home-directory nil) </p><p>Creates an environment. The environment defines properties such as
     the sample rate of the rack.
     An enviroment is a property list with the following keys:
     <ul>
@@ -999,37 +999,7 @@ Installs the devices <b>cl-synthesizer-device-midi:midi-device</b> and
 (cl-synthesizer::play-rack (example) 10 
     :attach-audio t :audio-output-sockets '(:line-out) 
     :attach-midi t :midi-input-socket :midi-events)
-|#</code></pre></p><h3 id="device">Device</h3><p><b>cl-synthesizer-device-speaker:speaker-cl-out123</b> name environment &key channel-count driver (buf-length-frames 1000) (v-peak 5.0) </p><p>Creates a speaker device using the "cl-out123" package to
-    push audio data to a system speaker driver. The :update function as exposed by
-    the device is blocking. This means that when the maximum buffer size
-    has been reached, the function will not return until the speaker driver
-    has accepted the buffer. This behaviour can be used to synchronize the
-    synthesizer. The device has a latency of about 300-400ms.
-    The function has the following arguments:
-  <ul>
-    <li>name A name.</li>
-    <li>environment The synthesizer environment.</li>
-    <li>:channel-count Number of output channels.</li>
-    <li>:driver Driver to be used, for example "coreaudio".</li>
-    <li>:v-peak Optional peak voltage. The inputs of the device will be normalized
-	to -1.0 ... 1.0 according to v-peak.</li>
-    <li>:buf-length-frames Number of frames to be buffered until the audio data is
-	pushed to the driver.</li>
-  </ul>
-  The :update function of the device must be called with keyword arguments :channel-1 ... :channel-n,
-  where n is the number of channels. In a stereo setup left is represented by :channel-1 and 
-  right by :channel-2
-  The current buffer of the device is flushed when the :shutdown function is called.</p><hr/><p><b>cl-synthesizer-device-midi:midi-device</b> name environment &key (source-index 1) </p><p>Creates a MIDI device using the "coremidi" package to receive MIDI events.
-    The function has the following arguments:
-    <ul>
-	<li>name A name.</li>
-	<li>environment The synthesizer environment.</li>
-	<li>:source-index The source index argument as required by the midi:get-source function
-            of the coremidi package.</li>
-    </ul>
-    The :get-output function returns a list of MIDI events. The events are sorted by
-    their timestamp in ascending order, which means that the first event of the list
-    is the "oldest" one.</p><h3 id="conditions">Conditions</h3><b>assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
+|#</code></pre></p><h3 id="conditions">Conditions</h3><b>assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
    because for example a module name is not unique, a patch is added for
    a non-existing module, a patch is added to an already patched socket
-   and so on.</p><hr/><p><small>Generated 2018-11-08  21:07:09</small></p></body></html>
+   and so on.</p><hr/><p><small>Generated 2018-11-08  21:16:59</small></p></body></html>

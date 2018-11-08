@@ -117,7 +117,6 @@ API Reference
 *   [MIDI](#midi)
     *   [MIDI Event](#midi-event)
     *   [MIDI Utilities](#midi-utilities)
-*   [Device](#device)
 *   [Conditions](#conditions)
 
 ### Environment
@@ -1089,33 +1088,6 @@ The returned handler is a property list with the following keys:
         :attach-midi t :midi-input-socket :midi-events)
     |#
 
-### Device
-
-**cl-synthesizer-device-speaker:speaker-cl-out123** name environment &key channel-count driver (buf-length-frames 1000) (v-peak 5.0)
-
-Creates a speaker device using the "cl-out123" package to push audio data to a system speaker driver. The :update function as exposed by the device is blocking. This means that when the maximum buffer size has been reached, the function will not return until the speaker driver has accepted the buffer. This behaviour can be used to synchronize the synthesizer. The device has a latency of about 300-400ms. The function has the following arguments:
-
-*   name A name.
-*   environment The synthesizer environment.
-*   :channel-count Number of output channels.
-*   :driver Driver to be used, for example "coreaudio".
-*   :v-peak Optional peak voltage. The inputs of the device will be normalized to -1.0 ... 1.0 according to v-peak.
-*   :buf-length-frames Number of frames to be buffered until the audio data is pushed to the driver.
-
-The :update function of the device must be called with keyword arguments :channel-1 ... :channel-n, where n is the number of channels. In a stereo setup left is represented by :channel-1 and right by :channel-2 The current buffer of the device is flushed when the :shutdown function is called.
-
-* * *
-
-**cl-synthesizer-device-midi:midi-device** name environment &key (source-index 1)
-
-Creates a MIDI device using the "coremidi" package to receive MIDI events. The function has the following arguments:
-
-*   name A name.
-*   environment The synthesizer environment.
-*   :source-index The source index argument as required by the midi:get-source function of the coremidi package.
-
-The :get-output function returns a list of MIDI events. The events are sorted by their timestamp in ascending order, which means that the first event of the list is the "oldest" one.
-
 ### Conditions
 
 **assembly-error**
@@ -1124,4 +1096,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-11-08 21:07:09
+Generated 2018-11-08 21:16:59

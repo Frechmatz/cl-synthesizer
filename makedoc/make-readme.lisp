@@ -37,7 +37,6 @@
 		   "<li><a href=\"#midi-utilities\">MIDI Utilities</a></li>"
 		   "</ul>"
 		   "</li>"
-		   "<li><a href=\"#device\">Device</a></li>"
 		   "<li><a href=\"#conditions\">Conditions</a></li>"
 		   "</ul>"
 		   "<h3 id=\"environment\">Environment</h3>"
@@ -102,9 +101,6 @@
 		   (make-function-string 'cl-synthesizer-midi:relative-cc-handler :append-separator nil)
 		   (example-code "src/midi/cc-handler/example-1.lisp" :example-number 1)
 		   (example-code "src/midi/cc-handler/example-2.lisp" :example-number 2)
-		   "<h3 id=\"device\">Device</h3>"
-		   (make-function-string 'cl-synthesizer-device-speaker:speaker-cl-out123)
-		   (make-function-string 'cl-synthesizer-device-midi:midi-device :append-separator nil)
 		   "<h3 id=\"conditions\">Conditions</h3>"
 		   (make-condition-string 'cl-synthesizer:assembly-error :append-separator nil)
 		   ;;(documentation 'cl-synthesizer:assembly-error 'type)
