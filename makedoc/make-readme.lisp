@@ -99,10 +99,7 @@
 		   (make-function-string 'cl-synthesizer-midi-event:get-note-number)
 		   (make-function-string 'cl-synthesizer-midi-event:get-velocity :append-separator nil)
 		   "<h4 id=\"midi-utilities\">MIDI Utilities</h4>"
-		   (make-function-string 'cl-synthesizer-midi:get-note-number-frequency)
-		   (make-function-string 'cl-synthesizer-midi:relative-cc-handler :append-separator nil)
-		   (example-code "src/midi/cc-handler/example-1.lisp" :example-number 1)
-		   (example-code "src/midi/cc-handler/example-2.lisp" :example-number 2)
+		   (make-function-string 'cl-synthesizer-midi:get-note-number-frequency :append-separator nil)
 		   "<h3 id=\"conditions\">Conditions</h3>"
 		   (make-condition-string 'cl-synthesizer:assembly-error :append-separator nil)
 		   ;;(documentation 'cl-synthesizer:assembly-error 'type)

@@ -33,7 +33,6 @@
 			:components ((:file "packages")
 				     (:file "tuning")
 				     (:file "event")
-				     (:file "cc-handler")
 				     (:file "voice-manager")))
 	       (:module "src/modules"
 			:serial t
@@ -57,12 +56,10 @@
 	       (:module "test/midi"
 			:serial t
 			:components ((:file "test-voice-manager-voice")
-				     (:file "test-voice-manager")
-				     (:file "test-cc-handler")))
+				     (:file "test-voice-manager")))
 	       (:module "test/modules/midi-interface"
 			:serial t
-			:components ((:file "test-interface")
-				     (:file "test-cc")))
+			:components ((:file "test-interface")))
 	       (:module "test/modules/midi-cc-interface"
 			:serial t
 			:components ((:file "test-midi-cc-interface")))

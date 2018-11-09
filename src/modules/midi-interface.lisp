@@ -23,29 +23,6 @@
 (defun get-voice-state-gate (state) (elt state +voice-state-gate+))
 (defun set-voice-state-gate (state cv) (setf (elt state +voice-state-gate+) cv))
 
-(defun validate-controller (controller module-outputs)
-  (let ((output-keyword (getf controller :socket)))
-    (if (not (keywordp output-keyword))
-	(cl-synthesizer:signal-assembly-error
-	 :format-control "Controller handler output socket ~a must be a keyword"
-	 :format-arguments (list output-keyword)))
-    (if (find output-keyword module-outputs)
-	(cl-synthesizer:signal-assembly-error
-	 :format-control "Controller handler output socket ~a is already defined"
-	 :format-arguments (list output-keyword))))
-  (if (or (not (listp (getf controller :handler))) (= 0 (length (getf controller :handler))))
-      (cl-synthesizer:signal-assembly-error
-       :format-control "Controller handler object ~a must be a non-empty list"
-       :format-arguments (list controller)))
-  (if (not (getf (getf controller :handler) :get-output))
-      (cl-synthesizer:signal-assembly-error
-       :format-control "Controller handler object ~a must provide a 'get-output' function property"
-       :format-arguments (list controller)))
-  (if (not (getf (getf controller :handler) :update))
-      (cl-synthesizer:signal-assembly-error
-       :format-control "Controller handler object ~a must provide a 'update' function property"
-       :format-arguments (list controller))))
-
 (defun midi-interface (name environment
 		       &key
 			 (voice-count 1)
@@ -54,7 +31,6 @@
 			 (play-mode :PLAY-MODE-POLY)
 			 (cv-gate-on 5.0)
 			 (cv-gate-off 0.0)
-			 (controllers nil)
 			 (force-gate-retrigger nil))
   "Creates a MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
     voice is represented by a control-voltage and a gate signal. The module supports the
@@ -92,21 +68,6 @@
 	<li>:force-gate-retrigger If t then in :play-mode-unisono play mode each note
 	    event will cause a retriggering of the gate signal. Otherwise the gate signal
 	    will just stay on when it is already on.</li>
-	<li>:controllers Controllers can be used to declare additional output sockets that are
-	    exposed by the module. The controllers argument consists of a list of property lists
-	    with the following keys:
-	    <ul>
-		<li>:socket A keyword that defines the output socket to be exposed by the module.</li>
-		<li>:handler A property list that defines the keys
-		    <ul>
-			<li>:update A function that is called with the MIDI events passed to the update
-			    function of the module. The module does not apply channel filtering.</li>
-			<li>:get-output A function with no arguments that returns the current value
-			    of the controller.</li>
-		    </ul>
-		</li>
-	    </ul>
-	</li>
     </ul>
     Gate transitions are implemented as follows:
     <ul>
@@ -128,9 +89,7 @@
     <ul>
 	<li>:gate-1 ... :gate-n</li>
 	<li>:cv-1 ... :cv-n</li>
-	<li>Outputs as defined by controllers</li>
-    </ul>
-    <p>See also <b>cl-synthesizer-midi:relative-cc-handler</b></p>"
+    </ul>"
   (declare (ignore environment))
   (let* ((outputs nil)
 	 (voice-states (make-array voice-count))
@@ -153,13 +112,6 @@
 		(lambda () (get-voice-state-cv (elt voice-states cur-i))))
 	  (setf (gethash gate-socket output-socket-lookup-table)
 		(lambda () (get-voice-state-gate (elt voice-states cur-i)))))))
-    ;; process controllers
-    (dolist (controller controllers)
-      (validate-controller controller outputs)
-      (setf outputs (push (getf controller :socket) outputs))
-      (let ((cur-controller controller)) ;; new context
-	(setf (gethash (getf cur-controller :socket) output-socket-lookup-table)
-	      (lambda () (funcall (getf (getf cur-controller :handler) :get-output))))))
     (flet ((activate-gate (voice-index)
 	     ;; set gate to on or if already on let it go down for one tick
 	     (let ((voice-state (elt voice-states voice-index)))
@@ -189,9 +141,6 @@
 		   (if (cl-synthesizer-midi-voice-manager:has-note voice-manager voice-index)
 		       (set-voice-state-gate voice-state cv-gate-on))))
 	       (setf pending-gate-on-voices nil)
-	       ;; Update controllers
-	       (dolist (c controllers)
-		 (funcall (getf (getf c :handler) :update) midi-events))
 	       ;; Update voices
 	       (dolist (midi-event midi-events)
 		 (if (and midi-event

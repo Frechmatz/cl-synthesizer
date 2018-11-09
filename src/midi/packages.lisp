@@ -2,8 +2,7 @@
 (defpackage :cl-synthesizer-midi
   (:use :cl)
   (:export
-   :get-note-number-frequency
-   :relative-cc-handler))
+   :get-note-number-frequency))
 
 (defpackage :cl-synthesizer-midi-event
   (:use :cl)

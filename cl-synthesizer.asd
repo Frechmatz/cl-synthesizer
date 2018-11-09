@@ -35,7 +35,6 @@
 			:components ((:file "packages")
 				     (:file "tuning")
 				     (:file "event")
-				     (:file "cc-handler")
 				     (:file "voice-manager")))
 	       (:module "src/modules"
 			:serial t
@@ -67,10 +66,6 @@
 	       (:module "src/synthesizer/rack"
 			:serial t
 			:components ((:file "example-1")))
-	       (:module "src/midi/cc-handler"
-			:serial t
-			:components ((:file "example-1")
-				     (:file "example-2")))
 	       (:module "src/modules/vca"
 			:serial t
 			:components ((:file "example-1")

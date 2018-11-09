@@ -109,6 +109,7 @@ API Reference
     *   [Envelope](#envelope)
     *   [Multiple](#multiple)
     *   [MIDI Interface](#midi-interface)
+    *   [MIDI CC Interface](#midi-cc-interface)
     *   [MIDI Sequencer](#midi-sequencer)
     *   [Fixed Output](#fixed-output)
     *   [Adder](#adder)
@@ -537,7 +538,7 @@ The module has the following outputs:
 
 #### MIDI Interface
 
-**cl-synthesizer-modules-midi-interface:midi-interface** name environment &key (voice-count 1) (channel nil) (note-number-to-cv (lambda (note-number) (/ note-number 12))) (play-mode :play-mode-poly) (cv-gate-on 5.0) (cv-gate-off 0.0) (controllers nil) (force-gate-retrigger nil)
+**cl-synthesizer-modules-midi-interface:midi-interface** name environment &key (voice-count 1) (channel nil) (note-number-to-cv (lambda (note-number) (/ note-number 12))) (play-mode :play-mode-poly) (cv-gate-on 5.0) (cv-gate-off 0.0) (force-gate-retrigger nil)
 
 Creates a MIDI interface module. The module dispatches MIDI-Note events to so called voices where each voice is represented by a control-voltage and a gate signal. The module supports the mapping of MIDI CC-Events to arbitary output sockets. The function has the following arguments:
 
@@ -558,11 +559,6 @@ Creates a MIDI interface module. The module dispatches MIDI-Note events to so ca
 *   :cv-gate-on The "Gate on" control voltage.
 *   :cv-gate-off The "Gate off" control voltage.
 *   :force-gate-retrigger If t then in :play-mode-unisono play mode each note event will cause a retriggering of the gate signal. Otherwise the gate signal will just stay on when it is already on.
-*   :controllers Controllers can be used to declare additional output sockets that are exposed by the module. The controllers argument consists of a list of property lists with the following keys:
-    *   :socket A keyword that defines the output socket to be exposed by the module.
-    *   :handler A property list that defines the keys
-        *   :update A function that is called with the MIDI events passed to the update function of the module. The module does not apply channel filtering.
-        *   :get-output A function with no arguments that returns the current value of the controller.
 
 Gate transitions are implemented as follows:
 
@@ -577,9 +573,6 @@ The module has the following outputs:
 
 *   :gate-1 ... :gate-n
 *   :cv-1 ... :cv-n
-*   Outputs as defined by controllers
-
-See also **cl-synthesizer-midi:relative-cc-handler**
 
 **Example:**
 
@@ -618,6 +611,70 @@ See also **cl-synthesizer-midi:relative-cc-handler**
     (cl-synthesizer::play-rack (example) 10 
         :attach-audio t :audio-output-sockets '(:line-out) 
         :attach-midi t :midi-input-socket :midi-events)
+    |#
+
+#### MIDI CC Interface
+
+**cl-synthesizer-modules-midi-cc-interface:midi-cc-interface** name environment &key controller-numbers transform-handler (channel nil) (initial-output 0) (min-output nil) (max-output nil)
+
+Creates a MIDI CC Event interface module. The module maps MIDI control change events to an output value. The function has the following arguments:
+
+*   name Name of the module.
+*   environment The synthesizer environment.
+*   :controller-numbers A list of MIDI controller numbers.
+*   :transform-handler A function that converts a control value to the output value of the module. It is called for each matching CC event and has the following arguments:
+    *   The current output value of the module.
+    *   Controller number.
+    *   Control value.The function must return the new output value of the module.
+*   :channel Optional number of the MIDI channel to which the controller events must belong. By default there is no channel filtering applied.
+*   :initial-output The initial output value of the module.
+*   :min-output Optional lowest numeric output value of the module. If the transform handler returns a number smaller than min-output then the actual output-value is set to min-output.
+*   :max-output Optional largest numeric output value of the module. If the transform handler returns a number greater than max-output then the actual output value is set to max-output.
+
+The module has the following inputs:
+
+*   :midi-events A list of MIDI events.
+
+The module has the following outputs:
+
+*   :output The current output value.
+
+**Example:**
+
+    (defpackage :cl-synthesizer-modules-midi-cc-interface-example-1
+      (:use :cl))
+    
+    (in-package :cl-synthesizer-modules-midi-cc-interface-example-1)
+    
+    (defun example ()
+      "MIDI CC-Interface Example"
+      (let ((rack (cl-synthesizer:make-rack
+    	       :environment (cl-synthesizer:make-environment)
+    	       :input-sockets '(:midi-events))))
+    
+        (cl-synthesizer:add-module
+         rack "MIDI-CC-IFC" #'cl-synthesizer-modules-midi-cc-interface:midi-cc-interface
+         :controller-numbers '(112)
+         :initial-output 2.5
+         :min-output 0.0
+         :max-output 5.0
+         :transform-handler
+         (lambda (cur-output controller-number control-value)
+           (declare (ignore controller-number))
+           (cond
+    	 ((= control-value 61)
+    	  (+ cur-output -0.5))
+    	 ((= control-value 67)
+    	  (+ cur-output 0.5))
+    	 (t cur-output)))
+         :channel nil)
+        
+        (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-CC-IFC" :midi-events)
+    
+        rack))
+    
+    #|
+    (cl-synthesizer::play-rack (example) 5)
     |#
 
 #### MIDI Sequencer
@@ -966,128 +1023,6 @@ Returns the velocity of a Note-On/Off MIDI event.
 
 Returns the frequency of a given note number. Note number 69 results in a frequency of 440Hz. This function implements a simple mapping and might be useful in some cases. For more details about the implementation refer to the source code.
 
-* * *
-
-**cl-synthesizer-midi:relative-cc-handler** midi-controller controllers &key cv-initial cv-min cv-max (channel nil)
-
-Creates a handler that maps MIDI events of n >= 1 relative MIDI CC-Controllers to a single target value. The function has the following arguments:
-
-*   midi-controller A property list with the keys
-    *   :get-controller-number A function with one argument that is called with a keyword that identifies the controller, for example :encoder-1 and returns the controller number, for example 112.
-    *   :get-controller-value-offset A function with one argument that is called with the value of a relative CC event, for example 62, and returns a positive or negative offset, for example -3.
-*   controllers A list of property lists with the keys
-    *   :controller-id A keyword that identifies an encoder of the given midi-controller, for example :encoder-1
-    *   :weight The weight of the controller in percent that defines how much the target value will be increased/decreased when the controller is turned. The value is relative to the total control voltage range as defined by cv-min and cv-max.
-    *   :turn-speed An optional function that is called with the absolute value of the increase/decrease offset as returned by the :get-controller-value-offset function of the midi-controller. The offset typically depends on the speed with which the encoder is turned. The function must return the absolute value of the new offset. This function can for example be used to disable turn-speed specific increments/decrements by simply returning 1. Example: (:turn-speed (lambda (offs) 1))
-*   :cv-initial The initial output value of the handler function.
-*   :cv-min The minimum output value of the handler function. Clipping is applied to ensure this.
-*   :cv-max The maximum output value of the handler function. Clipping is applied to ensure this.
-*   :channel Optional number of the MIDI channel to which the controller events must belong. By default the channel number is ignored.
-
-The returned handler is a property list with the following keys:
-
-*   :update A function that is to be called with a list of midi-events.
-*   :get-output A function that returns the current output value.
-
-**Example 1:**
-
-    (defpackage :cl-synthesizer-modules-midi-cc-handler-example-1
-      (:use :cl))
-    
-    (in-package :cl-synthesizer-modules-midi-cc-handler-example-1)
-    
-    (defparameter *attach-midi* t)
-    (defparameter *attach-audio* t)
-    
-    (defun example ()
-      "Modulate frequency via one controller"
-      (let ((rack (cl-synthesizer:make-rack
-    	       :environment (cl-synthesizer:make-environment)
-    	       :input-sockets '(:midi-events)
-    	       :output-sockets '(:line-out)
-    	       )))
-        (cl-synthesizer:add-module
-         rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
-         :voice-count 1
-         :controllers
-         (list
-          (list :socket :controller-1
-    	    :handler (cl-synthesizer-midi:relative-cc-handler
-    		      cl-synthesizer-vendor:*arturia-minilab-mk2*
-    		      (list (list :controller-id :ENCODER-1 :weight 0.01
-    				  :turn-speed (lambda(offs) (declare (ignore offs)) 1)))
-    		      :cv-initial 0
-    		      :cv-min 0
-    		      :cv-max 5))))
-        
-        (cl-synthesizer:add-module
-         rack "VCO-1"
-         #'cl-synthesizer-modules-vco:vco-linear
-         :base-frequency 440
-         :f-max 5000
-         :cv-max 5
-         :v-peak 5)
-        
-        (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-IFC" :midi-events)
-        (cl-synthesizer:add-patch rack "MIDI-IFC" :controller-1 "VCO-1" :cv)
-        (cl-synthesizer:add-patch rack "VCO-1" :saw "OUTPUT" :line-out)
-        rack))
-    
-    #|
-    (cl-synthesizer::play-rack (example) 10 
-        :attach-audio t :audio-output-sockets '(:line-out) 
-        :attach-midi t :midi-input-socket :midi-events)
-    |#
-
-**Example 2:**
-
-    (defpackage :cl-synthesizer-modules-midi-cc-handler-example-2
-      (:use :cl))
-    
-    (in-package :cl-synthesizer-modules-midi-cc-handler-example-2)
-    
-    (defparameter *attach-midi* t)
-    (defparameter *attach-speaker* t)
-    
-    (defun example ()
-      "Modulate frequency via two chained controllers"
-      (let ((rack (cl-synthesizer:make-rack
-    	       :environment (cl-synthesizer:make-environment)
-    	       :input-sockets '(:midi-events)
-    	       :output-sockets '(:line-out))))
-        (cl-synthesizer:add-module
-         rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
-         :voice-count 1
-         :controllers
-         (list
-          (list :socket :controller-1
-    	    :handler (cl-synthesizer-midi:relative-cc-handler
-    		      cl-synthesizer-vendor:*arturia-minilab-mk2*
-    		      (list (list :controller-id :ENCODER-1 :weight 0.001)
-    			    (list :controller-id :ENCODER-9 :weight 0.02))
-    		      :cv-initial 0
-    		      :cv-min 0
-    		      :cv-max 5))))
-        
-        (cl-synthesizer:add-module
-         rack "VCO-1"
-         #'cl-synthesizer-modules-vco:vco-linear
-         :base-frequency 440
-         :cv-max 5
-         :f-max 5000
-         :v-peak 5)
-        
-        (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-IFC" :midi-events)
-        (cl-synthesizer:add-patch rack "MIDI-IFC" :controller-1 "VCO-1" :cv)
-        (cl-synthesizer:add-patch rack "VCO-1" :saw "OUTPUT" :line-out)
-        rack))
-    
-    #|
-    (cl-synthesizer::play-rack (example) 10 
-        :attach-audio t :audio-output-sockets '(:line-out) 
-        :attach-midi t :midi-input-socket :midi-events)
-    |#
-
 ### Conditions
 
 **assembly-error**
@@ -1096,4 +1031,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-11-08 21:16:59
+Generated 2018-11-09 23:33:22

@@ -1,7 +1,7 @@
 (defpackage :cl-synthesizer-modules-midi-cc-interface-example-2
   (:use :cl))
 
-(in-package :cl-synthesizer-modules-midi-cc-handler-example-2)
+(in-package :cl-synthesizer-modules-midi-cc-interface-example-2)
 
 (defparameter *attach-midi* t)
 (defparameter *attach-speaker* t)
