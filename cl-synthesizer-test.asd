@@ -39,6 +39,7 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "midi-interface")
+				     (:file "midi-cc-interface")
 				     (:file "vca")
 				     (:file "vco")
 				     (:file "envelope")
@@ -62,6 +63,9 @@
 			:serial t
 			:components ((:file "test-interface")
 				     (:file "test-cc")))
+	       (:module "test/modules/midi-cc-interface"
+			:serial t
+			:components ((:file "test-midi-cc-interface")))
 	       (:module "test/modules/envelope"
 			:serial t
 			:components ((:file "test-envelope")

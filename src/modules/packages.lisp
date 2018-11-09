@@ -11,6 +11,10 @@
   (:export
    :midi-interface))
 
+(defpackage ::cl-synthesizer-modules-midi-cc-interface
+  (:use :cl)
+  (:export :midi-cc-interface))
+
 (defpackage :cl-synthesizer-modules-multiple
   (:use :cl)
   (:export :multiple))
