@@ -1,5 +1,3 @@
-(load "docutil.lisp")
-(defpackage :cl-synthesizer-makedoc (:use :cl :cl-synthesizer-doc-util))
 (in-package :cl-synthesizer-makedoc)
 
 (defun write-html ()
@@ -24,6 +22,7 @@
 		   "<li><a href=\"#envelope\">Envelope</a></li>"
 		   "<li><a href=\"#multiple\">Multiple</a></li>"
 		   "<li><a href=\"#midi-interface\">MIDI Interface</a></li>"
+		   "<li><a href=\"#midi-cc-interface\">MIDI CC Interface</a></li>"
 		   "<li><a href=\"#midi-sequencer\">MIDI Sequencer</a></li>"
 		   "<li><a href=\"#fixed-output\">Fixed Output</a></li>"
 		   "<li><a href=\"#adder\">Adder</a></li>"
@@ -68,6 +67,9 @@
 		   "<h4 id=\"midi-interface\">MIDI Interface</h4>"
 		   (make-function-string 'cl-synthesizer-modules-midi-interface:midi-interface :append-separator nil)
 		   (example-code "src/modules/midi-interface/example-1.lisp")
+		   "<h4 id=\"midi-cc-interface\">MIDI CC Interface</h4>"
+		   (make-function-string 'cl-synthesizer-modules-midi-cc-interface:midi-cc-interface :append-separator nil)
+		   (example-code "src/modules/midi-cc-interface/example-1.lisp")
 		   "<h4 id=\"midi-sequencer\">MIDI Sequencer</h4>"
 		   (make-function-string 'cl-synthesizer-modules-midi-sequencer:midi-sequencer :append-separator nil)
 		   (example-code "src/modules/midi-sequencer/example-1.lisp")
