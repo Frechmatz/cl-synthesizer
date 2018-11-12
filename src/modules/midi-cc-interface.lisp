@@ -21,7 +21,7 @@
                 <li>Controller number.</li>
                 <li>Control value.</li>
             </ul>
-            The function must return the new output value of the module.
+            <p>The function must return the new output value of the module.</p>
         </li>
         <li>:channel Optional number of the MIDI channel to which the controller events 
           must belong. By default there is no channel filtering applied.</li>

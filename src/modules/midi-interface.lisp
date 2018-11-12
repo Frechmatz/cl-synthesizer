@@ -33,8 +33,7 @@
 			 (cv-gate-off 0.0)
 			 (force-gate-retrigger nil))
   "Creates a MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
-    voice is represented by a control-voltage and a gate signal. The module supports the
-    mapping of MIDI CC-Events to arbitary output sockets. The function has the following arguments:
+    voice is represented by a control-voltage and a gate signal. The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
