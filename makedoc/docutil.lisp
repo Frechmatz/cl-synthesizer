@@ -1,13 +1,3 @@
-(defpackage :cl-synthesizer-doc-util
-  (:use :cl)
-  (:export
-   :example-code
-   :make-function-string
-   :make-condition-string
-   :read-text-file
-   :current-date
-   :make-path))
-
 (in-package :cl-synthesizer-doc-util)
 
 (defparameter *CL-SYNTHESIZER-HOME* "/Users/olli/src/lisp/cl-synthesizer/")
