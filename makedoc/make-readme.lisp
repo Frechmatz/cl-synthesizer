@@ -51,35 +51,35 @@
 		   (make-function-string 'cl-synthesizer:add-hook :append-separator nil)
 		   "<h3 id=\"modules\">Modules</h3>"
 		   "<h4 id=\"vco\">VCO</h4>"
-		   (make-function-string 'cl-synthesizer-modules-vco:vco-base)
-		   (make-function-string 'cl-synthesizer-modules-vco:vco-linear :append-separator nil)
+		   (make-function-string 'cl-synthesizer-modules-vco:make-module-base)
+		   (make-function-string 'cl-synthesizer-modules-vco:make-linear-module :append-separator nil)
 		   (example-code "src/modules/vco/example-1.lisp")
-		   (make-function-string 'cl-synthesizer-modules-vco:vco-exponential)
+		   (make-function-string 'cl-synthesizer-modules-vco:make-exponential-module)
 		   "<h4 id=\"vca\">VCA</h4>"
-		   (make-function-string 'cl-synthesizer-modules-vca:vca :append-separator nil)
+		   (make-function-string 'cl-synthesizer-modules-vca:make-module :append-separator nil)
 		   (example-code "src/modules/vca/example-1.lisp")
 		   "<h4 id=\"envelope\">Envelope</h4>"
-		   (make-function-string 'cl-synthesizer-modules-envelope:envelope :append-separator nil)
+		   (make-function-string 'cl-synthesizer-modules-envelope:make-module :append-separator nil)
 		   (example-code "src/modules/envelope/example-1.lisp")
 		   "<h4 id=\"multiple\">Multiple</h4>"
-		   (make-function-string 'cl-synthesizer-modules-multiple:multiple :append-separator nil)
+		   (make-function-string 'cl-synthesizer-modules-multiple:make-module :append-separator nil)
 		   (example-code "src/modules/multiple/example-1.lisp")
 		   "<h4 id=\"midi-interface\">MIDI Interface</h4>"
-		   (make-function-string 'cl-synthesizer-modules-midi-interface:midi-interface :append-separator nil)
+		   (make-function-string 'cl-synthesizer-modules-midi-interface:make-module :append-separator nil)
 		   (example-code "src/modules/midi-interface/example-1.lisp")
 		   "<h4 id=\"midi-cc-interface\">MIDI CC Interface</h4>"
-		   (make-function-string 'cl-synthesizer-modules-midi-cc-interface:midi-cc-interface :append-separator nil)
+		   (make-function-string 'cl-synthesizer-modules-midi-cc-interface:make-module :append-separator nil)
 		   (example-code "src/modules/midi-cc-interface/example-1.lisp")
 		   "<h4 id=\"midi-sequencer\">MIDI Sequencer</h4>"
-		   (make-function-string 'cl-synthesizer-modules-midi-sequencer:midi-sequencer :append-separator nil)
+		   (make-function-string 'cl-synthesizer-modules-midi-sequencer:make-module :append-separator nil)
 		   (example-code "src/modules/midi-sequencer/example-1.lisp")
 		   "<h4 id=\"fixed-output\">Fixed Output</h4>"
-		   (make-function-string 'cl-synthesizer-modules-fixed-output:fixed-output :append-separator nil)
+		   (make-function-string 'cl-synthesizer-modules-fixed-output:make-module :append-separator nil)
 		   (example-code "src/modules/fixed-output/example-1.lisp")
 		   "<h4 id=\"adder\">Adder</h4>"
-		   (make-function-string 'cl-synthesizer-modules-adder:adder :append-separator nil)
+		   (make-function-string 'cl-synthesizer-modules-adder:make-module :append-separator nil)
 		   "<h4 id=\"mixer\">Mixer</h4>"
-		   (make-function-string 'cl-synthesizer-modules-mixer:mixer :append-separator nil)
+		   (make-function-string 'cl-synthesizer-modules-mixer:make-module :append-separator nil)
 		   (example-code "src/modules/mixer/example-1.lisp")
 		   "<h3 id=\"monitor\">Monitor</h3>"
 		   (make-function-string 'cl-synthesizer-monitor:add-monitor :append-separator nil)

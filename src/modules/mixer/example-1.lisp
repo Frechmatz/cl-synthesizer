@@ -14,7 +14,7 @@
     ;;
     
     (cl-synthesizer:add-module
-     rack "MIXER" #'cl-synthesizer-modules-mixer:mixer
+     rack "MIXER" #'cl-synthesizer-modules-mixer:make-module
      :channel-count 2
      :channel-cv-max 5.0
      :channel-cv-gain 5.0

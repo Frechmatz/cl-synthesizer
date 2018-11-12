@@ -11,7 +11,7 @@
     
     (cl-synthesizer:add-module
      rack "FIXED-OUTPUT"
-     #'cl-synthesizer-modules-fixed-output:fixed-output
+     #'cl-synthesizer-modules-fixed-output:make-module
      :value 3.0
      :output-socket :fixed)
     

@@ -11,11 +11,11 @@
     
     (cl-synthesizer:add-module
      rack "LFO"
-     #'cl-synthesizer-modules-vco:vco-linear
+     #'cl-synthesizer-modules-vco:make-linear-module
      :base-frequency 1.0 :v-peak 1.0 :f-max 500 :cv-max 5)
     
     (cl-synthesizer:add-module rack "MULTIPLE"
-			       #'cl-synthesizer-modules-multiple:multiple :output-count 5)
+			       #'cl-synthesizer-modules-multiple:make-module :output-count 5)
     (cl-synthesizer:add-patch rack "LFO" :sine "MULTIPLE" :input)
     (cl-synthesizer:add-patch rack "MULTIPLE" :output-1 "OUTPUT" :line-out-1)
     (cl-synthesizer:add-patch rack "MULTIPLE" :output-2 "OUTPUT" :line-out-2)

@@ -44,7 +44,7 @@
        (/ cv 10.0)))))
   
        
-(defun vca (name
+(defun make-module (name
 	    environment
 	    &key
 	      cv-max

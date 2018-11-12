@@ -106,7 +106,7 @@ t                      t                           Validate controller settings
 	 (push (getf (getf segment ,controller-key) :socket) controller-handlers)
 	 (push (getf (getf segment ,controller-key) :socket) controller-inputs))))
 
-(defun envelope (name environment &key segments (gate-threshold 4.9))
+(defun make-module (name environment &key segments (gate-threshold 4.9))
 "Creates an envelope generator module. An envelope consists of a list of segments where
     each segment defines rules how to behave. The module generates linear envelopes.
     The function has the following arguments:

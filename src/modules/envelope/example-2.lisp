@@ -14,7 +14,7 @@
     (cl-synthesizer:add-module
      rack
      "MIDI-SEQUENCER"
-     #'cl-synthesizer-modules-midi-sequencer:midi-sequencer :events
+     #'cl-synthesizer-modules-midi-sequencer:make-module :events
      (list 
       (list :timestamp-milli-seconds 0
 	    :midi-events (list
@@ -55,18 +55,18 @@
     (cl-synthesizer:add-module
      rack
      "MIDI-IFC"
-     #'cl-synthesizer-modules-midi-interface:midi-interface :voice-count 1)
+     #'cl-synthesizer-modules-midi-interface:make-module :voice-count 1)
     (cl-synthesizer:add-patch rack "MIDI-SEQUENCER" :midi-events "MIDI-IFC" :midi-events)
 
     ;; Add LFO
     (cl-synthesizer:add-module
      rack "LFO"
-     #'cl-synthesizer-modules-vco:vco-linear :base-frequency 0.05 :v-peak 5 :cv-max 5.0 :f-max 12000)
+     #'cl-synthesizer-modules-vco:make-linear-module :base-frequency 0.05 :v-peak 5 :cv-max 5.0 :f-max 12000)
     
     ;; Envelope
     (cl-synthesizer:add-module
      rack "ADSR"
-     #'cl-synthesizer-modules-envelope:envelope
+     #'cl-synthesizer-modules-envelope:make-module
      :segments
      '(;; Attack
        (:duration-ms 100 :target-cv 5 :required-gate-state :on
@@ -83,11 +83,11 @@
     
     ;; Add VCO, VCA
     (cl-synthesizer:add-module
-     rack "VCO" #'cl-synthesizer-modules-vco:vco-exponential
+     rack "VCO" #'cl-synthesizer-modules-vco:make-exponential-module
      :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
      :f-max 12000
      :v-peak 5)
-    (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:vca
+    (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:make-module
 			       :cv-max 5.0)
     (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv)
     (cl-synthesizer:add-patch rack "VCO" :sine "VCA" :input)

@@ -19,20 +19,20 @@
     
     (cl-synthesizer:add-module
      rack "VCO"
-     #'cl-synthesizer-modules-vco:vco-exponential
+     #'cl-synthesizer-modules-vco:make-exponential-module
      :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
      :f-max 13000
      :v-peak 5)
 
     (cl-synthesizer:add-module
      rack "ADSR"
-     #'cl-synthesizer-modules-envelope:envelope
+     #'cl-synthesizer-modules-envelope:make-module
      :segments '((:duration-ms 1000 :target-cv 5 :required-gate-state :on)
 		 (:duration-ms 1000 :target-cv 3 :required-gate-state :on)
 		 (:required-gate-state :on)
 		 (:duration-ms 1000 :target-cv 0 :required-gate-state :ignore)))
 
-    (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:vca :cv-max 5.0)
+    (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:make-module :cv-max 5.0)
 
     (cl-synthesizer:add-patch rack "VCO" :sine "VCA" :input)
     (cl-synthesizer:add-patch rack "ADSR" :cv "VCA" :cv)
@@ -53,7 +53,7 @@
     (cl-synthesizer:add-module rack "VOICE-1" #'make-voice)
     (cl-synthesizer:add-module rack "VOICE-2" #'make-voice)
     (cl-synthesizer:add-module
-     rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface :voice-count 2)
+     rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:make-module :voice-count 2)
     (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-IFC" :midi-events)
 
     ;; Connect voices with midi-interface
@@ -62,7 +62,7 @@
     (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-2 "VOICE-2" :cv)
     (cl-synthesizer:add-patch rack "MIDI-IFC" :gate-2 "VOICE-2" :gate)
 
-    (cl-synthesizer:add-module rack "MIXER" #'cl-synthesizer-modules-mixer:mixer
+    (cl-synthesizer:add-module rack "MIXER" #'cl-synthesizer-modules-mixer:make-module
 			       :channel-count 2
 			       :channel-cv-max 5.0
 			       :channel-cv-gain 5.0

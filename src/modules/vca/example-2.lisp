@@ -12,7 +12,7 @@
     ;; Set up oszillator modulating the amplification
     (cl-synthesizer:add-module
      rack "LFO-CV"
-     #'cl-synthesizer-modules-vco:vco-linear
+     #'cl-synthesizer-modules-vco:make-linear-module
      :base-frequency 0.5
      :cv-max 5.0
      :f-max 12000
@@ -21,7 +21,7 @@
     ;; set up oszillator providing the audio signal
     (cl-synthesizer:add-module
      rack "VCO-AUDIO"
-     #'cl-synthesizer-modules-vco:vco-linear
+     #'cl-synthesizer-modules-vco:make-linear-module
      :base-frequency 10000.0
      :cv-max 5.0
      :f-max 12000
@@ -30,7 +30,7 @@
     ;; Set up VCA with Gain
     (cl-synthesizer:add-module
      rack "VCA"
-     #'cl-synthesizer-modules-vca:vca
+     #'cl-synthesizer-modules-vca:make-module
      :cv-max 5.0
      :initial-gain 2.5)
 

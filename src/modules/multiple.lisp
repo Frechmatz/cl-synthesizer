@@ -1,6 +1,6 @@
 (in-package :cl-synthesizer-modules-multiple)
 
-(defun multiple (name environment &key output-count)
+(defun make-module (name environment &key output-count)
   "Creates a Multiple module. A multiple passes the value of exactly one input socket
    to as many output sockets as defined by output-count.
    The function has the following arguments:

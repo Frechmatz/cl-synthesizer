@@ -9,7 +9,7 @@
 
     (cl-synthesizer:add-module
      rack "ADSR"
-     #'cl-synthesizer-modules-envelope:envelope
+     #'cl-synthesizer-modules-envelope:make-module
      :segments
      '(;; Attack (duration can be modulated via input socket :attack-duration)
        (:duration-ms 100 :target-cv 5 :required-gate-state :on

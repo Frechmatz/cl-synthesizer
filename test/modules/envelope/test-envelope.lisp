@@ -30,7 +30,7 @@
 			   (push :target-cv-controller mapped)))
 		     mapped))
 	  (getf test-case :segments))))
-    (let ((module (cl-synthesizer-modules-envelope:envelope
+    (let ((module (cl-synthesizer-modules-envelope:make-module
 		   "Envelope Module"
 		   (make-envelope-environment)
 		   :segments

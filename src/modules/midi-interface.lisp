@@ -23,7 +23,7 @@
 (defun get-voice-state-gate (state) (elt state +voice-state-gate+))
 (defun set-voice-state-gate (state cv) (setf (elt state +voice-state-gate+) cv))
 
-(defun midi-interface (name environment
+(defun make-module (name environment
 		       &key
 			 (voice-count 1)
 			 (channel nil)

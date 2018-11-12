@@ -1,6 +1,6 @@
 (in-package :cl-synthesizer-modules-midi-cc-interface)
 
-(defun midi-cc-interface (name environment
+(defun make-module (name environment
 			  &key controller-numbers
 			    transform-handler
 			    (channel nil)

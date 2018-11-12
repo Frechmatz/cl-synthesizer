@@ -2,7 +2,7 @@
 
 ;; Test that VCO emits base-frequency when cv input is 0.0
 (define-test vco-test-1 ()
-	     (let ((vco (cl-synthesizer-modules-vco:vco-exponential
+	     (let ((vco (cl-synthesizer-modules-vco:make-exponential-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
@@ -25,7 +25,7 @@
 
 ;; Test that output frequency of VCA goes up one octave when cv input is 1.0
 (define-test vco-test-exp-1 ()
-	     (let ((vco (cl-synthesizer-modules-vco:vco-exponential
+	     (let ((vco (cl-synthesizer-modules-vco:make-exponential-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
@@ -49,7 +49,7 @@
 
 ;; Test that output frequency of VCA goes up two octaves when cv input is 2.0
 (define-test vco-test-exp-2 ()
-	     (let ((vco (cl-synthesizer-modules-vco:vco-exponential
+	     (let ((vco (cl-synthesizer-modules-vco:make-exponential-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
@@ -73,7 +73,7 @@
 
 ;; Test that output frequency of VCA goes down one octave when cv input is -1.0
 (define-test vco-test-exp-3 ()
-	     (let ((vco (cl-synthesizer-modules-vco:vco-exponential
+	     (let ((vco (cl-synthesizer-modules-vco:make-exponential-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
@@ -97,7 +97,7 @@
 
 ;; Test that output frequency of VCA goes down two octave when cv input is -2.0
 (define-test vco-test-exp-4 ()
-	     (let ((vco (cl-synthesizer-modules-vco:vco-exponential
+	     (let ((vco (cl-synthesizer-modules-vco:make-exponential-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
@@ -120,7 +120,7 @@
 
 ;; Test base-frequency
 (define-test vco-test-lin-0 ()
-	     (let ((vco (cl-synthesizer-modules-vco:vco-linear
+	     (let ((vco (cl-synthesizer-modules-vco:make-linear-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :cv-max 5
@@ -146,7 +146,7 @@
 
 ;; Add 6000Hz via linear CV input
 (define-test vco-test-lin-1 ()
-	     (let ((vco (cl-synthesizer-modules-vco:vco-linear
+	     (let ((vco (cl-synthesizer-modules-vco:make-linear-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :cv-max 5
@@ -176,7 +176,7 @@
 ;; 
 
 (define-test vco-test-frequency-clipping-exp-upper ()
-	     (let ((vco (cl-synthesizer-modules-vco:vco-exponential
+	     (let ((vco (cl-synthesizer-modules-vco:make-exponential-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
@@ -200,7 +200,7 @@
 			       (<= f 12000.5))))))
 
 (define-test vco-test-frequency-clipping-exp-bottom ()
-	     (let ((vco (cl-synthesizer-modules-vco:vco-exponential
+	     (let ((vco (cl-synthesizer-modules-vco:make-exponential-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
@@ -226,7 +226,7 @@
 ;; 
 
 (define-test vco-test-frequency-clipping-lin-upper ()
-	     (let ((vco (cl-synthesizer-modules-vco:vco-linear
+	     (let ((vco (cl-synthesizer-modules-vco:make-linear-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :cv-max 5
@@ -251,7 +251,7 @@
 			       (<= f 12000.5))))))
 
 (define-test vco-test-frequency-clipping-lin-bottom ()
-	     (let ((vco (cl-synthesizer-modules-vco:vco-linear
+	     (let ((vco (cl-synthesizer-modules-vco:make-linear-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :cv-max 5

@@ -14,12 +14,12 @@
 	       :output-sockets '(:line-out))))
 
     (cl-synthesizer:add-module
-     rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
+     rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:make-module
      :voice-count 1)
 
     (cl-synthesizer:add-module
      rack "VCO-1"
-     #'cl-synthesizer-modules-vco:vco-exponential
+     #'cl-synthesizer-modules-vco:make-exponential-module
      :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
      :f-max 13000
      :v-peak 5)

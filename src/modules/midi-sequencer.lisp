@@ -6,7 +6,7 @@
 
 (in-package :cl-synthesizer-modules-midi-sequencer)
 
-(defun midi-sequencer (name environment &key events)
+(defun make-module (name environment &key events)
   "Creates a Midi-Sequencer module.
 	The function has the following arguments:
     <ul>

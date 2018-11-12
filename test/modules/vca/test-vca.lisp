@@ -34,7 +34,7 @@
 	(funcall core-lin 11.0))))
 
 (define-test vca-test-1 ()
-	     (let ((vca (cl-synthesizer-modules-vca:vca
+	     (let ((vca (cl-synthesizer-modules-vca:make-module
 			 "VCA"
 			 (cl-synthesizer:make-environment)
 			 :cv-max 5.0)))
@@ -53,7 +53,7 @@
 			       (<= output-exp 2.51))))))
 
 (define-test vca-test-2 ()
-	     (let ((vca (cl-synthesizer-modules-vca:vca
+	     (let ((vca (cl-synthesizer-modules-vca:make-module
 			 "VCA"
 			 (cl-synthesizer:make-environment)
 			 :cv-max 5.0)))
@@ -67,7 +67,7 @@
 			       (<= output-exp 10.1))))))
 
 (define-test vca-test-3 ()
-	     (let ((vca (cl-synthesizer-modules-vca:vca
+	     (let ((vca (cl-synthesizer-modules-vca:make-module
 			 "VCA"
 			 (cl-synthesizer:make-environment)
 			 :cv-max 10.0

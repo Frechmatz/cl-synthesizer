@@ -6,7 +6,7 @@
 
 (in-package :cl-synthesizer-modules-vco)
 
-(defun vco-base (name environment transfer-function &key f-max v-peak (duty-cycle 0.5))
+(defun make-module-base (name environment transfer-function &key f-max v-peak (duty-cycle 0.5))
   "Creates a Voltage Controlled Oscillator module. The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
@@ -93,16 +93,16 @@
 		   (setf cur-square-output (* v-peak (cl-synthesizer-core:phase-square-converter
 						      phi :duty-cycle duty-cycle)))))))))
 
-(defun vco-exponential (name environment &key base-frequency f-max v-peak (duty-cycle 0.5))
+(defun make-exponential-module (name environment &key base-frequency f-max v-peak (duty-cycle 0.5))
   "Creates a Voltage Controlled Oscillator module with 1V/Octave characteristic.
    The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
 	<li>:base-frequency The frequency emitted by the oscillator at a frequency control voltage of 0.</li>
-	<li>:f-max See vco-base.</li>
-	<li>:v-peak See vco-base.</li>
-	<li>:duty-cycle See vco-base.</li>
+	<li>:f-max See make-module-base.</li>
+	<li>:v-peak See make-module-base.</li>
+	<li>:duty-cycle See make-module-base.</li>
     </ul>
     The module has the following inputs:
     <ul>
@@ -111,7 +111,7 @@
 	    voltage of -1.0 results in a frequency of 220Hz.
 	</li>
     </ul>
-    For the output sockets of the module see vco-base."
+    For the output sockets of the module see make-module-base."
   (if (not base-frequency)
       (cl-synthesizer:signal-assembly-error
        :format-control "base-frequency of VCO ~a must not be nil"
@@ -120,7 +120,7 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "base-frequency of VCO ~a must be greater than 0: ~a"
        :format-arguments (list name base-frequency)))
-  (vco-base
+  (make-module-base
    name
    environment
    (lambda (cv)
@@ -129,7 +129,7 @@
    :v-peak v-peak
    :duty-cycle duty-cycle))
 
-(defun vco-linear (name environment &key base-frequency f-max v-peak cv-max (duty-cycle 0.5))
+(defun make-linear-module (name environment &key base-frequency f-max v-peak cv-max (duty-cycle 0.5))
   "Creates a Voltage Controlled Oscillator module with linear characteristic.
    The function has the following arguments:
     <ul>
@@ -137,16 +137,16 @@
 	<li>environment The synthesizer environment.</li>
 	<li>:cv-max The frequency control voltage which represents the maximum frequency of the oscillator.</li>
 	<li>:base-frequency The frequency emitted by the oscillator at a frequency control voltage of 0.</li>
-	<li>:f-max See vco-base.</li>
-	<li>:v-peak See vco-base.</li>
-	<li>:duty-cycle See vco-base.</li>
+	<li>:f-max See make-module-base.</li>
+	<li>:v-peak See make-module-base.</li>
+	<li>:duty-cycle See make-module-base.</li>
     </ul>
     The module has the following inputs:
     <ul>
 	<li>:cv Frequency control voltage. For frequency calculation the absolute value
 	of the control voltage is used. The control voltage is clipped at :cv-max.</li>
     </ul>
-    For the output sockets of the module see vco-base."
+    For the output sockets of the module see make-module-base."
   (if (not base-frequency)
       (cl-synthesizer:signal-assembly-error
        :format-control "base-frequency of VCO ~a must not be nil"
@@ -174,7 +174,7 @@
 	   :output-min 0.0
 	   :output-max f-max))
 	 (cv-gain (funcall (getf linear-converter :get-x) base-frequency)))
-    (vco-base
+    (make-module-base
      name
      environment
      (lambda (cv)

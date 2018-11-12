@@ -20,7 +20,7 @@
 	  (getf cl-synthesizer-vendor:*arturia-minilab-mk2* :get-controller-number) :encoder-9)))
     
     (cl-synthesizer:add-module
-     rack "MIDI-CC-IFC" #'cl-synthesizer-modules-midi-cc-interface:midi-cc-interface
+     rack "MIDI-CC-IFC" #'cl-synthesizer-modules-midi-cc-interface:make-module
      :controller-numbers (list msb-controller-number lsb-controller-number)
      :initial-output 0.0
      :min-output 0.0
@@ -45,7 +45,7 @@
     
     (cl-synthesizer:add-module
      rack "VCO-1"
-     #'cl-synthesizer-modules-vco:vco-linear
+     #'cl-synthesizer-modules-vco:make-linear-module
      :base-frequency 440
      :cv-max 5
      :f-max 5000

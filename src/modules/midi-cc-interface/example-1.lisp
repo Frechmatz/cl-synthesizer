@@ -10,7 +10,7 @@
 	       :input-sockets '(:midi-events))))
 
     (cl-synthesizer:add-module
-     rack "MIDI-CC-IFC" #'cl-synthesizer-modules-midi-cc-interface:midi-cc-interface
+     rack "MIDI-CC-IFC" #'cl-synthesizer-modules-midi-cc-interface:make-module
      :controller-numbers '(112)
      :initial-output 2.5
      :min-output 0.0

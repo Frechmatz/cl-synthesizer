@@ -2,45 +2,45 @@
 (defpackage :cl-synthesizer-modules-vco
   (:use :cl)
   (:export
-   :vco-base
-   :vco-exponential
-   :vco-linear))
+   :make-module-base
+   :make-exponential-module
+   :make-linear-module))
 
 (defpackage :cl-synthesizer-modules-midi-interface
   (:use :cl)
   (:export
-   :midi-interface))
+   :make-module))
 
 (defpackage ::cl-synthesizer-modules-midi-cc-interface
   (:use :cl)
-  (:export :midi-cc-interface))
+  (:export :make-module))
 
 (defpackage :cl-synthesizer-modules-multiple
   (:use :cl)
-  (:export :multiple))
+  (:export :make-module))
 
 (defpackage :cl-synthesizer-modules-envelope
   (:use :cl)
   (:export
-   :envelope))
+   :make-module))
 
 (defpackage :cl-synthesizer-modules-vca
   (:use :cl)
   (:export
-   :vca))
+   :make-module))
 
 (defpackage :cl-synthesizer-modules-fixed-output
   (:use :cl)
-  (:export :fixed-output))
+  (:export :make-module))
 
 (defpackage ::cl-synthesizer-modules-midi-sequencer
   (:use :cl)
-  (:export :midi-sequencer))
+  (:export :make-module))
 
 (defpackage :cl-synthesizer-modules-adder
   (:use :cl)
-  (:export :adder))
+  (:export :make-module))
 
 (defpackage :cl-synthesizer-modules-mixer
   (:use :cl)
-  (:export :mixer))
+  (:export :make-module))

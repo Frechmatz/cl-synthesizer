@@ -1,6 +1,6 @@
 (in-package :cl-synthesizer-modules-adder)
 
-(defun adder (name environment &key input-count)
+(defun make-module (name environment &key input-count)
   "Creates a simple voltage adder module. The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>

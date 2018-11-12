@@ -1,7 +1,7 @@
 (in-package :cl-synthesizer-test)
 
 (defun envelope-validation-test-instantiate-module (segments)
-  (let ((module (cl-synthesizer-modules-envelope:envelope
+  (let ((module (cl-synthesizer-modules-envelope:make-module
 		 "Envelope Module"
 		 (cl-synthesizer:make-environment)
 		 :segments segments)))

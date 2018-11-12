@@ -6,7 +6,7 @@
        (play-mode :PLAY-MODE-POLY)
        (force-gate-retrigger nil)
        (channel nil))
-  (cl-synthesizer-modules-midi-interface:midi-interface
+  (cl-synthesizer-modules-midi-interface:make-module
    "Test-Midi-Interface"
    (cl-synthesizer:make-environment)
    :voice-count voice-count

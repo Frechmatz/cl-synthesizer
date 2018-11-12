@@ -2,7 +2,7 @@
 
 (define-test test-midi-cc-interface-1 ()
   "Test initial output"
-  (let ((ifc (cl-synthesizer-modules-midi-cc-interface:midi-cc-interface
+  (let ((ifc (cl-synthesizer-modules-midi-cc-interface:make-module
 	      "MidiCC"
 	      (cl-synthesizer:make-environment)
 	      :controller-numbers '(100)
@@ -13,7 +13,7 @@
 
 (define-test test-midi-cc-interface-2 ()
   "Test event type filtering (must be a CC event)"
-  (let ((ifc (cl-synthesizer-modules-midi-cc-interface:midi-cc-interface
+  (let ((ifc (cl-synthesizer-modules-midi-cc-interface:make-module
 	      "MidiCC"
 	      (cl-synthesizer:make-environment)
 	      :controller-numbers '(100)
@@ -27,7 +27,7 @@
 
 (define-test test-midi-cc-interface-3 ()
   "Test controller number filtering"
-  (let ((ifc (cl-synthesizer-modules-midi-cc-interface:midi-cc-interface
+  (let ((ifc (cl-synthesizer-modules-midi-cc-interface:make-module
 	      "MidiCC"
 	      (cl-synthesizer:make-environment)
 	      :controller-numbers '(100)
@@ -41,7 +41,7 @@
 
 (define-test test-midi-cc-interface-4 ()
   "Test channel filtering"
-  (let ((ifc (cl-synthesizer-modules-midi-cc-interface:midi-cc-interface
+  (let ((ifc (cl-synthesizer-modules-midi-cc-interface:make-module
 	      "MidiCC"
 	      (cl-synthesizer:make-environment)
 	      :controller-numbers '(100)
@@ -55,7 +55,7 @@
 
 (define-test test-midi-cc-interface-5 ()
   "Test arguments of transform function. Test return value of transform function"
-  (let ((ifc (cl-synthesizer-modules-midi-cc-interface:midi-cc-interface
+  (let ((ifc (cl-synthesizer-modules-midi-cc-interface:make-module
 	      "MidiCC"
 	      (cl-synthesizer:make-environment)
 	      :controller-numbers '(100)
@@ -74,7 +74,7 @@
 
 (define-test test-midi-cc-interface-6 ()
   "Test multiple matching cc events"
-  (let ((ifc (cl-synthesizer-modules-midi-cc-interface:midi-cc-interface
+  (let ((ifc (cl-synthesizer-modules-midi-cc-interface:make-module
 	      "MidiCC"
 	      (cl-synthesizer:make-environment)
 	      :controller-numbers '(100 101)
@@ -98,7 +98,7 @@
 
 (define-test test-midi-cc-interface-7 ()
   "Test clipping of initial output"
-  (let ((ifc (cl-synthesizer-modules-midi-cc-interface:midi-cc-interface
+  (let ((ifc (cl-synthesizer-modules-midi-cc-interface:make-module
 	      "MidiCC"
 	      (cl-synthesizer:make-environment)
 	      :controller-numbers '(100)
@@ -111,7 +111,7 @@
 
 (define-test test-midi-cc-interface-8 ()
   "Test clipping of max output"
-  (let ((ifc (cl-synthesizer-modules-midi-cc-interface:midi-cc-interface
+  (let ((ifc (cl-synthesizer-modules-midi-cc-interface:make-module
 	      "MidiCC"
 	      (cl-synthesizer:make-environment)
 	      :controller-numbers '(100)
@@ -127,7 +127,7 @@
 
 (define-test test-midi-cc-interface-9 ()
   "Test clipping of min output"
-  (let ((ifc (cl-synthesizer-modules-midi-cc-interface:midi-cc-interface
+  (let ((ifc (cl-synthesizer-modules-midi-cc-interface:make-module
 	      "MidiCC"
 	      (cl-synthesizer:make-environment)
 	      :controller-numbers '(100)
@@ -143,7 +143,7 @@
 
 (define-test test-midi-cc-interface-10 ()
   "Test clipping of min output with floating point values"
-  (let ((ifc (cl-synthesizer-modules-midi-cc-interface:midi-cc-interface
+  (let ((ifc (cl-synthesizer-modules-midi-cc-interface:make-module
 	      "MidiCC"
 	      (cl-synthesizer:make-environment)
 	      :controller-numbers '(100)

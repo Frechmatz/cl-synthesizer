@@ -12,10 +12,10 @@
 	       :output-sockets '(:line-out-1 :line-out-2))))
     (cl-synthesizer:add-module
      rack "VCO-1"
-     #'cl-synthesizer-modules-vco:vco-exponential :base-frequency 440 :f-max 8000 :v-peak 5)
+     #'cl-synthesizer-modules-vco:make-exponential-module :base-frequency 440 :f-max 8000 :v-peak 5)
     (cl-synthesizer:add-module
      rack "VCO-2"
-     #'cl-synthesizer-modules-vco:vco-exponential :base-frequency 442 :f-max 8000 :v-peak 5)
+     #'cl-synthesizer-modules-vco:make-exponential-module :base-frequency 442 :f-max 8000 :v-peak 5)
     (cl-synthesizer:add-patch rack "VCO-1" :sine "OUTPUT" :line-out-1)
     (cl-synthesizer:add-patch rack "VCO-2" :sine "OUTPUT" :line-out-2)
     

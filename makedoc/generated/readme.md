@@ -24,13 +24,13 @@ A Modular Audio Synthesizer library implemented in Common Lisp.
     	     ;; Add LFO
     	     (cl-synthesizer:add-module
     	      voice "LFO"
-    	      #'cl-synthesizer-modules-vco:vco-linear
+    	      #'cl-synthesizer-modules-vco:make-linear-module
     	      :base-frequency lfo-frequency :v-peak 1.0 :f-max 500 :cv-max 5)
     
     	     ;; Add VCO
     	     (cl-synthesizer:add-module
     	      voice "VCO"
-    	      #'cl-synthesizer-modules-vco:vco-linear
+    	      #'cl-synthesizer-modules-vco:make-linear-module
     	      :base-frequency vco-frequency :f-max 5000 :v-peak 5 :cv-max 5)
     
     	     ;; Patch LFO with VCO
@@ -258,7 +258,7 @@ Hooks must not modify the rack. See also **cl-synthesizer-monitor:add-monitor**.
 
 #### VCO
 
-**cl-synthesizer-modules-vco:vco-base** name environment transfer-function &key f-max v-peak (duty-cycle 0.5)
+**cl-synthesizer-modules-vco:make-module-base** name environment transfer-function &key f-max v-peak (duty-cycle 0.5)
 
 Creates a Voltage Controlled Oscillator module. The function has the following arguments:
 
@@ -284,7 +284,7 @@ See also modules vco-linear and vco-exponential.
 
 * * *
 
-**cl-synthesizer-modules-vco:vco-linear** name environment &key base-frequency f-max v-peak cv-max (duty-cycle 0.5)
+**cl-synthesizer-modules-vco:make-linear-module** name environment &key base-frequency f-max v-peak cv-max (duty-cycle 0.5)
 
 Creates a Voltage Controlled Oscillator module with linear characteristic. The function has the following arguments:
 
@@ -292,15 +292,15 @@ Creates a Voltage Controlled Oscillator module with linear characteristic. The f
 *   environment The synthesizer environment.
 *   :cv-max The frequency control voltage which represents the maximum frequency of the oscillator.
 *   :base-frequency The frequency emitted by the oscillator at a frequency control voltage of 0.
-*   :f-max See vco-base.
-*   :v-peak See vco-base.
-*   :duty-cycle See vco-base.
+*   :f-max See make-module-base.
+*   :v-peak See make-module-base.
+*   :duty-cycle See make-module-base.
 
 The module has the following inputs:
 
 *   :cv Frequency control voltage. For frequency calculation the absolute value of the control voltage is used. The control voltage is clipped at :cv-max.
 
-For the output sockets of the module see vco-base.
+For the output sockets of the module see make-module-base.
 
 **Example:**
 
@@ -315,7 +315,7 @@ For the output sockets of the module see vco-base.
         (cl-synthesizer:add-module
          rack
          "VCO"
-         #'cl-synthesizer-modules-vco::vco-linear :base-frequency 10 :v-peak 5 :cv-max 5 :f-max 12000)
+         #'cl-synthesizer-modules-vco:make-linear-module :base-frequency 10 :v-peak 5 :cv-max 5 :f-max 12000)
         
         ;; Record outputs into a Wave-File
         (cl-synthesizer-monitor:add-monitor
@@ -331,28 +331,28 @@ For the output sockets of the module see vco-base.
           
     ;;(cl-synthesizer:play-rack (example) 3)
 
-**cl-synthesizer-modules-vco:vco-exponential** name environment &key base-frequency f-max v-peak (duty-cycle 0.5)
+**cl-synthesizer-modules-vco:make-exponential-module** name environment &key base-frequency f-max v-peak (duty-cycle 0.5)
 
 Creates a Voltage Controlled Oscillator module with 1V/Octave characteristic. The function has the following arguments:
 
 *   name Name of the module.
 *   environment The synthesizer environment.
 *   :base-frequency The frequency emitted by the oscillator at a frequency control voltage of 0.
-*   :f-max See vco-base.
-*   :v-peak See vco-base.
-*   :duty-cycle See vco-base.
+*   :f-max See make-module-base.
+*   :v-peak See make-module-base.
+*   :duty-cycle See make-module-base.
 
 The module has the following inputs:
 
 *   :cv Frequency control voltage. For a given base-frequency of 440Hz a control voltage of 1.0 results in a frequency of 880Hz and a control voltage of -1.0 results in a frequency of 220Hz.
 
-For the output sockets of the module see vco-base.
+For the output sockets of the module see make-module-base.
 
 * * *
 
 #### VCA
 
-**cl-synthesizer-modules-vca:vca** name environment &key cv-max (initial-gain 0.0)
+**cl-synthesizer-modules-vca:make-module** name environment &key cv-max (initial-gain 0.0)
 
 Creates a Voltage Controlled Amplifier/Attenuator module. The VCA multiplies an incoming signal with a factor of 0..1. The function has the following arguments:
 
@@ -386,7 +386,7 @@ The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.
         ;; Set up oscillator modulating the amplification
         (cl-synthesizer:add-module
          rack "LFO-CV"
-         #'cl-synthesizer-modules-vco:vco-linear
+         #'cl-synthesizer-modules-vco:make-linear-module
          :base-frequency 0.5
          :v-peak 5.0
          :cv-max 5.0
@@ -395,7 +395,7 @@ The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.
         ;; set up oscillator providing the audio signal
         (cl-synthesizer:add-module
          rack "VCO-AUDIO"
-         #'cl-synthesizer-modules-vco:vco-linear
+         #'cl-synthesizer-modules-vco:make-linear-module
          :base-frequency 10000.0
          :v-peak 5.0
          :cv-max 5.0
@@ -404,7 +404,7 @@ The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.
         ;; Set up VCA
         (cl-synthesizer:add-module
          rack "VCA"
-         #'cl-synthesizer-modules-vca:vca
+         #'cl-synthesizer-modules-vca:make-module
          :cv-max 5.0)
     
         ;; Add patches
@@ -427,7 +427,7 @@ The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.
 
 #### Envelope
 
-**cl-synthesizer-modules-envelope:envelope** name environment &key segments (gate-threshold 4.9)
+**cl-synthesizer-modules-envelope:make-module** name environment &key segments (gate-threshold 4.9)
 
 Creates an envelope generator module. An envelope consists of a list of segments where each segment defines rules how to behave. The module generates linear envelopes. The function has the following arguments:
 
@@ -475,7 +475,7 @@ The module has the following outputs:
     
         (cl-synthesizer:add-module
          rack "ADSR"
-         #'cl-synthesizer-modules-envelope:envelope
+         #'cl-synthesizer-modules-envelope:make-module
          :segments
          '(;; Attack (duration can be modulated via input socket :attack-duration)
            (:duration-ms 100 :target-cv 5 :required-gate-state :on
@@ -492,7 +492,7 @@ The module has the following outputs:
 
 #### Multiple
 
-**cl-synthesizer-modules-multiple:multiple** name environment &key output-count
+**cl-synthesizer-modules-multiple:make-module** name environment &key output-count
 
 Creates a Multiple module. A multiple passes the value of exactly one input socket to as many output sockets as defined by output-count. The function has the following arguments:
 
@@ -523,11 +523,11 @@ The module has the following outputs:
         
         (cl-synthesizer:add-module
          rack "LFO"
-         #'cl-synthesizer-modules-vco:vco-linear
+         #'cl-synthesizer-modules-vco:make-linear-module
          :base-frequency 1.0 :v-peak 1.0 :f-max 500 :cv-max 5)
         
         (cl-synthesizer:add-module rack "MULTIPLE"
-    			       #'cl-synthesizer-modules-multiple:multiple :output-count 5)
+    			       #'cl-synthesizer-modules-multiple:make-module :output-count 5)
         (cl-synthesizer:add-patch rack "LFO" :sine "MULTIPLE" :input)
         (cl-synthesizer:add-patch rack "MULTIPLE" :output-1 "OUTPUT" :line-out-1)
         (cl-synthesizer:add-patch rack "MULTIPLE" :output-2 "OUTPUT" :line-out-2)
@@ -538,7 +538,7 @@ The module has the following outputs:
 
 #### MIDI Interface
 
-**cl-synthesizer-modules-midi-interface:midi-interface** name environment &key (voice-count 1) (channel nil) (note-number-to-cv (lambda (note-number) (/ note-number 12))) (play-mode :play-mode-poly) (cv-gate-on 5.0) (cv-gate-off 0.0) (force-gate-retrigger nil)
+**cl-synthesizer-modules-midi-interface:make-module** name environment &key (voice-count 1) (channel nil) (note-number-to-cv (lambda (note-number) (/ note-number 12))) (play-mode :play-mode-poly) (cv-gate-on 5.0) (cv-gate-off 0.0) (force-gate-retrigger nil)
 
 Creates a MIDI interface module. The module dispatches MIDI-Note events to so called voices where each voice is represented by a control-voltage and a gate signal. The module supports the mapping of MIDI CC-Events to arbitary output sockets. The function has the following arguments:
 
@@ -592,12 +592,12 @@ The module has the following outputs:
     	       :output-sockets '(:line-out))))
     
         (cl-synthesizer:add-module
-         rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:midi-interface
+         rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:make-module
          :voice-count 1)
     
         (cl-synthesizer:add-module
          rack "VCO-1"
-         #'cl-synthesizer-modules-vco:vco-exponential
+         #'cl-synthesizer-modules-vco:make-exponential-module
          :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
          :f-max 13000
          :v-peak 5)
@@ -615,7 +615,7 @@ The module has the following outputs:
 
 #### MIDI CC Interface
 
-**cl-synthesizer-modules-midi-cc-interface:midi-cc-interface** name environment &key controller-numbers transform-handler (channel nil) (initial-output 0) (min-output nil) (max-output nil)
+**cl-synthesizer-modules-midi-cc-interface:make-module** name environment &key controller-numbers transform-handler (channel nil) (initial-output 0) (min-output nil) (max-output nil)
 
 Creates a MIDI CC Event interface module. The module maps MIDI control change events to an output value. The function has the following arguments:
 
@@ -653,7 +653,7 @@ The module has the following outputs:
     	       :input-sockets '(:midi-events))))
     
         (cl-synthesizer:add-module
-         rack "MIDI-CC-IFC" #'cl-synthesizer-modules-midi-cc-interface:midi-cc-interface
+         rack "MIDI-CC-IFC" #'cl-synthesizer-modules-midi-cc-interface:make-module
          :controller-numbers '(112)
          :initial-output 2.5
          :min-output 0.0
@@ -679,7 +679,7 @@ The module has the following outputs:
 
 #### MIDI Sequencer
 
-**cl-synthesizer-modules-midi-sequencer:midi-sequencer** name environment &key events
+**cl-synthesizer-modules-midi-sequencer:make-module** name environment &key events
 
 Creates a Midi-Sequencer module. The function has the following arguments:
 
@@ -710,7 +710,7 @@ The module has no inputs. The module has one output socket :midi-events.
         (cl-synthesizer:add-module
          rack
          "MIDI-SEQUENCER"
-         #'cl-synthesizer-modules-midi-sequencer:midi-sequencer :events
+         #'cl-synthesizer-modules-midi-sequencer:make-module :events
          (list 
           (list :timestamp-milli-seconds 0
     	    :midi-events (list
@@ -729,12 +729,12 @@ The module has no inputs. The module has one output socket :midi-events.
         (cl-synthesizer:add-module
          rack
          "MIDI-IFC"
-         #'cl-synthesizer-modules-midi-interface:midi-interface :voice-count 1)
+         #'cl-synthesizer-modules-midi-interface:make-module :voice-count 1)
         (cl-synthesizer:add-patch rack "MIDI-SEQUENCER" :midi-events "MIDI-IFC" :midi-events)
     
         ;; Add VCO
         (cl-synthesizer:add-module
-         rack "VCO" #'cl-synthesizer-modules-vco:vco-exponential
+         rack "VCO" #'cl-synthesizer-modules-vco:make-exponential-module
          :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
          :f-max 12000
          :v-peak 5)
@@ -742,7 +742,7 @@ The module has no inputs. The module has one output socket :midi-events.
         ;; Add ADSR
         (cl-synthesizer:add-module
          rack "ADSR"
-         #'cl-synthesizer-modules-envelope:envelope
+         #'cl-synthesizer-modules-envelope:make-module
          :segments
          '(;; Attack
            (:duration-ms 100 :target-cv 5 :required-gate-state :on)
@@ -754,7 +754,7 @@ The module has no inputs. The module has one output socket :midi-events.
            (:duration-ms 100 :target-cv 0 :required-gate-state :off)))
         
         ;; Add VCA
-        (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:vca :cv-max 5.0)
+        (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:make-module :cv-max 5.0)
     
         ;; Connect VCA with ADSR and VCO
         (cl-synthesizer:add-patch rack "VCA" :output-linear "OUTPUT" :line-out)
@@ -781,7 +781,7 @@ The module has no inputs. The module has one output socket :midi-events.
 
 #### Fixed Output
 
-**cl-synthesizer-modules-fixed-output:fixed-output** name environment &key value (output-socket :out)
+**cl-synthesizer-modules-fixed-output:make-module** name environment &key value (output-socket :out)
 
 Creates a module with a fixed output value. The function has the following arguments:
 
@@ -807,7 +807,7 @@ The module has no inputs. The module has one output socket according to the :out
         
         (cl-synthesizer:add-module
          rack "FIXED-OUTPUT"
-         #'cl-synthesizer-modules-fixed-output:fixed-output
+         #'cl-synthesizer-modules-fixed-output:make-module
          :value 3.0
          :output-socket :fixed)
         
@@ -819,7 +819,7 @@ The module has no inputs. The module has one output socket according to the :out
 
 #### Adder
 
-**cl-synthesizer-modules-adder:adder** name environment &key input-count
+**cl-synthesizer-modules-adder:make-module** name environment &key input-count
 
 Creates a simple voltage adder module. The function has the following arguments:
 
@@ -837,7 +837,7 @@ The module has the following outputs:
 
 #### Mixer
 
-**cl-synthesizer-modules-mixer:mixer** name environment &key channel-count (channel-cv-max 5.0) (channel-cv-gain 5.0) (main-cv-max 5.0) (main-cv-gain 5.0)
+**cl-synthesizer-modules-mixer:make-module** name environment &key channel-count (channel-cv-max 5.0) (channel-cv-gain 5.0) (main-cv-max 5.0) (main-cv-gain 5.0)
 
 Creates a mixer module. The mixer provides an attenuator for each input and a main attenuator for the mixer output. All attenuators have linear amplification characteristic. The function has the following arguments:
 
@@ -877,7 +877,7 @@ The module has the following outputs:
         ;;
         
         (cl-synthesizer:add-module
-         rack "MIXER" #'cl-synthesizer-modules-mixer:mixer
+         rack "MIXER" #'cl-synthesizer-modules-mixer:make-module
          :channel-count 2
          :channel-cv-max 5.0
          :channel-cv-gain 5.0
@@ -1031,4 +1031,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-11-09 23:33:22
+Generated 2018-11-12 20:43:50

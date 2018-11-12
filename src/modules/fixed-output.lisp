@@ -5,7 +5,7 @@
 
 (in-package :cl-synthesizer-modules-fixed-output)
 
-(defun fixed-output (name environment &key value (output-socket :out))
+(defun make-module (name environment &key value (output-socket :out))
   "Creates a module with a fixed output value.
    The function has the following arguments:
     <ul>
