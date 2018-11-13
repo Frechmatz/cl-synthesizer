@@ -39,7 +39,7 @@
 
     ;; Add VCO
     (cl-synthesizer:add-module
-     rack "VCO" #'cl-synthesizer-modules-vco:make-exponential-module
+     rack "VCO" #'cl-synthesizer-modules-exponential-vco:make-module
      :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
      :f-max 12000
      :v-peak 5)

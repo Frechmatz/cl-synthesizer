@@ -9,7 +9,8 @@
     (cl-synthesizer:add-module
      rack
      "VCO"
-     #'cl-synthesizer-modules-vco:make-linear-module :base-frequency 10 :v-peak 5 :cv-max 5 :f-max 12000)
+     #'cl-synthesizer-modules-linear-vco:make-module
+     :base-frequency 10 :v-peak 5 :cv-max 5 :f-max 12000)
     
     ;; Record outputs into a Wave-File
     (cl-synthesizer-monitor:add-monitor

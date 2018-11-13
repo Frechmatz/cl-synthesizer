@@ -4,9 +4,9 @@
 ;;
 ;;
 
-(in-package :cl-synthesizer-modules-vco)
+(in-package :cl-synthesizer-modules-base-vco)
 
-(defun make-module-base (name environment transfer-function &key f-max v-peak (duty-cycle 0.5))
+(defun make-module (name environment transfer-function &key f-max v-peak (duty-cycle 0.5))
   "Creates a Voltage Controlled Oscillator module. The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
@@ -29,8 +29,7 @@
 	<li>:triangle A triangle wave.</li>
 	<li>:saw A saw wave.</li>
 	<li>:square A square wave.</li>
-    </ul>
-    See also modules vco-linear and vco-exponential."
+    </ul>"
   (if (not f-max)
       (cl-synthesizer:signal-assembly-error
        :format-control "f-max of VCO ~a must not be nil"
@@ -93,16 +92,19 @@
 		   (setf cur-square-output (* v-peak (cl-synthesizer-core:phase-square-converter
 						      phi :duty-cycle duty-cycle)))))))))
 
-(defun make-exponential-module (name environment &key base-frequency f-max v-peak (duty-cycle 0.5))
+
+(in-package :cl-synthesizer-modules-exponential-vco)
+
+(defun make-module (name environment &key base-frequency f-max v-peak (duty-cycle 0.5))
   "Creates a Voltage Controlled Oscillator module with 1V/Octave characteristic.
    The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
 	<li>:base-frequency The frequency emitted by the oscillator at a frequency control voltage of 0.</li>
-	<li>:f-max See make-module-base.</li>
-	<li>:v-peak See make-module-base.</li>
-	<li>:duty-cycle See make-module-base.</li>
+	<li>:f-max The maximum frequency of the oscillator. f-max must be greater than 0.</li>
+	<li>:v-peak Absolute value of the maximal voltage (positive/negative) emitted by the oscillator.</li>
+	<li>:duty-cycle The duty cycle of the square wave. 0 >= duty-cycle <= 1.</li>
     </ul>
     The module has the following inputs:
     <ul>
@@ -111,7 +113,13 @@
 	    voltage of -1.0 results in a frequency of 220Hz.
 	</li>
     </ul>
-    For the output sockets of the module see make-module-base."
+    The module has the following outputs:
+    <ul>
+	<li>:sine A sine wave.</li>
+	<li>:triangle A triangle wave.</li>
+	<li>:saw A saw wave.</li>
+	<li>:square A square wave.</li>
+    </ul>"
   (if (not base-frequency)
       (cl-synthesizer:signal-assembly-error
        :format-control "base-frequency of VCO ~a must not be nil"
@@ -120,7 +128,7 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "base-frequency of VCO ~a must be greater than 0: ~a"
        :format-arguments (list name base-frequency)))
-  (make-module-base
+  (cl-synthesizer-modules-base-vco::make-module
    name
    environment
    (lambda (cv)
@@ -129,7 +137,9 @@
    :v-peak v-peak
    :duty-cycle duty-cycle))
 
-(defun make-linear-module (name environment &key base-frequency f-max v-peak cv-max (duty-cycle 0.5))
+(in-package :cl-synthesizer-modules-linear-vco)
+
+(defun make-module (name environment &key base-frequency f-max v-peak cv-max (duty-cycle 0.5))
   "Creates a Voltage Controlled Oscillator module with linear characteristic.
    The function has the following arguments:
     <ul>
@@ -137,16 +147,22 @@
 	<li>environment The synthesizer environment.</li>
 	<li>:cv-max The frequency control voltage which represents the maximum frequency of the oscillator.</li>
 	<li>:base-frequency The frequency emitted by the oscillator at a frequency control voltage of 0.</li>
-	<li>:f-max See make-module-base.</li>
-	<li>:v-peak See make-module-base.</li>
-	<li>:duty-cycle See make-module-base.</li>
+	<li>:f-max The maximum frequency of the oscillator. f-max must be greater than 0.</li>
+	<li>:v-peak Absolute value of the maximal voltage (positive/negative) emitted by the oscillator.</li>
+	<li>:duty-cycle The duty cycle of the square wave. 0 >= duty-cycle <= 1.</li>
     </ul>
     The module has the following inputs:
     <ul>
 	<li>:cv Frequency control voltage. For frequency calculation the absolute value
 	of the control voltage is used. The control voltage is clipped at :cv-max.</li>
     </ul>
-    For the output sockets of the module see make-module-base."
+    The module has the following outputs:
+    <ul>
+	<li>:sine A sine wave.</li>
+	<li>:triangle A triangle wave.</li>
+	<li>:saw A saw wave.</li>
+	<li>:square A square wave.</li>
+    </ul>"
   (if (not base-frequency)
       (cl-synthesizer:signal-assembly-error
        :format-control "base-frequency of VCO ~a must not be nil"
@@ -174,7 +190,7 @@
 	   :output-min 0.0
 	   :output-max f-max))
 	 (cv-gain (funcall (getf linear-converter :get-x) base-frequency)))
-    (make-module-base
+    (cl-synthesizer-modules-base-vco::make-module
      name
      environment
      (lambda (cv)

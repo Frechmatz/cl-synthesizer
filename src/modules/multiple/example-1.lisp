@@ -11,7 +11,7 @@
     
     (cl-synthesizer:add-module
      rack "LFO"
-     #'cl-synthesizer-modules-vco:make-linear-module
+     #'cl-synthesizer-modules-linear-vco:make-module
      :base-frequency 1.0 :v-peak 1.0 :f-max 500 :cv-max 5)
     
     (cl-synthesizer:add-module rack "MULTIPLE"
