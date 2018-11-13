@@ -49,6 +49,7 @@
 				     (:file "fixed-output")
 				     (:file "adder")
 				     (:file "mixer")
+				     (:file "cv-to-trigger")
 				     ))
 	       (:module "src/monitor"
 			:serial t

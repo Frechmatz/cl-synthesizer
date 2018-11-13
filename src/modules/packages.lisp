@@ -48,3 +48,7 @@
 (defpackage :cl-synthesizer-modules-mixer
   (:use :cl)
   (:export :make-module))
+
+(defpackage :cl-synthesizer-modules-cv-to-trigger
+  (:use :cl)
+  (:export :make-module))

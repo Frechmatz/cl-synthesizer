@@ -27,6 +27,7 @@
 		   "<li><a href=\"#fixed-output\">Fixed Output</a></li>"
 		   "<li><a href=\"#adder\">Adder</a></li>"
 		   "<li><a href=\"#mixer\">Mixer</a></li>"
+		   "<li><a href=\"#cv-to-trigger\">CV to Trigger</a></li>"
 		   "</ul>"
 		   "</li>"
 		   "<li><a href=\"#monitor\">Monitor</a></li>"
@@ -80,6 +81,8 @@
 		   "<h4 id=\"mixer\">Mixer</h4>"
 		   (make-function-string 'cl-synthesizer-modules-mixer:make-module :append-separator nil)
 		   (example-code "src/modules/mixer/example-1.lisp")
+		   "<h4 id=\"cv-to-trigger\">CV to Trigger</h4>"
+		   (make-function-string 'cl-synthesizer-modules-cv-to-trigger:make-module :append-separator nil)
 		   "<h3 id=\"monitor\">Monitor</h3>"
 		   (make-function-string 'cl-synthesizer-monitor:add-monitor :append-separator nil)
 		   (example-code "src/monitor/monitor/example-1.lisp")

@@ -43,6 +43,7 @@
 				     (:file "vco")
 				     (:file "envelope")
 				     (:file "adder")
+				     (:file "cv-to-trigger")
 				     (:file "mixer")))
 	       (:module "test"
 			:serial t
