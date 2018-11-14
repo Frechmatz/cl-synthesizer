@@ -26,8 +26,7 @@
 				     (:file "linear-converter")
 				     (:file "phase-waveform-converter")
 				     (:file "phase-generator")
-				     (:file "function-array")
-				     (:file "trigger")))
+				     (:file "function-array")))
 		(:module "src/midi"
 			:serial t
 			:components ((:file "packages")
@@ -51,8 +50,7 @@
 				     (:file "test-util")))
 	       (:module "test/core"
 			:serial t
-			:components ((:file "test-trigger")
-				     (:file "test-waveform")
+			:components ((:file "test-waveform")
 				     (:file "test-function-array")))
 	       (:module "test/midi"
 			:serial t

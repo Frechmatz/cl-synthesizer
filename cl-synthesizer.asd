@@ -27,7 +27,6 @@
 				     (:file "linear-converter")
 				     (:file "phase-waveform-converter")
 				     (:file "phase-generator")
-				     (:file "trigger")
 				     (:file "function-array")
 				     ))
 		(:module "src/midi"
