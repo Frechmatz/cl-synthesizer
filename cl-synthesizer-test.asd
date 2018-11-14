@@ -80,6 +80,9 @@
 	       (:module "test/modules/mixer"
 			:serial t
 			:components ((:file "test-mixer")))
+	       (:module "test/modules/cv-to-trigger"
+			:serial t
+			:components ((:file "test-cv-to-trigger")))
 	       (:module "test/synthesizer"
 			:serial t
 			:components ((:file "test-assembly")

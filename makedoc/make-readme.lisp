@@ -83,6 +83,7 @@
 		   (example-code "src/modules/mixer/example-1.lisp")
 		   "<h4 id=\"cv-to-trigger\">CV to Trigger</h4>"
 		   (make-function-string 'cl-synthesizer-modules-cv-to-trigger:make-module :append-separator nil)
+		   (example-code "src/modules/cv-to-trigger/example-1.lisp")
 		   "<h3 id=\"monitor\">Monitor</h3>"
 		   (make-function-string 'cl-synthesizer-monitor:add-monitor :append-separator nil)
 		   (example-code "src/monitor/monitor/example-1.lisp")

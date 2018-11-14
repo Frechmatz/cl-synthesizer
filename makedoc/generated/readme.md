@@ -114,6 +114,7 @@ API Reference
     *   [Fixed Output](#fixed-output)
     *   [Adder](#adder)
     *   [Mixer](#mixer)
+    *   [CV to Trigger](#cv-to-trigger)
 *   [Monitor](#monitor)
 *   [MIDI](#midi)
     *   [MIDI Event](#midi-event)
@@ -877,6 +878,60 @@ The module has the following outputs:
         
         rack))
 
+#### CV to Trigger
+
+**cl-synthesizer-modules-cv-to-trigger:make-module** name environment &key trigger-cv pulse-voltage
+
+Creates a Voltage to Trigger Converter module. The module fires a one clock cycle long pulse when input voltage >= trigger-cv and then waits that the input voltage descends below trigger-cv before the next pulse can be triggered. The module can for example be used to generate a trigger out of a gate signal. The function has the following arguments:
+
+*   name Name of the module.
+*   environment The synthesizer environment.
+*   :trigger-cv The minimum value of the input which triggers a pulse.
+*   :pulse-voltage The voltage of the pulse.
+
+The module has the following inputs:
+
+*   :input The input voltage.
+
+The module has the following outputs:
+
+*   :output The output voltage (zero or pulse-voltage).
+
+**Example:**
+
+    (defpackage :cl-synthesizer-modules-cv-to-trigger-example-1
+      (:use :cl))
+    
+    (in-package :cl-synthesizer-modules-cv-to-trigger-example-1)
+    
+    (defun example ()
+      "Emit trigger signal based on sine input"
+      (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+        (cl-synthesizer:add-module
+         rack
+         "VCO"
+         #'cl-synthesizer-modules-linear-vco:make-module
+         :base-frequency 5 :v-peak 5 :cv-max 5 :f-max 12000)
+    
+        (cl-synthesizer:add-module
+         rack
+         "TRIGGER"
+         #'cl-synthesizer-modules-cv-to-trigger:make-module
+         :trigger-cv 2.5 :pulse-voltage 3.0)
+    
+        (cl-synthesizer:add-patch rack "VCO" :sine "TRIGGER" :input)
+        
+        (cl-synthesizer-monitor:add-monitor
+         rack
+         #'cl-synthesizer-monitor-wave-handler:wave-file-handler
+         '((:channel-1 "TRIGGER" :input-socket :input)
+           (:channel-2 "TRIGGER" :output-socket :output))
+         :filename "waves/cv-to-trigger-example-1.wav")
+    
+        rack))
+          
+    ;;(cl-synthesizer:play-rack (example) 2)
+
 ### Monitor
 
 **cl-synthesizer-monitor:add-monitor** rack monitor-handler socket-mappings &rest additional-handler-args
@@ -1018,4 +1073,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-11-13 18:57:57
+Generated 2018-11-14 19:59:20
