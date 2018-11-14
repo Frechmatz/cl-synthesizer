@@ -59,6 +59,7 @@
        :format-control "duty-cycle of VCO ~a must not be greater than 1: ~a"
        :format-arguments (list name duty-cycle)))
   (let* ((sample-rate (getf environment :sample-rate))
+	 (cur-frequency 0)
 	 (phase-generator (cl-synthesizer-core:phase-generator sample-rate))
 	 (cur-sine-output 1.0)
 	 (cur-triangle-output 1.0)
@@ -72,6 +73,7 @@
 		   (setf f 0.0))
 	       f)))
       (list
+       :get-cur-frequency (lambda() cur-frequency)
        :inputs (lambda () '(:cv))
        :outputs (lambda () '(:sine :triangle :saw :square))
        :get-output (lambda (output)
@@ -86,6 +88,7 @@
 		     (setf cv 0))
 		 (let* ((f (get-frequency cv))
 			(phi (funcall phase-generator f)))
+		   (setf cur-frequency f)
 		   (setf cur-sine-output (* v-peak (cl-synthesizer-core:phase-sine-converter phi)))
 		   (setf cur-triangle-output (* v-peak (cl-synthesizer-core:phase-triangle-converter phi)))
 		   (setf cur-saw-output (* v-peak (cl-synthesizer-core:phase-saw-converter phi)))
