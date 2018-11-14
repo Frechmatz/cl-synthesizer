@@ -4,5 +4,6 @@
 .DS_Store
 makedoc/node_modules
 makedoc/temp.html
+makedoc/generated
 .vscode
 
