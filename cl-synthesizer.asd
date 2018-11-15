@@ -55,7 +55,9 @@
 			:components ((:file "packages")
 				     (:file "monitor")
 				     (:file "wave-file-handler")
-				     (:file "wave-file-writer")))
+				     (:file "wave-file-writer")
+				     (:file "csv-file-handler")
+				     (:file "csv-file-writer")))
 	       (:module "src/vendor"
 			:serial t
 			:components ((:file "packages")
@@ -99,6 +101,7 @@
 			:components ((:file "example-1")))
 	       (:module "src/monitor/monitor"
 			:serial t
-			:components ((:file "example-1")))
+			:components ((:file "example-1")
+				     (:file "example-2")))
 	       ))
 
