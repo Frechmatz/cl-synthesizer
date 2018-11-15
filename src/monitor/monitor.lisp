@@ -50,9 +50,15 @@
 	    <ul>
 		<li>name A name.</li>
 		<li>environment The synthesizer environment.</li>
-		<li>input-keywords A list of keywords declaring the keyword
-		    parameters with which the monitor handler update function
-		    will be called.</li>
+		<li>inputs A list of inputs. Each input consists of a property
+                    list with the following keys:
+                    <ul>
+                        <li>:input-socket Keyword that is used as keyword input parameter 
+                        when the update function of the handler is called.</li>
+                        <li>:settings Any additional settings specified by a 
+                        socket mapping entry.</li>
+                    </ul>
+                </li>
 		<li>additional-handler-args Any additional keyword parameters as
 		    passed to the monitor function. These parameters can be
 		    used to initialize handler specific properties such as
@@ -84,13 +90,16 @@
                     Must be :input-socket or :output-socket</li>
 		<li>socket A keyword that identifies one of the input/output sockets
 		    provided by the module, for example :cv</li>
+                <li>Any additional socket mapping settings. These will be passed to the 
+                    handler instantiation function.</li>
 	    </ul>
 	</li>
 	<li>&rest additional-handler-args Optional keyword arguments to be passed to
 	    the handler instantiation function.</li>
     </ul>"
   (let ((output-handlers nil)
-	(keys nil))
+	(keys nil)
+	(cleaned-socket-mappings nil))
     (dolist (socket-mapping socket-mappings)
       (validate-output rack socket-mapping keys)
       (let ((key (first socket-mapping))
@@ -98,6 +107,9 @@
 	    (socket-type (third socket-mapping))
 	    (socket-key (fourth socket-mapping)))
 	(push key keys)
+	;; (:channel-1 "OUTPUT" :input-socket :line-out :extra-1 "Extra") => (:id :channel-1 :settings (:extra-1 "Extra")) 
+	(let ((settings (cdr (cdr (cdr (cdr socket-mapping))))))
+	  (push (list :input-socket (car socket-mapping) :settings settings) cleaned-socket-mappings))
 	(let ((handler nil))
 	  (if (eq :output-socket socket-type)
 	      (setf handler
@@ -119,14 +131,15 @@
 	    (apply
 	     monitor-handler
 	     "Monitor-Handler"
-	     (cl-synthesizer:get-environment rack) keys additional-handler-args))
+	     (cl-synthesizer:get-environment rack)
+	     (reverse cleaned-socket-mappings) ;; Preserve original order as passed into module
+	     additional-handler-args))
 	   (update-fn (getf backend :update)))
       (cl-synthesizer:add-hook
        rack
        (list 
 	:shutdown (lambda () (if (getf backend :shutdown) (funcall (getf backend :shutdown))))
 	:update (lambda()
-		  ;; TODO Params list should not be created on each update call
 		  (let ((params nil))
 		    (dolist (p output-handlers)
 		      (let ((v (funcall (second p))))
