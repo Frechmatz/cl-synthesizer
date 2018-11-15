@@ -7,8 +7,8 @@
     <ul>
 	<li>name A name.</li>
 	<li>environment The synthesizer environment.</li>
-	<li>inputs The input keys as defined by the Monitor Socket-Mapping. For now
-	these must be :channel-1 ... :channel-n.</li>
+	<li>inputs The inputs as defined by the Monitor Socket-Mapping. For now
+	the ids of the inputs (as defined by the :id property) must be :channel-1 ... :channel-n.</li>
 	<li>:filename A file path relative to the output directory as defined by the environment.</li>
     </ul>"
   (let ((handler 
