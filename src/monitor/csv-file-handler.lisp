@@ -19,13 +19,14 @@
 		 environment
 		 :filename filename
 		 :columns (mapcar (lambda(column)
-				    (let ((column-settings (getf column :settings)))
-				      (list
-				       :id (getf column :input-socket)
-				       :name (getf column-settings :name)
-				       :format (getf column-settings :format)
-				       :default-value (getf column-settings :format))))
+				    (getf column :settings))
 				  inputs)
 		 rest)))
+    ;; Validate inputs
+    (dolist (input inputs)
+      (if (not (find (getf input :input-socket) (funcall (getf handler :inputs)) :test #'eq))
+	  (cl-synthesizer:signal-assembly-error
+	   :format-control "Input keyword ~a not supported by csv-file-handler"
+	   :format-arguments (list (getf input :input-socket)))))
     handler))
 

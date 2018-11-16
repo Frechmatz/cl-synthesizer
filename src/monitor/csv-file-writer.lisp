@@ -16,38 +16,53 @@
   <ul>
     <li>name Name of the writer.</li>
     <li>environment The synthesizer environment.</li>
-    <li>:columns List of column definitions. (:id :tick :name \"Tick\" :format \"~a\" :default-value 0)</li>
+    <li>:columns A list of column definitions. Each colum definition consists of a property list 
+        with the following keys:
+        <ul>
+            <li>:name Name of the column.</li>
+            <li>:format The format control-string. Default value is \"~a\"</li>
+            <li>:default-value Default value to be used if input value is nil.</li>
+        </ul>
+    </li>
     <li>:filename The relative path of the file to be written. The filename will be concatenated
         with the base path as defined by the :home-directory property of the environment.</li>
     <li>:column-separator </li>
     <li>:add-header </li>
   </ul>
-  The component has input sockets as defined by the column ids.
+  The component has the following inputs:
   <ul>
+      <li>:column-1 ... :column-n Where n is the number of columns.</li>
   </ul>
   The component has no outputs.
   The actual csv-file is written by the :shutdown function of the component."
-  ;;(declare (optimize (debug 3) (speed 0) (space 0))) 
+  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (if (<= (length columns) 0)
       (cl-synthesizer:signal-assembly-error
        :format-control "~a: Columns must not be empty."
        :format-arguments (list name)))
   (let ((rows nil)
-	(inputs (mapcar (lambda(column) (getf column :id)) columns)))
-    ;; Init missing values with defaults
-    (setf columns (mapcar
-		   (lambda(column)
-		     (let ((c (copy-list column)))
-		       (if (not (getf c :format))
-			   (setf (getf c :format) "~a"))
-		       (if (not (getf c :default-value))
-			   (setf (getf c :default-value) ""))
-		       (if (not (getf c :name))
-			   (setf (getf c :name) (symbol-name (getf c :id))))
-		       c))
-		   columns))
+	(column-keys nil)
+	(column-properties nil))
+    ;; set up input keys and column property lookup table
+    (let ((i 0))
+      (flet ((make-column-properties (column index)
+	       (let ((c (copy-list column)))
+		 (if (not (getf c :format))
+		     (setf (getf c :format) "~a"))
+		 (if (not (getf c :default-value))
+		     (setf (getf c :default-value) ""))
+		 (if (not (getf c :name))
+		     (setf (getf c :name) (format nil "Column-~a" index)))
+		 c)))
+	(dolist (column columns)
+	  (let ((column-key (cl-synthesizer-macro-util:make-keyword "column" i)))
+	    (push column-key column-keys)
+	    (push (make-column-properties column i) column-properties)
+	    (push column-key column-properties)
+	    (setf i (+ i 1))))
+	(setf column-keys (reverse column-keys))))
     (list
-     :inputs (lambda () inputs)
+     :inputs (lambda () column-keys)
      :outputs (lambda () '())
      :get-output (lambda (output) (declare (ignore output)) nil)
      :update (lambda (&rest args)
@@ -62,29 +77,31 @@
 		   (if add-header
 		       (format fh "~a~%"
 			       (reduce
-				(lambda(buffer column)
-				  (concatenate
-				   'string
-				   buffer
-				   (if (= 0 (length buffer)) "" column-separator)
-				   (quote-str (format nil "~a" (getf column :name)) column-separator)))
-			      columns
+				(lambda(buffer column-key)
+				  (let ((properties (getf column-properties column-key)))
+				    (concatenate
+				     'string
+				     buffer
+				     (if (= 0 (length buffer)) "" column-separator)
+				     (quote-str (format nil "~a" (getf properties :name)) column-separator))))
+			      column-keys
 			     :initial-value "")))
 		   (dolist (row (nreverse rows)) ;; This is inefficient :(
 		     (let* ((is-first t) ;; State for reduce callback. 
 			    (row-string
 			     (reduce
-			      (lambda(buffer column)
-				(let ((value (getf row (getf column :id))))
+			      (lambda(buffer column-key)
+				(let ((value (getf row column-key))
+				      (col-props (getf column-properties column-key)))
 				  (if (not value)
-				      (setf value (getf row (getf column :default-value))))
+				      (setf value (getf col-props :default-value)))
 				  (let ((b (concatenate
 					    'string
 					    buffer
 					    (if is-first "" column-separator)
-					    (quote-str (format nil (getf column :format) value) column-separator))))
+					    (quote-str (format nil (getf col-props :format) value) column-separator))))
 				    (setf is-first nil)
 				    b)))
-			      columns
+			      column-keys
 			     :initial-value "")))
 		       (format fh "~a~%" row-string))))))))
