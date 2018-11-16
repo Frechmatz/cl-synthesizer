@@ -19,10 +19,10 @@
 	  :channel-count (length inputs)
 	  rest)))
     ;; Validate inputs
-    (dolist (input-key inputs)
-      (if (not (find input-key (funcall (getf handler :inputs)) :test #'eq))
+    (dolist (input inputs)
+      (if (not (find (getf input :input-socket) (funcall (getf handler :inputs)) :test #'eq))
 	  (cl-synthesizer:signal-assembly-error
 	   :format-control "Input keyword ~a not supported by wave-file-handler"
-	   :format-arguments (list input-key))))
+	   :format-arguments (list (getf input :input-socket)))))
     handler))
 
