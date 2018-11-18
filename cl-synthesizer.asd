@@ -49,15 +49,15 @@
 				     (:file "adder")
 				     (:file "mixer")
 				     (:file "cv-to-trigger")
+				     (:file "wave-file-writer")
+				     (:file "csv-file-writer")
 				     ))
 	       (:module "src/monitor"
 			:serial t
 			:components ((:file "packages")
 				     (:file "monitor")
 				     (:file "wave-file-handler")
-				     (:file "wave-file-writer")
-				     (:file "csv-file-handler")
-				     (:file "csv-file-writer")))
+				     (:file "csv-file-handler")))
 	       (:module "src/vendor"
 			:serial t
 			:components ((:file "packages")

@@ -28,6 +28,8 @@
 		   "<li><a href=\"#adder\">Adder</a></li>"
 		   "<li><a href=\"#mixer\">Mixer</a></li>"
 		   "<li><a href=\"#cv-to-trigger\">CV to Trigger</a></li>"
+		   "<li><a href=\"#wave-file-writer\">Wave File Writer</a></li>"
+		   "<li><a href=\"#csv-file-writer\">CSV File Writer</a></li>"
 		   "</ul>"
 		   "</li>"
 		   "<li><a href=\"#monitor\">Monitor</a></li>"
@@ -84,11 +86,15 @@
 		   "<h4 id=\"cv-to-trigger\">CV to Trigger</h4>"
 		   (make-function-string 'cl-synthesizer-modules-cv-to-trigger:make-module :append-separator nil)
 		   (example-code "src/modules/cv-to-trigger/example-1.lisp")
+		   "<h4 id=\"wave-file-writer\">Wave File Writer</h4>"
+		   (make-function-string 'cl-synthesizer-modules-wave-file-writer:make-module :append-separator nil)
+		   "<h4 id=\"csv-file-writer\">CSV File Writer</h4>"
+		   (make-function-string 'cl-synthesizer-modules-csv-file-writer:make-module :append-separator nil)
 		   "<h3 id=\"monitor\">Monitor</h3>"
 		   (make-function-string 'cl-synthesizer-monitor:add-monitor :append-separator nil)
 		   (example-code "src/monitor/monitor/example-1.lisp")
-		   (make-function-string 'cl-synthesizer-monitor-wave-handler:wave-file-handler)
-		   (make-function-string 'cl-synthesizer-monitor-csv-handler:csv-file-handler :append-separator nil)
+		   (make-function-string 'cl-synthesizer-monitor-wave-handler:make-handler)
+		   (make-function-string 'cl-synthesizer-monitor-csv-handler:make-handler :append-separator nil)
 		   "<h3 id=\"midi\">MIDI</h3>"
 		   "<h4 id=\"midi-event\">MIDI Event</h4>"
 		   (make-function-string 'cl-synthesizer-midi-event:make-control-change-event)

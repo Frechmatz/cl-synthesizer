@@ -15,7 +15,7 @@
     ;; Record outputs into a Wave-File
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
+     #'cl-synthesizer-monitor-wave-handler:make-handler
      '(("VCO" :output-socket :sine)
        ("VCO" :output-socket :triangle)
        ("VCO" :output-socket :saw)

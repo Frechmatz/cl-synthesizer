@@ -1,17 +1,11 @@
-;;
-;;
-;; A CSV-File-Writer
-;;
-;;
-
-(in-package :cl-synthesizer-monitor-csv-file-writer)
+(in-package :cl-synthesizer-modules-csv-file-writer)
 
 (defun quote-str (str str-to-quote)
   (declare (ignore str-to-quote))
   str)
 
-(defun csv-file-writer (name environment &key columns filename (column-separator ",") (add-header nil))
-  "Creates a csv file writer.
+(defun make-module (name environment &key columns filename (column-separator ",") (add-header nil))
+  "Creates a CSV File Writer module.
     The function has the following arguments:
   <ul>
     <li>name Name of the writer.</li>
@@ -20,21 +14,23 @@
         with the following keys:
         <ul>
             <li>:name Name of the column.</li>
-            <li>:format The format control-string. Default value is \"~a\"</li>
-            <li>:default-value Default value to be used if input value is nil.</li>
+            <li>:format The format control-string of the column. Default value is \"~a\"</li>
+            <li>:default-value Default value to be used if current column value is nil.</li>
         </ul>
     </li>
     <li>:filename The relative path of the file to be written. The filename will be concatenated
         with the base path as defined by the :home-directory property of the environment.</li>
-    <li>:column-separator </li>
-    <li>:add-header </li>
+    <li>:column-separator The column separator of the CSV file.</li>
+    <li>:add-header If t then the CSV file will start with column names.</li>
   </ul>
-  The component has the following inputs:
+  The module has the following inputs:
   <ul>
       <li>:column-1 ... :column-n Where n is the number of columns.</li>
   </ul>
-  The component has no outputs.
-  The actual csv-file is written by the :shutdown function of the component."
+  The module has no outputs.
+  The actual csv-file is written by the :shutdown function of the module.
+  <p>See also cl-synthesizer-monitor:add-monitor which provides CSV-File-Writing
+     without having to add the module and the required patches to the rack.</p>"
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (if (<= (length columns) 0)
       (cl-synthesizer:signal-assembly-error

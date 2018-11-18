@@ -1,10 +1,4 @@
-;;
-;;
-;; A Wave-File-Writer Monitor Handler
-;;
-;;
-
-(in-package :cl-synthesizer-monitor-wave-file-writer)
+(in-package :cl-synthesizer-modules-wave-file-writer)
 
 (defun wave-writer-float-to-int16 (value)
   (cond
@@ -20,8 +14,8 @@
    ;; convert to -1.0 ... +1.0
    (/ f v-peak)))
 
-(defun wave-file-writer (name environment &key channel-count filename (v-peak 5.0))
-  "Creates a wave-file-writer. Writes files in \"Waveform Audio File\" (\"WAV\") format.
+(defun make-module (name environment &key channel-count filename (v-peak 5.0))
+  "Creates a Wave File Writer module. Writes files in \"Waveform Audio File\" (\"WAV\") format.
     The function has the following arguments:
   <ul>
     <li>name Name of the writer.</li>
@@ -29,19 +23,22 @@
     <li>:channel-count Number of channels.</li>
     <li>:filename The relative path of the file to be written. The filename will be concatenated
         with the base path as defined by the :home-directory property of the environment.</li>
-    <li>:v-peak Optional peak voltage. The inputs of the component will be scaled
+    <li>:v-peak Optional peak voltage. The inputs of the module will be scaled
 	to v-peak. If for example v-peak is set to 20.0 an incoming voltage
-	of 5.0 results in a sample value of 5.0 / 20.0 -> 0.25 and an incoming
-	voltage of -5.0 results in a sample value of -0.25. The default value
-	is 5.0. Incoming voltages will be clipped according to v-peak.</li>
+	of 5.0 results in a sample value (which is written into the wave file)  
+        of 5.0 / 20.0 -> 0.25 and an incoming voltage of -5.0 results in a sample 
+        value of -0.25. The default value is 5.0. Incoming voltages will be clipped 
+        according to v-peak.</li>
   </ul>
-  The component has the following inputs:
+  The module has the following inputs:
   <ul>
       <li>:channel-1 ... :channel-n The sample values of the generated frames
 	  are written in order :channel-1 ... :channel-n</li>
   </ul>
-  The component has no outputs.
-  The actual wave-file is written by the :shutdown function exposed by the component."
+  The module has no outputs.
+  The actual wave-file is written by the :shutdown function of the module.
+  <p>See also cl-synthesizer-monitor:add-monitor which provides Wave-File-Writing
+     without having to add the module and the required patches to the rack.</p>"
   (if (<= channel-count 0)
       (cl-synthesizer:signal-assembly-error
        :format-control "~a: channel-count must be greater than 0: ~a"

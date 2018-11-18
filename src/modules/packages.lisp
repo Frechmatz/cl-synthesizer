@@ -52,3 +52,11 @@
 (defpackage :cl-synthesizer-modules-cv-to-trigger
   (:use :cl)
   (:export :make-module))
+
+(defpackage :cl-synthesizer-modules-wave-file-writer
+  (:use :cl)
+  (:export :make-module))
+
+(defpackage :cl-synthesizer-modules-csv-file-writer
+  (:use :cl)
+  (:export :make-module))

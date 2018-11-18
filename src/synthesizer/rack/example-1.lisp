@@ -54,14 +54,14 @@
       ;; Write outputs to a Wave-File
       (cl-synthesizer-monitor:add-monitor
        rack
-       #'cl-synthesizer-monitor-wave-handler:wave-file-handler
+       #'cl-synthesizer-monitor-wave-handler:make-handler
        '(("OUTPUT" :input-socket :left)
          ("OUTPUT" :input-socket :right))
        :filename "rack-example-1.wav")
       
       rack)))
 
-(defparameter *attach-audio* t)
+(defparameter *attach-audio* nil)
 #|
 ;; Play rack for five seconds.
 (cl-synthesizer:play-rack (example) 5 

@@ -38,7 +38,7 @@
     ;; Record VCA inputs/outputs into a Wave-File
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
+     #'cl-synthesizer-monitor-wave-handler:make-handler
      '(("VCA" :input-socket :cv)
        ("VCA" :input-socket :input)
        ("VCA" :output-socket :output-linear)

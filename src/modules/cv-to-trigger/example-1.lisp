@@ -22,7 +22,7 @@
     
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
+     #'cl-synthesizer-monitor-wave-handler:make-handler
      '(("TRIGGER" :input-socket :input)
        ("TRIGGER" :output-socket :output))
      :filename "waves/cv-to-trigger-example-1.wav")

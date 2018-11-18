@@ -97,7 +97,7 @@
     ;; Record ADSR-Output, LFO-Output and LINE-OUT into a wave file
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
+     #'cl-synthesizer-monitor-wave-handler:make-handler
      '(("ADSR" :output-socket :cv)
        ("LFO" :output-socket :saw)
        ("OUTPUT" :input-socket :line-out))

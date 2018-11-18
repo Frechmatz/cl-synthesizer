@@ -18,7 +18,7 @@
     ;; Write Sweep to Wave-File
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
+     #'cl-synthesizer-monitor-wave-handler:make-handler
      '(("VCO-1" :input-socket :cv)
        ("VCO-1" :output-socket :triangle))
      :filename "waves/vco-example-2.wav")

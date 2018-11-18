@@ -4,17 +4,18 @@
 
 (in-package :cl-synthesizer-monitor-csv-handler)
 
-(defun csv-file-handler (name environment inputs &rest rest &key filename &allow-other-keys)
+(defun make-handler (name environment inputs &rest rest &key filename &allow-other-keys)
   "Creates a monitor handler which writes its inputs into a CSV file.
     The function has the following arguments:
     <ul>
 	<li>name A name.</li>
 	<li>environment The synthesizer environment.</li>
-	<li>inputs The input keys as provided by the Monitor component.</li>
+	<li>inputs The column input settings as provided by the Monitor component.</li>
 	<li>:filename A file path relative to the output directory as defined by the environment.</li>
-    </ul>"
+    </ul>
+    <p>See also cl-synthesizer-modules:csv-file-writer.</p>"
   (let* ((handler 
-	  (apply #'cl-synthesizer-monitor-csv-file-writer:csv-file-writer
+	  (apply #'cl-synthesizer-modules-csv-file-writer:make-module
 		 name
 		 environment
 		 :filename filename
@@ -23,6 +24,6 @@
     (values 
      handler
      ;; Ordered list of channels (we do not want to depend on order of input keys
-     ;; provided by the :inputs function of the handler.)
+     ;; provided by the :inputs function of the csv file writer module.)
      (cl-synthesizer-macro-util:make-keyword-list "column" (length inputs)))))
 

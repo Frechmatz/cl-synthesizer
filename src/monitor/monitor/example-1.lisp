@@ -14,7 +14,7 @@
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:wave-file-handler
+     #'cl-synthesizer-monitor-wave-handler:make-handler
      '(("VCO" :output-socket :sine)
        ("VCO" :output-socket :square)
        ("VCO" :output-socket :triangle)
@@ -23,7 +23,7 @@
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:csv-file-handler
+     #'cl-synthesizer-monitor-csv-handler:make-handler
      '(("VCO" :output-socket :sine :format "~,4F" :name "Sine")
        ("VCO" :output-socket :square :format "~,4F" :name "Square")
        ("VCO" :output-socket :triangle :format "~,4F" :name "Triangle")
