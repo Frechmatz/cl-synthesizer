@@ -61,9 +61,9 @@ A Modular Audio Synthesizer library implemented in Common Lisp.
           ;; Write outputs to a Wave-File
           (cl-synthesizer-monitor:add-monitor
            rack
-           #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-           '((:channel-1 "OUTPUT" :input-socket :left)
-             (:channel-2 "OUTPUT" :input-socket :right))
+           #'cl-synthesizer-monitor-wave-handler:make-handler
+           '(("OUTPUT" :input-socket :left)
+             ("OUTPUT" :input-socket :right))
            :filename "rack-example-1.wav")
           
           rack)))
@@ -115,6 +115,8 @@ API Reference
     *   [Adder](#adder)
     *   [Mixer](#mixer)
     *   [CV to Trigger](#cv-to-trigger)
+    *   [Wave File Writer](#wave-file-writer)
+    *   [CSV File Writer](#csv-file-writer)
 *   [Monitor](#monitor)
 *   [MIDI](#midi)
     *   [MIDI Event](#midi-event)
@@ -238,11 +240,13 @@ Returns the destination module and input/output socket, to which a given source 
 *   socket-type :input-socket if the patch of an input socket is required or :output-socket for the patch of an output socket of the source module.
 *   socket A keyword identifying an input or output socket of the source module.
 
-The function returns nil if the source module does not exist or if the source module does not expose the given socket or if the given socket is not connected with a module. Otherwise it returns a list with the following entries:
+The function returns returns a values object with the following entries:
 
 *   name Name of the destination module.
 *   module The destination module represented as a property list.
 *   socket A keyword that identifies the input or output socket of the destination module. If the socket type of the source module is :input-socket then this keyword represents an output socket of the destination module. Otherwise it represents an input socket.
+
+If the module does not exist, the module does not expose the given socket, or if the socket is not patched, all entries of the returned values object are nil.
 
 * * *
 
@@ -301,11 +305,11 @@ The module has the following outputs:
         ;; Record outputs into a Wave-File
         (cl-synthesizer-monitor:add-monitor
          rack
-         #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-         '((:channel-1 "VCO" :output-socket :sine)
-           (:channel-2 "VCO" :output-socket :triangle)
-           (:channel-3 "VCO" :output-socket :saw)
-           (:channel-4 "VCO" :output-socket :square))
+         #'cl-synthesizer-monitor-wave-handler:make-handler
+         '(("VCO" :output-socket :sine)
+           ("VCO" :output-socket :triangle)
+           ("VCO" :output-socket :saw)
+           ("VCO" :output-socket :square))
          :filename "waves/vco-example-1.wav")
     
         rack))
@@ -398,11 +402,11 @@ The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.
         ;; Record VCA inputs/outputs into a Wave-File
         (cl-synthesizer-monitor:add-monitor
          rack
-         #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-         '((:channel-1 "VCA" :input-socket :cv)
-           (:channel-2 "VCA" :input-socket :input)
-           (:channel-3 "VCA" :output-socket :output-linear)
-           (:channel-4 "VCA" :output-socket :output-exponential))
+         #'cl-synthesizer-monitor-wave-handler:make-handler
+         '(("VCA" :input-socket :cv)
+           ("VCA" :input-socket :input)
+           ("VCA" :output-socket :output-linear)
+           ("VCA" :output-socket :output-exponential))
          :filename "waves/vca-example-1.wav")
     
         rack))
@@ -785,8 +789,8 @@ The module has no inputs. The module has one output socket :midi-events.
         ;; Record LINE-OUT into a wave file
         (cl-synthesizer-monitor:add-monitor
          rack
-         #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-         '((:channel-1 "OUTPUT" :input-socket :line-out))
+         #'cl-synthesizer-monitor-wave-handler:make-handler
+         '(("OUTPUT" :input-socket :line-out))
          :filename "waves/midi-sequencer-example-1.wav")
         
         rack))
@@ -952,14 +956,58 @@ The module has the following outputs:
         
         (cl-synthesizer-monitor:add-monitor
          rack
-         #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-         '((:channel-1 "TRIGGER" :input-socket :input)
-           (:channel-2 "TRIGGER" :output-socket :output))
+         #'cl-synthesizer-monitor-wave-handler:make-handler
+         '(("TRIGGER" :input-socket :input)
+           ("TRIGGER" :output-socket :output))
          :filename "waves/cv-to-trigger-example-1.wav")
     
         rack))
           
     ;;(cl-synthesizer:play-rack (example) 2)
+
+#### Wave File Writer
+
+**cl-synthesizer-modules-wave-file-writer:make-module** name environment &key channel-count filename (v-peak 5.0)
+
+Creates a Wave File Writer module. Writes files in "Waveform Audio File" ("WAV") format. The function has the following arguments:
+
+*   name Name of the writer.
+*   environment The synthesizer environment.
+*   :channel-count Number of channels.
+*   :filename The relative path of the file to be written. The filename will be concatenated with the base path as defined by the :home-directory property of the environment.
+*   :v-peak Optional peak voltage. The inputs of the module will be scaled to v-peak. If for example v-peak is set to 20.0 an incoming voltage of 5.0 results in a sample value (which is written into the wave file) of 5.0 / 20.0 -> 0.25 and an incoming voltage of -5.0 results in a sample value of -0.25. The default value is 5.0. Incoming voltages will be clipped according to v-peak.
+
+The module has the following inputs:
+
+*   :channel-1 ... :channel-n The sample values of the generated frames are written in order :channel-1 ... :channel-n
+
+The module has no outputs. The actual wave-file is written by the :shutdown function of the module.
+
+See also cl-synthesizer-monitor:add-monitor which provides Wave-File-Writing without having to add the module and the required patches to the rack.
+
+#### CSV File Writer
+
+**cl-synthesizer-modules-csv-file-writer:make-module** name environment &key columns filename (column-separator ",") (add-header nil)
+
+Creates a CSV File Writer module. The function has the following arguments:
+
+*   name Name of the writer.
+*   environment The synthesizer environment.
+*   :columns A list of column definitions. Each colum definition consists of a property list with the following keys:
+    *   :name Name of the column.
+    *   :format The format control-string of the column. Default value is "~a"
+    *   :default-value Default value to be used if current column value is nil.
+*   :filename The relative path of the file to be written. The filename will be concatenated with the base path as defined by the :home-directory property of the environment.
+*   :column-separator The column separator of the CSV file.
+*   :add-header If t then the CSV file will start with column names.
+
+The module has the following inputs:
+
+*   :column-1 ... :column-n Where n is the number of columns.
+
+The module has no outputs. The actual csv-file is written by the :shutdown function of the module.
+
+See also cl-synthesizer-monitor:add-monitor which provides CSV-File-Writing without having to add the module and the required patches to the rack.
 
 ### Monitor
 
@@ -972,17 +1020,17 @@ Adds a monitor to a rack. A monitor is a high-level Rack hook that collects modu
     
     *   name A name.
     *   environment The synthesizer environment.
-    *   input-keywords A list of keywords declaring the keyword parameters with which the monitor handler update function will be called.
+    *   inputs A list of inputs. Each entry consists of the additional settings that have been set at a specific socket mapping, for example the CSV formatting string.
     *   additional-handler-args Any additional keyword parameters as passed to the monitor function. These parameters can be used to initialize handler specific properties such as a filename.
     
-    The function must return a property list with the following keys:
-    *   :update A function that is called after each tick of the rack. It is called with keyword parameters as declared by the input-keywords argument described above.
-    *   :shutdown An optional function with no arguments that is called when the rack shuts down.
-*   socket-mappings Declares a list of mappings of specific sockets of specific modules to keyword parameters that will be passed to the update function of the handler. Each mapping entry has the following format:
-    *   key Keyword to be used as keyword input parameter when calling the update function of the handler, for example :channel-1. For now this key must be one that is supported by the actual handler. For example the Wave-File handler only supports input keys :channel-1 ... :channel-n.
-    *   module-name Name of the module from which the state of a certain input/output socket is to be retrieved, for example "ADSR"
-    *   socket-type Defines if the value of an input-socket is to be passed to the handler or the value of an output-socket. Must be :input-socket or :output-socket
+    The function must return a values object with the following entries:
+    *   module A property list that represents a module. See also cl-synthesizer:add-module.
+    *   An ordered list of input keys of the module, where the first key represents the first entry of the socket mappings (e.g. column-1) and so on.
+*   socket-mappings Declares the input/outputs whose values are to be monitored. Each entry has the following format:
+    *   module-name Name of the module from which the value of a certain input/output socket is to be retrieved, for example "ADSR"
+    *   socket-type Defines if the value of an input-socket is to be retrieved to the handler or the value of an output-socket. Must be :input-socket or :output-socket
     *   socket A keyword that identifies one of the input/output sockets provided by the module, for example :cv
+    *   Any additional settings. Supported settings depend on the handler that is being used, for example a CSV writer may support a column formatting string.
 *   &rest additional-handler-args Optional keyword arguments to be passed to the handler instantiation function.
 
 **Example:**
@@ -993,32 +1041,61 @@ Adds a monitor to a rack. A monitor is a high-level Rack hook that collects modu
     (in-package :cl-synthesizer-monitor-example-1)
     
     (defun example ()
-      "Monitor example."
-      (let ((rack (cl-synthesizer:make-rack
-    	       :environment
-    	       (cl-synthesizer:make-environment))))
+      "Write all wave forms into a Wave and into a CSV file"
+      (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+        (cl-synthesizer:add-module
+         rack
+         "VCO"
+         #'cl-synthesizer-modules-linear-vco:make-module
+         :base-frequency 10 :v-peak 5 :cv-max 5 :f-max 12000)
     
-        ;;
-        ;; add modules...
-        ;;
-        
         (cl-synthesizer-monitor:add-monitor
          rack
-         #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-         '((:channel-1 "ADSR" :input-socket :gate)
-           (:channel-2 "ADSR" :output-socket :cv))
-         :filename "monitor-example-1.wav")
+         #'cl-synthesizer-monitor-wave-handler:make-handler
+         '(("VCO" :output-socket :sine)
+           ("VCO" :output-socket :square)
+           ("VCO" :output-socket :triangle)
+           ("VCO" :output-socket :saw))
+         :filename "waves/monitor-example-1.wav")
+    
+        (cl-synthesizer-monitor:add-monitor
+         rack
+         #'cl-synthesizer-monitor-csv-handler:make-handler
+         '(("VCO" :output-socket :sine :format "~,4F" :name "Sine")
+           ("VCO" :output-socket :square :format "~,4F" :name "Square")
+           ("VCO" :output-socket :triangle :format "~,4F" :name "Triangle")
+           ("VCO" :output-socket :saw :format "~,4F" :name "Saw"))
+         :filename "waves/monitor-example-1.csv"
+         :add-header t
+         :column-separator ",")
         
         rack))
+          
+    ;;(cl-synthesizer:play-rack (example) 1)
 
-**cl-synthesizer-monitor-wave-handler:wave-file-handler** name environment inputs &rest rest &key filename &allow-other-keys
+**cl-synthesizer-monitor-wave-handler:make-handler** name environment inputs &rest rest &key filename &allow-other-keys
 
 Creates a monitor handler which writes its inputs into a Wave file. The function has the following arguments:
 
 *   name A name.
 *   environment The synthesizer environment.
-*   inputs The input keys as defined by the Monitor Socket-Mapping. For now these must be :channel-1 ... :channel-n.
+*   inputs The column input settings as provided by the Monitor component.
 *   :filename A file path relative to the output directory as defined by the environment.
+
+See also cl-synthesizer-modules:wave-file-writer.
+
+* * *
+
+**cl-synthesizer-monitor-csv-handler:make-handler** name environment inputs &rest rest &key filename &allow-other-keys
+
+Creates a monitor handler which writes its inputs into a CSV file. The function has the following arguments:
+
+*   name A name.
+*   environment The synthesizer environment.
+*   inputs The column input settings as provided by the Monitor component.
+*   :filename A file path relative to the output directory as defined by the environment.
+
+See also cl-synthesizer-modules:csv-file-writer.
 
 ### MIDI
 
@@ -1102,4 +1179,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-11-14 21:19:00
+Generated 2018-11-18 15:47:58
