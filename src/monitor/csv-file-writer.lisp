@@ -60,6 +60,7 @@
 	    (push (make-column-properties column i) column-properties)
 	    (push column-key column-properties)
 	    (setf i (+ i 1))))
+	;; Reverse to order in which columns will be processed
 	(setf column-keys (reverse column-keys))))
     (list
      :inputs (lambda () column-keys)

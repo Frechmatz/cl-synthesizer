@@ -5,39 +5,6 @@
 
 (in-package :cl-synthesizer-monitor)
 
-(defun validate-output (rack socket-mapping output-sockets)
-  (let ((key (first socket-mapping))
-	(module-name (second socket-mapping))
-	(socket-type (third socket-mapping))
-	(socket-key (fourth socket-mapping)))
-    (if (not (keywordp key))
-	(cl-synthesizer:signal-assembly-error
-	 :format-control "Monitor: Key must be a keyword ~a"
-	 :format-arguments (list key)))
-    (if (find key output-sockets :test #'eq)
-	(cl-synthesizer:signal-assembly-error
-	 :format-control "Monitor: Key already used ~a"
-	 :format-arguments (list key)))
-    (if (and (not (eq :output-socket socket-type)) (not (eq :input-socket socket-type)))
-	(cl-synthesizer:signal-assembly-error
-	 :format-control "Monitor: Invalid socket type: ~a Must be one of :input-socket, :output-socket"
-	 :format-arguments (list socket-type)))
-    (if (not (cl-synthesizer:get-module rack module-name))
-	(cl-synthesizer:signal-assembly-error
-	 :format-control "Monitor: Cannot find module ~a"
-	 :format-arguments (list module-name)))
-    (if (eq :output-socket socket-type)
-	(let ((module (cl-synthesizer:get-module rack module-name)))
-	  (if (not (find socket-key (funcall (getf module :outputs))))
-	    (cl-synthesizer:signal-assembly-error
-	     :format-control "Module ~a does not have output socket ~a"
-	     :format-arguments (list module-name socket-key)))))
-    (if (eq :input-socket socket-type)
-	(if (not (cl-synthesizer:get-patch rack module-name :input-socket socket-key))
-	    (cl-synthesizer:signal-assembly-error
-	     :format-control "Monitor: Input socket ~a of module ~a is not connected with a module"
-	     :format-arguments (list socket-key module-name ))))))
-
 (defun add-monitor (rack monitor-handler socket-mappings &rest additional-handler-args)
    "Adds a monitor to a rack. A monitor is a high-level Rack hook that
     collects module states (values of input/output sockets) and passes them
@@ -97,54 +64,66 @@
 	<li>&rest additional-handler-args Optional keyword arguments to be passed to
 	    the handler instantiation function.</li>
     </ul>"
-  (let ((output-handlers nil)
-	(keys nil)
-	(cleaned-socket-mappings nil))
-    (dolist (socket-mapping socket-mappings)
-      (validate-output rack socket-mapping keys)
-      (let ((key (first socket-mapping))
-	    (module-name (second socket-mapping))
-	    (socket-type (third socket-mapping))
-	    (socket-key (fourth socket-mapping)))
-	(push key keys)
-	;; (:channel-1 "OUTPUT" :input-socket :line-out :extra-1 "Extra") => (:id :channel-1 :settings (:extra-1 "Extra")) 
-	(let ((settings (cdr (cdr (cdr (cdr socket-mapping))))))
-	  (push (list :input-socket (car socket-mapping) :settings settings) cleaned-socket-mappings))
-	(let ((handler nil))
-	  (if (eq :output-socket socket-type)
-	      (setf handler
-		    (lambda ()
-		      (let ((module (cl-synthesizer:get-module rack module-name)))
-			(if module
-			    (funcall (getf module :get-output) socket-key)
-			    nil))))
-	      (setf handler
-		    (lambda ()
-		      (multiple-value-bind (source-module-name source-module source-socket)
-			  (cl-synthesizer:get-patch rack module-name :input-socket socket-key)
-			(declare (ignore source-module-name))
-			(if source-socket
-			    (funcall (getf source-module :get-output) source-socket)
-			    nil)))))
-	  (push (list key handler)  output-handlers))))
-    (let* ((backend
-	    (apply
-	     monitor-handler
-	     "Monitor-Handler"
-	     (cl-synthesizer:get-environment rack)
-	     (reverse cleaned-socket-mappings) ;; Preserve original order as passed into module
-	     additional-handler-args))
-	   (update-fn (getf backend :update)))
-      (cl-synthesizer:add-hook
-       rack
-       (list 
-	:shutdown (lambda () (if (getf backend :shutdown) (funcall (getf backend :shutdown))))
-	:update (lambda()
-		  (let ((params nil))
-		    (dolist (p output-handlers)
-		      (let ((v (funcall (second p))))
-			;; Value
-			(push v params)
-			;; Key
-			(push (first p) params)))
-		    (apply update-fn params))))))))
+   (let ((input-fetchers nil))
+     (multiple-value-bind (backend ordered-input-sockets)
+	 (apply
+	  monitor-handler
+	  "Monitor-Handler"
+	  (cl-synthesizer:get-environment rack)
+	  (mapcar
+	   (lambda(m)
+	     ;; (:channel-1 "OUTPUT" :input-socket :line-out :extra-1 "Extra") => (:extra-1 "Extra") 
+	     (cdr (cdr (cdr (cdr m)))))
+	   socket-mappings)
+	  additional-handler-args)
+       (dotimes (i (length socket-mappings))
+	 (let* ((key (nth i ordered-input-sockets)) ;; input socket key defined by backend
+		(socket-mapping (nth i socket-mappings))
+		(module-name (second socket-mapping))
+		(socket-type (third socket-mapping))
+		(socket-key (fourth socket-mapping))
+		(module (cl-synthesizer:get-module rack module-name)))
+	   (if (not module)
+	       (cl-synthesizer:signal-assembly-error
+		:format-control "Monitor: Cannot find module ~a"
+		:format-arguments (list module-name)))
+	   (let ((input-fetcher nil))
+	     (cond
+	       ((eq :output-socket socket-type)
+		(if (not (find socket-key (funcall (getf module :outputs))))
+		    (cl-synthesizer:signal-assembly-error
+		     :format-control "Monitor: Module ~a does not have output socket ~a"
+		     :format-arguments (list module-name socket-key)))
+		(let ((get-output-fn (getf module :get-output)))
+		  (setf input-fetcher (lambda() (funcall get-output-fn socket-key)))))
+	       ((eq :input-socket socket-type)
+		(multiple-value-bind (source-module-name source-module source-socket)
+		    (cl-synthesizer:get-patch rack module-name :input-socket socket-key)
+		  (if (not source-module-name)
+		      (cl-synthesizer:signal-assembly-error
+		       :format-control "Monitor: Socket not patched or not exposed by module: ~a ~a ~a"
+		       :format-arguments (list module-name socket-type socket-key)))
+		  (setf input-fetcher
+			(lambda () (funcall (getf source-module :get-output) source-socket)))))
+	       (t
+		(cl-synthesizer:signal-assembly-error
+		 :format-control "Monitor: Socket-Type not supported: ~a. Must be one of :input-socket, :output-socket"
+		 :format-arguments (list socket-type))))
+	     (push (list key input-fetcher) input-fetchers))))
+
+       (let* ((backend-update-fn (getf backend :update)))
+	 (cl-synthesizer:add-hook
+	  rack
+	  (list 
+	   :shutdown (lambda ()
+		       (if (getf backend :shutdown)
+			   (funcall (getf backend :shutdown))))
+	   :update (lambda()
+		     (let ((params nil))
+		       (dolist (p input-fetchers)
+			 (let ((v (funcall (second p))))
+			   ;; Value
+			   (push v params)
+			   ;; Key
+			   (push (first p) params)))
+		       (apply backend-update-fn params)))))))))

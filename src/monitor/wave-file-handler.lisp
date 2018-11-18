@@ -7,8 +7,7 @@
     <ul>
 	<li>name A name.</li>
 	<li>environment The synthesizer environment.</li>
-	<li>inputs The inputs as defined by the Monitor Socket-Mapping. For now
-	the ids of the inputs (as defined by the :id property) must be :channel-1 ... :channel-n.</li>
+	<li>inputs The inputs as defined by the Monitor Socket-Mapping.</li>
 	<li>:filename A file path relative to the output directory as defined by the environment.</li>
     </ul>"
   (let ((handler 
@@ -18,11 +17,9 @@
 	  :filename filename
 	  :channel-count (length inputs)
 	  rest)))
-    ;; Validate inputs
-    (dolist (input inputs)
-      (if (not (find (getf input :input-socket) (funcall (getf handler :inputs)) :test #'eq))
-	  (cl-synthesizer:signal-assembly-error
-	   :format-control "Input keyword ~a not supported by wave-file-handler"
-	   :format-arguments (list (getf input :input-socket)))))
-    handler))
+    (values handler
+	    ;; Ordered list of channels (we do not want to depend on order of input keys
+	    ;; provided by the :inputs function of the handler.)
+	    (cl-synthesizer-macro-util:make-keyword-list "channel" (length inputs)))))
+	    
 

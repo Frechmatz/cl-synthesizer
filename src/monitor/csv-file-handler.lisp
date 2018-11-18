@@ -18,15 +18,11 @@
 		 name
 		 environment
 		 :filename filename
-		 :columns (mapcar (lambda(column)
-				    (getf column :settings))
-				  inputs)
+		 :columns inputs
 		 rest)))
-    ;; Validate inputs
-    (dolist (input inputs)
-      (if (not (find (getf input :input-socket) (funcall (getf handler :inputs)) :test #'eq))
-	  (cl-synthesizer:signal-assembly-error
-	   :format-control "Input keyword ~a not supported by csv-file-handler"
-	   :format-arguments (list (getf input :input-socket)))))
-    handler))
+    (values 
+     handler
+     ;; Ordered list of channels (we do not want to depend on order of input keys
+     ;; provided by the :inputs function of the handler.)
+     (cl-synthesizer-macro-util:make-keyword-list "column" (length inputs)))))
 

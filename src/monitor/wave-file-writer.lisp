@@ -46,14 +46,9 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "~a: channel-count must be greater than 0: ~a"
        :format-arguments (list name channel-count)))
-  (let ((inputs nil) (samples nil))
-    (dotimes (i channel-count)
-      (push (cl-synthesizer-macro-util:make-keyword "channel" i) inputs))
-    ;; inputs are now (:CHANNEL-n ... :CHANNEL-1)
-    ;; reverse inputs to (:CHANNEL-1 ... :CHANNEL-n)
-    ;; In this order samples will be pushed.
-    ;; Final reverse of samples takes place in :shutdown function.
-    (setf inputs (reverse inputs))
+  (let ((inputs (cl-synthesizer-macro-util:make-keyword-list "channel" channel-count))
+	(samples nil))
+    ;; inputs are now (:CHANNEL-1 ... :CHANNEL-n)
     (list
      :inputs (lambda () inputs)
      :outputs (lambda () '())
