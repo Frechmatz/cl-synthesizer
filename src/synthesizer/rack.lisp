@@ -377,9 +377,7 @@
 	    :output-socket for the patch of an output socket of the source module.</li>
 	<li>socket A keyword identifying an input or output socket of the source module.</li>
     </ul>
-    The function returns nil if the source module does not exist or if the source module
-    does not expose the given socket or if the given socket is not connected with a module.
-    Otherwise it returns a list with the following entries:
+    The function returns returns a values object with the following entries:
     <ul>
 	<li>name Name of the destination module.</li>
 	<li>module The destination module represented as a property list.</li>
@@ -388,20 +386,22 @@
 	    keyword represents an output socket of the destination module. Otherwise
 	    it represents an input socket.
 	</li>
-    </ul>"
+    </ul>
+    If the module does not exist, the module does not expose the given socket, or
+    if the socket is not patched, all entries of the returned values object are nil."
   (if (not (or (eq :input-socket socket-type) (eq :output-socket socket-type)))
       (signal-invalid-arguments-error
        :format-control "get-patch: socket must be one of :input-socket or :output-socket"
        :format-arguments nil))
   (let ((rm (get-rm-module rack module-name)))
     (if (not rm)
-	nil
+	(values nil nil nil)
 	(let ((patch nil))
 	  (if (eq :input-socket socket-type)
 	      (setf patch (get-rack-module-input-patch rm socket))
 	      (setf patch (get-rack-module-output-patch rm socket)))
 	  (if (not patch)
-	      nil
+	      (values nil nil nil)
 	      (values
 	       (get-rack-patch-target-name patch)
 	       (get-rack-module-module (get-rack-patch-module patch))
