@@ -55,13 +55,13 @@
       (cl-synthesizer-monitor:add-monitor
        rack
        #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-       '((:channel-1 "OUTPUT" :input-socket :left)
-         (:channel-2 "OUTPUT" :input-socket :right))
+       '(("OUTPUT" :input-socket :left)
+         ("OUTPUT" :input-socket :right))
        :filename "rack-example-1.wav")
       
       rack)))
 
-(defparameter *attach-audio* nil)
+(defparameter *attach-audio* t)
 #|
 ;; Play rack for five seconds.
 (cl-synthesizer:play-rack (example) 5 

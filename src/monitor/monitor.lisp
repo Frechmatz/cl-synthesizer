@@ -17,48 +17,35 @@
 	    <ul>
 		<li>name A name.</li>
 		<li>environment The synthesizer environment.</li>
-		<li>inputs A list of inputs. Each input consists of a property
-                    list with the following keys:
-                    <ul>
-                        <li>:input-socket Keyword that is used as keyword input parameter 
-                        when the update function of the handler is called.</li>
-                        <li>:settings Any additional settings specified by a 
-                        socket mapping entry.</li>
-                    </ul>
-                </li>
+		<li>inputs A list of inputs. Each entry consists of the additional
+                    settings that have been set at a specific socket mapping, for example
+                    the CSV formatting string.</li>
 		<li>additional-handler-args Any additional keyword parameters as
 		    passed to the monitor function. These parameters can be
 		    used to initialize handler specific properties such as
 		    a filename.</li>
 	    </ul>
-	    The function must return a property list with the following keys:
+	    The function must return a values object with the following entries:
 	    <ul>
-		<li>:update A function that is called after each tick of the rack.
-		    It is called with keyword parameters as declared by the
-		    input-keywords argument described above.</li>
-		<li>:shutdown An optional function with no arguments that is
-		    called when the rack shuts down.</li>
+		<li>module A property list that represents a module. See also cl-synthesizer:add-module.</li>
+		<li>An ordered list of input keys of the module, where the first key represents 
+                   the first entry of the socket mappings (e.g. column-1) and so on.</li>
 	    </ul>
 	</li>
-	<li>socket-mappings Declares a list of mappings of specific sockets of
-	    specific modules to keyword parameters that will be passed to the
-	    update function of the handler. Each mapping entry has the following format:
+	<li>socket-mappings Declares the input/outputs whose values are to be monitored.
+            Each entry has the following format:
 	    <ul>
-		<li>key Keyword to be used as keyword input parameter when calling
-		    the update function of the handler, for example :channel-1.
-		    For now this key must be one that is supported by the actual handler. 
-                    For example the Wave-File handler only supports input keys
-                    :channel-1 ... :channel-n.</li>
-		<li>module-name Name of the module from which the state of
+		<li>module-name Name of the module from which the value of
 		    a certain input/output socket is to be retrieved, for
 		    example \"ADSR\"</li>
 		<li>socket-type Defines if the value of an input-socket is to be
-                    passed to the handler or the value of an output-socket. 
+                    retrieved to the handler or the value of an output-socket. 
                     Must be :input-socket or :output-socket</li>
 		<li>socket A keyword that identifies one of the input/output sockets
 		    provided by the module, for example :cv</li>
-                <li>Any additional socket mapping settings. These will be passed to the 
-                    handler instantiation function.</li>
+                <li>Any additional settings. Supported settings depend
+                    on the handler that is being used, for example a CSV writer may
+                    support a column formatting string.</li>
 	    </ul>
 	</li>
 	<li>&rest additional-handler-args Optional keyword arguments to be passed to
@@ -72,16 +59,16 @@
 	  (cl-synthesizer:get-environment rack)
 	  (mapcar
 	   (lambda(m)
-	     ;; (:channel-1 "OUTPUT" :input-socket :line-out :extra-1 "Extra") => (:extra-1 "Extra") 
-	     (cdr (cdr (cdr (cdr m)))))
+	     ;; ("OUTPUT" :input-socket :line-out :extra-1 "Extra") => (:extra-1 "Extra") 
+	     (cdr (cdr (cdr m))))
 	   socket-mappings)
 	  additional-handler-args)
        (dotimes (i (length socket-mappings))
 	 (let* ((key (nth i ordered-input-sockets)) ;; input socket key defined by backend
 		(socket-mapping (nth i socket-mappings))
-		(module-name (second socket-mapping))
-		(socket-type (third socket-mapping))
-		(socket-key (fourth socket-mapping))
+		(module-name (first socket-mapping))
+		(socket-type (second socket-mapping))
+		(socket-key (third socket-mapping))
 		(module (cl-synthesizer:get-module rack module-name)))
 	   (if (not module)
 	       (cl-synthesizer:signal-assembly-error

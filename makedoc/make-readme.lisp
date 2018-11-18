@@ -87,7 +87,8 @@
 		   "<h3 id=\"monitor\">Monitor</h3>"
 		   (make-function-string 'cl-synthesizer-monitor:add-monitor :append-separator nil)
 		   (example-code "src/monitor/monitor/example-1.lisp")
-		   (make-function-string 'cl-synthesizer-monitor-wave-handler:wave-file-handler :append-separator nil)
+		   (make-function-string 'cl-synthesizer-monitor-wave-handler:wave-file-handler)
+		   (make-function-string 'cl-synthesizer-monitor-csv-handler:csv-file-handler :append-separator nil)
 		   "<h3 id=\"midi\">MIDI</h3>"
 		   "<h4 id=\"midi-event\">MIDI Event</h4>"
 		   (make-function-string 'cl-synthesizer-midi-event:make-control-change-event)

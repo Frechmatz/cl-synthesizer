@@ -74,7 +74,7 @@
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-     '((:channel-1 "OUTPUT" :input-socket :line-out))
+     '(("OUTPUT" :input-socket :line-out))
      :filename "waves/midi-sequencer-example-1.wav")
     
     rack))

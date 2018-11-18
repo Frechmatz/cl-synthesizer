@@ -98,9 +98,9 @@
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-     '((:channel-1 "ADSR" :output-socket :cv)
-       (:channel-2 "LFO" :output-socket :saw)
-       (:channel-3 "OUTPUT" :input-socket :line-out))
+     '(("ADSR" :output-socket :cv)
+       ("LFO" :output-socket :saw)
+       ("OUTPUT" :input-socket :line-out))
      :filename "waves/envelope-example-1.wav")
     
     rack))

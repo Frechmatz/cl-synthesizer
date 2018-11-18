@@ -77,7 +77,7 @@
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-     '((:channel-1 "OUTPUT" :input-socket :line-out-1))
+     '(("OUTPUT" :input-socket :line-out-1))
      :filename "keyboard.wav")
     
     rack))

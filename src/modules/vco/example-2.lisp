@@ -19,10 +19,8 @@
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-     '(
-       (:channel-1 "VCO-1" :input-socket :cv)
-       (:channel-2 "VCO-1" :output-socket :triangle)
-       )
+     '(("VCO-1" :input-socket :cv)
+       ("VCO-1" :output-socket :triangle))
      :filename "waves/vco-example-2.wav")
 
     rack))

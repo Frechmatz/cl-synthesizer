@@ -39,10 +39,10 @@
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-     '((:channel-1 "VCA" :input-socket :cv)
-       (:channel-2 "VCA" :input-socket :input)
-       (:channel-3 "VCA" :output-socket :output-linear)
-       (:channel-4 "VCA" :output-socket :output-exponential))
+     '(("VCA" :input-socket :cv)
+       ("VCA" :input-socket :input)
+       ("VCA" :output-socket :output-linear)
+       ("VCA" :output-socket :output-exponential))
      :filename "waves/vca-example-1.wav")
 
     rack))

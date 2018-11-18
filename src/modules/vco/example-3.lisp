@@ -23,8 +23,8 @@
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:wave-file-handler
-     '((:channel-1 "OUTPUT" :input-socket :line-out-1)
-       (:channel-2 "OUTPUT" :input-socket :line-out-2))
+     '(("OUTPUT" :input-socket :line-out-1)
+       ("OUTPUT" :input-socket :line-out-2))
      :filename "waves/vco-example-3.wav"
      :v-peak 5.0)
 
