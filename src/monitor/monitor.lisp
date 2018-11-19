@@ -35,13 +35,18 @@
 	<li>socket-mappings Declares the input/outputs whose values are to be monitored.
             Each entry has the following format:
 	    <ul>
-		<li>module-name Name of the module from which the value of
-		    a certain input/output socket is to be retrieved, for
-		    example \"ADSR\"</li>
-		<li>socket-type Defines if the value of an input-socket is to be
-                    retrieved to the handler or the value of an output-socket. 
-                    Must be :input-socket or :output-socket</li>
-		<li>socket A keyword that identifies one of the input/output sockets
+		<li>module-path Path of the module from which the value of
+		    a certain input/output socket or state is to be retrieved, for
+		    example \"ADSR\" or '(\"VOICE-1\" \"ADSR\"). 
+                    See also cl-synthesizer:find-module.</li>
+		<li>socket-type One of the following keywords: 
+                    <ul>
+                        <li>:input-socket Monitor the value of an input socket of the module.</li>
+                        <li>:output-socket Monitor the value of an output socket of the module.</li>
+                        <li>:state Monitor a state of the module (see get-state function).</li>
+                    </ul>
+                </li>
+		<li>socket A keyword that identifies one of the input/output sockets or states
 		    provided by the module, for example :cv</li>
                 <li>Any additional settings. Supported settings depend
                     on the handler that is being used, for example a CSV writer may
@@ -66,37 +71,45 @@
        (dotimes (i (length socket-mappings))
 	 (let* ((key (nth i ordered-input-sockets)) ;; input socket key defined by backend
 		(socket-mapping (nth i socket-mappings))
-		(module-name (first socket-mapping))
+		(module-path (first socket-mapping))
 		(socket-type (second socket-mapping))
-		(socket-key (third socket-mapping))
-		(module (cl-synthesizer:get-module rack module-name)))
+		(socket-key (third socket-mapping)))
+	   (multiple-value-bind (module-rack module-name module)
+	       (if (not module-path)
+		   (values rack "RACK" rack)
+		   (cl-synthesizer:find-module rack module-path))
 	   (if (not module)
 	       (cl-synthesizer:signal-assembly-error
 		:format-control "Monitor: Cannot find module ~a"
-		:format-arguments (list module-name)))
+		:format-arguments (list module-path)))
 	   (let ((input-fetcher nil))
 	     (cond
 	       ((eq :output-socket socket-type)
 		(if (not (find socket-key (funcall (getf module :outputs))))
 		    (cl-synthesizer:signal-assembly-error
 		     :format-control "Monitor: Module ~a does not have output socket ~a"
-		     :format-arguments (list module-name socket-key)))
+		     :format-arguments (list module-path socket-key)))
 		(let ((get-output-fn (getf module :get-output)))
 		  (setf input-fetcher (lambda() (funcall get-output-fn socket-key)))))
 	       ((eq :input-socket socket-type)
 		(multiple-value-bind (source-module-name source-module source-socket)
-		    (cl-synthesizer:get-patch rack module-name :input-socket socket-key)
+		    (cl-synthesizer:get-patch module-rack module-name :input-socket socket-key)
 		  (if (not source-module-name)
 		      (cl-synthesizer:signal-assembly-error
 		       :format-control "Monitor: Socket not patched or not exposed by module: ~a ~a ~a"
 		       :format-arguments (list module-name socket-type socket-key)))
 		  (setf input-fetcher
 			(lambda () (funcall (getf source-module :get-output) source-socket)))))
+	       ((eq :state socket-type)
+		(let ((get-state-fn (if (getf module :get-state)
+					 (getf module :get-state)
+					 (lambda(key) (declare (ignore key)) nil))))
+		  (setf input-fetcher (lambda() (funcall get-state-fn socket-key)))))
 	       (t
 		(cl-synthesizer:signal-assembly-error
 		 :format-control "Monitor: Socket-Type not supported: ~a. Must be one of :input-socket, :output-socket"
 		 :format-arguments (list socket-type))))
-	     (push (list key input-fetcher) input-fetchers))))
+	     (push (list key input-fetcher) input-fetchers)))))
 
        (let* ((backend-update-fn (getf backend :update)))
 	 (cl-synthesizer:add-hook
