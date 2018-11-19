@@ -29,7 +29,12 @@
 	<li>:triangle A triangle wave.</li>
 	<li>:saw A saw wave.</li>
 	<li>:square A square wave.</li>
-    </ul>"
+    </ul>
+    <p>The module exposes the following states via the get-state function:
+       <ul>
+          <li>:frequency The current frequency of the module.</li>
+       </ul>
+    </p>"
   (if (not f-max)
       (cl-synthesizer:signal-assembly-error
        :format-control "f-max of VCO ~a must not be nil"
@@ -73,7 +78,6 @@
 		   (setf f 0.0))
 	       f)))
       (list
-       :get-cur-frequency (lambda() cur-frequency)
        :inputs (lambda () '(:cv))
        :outputs (lambda () '(:sine :triangle :saw :square))
        :get-output (lambda (output)
@@ -93,7 +97,12 @@
 		   (setf cur-triangle-output (* v-peak (cl-synthesizer-core:phase-triangle-converter phi)))
 		   (setf cur-saw-output (* v-peak (cl-synthesizer-core:phase-saw-converter phi)))
 		   (setf cur-square-output (* v-peak (cl-synthesizer-core:phase-square-converter
-						      phi :duty-cycle duty-cycle)))))))))
+						      phi :duty-cycle duty-cycle)))))
+       :get-state (lambda (key)
+		    (if (eq key :frequency)
+			cur-frequency
+			nil))
+       ))))
 
 
 (in-package :cl-synthesizer-modules-exponential-vco)
@@ -122,7 +131,12 @@
 	<li>:triangle A triangle wave.</li>
 	<li>:saw A saw wave.</li>
 	<li>:square A square wave.</li>
-    </ul>"
+    </ul>
+    <p>The module exposes the following states via the get-state function:
+       <ul>
+          <li>:frequency The current frequency of the module.</li>
+       </ul>
+    </p>"
   (if (not base-frequency)
       (cl-synthesizer:signal-assembly-error
        :format-control "base-frequency of VCO ~a must not be nil"
@@ -165,7 +179,12 @@
 	<li>:triangle A triangle wave.</li>
 	<li>:saw A saw wave.</li>
 	<li>:square A square wave.</li>
-    </ul>"
+    </ul>
+    <p>The module exposes the following states via the get-state function:
+       <ul>
+          <li>:frequency The current frequency of the module.</li>
+       </ul>
+    </p>"
   (if (not base-frequency)
       (cl-synthesizer:signal-assembly-error
        :format-control "base-frequency of VCO ~a must not be nil"

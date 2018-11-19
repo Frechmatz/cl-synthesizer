@@ -51,6 +51,7 @@
 		   (make-function-string 'cl-synthesizer:get-environment)
 		   (make-function-string 'cl-synthesizer:get-module)
 		   (make-function-string 'cl-synthesizer:get-patch)
+		   (make-function-string 'cl-synthesizer:find-module)
 		   (make-function-string 'cl-synthesizer:add-hook :append-separator nil)
 		   "<h3 id=\"modules\">Modules</h3>"
 		   "<h4 id=\"vco\">VCO</h4>"

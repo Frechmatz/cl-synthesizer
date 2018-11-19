@@ -98,6 +98,8 @@
   "Helper function that returns internal representation of a module or nil."
   (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (getf rack :modules)))
 
+
+
 (defun get-module (rack name)
   "Get a module of a rack. The function has the following arguments:
     <ul>
@@ -110,6 +112,29 @@
     (if rm
 	(slot-value rm 'module)
 	nil)))
+
+(defun find-module (rack module-path)
+  "Get a module of a rack. The function has the following arguments:
+    <ul>
+      <li>rack The root rack.</li>
+      <li>module-path The path of the module within the rack (through multiple nested racks).</br>
+         Example 1: \"VCO\"</br> 
+         Example 2: '(\"VOICE-1\" \"VCO\")</li>
+    </ul>
+   Returns nil or a values object consisting of the rack of the module, the module name and the module itself."
+  (if (not (listp module-path))
+      (setf module-path (list module-path)))
+  (if (not module-path)
+      (values nil nil nil)
+      (let* ((rm (find-if (lambda (rm) (string= (first module-path) (get-rack-module-name rm))) (getf rack :modules))))
+	(if rm
+	    (let ((module (slot-value rm 'module)))
+	      (if (< 1 (length module-path))
+		  (if (getf module :is-rack)
+		      (find-module module (rest module-path))
+		      (values nil nil nil))
+		  (values rack (first module-path) module)))
+	    (values nil nil nil)))))
 
 (defun add-hook (rack hook)
   "Adds a hook to the rack. A hook is called each time after the rack has updated its state.
@@ -149,6 +174,10 @@
 		    of the given or any other output socket.</li>
 		<li>:shutdown An optional function with no arguments that is called when the rack
 		    is shutting down.</li>
+                <li>:get-state An optional function with which an internal state of a module can
+                    be exposed, for example a VCO may expose its frequency. The function has one 
+                    argument that consists of a keyword identifying the requested state, for 
+                    example :frequency.</li>
 	    </ul>
             <p>
 	    The input/output socket lists exposed by the module are not buffered by the rack. Therefore the
@@ -194,7 +223,13 @@
     The update function of the rack calls the update function of all modules that have
     been added to the rack. If the rack has already been shut down it immediately returns <b>nil</b>.
     Othwerwise it returns <b>t</b>.
-    </p><p>
+    </p>
+    <p>A rack exposes the following states via the get-state function:
+       <ul>
+          <li>:ticks Number of times the update function of the rack has been called.</li>
+       </ul>
+    </p>
+    <p>
     The shutdown function shuts the rack down by calling the shutdown handlers of all modules 
     and hooks of the rack. If the rack has already been shut down the function does not call any handlers.
     </p>
@@ -205,7 +240,8 @@
        :format-control "Environment must not be nil"
        :format-arguments nil))
 
-  (let* ((this nil) (has-shut-down nil) (input-rm nil) (inputs nil) (output-rm nil) (outputs))
+  (let* ((this nil) (has-shut-down nil) (input-rm nil)
+	 (inputs nil) (output-rm nil) (outputs nil) (ticks 0))
     (let ((rack
 	   (list
 	    :modules nil
@@ -218,6 +254,7 @@
 	      (if has-shut-down
 		  nil
 		  (progn
+		    (setf ticks (+ 1 ticks))
 		    (set-state this :PROCESS-TICK)
 		    (setf inputs args)
 		    (set-rack-module-state input-rm :PROCESSED-TICK)
@@ -273,7 +310,12 @@
 		    (dolist (m (getf this :hooks))
 		      (if (getf m :shutdown)
 			  (funcall (getf m :shutdown)))))))
-	    :environment environment)))
+	    :environment environment
+	    :is-rack t
+	    :get-state (lambda (key)
+			 (if (eq key :ticks)
+			     ticks
+			     nil)))))
 
       (setf this rack)
 

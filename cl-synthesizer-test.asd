@@ -86,5 +86,6 @@
 			:components ((:file "test-assembly")
 				     (:file "test-patching")
 				     (:file "test-update")
-				     (:file "test-nested-racks")))))
+				     (:file "test-nested-racks")
+				     (:file "test-find-module")))))
 
