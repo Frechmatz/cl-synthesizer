@@ -26,7 +26,7 @@
      rack "MIDI-CC-IFC" #'cl-synthesizer-modules-midi-cc-interface:make-module
      :controller-numbers (list msb-controller-number lsb-controller-number)
      :initial-output 0.0
-     :min-output 0.0
+     :min-output (* -1 vco-cv-max)
      :max-output vco-cv-max
      :channel nil
      :transform-handler
@@ -45,20 +45,35 @@
 	 (+ cur-output offs))))
     
     (cl-synthesizer:add-module
-     rack "VCO-1"
-     #'cl-synthesizer-modules-linear-vco:make-module
+     rack "VCO"
+     #'cl-synthesizer-modules-vco-ng:make-module
      :base-frequency 440
      :cv-max vco-cv-max
      :f-max vco-f-max
      :v-peak 5)
-    
+
     (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-CC-IFC" :midi-events)
-    (cl-synthesizer:add-patch rack "MIDI-CC-IFC" :output "VCO-1" :cv)
-    (cl-synthesizer:add-patch rack "VCO-1" :sine "OUTPUT" :line-out)
+    (cl-synthesizer:add-patch rack "MIDI-CC-IFC" :output "VCO" :cv-lin)
+    (cl-synthesizer:add-patch rack "VCO" :sine "OUTPUT" :line-out)
+
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-csv-handler:make-handler
+     '(("VCO" :state :frequency :name "Frequency" :format "~,4F")
+       ("VCO" :output-socket :sine :name "Sine" :format "~,4F"))
+    :filename "waves/midi-cc-interface-example-2.csv"
+    :add-header nil)
+
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-wave-handler:make-handler
+     '(("VCO" :output-socket :sine))
+    :filename "waves/midi-cc-interface-example-2.wav")
+    
     rack))
 
 #|
-(cl-synthesizer::play-rack (example) 30 
+(cl-synthesizer::play-rack (example) 5 
     :attach-audio t :audio-output-sockets '(:line-out) 
     :attach-midi t :midi-input-socket :midi-events)
 |#
