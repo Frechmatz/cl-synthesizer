@@ -80,7 +80,8 @@
 				     (:file "example-3")))
 	       (:module "src/modules/envelope"
 			:serial t
-			:components ((:file "example-1")))
+			:components ((:file "example-1")
+				     (:file "example-2")))
 	       (:module "src/modules/midi-interface"
 			:serial t
 			:components ((:file "example-1")))
