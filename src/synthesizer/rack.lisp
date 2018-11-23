@@ -223,13 +223,7 @@
     The update function of the rack calls the update function of all modules that have
     been added to the rack. If the rack has already been shut down it immediately returns <b>nil</b>.
     Othwerwise it returns <b>t</b>.
-    </p>
-    <p>A rack exposes the following states via the get-state function:
-       <ul>
-          <li>:ticks Number of times the update function of the rack has been called.</li>
-       </ul>
-    </p>
-    <p>
+    </p><p>
     The shutdown function shuts the rack down by calling the shutdown handlers of all modules 
     and hooks of the rack. If the rack has already been shut down the function does not call any handlers.
     </p>
@@ -241,7 +235,7 @@
        :format-arguments nil))
 
   (let* ((this nil) (has-shut-down nil) (input-rm nil)
-	 (inputs nil) (output-rm nil) (outputs nil) (ticks 0))
+	 (inputs nil) (output-rm nil) (outputs nil))
     (let ((rack
 	   (list
 	    :modules nil
@@ -254,7 +248,6 @@
 	      (if has-shut-down
 		  nil
 		  (progn
-		    (setf ticks (+ 1 ticks))
 		    (set-state this :PROCESS-TICK)
 		    (setf inputs args)
 		    (set-rack-module-state input-rm :PROCESSED-TICK)
@@ -311,11 +304,7 @@
 		      (if (getf m :shutdown)
 			  (funcall (getf m :shutdown)))))))
 	    :environment environment
-	    :is-rack t
-	    :get-state (lambda (key)
-			 (if (eq key :ticks)
-			     ticks
-			     nil)))))
+	    :is-rack t)))
 
       (setf this rack)
 

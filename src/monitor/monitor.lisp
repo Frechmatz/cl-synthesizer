@@ -75,9 +75,7 @@
 		(socket-type (second socket-mapping))
 		(socket-key (third socket-mapping)))
 	   (multiple-value-bind (module-rack module-name module)
-	       (if (not module-path)
-		   (values rack "RACK" rack)
-		   (cl-synthesizer:find-module rack module-path))
+	       (cl-synthesizer:find-module rack module-path)
 	   (if (not module)
 	       (cl-synthesizer:signal-assembly-error
 		:format-control "Monitor: Cannot find module ~a"
