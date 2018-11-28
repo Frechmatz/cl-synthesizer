@@ -1,15 +1,4 @@
 
-(defpackage :cl-synthesizer-modules-base-vco
-  (:use :cl))
-
-(defpackage :cl-synthesizer-modules-linear-vco
-  (:use :cl)
-  (:export :make-module))
-
-(defpackage :cl-synthesizer-modules-exponential-vco
-  (:use :cl)
-  (:export :make-module))
-
 (defpackage :cl-synthesizer-modules-midi-interface
   (:use :cl)
   (:export

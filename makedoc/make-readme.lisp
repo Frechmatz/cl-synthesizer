@@ -55,9 +55,8 @@
 		   (make-function-string 'cl-synthesizer:add-hook :append-separator nil)
 		   "<h3 id=\"modules\">Modules</h3>"
 		   "<h4 id=\"vco\">VCO</h4>"
-		   (make-function-string 'cl-synthesizer-modules-linear-vco:make-module :append-separator nil)
+		   (make-function-string 'cl-synthesizer-modules-vco-ng:make-module :append-separator nil)
 		   (example-code "src/modules/vco/example-1.lisp")
-		   (make-function-string 'cl-synthesizer-modules-exponential-vco:make-module :append-separator nil)
 		   "<h4 id=\"vca\">VCA</h4>"
 		   (make-function-string 'cl-synthesizer-modules-vca:make-module :append-separator nil)
 		   (example-code "src/modules/vca/example-1.lisp")
