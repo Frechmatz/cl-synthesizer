@@ -64,7 +64,8 @@
 			:components ((:file "packages")
 				     (:file "arturiaminilabmk2")))
 	       ;;
-	       ;; Examples provided by module implementations.
+	       ;; Examples and test stuff provided by module implementations.
+	       ;; Added to ADSR to ensure that files compile.
 	       ;;
 	       (:module "src/synthesizer/rack"
 			:serial t
@@ -77,7 +78,9 @@
 			:serial t
 			:components ((:file "example-1")
 				     (:file "example-2")
-				     (:file "example-3")))
+				     (:file "example-3")
+				     (:file "phase-plot")
+				     (:file "sweep-plot")))
 	       (:module "src/modules/envelope"
 			:serial t
 			:components ((:file "example-1")
