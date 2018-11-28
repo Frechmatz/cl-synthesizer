@@ -24,17 +24,17 @@ A Modular Audio Synthesizer library implemented in Common Lisp.
     	     ;; Add LFO
     	     (cl-synthesizer:add-module
     	      voice "LFO"
-    	      #'cl-synthesizer-modules-linear-vco:make-module
-    	      :base-frequency lfo-frequency :v-peak 1.0 :f-max 500 :cv-max 5)
+    	      #'cl-synthesizer-modules-vco:make-module
+    	      :base-frequency lfo-frequency :v-peak 0.1 :f-max 500 :cv-max 5)
     
     	     ;; Add VCO
     	     (cl-synthesizer:add-module
     	      voice "VCO"
-    	      #'cl-synthesizer-modules-linear-vco:make-module
+    	      #'cl-synthesizer-modules-vco:make-module
     	      :base-frequency vco-frequency :f-max 5000 :v-peak 5 :cv-max 5)
     
     	     ;; Patch LFO with VCO
-    	     (cl-synthesizer:add-patch voice "LFO" :sine "VCO" :cv)
+    	     (cl-synthesizer:add-patch voice "LFO" :sine "VCO" :cv-lin)
     
     	     ;; Patch VCO with audio output of module
     	     ;; OUTPUT is a virtual module that represents the output sockets of the rack.
@@ -68,7 +68,7 @@ A Modular Audio Synthesizer library implemented in Common Lisp.
           
           rack)))
     
-    (defparameter *attach-audio* nil)
+    (defparameter *attach-audio* t)
     #|
     ;; Play rack for five seconds.
     (cl-synthesizer:play-rack (example) 5 
@@ -169,6 +169,7 @@ Adds a module to a rack. The function has the following arguments:
     *   :update A function that is called with the values of the modules input sockets in order to update the state of the module (the state of its output sockets). The value of each input socket is passed via a keyword parameter.
     *   :get-output A function that is called in order to get the value of a specific output socket. The function is called with a keyword that identifies the output socket whose state is to be returned. The function must not modify the value of the given or any other output socket.
     *   :shutdown An optional function with no arguments that is called when the rack is shutting down.
+    *   :get-state An optional function with which an internal state of a module can be exposed, for example a VCO may expose its frequency. The function has one argument that consists of a keyword identifying the requested state, for example :frequency.
     
     The input/output socket lists exposed by the module are not buffered by the rack. Therefore the module should return either a quoted list or keep it in an internal variable. The module must not add or remove input/output sockets after it has been instantiated.
     
@@ -250,6 +251,19 @@ If the module does not exist, the module does not expose the given socket, or if
 
 * * *
 
+**cl-synthesizer:find-module** rack module-path
+
+Get a module of a rack. The function has the following arguments:
+
+*   rack The root rack.
+*   module-path The path of the module within the rack (through multiple nested racks).  
+    Example 1: "VCO"  
+    Example 2: '("VOICE-1" "VCO")
+
+Returns nil or a values object consisting of the rack of the module, the module name and the module itself.
+
+* * *
+
 **cl-synthesizer:add-hook** rack hook
 
 Adds a hook to the rack. A hook is called each time after the rack has updated its state. A hook consists a property list with the following keys:
@@ -263,28 +277,37 @@ Hooks must not modify the rack. See also **cl-synthesizer-monitor:add-monitor**.
 
 #### VCO
 
-**cl-synthesizer-modules-linear-vco:make-module** name environment &key base-frequency f-max v-peak cv-max (duty-cycle 0.5)
+**cl-synthesizer-modules-vco:make-module** name environment &key base-frequency f-max v-peak cv-max (duty-cycle 0.5) (phase-offset 0.0)
 
-Creates a Voltage Controlled Oscillator module with linear characteristic. The function has the following arguments:
+Creates a Voltage Controlled Oscillator module with 1V/Octave and linear frequency modulation inputs. The oscillator has through-zero support, as on negative frequencies the phase will move backwards (in clockwise direction). The function has the following arguments:
 
 *   name Name of the module.
 *   environment The synthesizer environment.
-*   :cv-max The frequency control voltage which represents the maximum frequency of the oscillator.
-*   :base-frequency The frequency emitted by the oscillator at a frequency control voltage of 0.
+*   :base-frequency The frequency emitted by the oscillator when all frequency control voltages are 0.
 *   :f-max The maximum frequency of the oscillator. f-max must be greater than 0.
-*   :v-peak Absolute value of the maximal voltage (positive/negative) emitted by the oscillator.
-*   :duty-cycle The duty cycle of the square wave. 0 >= duty-cycle <= 1.
+*   :cv-max The absolute value of the frequency control peak voltage of the :cv-lin input which represents the maximum frequency of the oscillator.
+*   :v-peak Absolute value of the output peak voltage emitted by the oscillator.
+*   :duty-cycle The duty cycle of the square wave. 0 <= duty-cycle <= 1.
+*   :phase-offset A phase offset in radians.
 
 The module has the following inputs:
 
-*   :cv Frequency control voltage. For frequency calculation the absolute value of the control voltage is used. The control voltage is clipped at :cv-max.
+*   :cv-exp Exponential frequency control voltage. For a given base-frequency of 440Hz a control voltage of 1.0 results in a frequency of 880Hz and a control voltage of -1.0 results in a frequency of 220Hz.
+*   :cv-lin Bipolar linear frequency control voltage. Example: If the :f-max of the oscillator is 12000Hz and :cv-max is 5.0V then a :cv-lin of 2.5V results in a frequency of 6000Hz and a :cv-lin of -2.5V results in a frequency of -6000Hz.
 
-The module has the following outputs:
+The frequency of the oscillator is calculated by adding the frequencies resulting from the :cv-lin and :cv-exp inputs. It is clipped according to the :f-max setting. The module has the following outputs:
 
 *   :sine A sine wave.
 *   :triangle A triangle wave.
 *   :saw A saw wave.
 *   :square A square wave.
+
+The module exposes the following states via the get-state function:
+
+*   :frequency The current frequency of the module.
+*   :linear-frequency The current linear frequency part of the module.
+*   :exponential-frequency The current exponential frequency part of the module.
+*   :phi The current phase in radians (0..2PI).
 
 **Example:**
 
@@ -299,10 +322,9 @@ The module has the following outputs:
         (cl-synthesizer:add-module
          rack
          "VCO"
-         #'cl-synthesizer-modules-linear-vco:make-module
+         #'cl-synthesizer-modules-vco:make-module
          :base-frequency 10 :v-peak 5 :cv-max 5 :f-max 12000)
         
-        ;; Record outputs into a Wave-File
         (cl-synthesizer-monitor:add-monitor
          rack
          #'cl-synthesizer-monitor-wave-handler:make-handler
@@ -315,28 +337,6 @@ The module has the following outputs:
         rack))
           
     ;;(cl-synthesizer:play-rack (example) 3)
-
-**cl-synthesizer-modules-exponential-vco:make-module** name environment &key base-frequency f-max v-peak (duty-cycle 0.5)
-
-Creates a Voltage Controlled Oscillator module with 1V/Octave characteristic. The function has the following arguments:
-
-*   name Name of the module.
-*   environment The synthesizer environment.
-*   :base-frequency The frequency emitted by the oscillator at a frequency control voltage of 0.
-*   :f-max The maximum frequency of the oscillator. f-max must be greater than 0.
-*   :v-peak Absolute value of the maximal voltage (positive/negative) emitted by the oscillator.
-*   :duty-cycle The duty cycle of the square wave. 0 >= duty-cycle <= 1.
-
-The module has the following inputs:
-
-*   :cv Frequency control voltage. For a given base-frequency of 440Hz a control voltage of 1.0 results in a frequency of 880Hz and a control voltage of -1.0 results in a frequency of 220Hz.
-
-The module has the following outputs:
-
-*   :sine A sine wave.
-*   :triangle A triangle wave.
-*   :saw A saw wave.
-*   :square A square wave.
 
 #### VCA
 
@@ -374,7 +374,7 @@ The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.
         ;; Set up oscillator modulating the amplification
         (cl-synthesizer:add-module
          rack "LFO-CV"
-         #'cl-synthesizer-modules-linear-vco:make-module
+         #'cl-synthesizer-modules-vco:make-module
          :base-frequency 0.5
          :v-peak 5.0
          :cv-max 5.0
@@ -383,7 +383,7 @@ The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.
         ;; set up oscillator providing the audio signal
         (cl-synthesizer:add-module
          rack "VCO-AUDIO"
-         #'cl-synthesizer-modules-linear-vco:make-module
+         #'cl-synthesizer-modules-vco:make-module
          :base-frequency 10000.0
          :v-peak 5.0
          :cv-max 5.0
@@ -511,7 +511,7 @@ The module has the following outputs:
         
         (cl-synthesizer:add-module
          rack "LFO"
-         #'cl-synthesizer-modules-linear-vco:make-module
+         #'cl-synthesizer-modules-vco:make-module
          :base-frequency 1.0 :v-peak 1.0 :f-max 500 :cv-max 5)
         
         (cl-synthesizer:add-module rack "MULTIPLE"
@@ -584,15 +584,16 @@ The module has the following outputs:
          :voice-count 1)
     
         (cl-synthesizer:add-module
-         rack "VCO-1"
-         #'cl-synthesizer-modules-exponential-vco:make-module
+         rack "VCO"
+         #'cl-synthesizer-modules-vco:make-module
          :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
+         :cv-max 5.0
          :f-max 13000
          :v-peak 5)
         
         (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-IFC" :midi-events)
-        (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO-1" :cv)
-        (cl-synthesizer:add-patch rack "VCO-1" :saw "OUTPUT" :line-out)
+        (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv-exp)
+        (cl-synthesizer:add-patch rack "VCO" :saw "OUTPUT" :line-out)
         rack))
     
     #|
@@ -661,7 +662,7 @@ The module has the following outputs:
          rack "MIDI-CC-IFC" #'cl-synthesizer-modules-midi-cc-interface:make-module
          :controller-numbers (list msb-controller-number lsb-controller-number)
          :initial-output 0.0
-         :min-output 0.0
+         :min-output (* -1 vco-cv-max)
          :max-output vco-cv-max
          :channel nil
          :transform-handler
@@ -680,20 +681,35 @@ The module has the following outputs:
     	 (+ cur-output offs))))
         
         (cl-synthesizer:add-module
-         rack "VCO-1"
-         #'cl-synthesizer-modules-linear-vco:make-module
+         rack "VCO"
+         #'cl-synthesizer-modules-vco:make-module
          :base-frequency 440
          :cv-max vco-cv-max
          :f-max vco-f-max
          :v-peak 5)
-        
+    
         (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-CC-IFC" :midi-events)
-        (cl-synthesizer:add-patch rack "MIDI-CC-IFC" :output "VCO-1" :cv)
-        (cl-synthesizer:add-patch rack "VCO-1" :sine "OUTPUT" :line-out)
+        (cl-synthesizer:add-patch rack "MIDI-CC-IFC" :output "VCO" :cv-lin)
+        (cl-synthesizer:add-patch rack "VCO" :sine "OUTPUT" :line-out)
+    
+        (cl-synthesizer-monitor:add-monitor
+         rack
+         #'cl-synthesizer-monitor-csv-handler:make-handler
+         '(("VCO" :state :frequency :name "Frequency" :format "~,4F")
+           ("VCO" :output-socket :sine :name "Sine" :format "~,4F"))
+        :filename "waves/midi-cc-interface-example-2.csv"
+        :add-header nil)
+    
+        (cl-synthesizer-monitor:add-monitor
+         rack
+         #'cl-synthesizer-monitor-wave-handler:make-handler
+         '(("VCO" :output-socket :sine))
+        :filename "waves/midi-cc-interface-example-2.wav")
+        
         rack))
     
     #|
-    (cl-synthesizer::play-rack (example) 30 
+    (cl-synthesizer::play-rack (example) 5 
         :attach-audio t :audio-output-sockets '(:line-out) 
         :attach-midi t :midi-input-socket :midi-events)
     |#
@@ -755,9 +771,10 @@ The module has no inputs. The module has one output socket :midi-events.
     
         ;; Add VCO
         (cl-synthesizer:add-module
-         rack "VCO" #'cl-synthesizer-modules-exponential-vco:make-module
+         rack "VCO" #'cl-synthesizer-modules-vco:make-module
          :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
          :f-max 12000
+         :cv-max 5.0
          :v-peak 5)
     
         ;; Add ADSR
@@ -783,7 +800,7 @@ The module has no inputs. The module has one output socket :midi-events.
         (cl-synthesizer:add-patch rack "VCO" :triangle "VCA" :input)
         
         ;; Connect Midi interface with ADSR and VCO
-        (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv)
+        (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv-exp)
         (cl-synthesizer:add-patch rack "MIDI-IFC" :gate-1 "ADSR" :gate)
     
         ;; Record LINE-OUT into a wave file
@@ -943,14 +960,14 @@ The module has the following outputs:
         (cl-synthesizer:add-module
          rack
          "VCO"
-         #'cl-synthesizer-modules-linear-vco:make-module
+         #'cl-synthesizer-modules-vco:make-module
          :base-frequency 5 :v-peak 5 :cv-max 5 :f-max 12000)
     
         (cl-synthesizer:add-module
          rack
          "TRIGGER"
          #'cl-synthesizer-modules-cv-to-trigger:make-module
-         :trigger-cv 2.5 :pulse-voltage 3.0)
+         :trigger-cv 4.9 :pulse-voltage 3.0)
     
         (cl-synthesizer:add-patch rack "VCO" :sine "TRIGGER" :input)
         
@@ -1027,9 +1044,12 @@ Adds a monitor to a rack. A monitor is a high-level Rack hook that collects modu
     *   module A property list that represents a module. See also cl-synthesizer:add-module.
     *   An ordered list of input keys of the module, where the first key represents the first entry of the socket mappings (e.g. column-1) and so on.
 *   socket-mappings Declares the input/outputs whose values are to be monitored. Each entry has the following format:
-    *   module-name Name of the module from which the value of a certain input/output socket is to be retrieved, for example "ADSR"
-    *   socket-type Defines if the value of an input-socket is to be retrieved to the handler or the value of an output-socket. Must be :input-socket or :output-socket
-    *   socket A keyword that identifies one of the input/output sockets provided by the module, for example :cv
+    *   module-path Path of the module from which the value of a certain input/output socket or state is to be retrieved, for example "ADSR" or '("VOICE-1" "ADSR"). See also cl-synthesizer:find-module.
+    *   socket-type One of the following keywords:
+        *   :input-socket Monitor the value of an input socket of the module.
+        *   :output-socket Monitor the value of an output socket of the module.
+        *   :state Monitor a state of the module (see get-state function).
+    *   socket A keyword that identifies one of the input/output sockets or states provided by the module, for example :cv
     *   Any additional settings. Supported settings depend on the handler that is being used, for example a CSV writer may support a column formatting string.
 *   &rest additional-handler-args Optional keyword arguments to be passed to the handler instantiation function.
 
@@ -1046,7 +1066,7 @@ Adds a monitor to a rack. A monitor is a high-level Rack hook that collects modu
         (cl-synthesizer:add-module
          rack
          "VCO"
-         #'cl-synthesizer-modules-linear-vco:make-module
+         #'cl-synthesizer-modules-vco:make-module
          :base-frequency 10 :v-peak 5 :cv-max 5 :f-max 12000)
     
         (cl-synthesizer-monitor:add-monitor
@@ -1179,4 +1199,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-11-18 15:47:58
+Generated 2018-11-28 21:34:38
