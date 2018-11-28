@@ -9,14 +9,14 @@
     (cl-synthesizer:add-module
      rack
      "VCO"
-     #'cl-synthesizer-modules-linear-vco:make-module
+     #'cl-synthesizer-modules-vco-ng:make-module
      :base-frequency 5 :v-peak 5 :cv-max 5 :f-max 12000)
 
     (cl-synthesizer:add-module
      rack
      "TRIGGER"
      #'cl-synthesizer-modules-cv-to-trigger:make-module
-     :trigger-cv 2.5 :pulse-voltage 3.0)
+     :trigger-cv 4.9 :pulse-voltage 3.0)
 
     (cl-synthesizer:add-patch rack "VCO" :sine "TRIGGER" :input)
     

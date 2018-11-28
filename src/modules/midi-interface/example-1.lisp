@@ -18,15 +18,16 @@
      :voice-count 1)
 
     (cl-synthesizer:add-module
-     rack "VCO-1"
-     #'cl-synthesizer-modules-exponential-vco:make-module
+     rack "VCO"
+     #'cl-synthesizer-modules-vco-ng:make-module
      :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
+     :cv-max 5.0
      :f-max 13000
      :v-peak 5)
     
     (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-IFC" :midi-events)
-    (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO-1" :cv)
-    (cl-synthesizer:add-patch rack "VCO-1" :saw "OUTPUT" :line-out)
+    (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv-exp)
+    (cl-synthesizer:add-patch rack "VCO" :saw "OUTPUT" :line-out)
     rack))
 
 #|

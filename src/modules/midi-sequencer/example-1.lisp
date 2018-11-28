@@ -39,9 +39,10 @@
 
     ;; Add VCO
     (cl-synthesizer:add-module
-     rack "VCO" #'cl-synthesizer-modules-exponential-vco:make-module
+     rack "VCO" #'cl-synthesizer-modules-vco-ng:make-module
      :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
      :f-max 12000
+     :cv-max 5.0
      :v-peak 5)
 
     ;; Add ADSR
@@ -67,7 +68,7 @@
     (cl-synthesizer:add-patch rack "VCO" :triangle "VCA" :input)
     
     ;; Connect Midi interface with ADSR and VCO
-    (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv)
+    (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv-exp)
     (cl-synthesizer:add-patch rack "MIDI-IFC" :gate-1 "ADSR" :gate)
 
     ;; Record LINE-OUT into a wave file

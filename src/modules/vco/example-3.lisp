@@ -3,7 +3,7 @@
 
 (in-package :cl-synthesizer-modules-vco-example-3)
 
-(defparameter *attach-audio* t)
+(defparameter *attach-audio* nil)
 
 (defun example ()
   "Play two sinus waves in stereo"
@@ -12,10 +12,10 @@
 	       :output-sockets '(:line-out-1 :line-out-2))))
     (cl-synthesizer:add-module
      rack "VCO-1"
-     #'cl-synthesizer-modules-exponential-vco:make-module :base-frequency 440 :f-max 8000 :v-peak 5)
+     #'cl-synthesizer-modules-vco-ng:make-module :base-frequency 440 :f-max 8000 :v-peak 5 :cv-max 5.0)
     (cl-synthesizer:add-module
      rack "VCO-2"
-     #'cl-synthesizer-modules-exponential-vco:make-module :base-frequency 442 :f-max 8000 :v-peak 5)
+     #'cl-synthesizer-modules-vco-ng:make-module :base-frequency 442 :f-max 8000 :v-peak 5 :cv-max 5.0)
     (cl-synthesizer:add-patch rack "VCO-1" :sine "OUTPUT" :line-out-1)
     (cl-synthesizer:add-patch rack "VCO-2" :sine "OUTPUT" :line-out-2)
     
@@ -32,5 +32,5 @@
 
 #|
 (cl-synthesizer::play-rack (example) 5
-    :attach-audio t :audio-output-sockets '(:line-out-1 :line-out-2))
+    :attach-audio *attach-audio* :audio-output-sockets '(:line-out-1 :line-out-2))
 |#

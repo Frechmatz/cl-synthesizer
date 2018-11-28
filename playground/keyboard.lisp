@@ -19,9 +19,10 @@
     
     (cl-synthesizer:add-module
      rack "VCO"
-     #'cl-synthesizer-modules-exponential-vco:make-module
+     #'cl-synthesizer-modules-vco-ng:make-module
      :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
      :f-max 13000
+     :cv-max 5.0
      :v-peak 5)
 
     (cl-synthesizer:add-module
@@ -36,7 +37,7 @@
 
     (cl-synthesizer:add-patch rack "VCO" :sine "VCA" :input)
     (cl-synthesizer:add-patch rack "ADSR" :cv "VCA" :cv)
-    (cl-synthesizer:add-patch rack "INPUT" :cv "VCO" :cv)
+    (cl-synthesizer:add-patch rack "INPUT" :cv "VCO" :cv-exp)
     (cl-synthesizer:add-patch rack "INPUT" :gate "ADSR" :gate)
     (cl-synthesizer:add-patch rack "VCA" :output-linear "OUTPUT" :audio)
     
