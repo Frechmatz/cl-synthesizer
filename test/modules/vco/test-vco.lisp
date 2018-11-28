@@ -1,14 +1,14 @@
 (in-package :cl-synthesizer-test)
 
-(defun print-vco-ng-state (vco)
+(defun print-vco-state (vco)
   (format t "~%VCO: f-exp: ~a f-lin: ~a f: ~a~%"
 	  (funcall (getf vco :get-state) :exponential-frequency)
 	  (funcall (getf vco :get-state) :linear-frequency)
 	  (funcall (getf vco :get-state) :frequency)))
 
 ;; Test that VCO emits base-frequency when cv inputs are 0.0
-(define-test vco-ng-test-1-0 ()
-	     (let ((vco (cl-synthesizer-modules-vco-ng:make-module
+(define-test vco-test-1-0 ()
+	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
@@ -25,15 +25,15 @@
 					  (funcall
 					   (getf vco :get-output)
 					   :sine)))))
-		 (print-vco-ng-state vco)
+		 (print-vco-state vco)
 		 ;; Allow some deviation due to algorithm used by get-frequency
 		 (assert-true (and
 			       (<= 439.5 f)
 			       (<= f 440.5))))))
 
 ;; Test that VCO emits base-frequency when cv inputs are 0.0 and base-frequency is initialized with negative frequency
-(define-test vco-ng-test-1-1 ()
-	     (let ((vco (cl-synthesizer-modules-vco-ng:make-module
+(define-test vco-test-1-1 ()
+	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency -440
@@ -50,7 +50,7 @@
 					  (funcall
 					   (getf vco :get-output)
 					   :sine)))))
-		 (print-vco-ng-state vco)
+		 (print-vco-state vco)
 		 ;; Allow some deviation due to algorithm used by get-frequency
 		 (assert-true (and
 			       (<= 439.5 f)
@@ -58,8 +58,8 @@
 
 
 ;; Test that frequency of VCO goes up one octave when cv-exp input is 1.0
-(define-test vco-ng-test-exp-1 ()
-	     (let ((vco (cl-synthesizer-modules-vco-ng:make-module
+(define-test vco-test-exp-1 ()
+	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
@@ -83,8 +83,8 @@
 			       (<= f 880.5))))))
 
 ;; Test that frequency of VCO goes up two octaves when cv-exp input is 2.0
-(define-test vco-ng-test-exp-2 ()
-	     (let ((vco (cl-synthesizer-modules-vco-ng:make-module
+(define-test vco-test-exp-2 ()
+	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
@@ -107,8 +107,8 @@
 			       (<= f 1760.5))))))
 
 ;; Test that frequency of VCO goes down one octave when cv input is -1.0
-(define-test vco-ng-test-exp-3 ()
-	     (let ((vco (cl-synthesizer-modules-vco-ng:make-module
+(define-test vco-test-exp-3 ()
+	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
@@ -131,8 +131,8 @@
 			       (<= f 220.5))))))
 
 ;; Test that frequency of VCO goes down two octave when cv-exp input is -2.0
-(define-test vco-ng-test-exp-4 ()
-	     (let ((vco (cl-synthesizer-modules-vco-ng:make-module
+(define-test vco-test-exp-4 ()
+	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
@@ -158,8 +158,8 @@
 
 	  
 ;; Add 6000Hz via linear CV input
-(define-test vco-ng-test-lin-1 ()
-	     (let ((vco (cl-synthesizer-modules-vco-ng:make-module
+(define-test vco-test-lin-1 ()
+	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :cv-max 5
@@ -177,15 +177,15 @@
 					  (funcall
 					   (getf vco :get-output)
 					   :sine)))))
-		 (print-vco-ng-state vco)
+		 (print-vco-state vco)
 		 ;; Allow some deviation due to algorithm used by get-frequency
 		 (assert-true (and
 			       (<= 5999.5 f)
 			       (<= f 6000.5))))))
 
 ;; Add 6000Hz to 440Hz via linear CV input
-(define-test vco-ng-test-lin-2 ()
-	     (let ((vco (cl-synthesizer-modules-vco-ng:make-module
+(define-test vco-test-lin-2 ()
+	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :cv-max 5
@@ -202,15 +202,15 @@
 					  (funcall
 					   (getf vco :get-output)
 					   :sine)))))
-		 (print-vco-ng-state vco)
+		 (print-vco-state vco)
 		 ;; Allow some deviation due to algorithm used by get-frequency
 		 (assert-true (and
 			       (<= 6439.5 f)
 			       (<= f 6440.5))))))
 
 ;; Test frequency clipping (exp input)
-(define-test vco-ng-test-frequency-clipping-exp-upper ()
-	     (let ((vco (cl-synthesizer-modules-vco-ng:make-module
+(define-test vco-test-frequency-clipping-exp-upper ()
+	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
@@ -227,15 +227,15 @@
 					  (funcall
 					   (getf vco :get-output)
 					   :sine)))))
-		 (print-vco-ng-state vco)
+		 (print-vco-state vco)
 		 ;; Allow some deviation due to algorithm used by get-frequency
 		 (assert-true (and
 			       (<= 11999.5 f)
 			       (<= f 12000.5))))))
 
 ;; Test frequency clipping (lin input)
-(define-test vco-ng-test-frequency-clipping-lin-upper ()
-	     (let ((vco (cl-synthesizer-modules-vco-ng:make-module
+(define-test vco-test-frequency-clipping-lin-upper ()
+	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
@@ -252,7 +252,7 @@
 					  (funcall
 					   (getf vco :get-output)
 					   :sine)))))
-		 (print-vco-ng-state vco)
+		 (print-vco-state vco)
 		 ;; Allow some deviation due to algorithm used by get-frequency
 		 (assert-true (and
 			       (<= 11999.5 f)
@@ -260,8 +260,8 @@
 
 
 ;; Test lower clipping exp input
-(define-test vco-ng-test-frequency-clipping-exp-bottom ()
-	     (let ((vco (cl-synthesizer-modules-vco-ng:make-module
+(define-test vco-test-frequency-clipping-exp-bottom ()
+	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency -5000
@@ -278,7 +278,7 @@
 					  (funcall
 					   (getf vco :get-output)
 					   :sine)))))
-		 (print-vco-ng-state vco)
+		 (print-vco-state vco)
 		 ;; Allow some deviation due to algorithm used by get-frequency
 		 ;; through-zero!
 		 (assert-true (and
@@ -287,8 +287,8 @@
 
 
 ;; Test lower clipping lin input
-(define-test vco-ng-test-frequency-clipping-lin-bottom ()
-	     (let ((vco (cl-synthesizer-modules-vco-ng:make-module
+(define-test vco-test-frequency-clipping-lin-bottom ()
+	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
@@ -305,15 +305,15 @@
 					  (funcall
 					   (getf vco :get-output)
 					   :sine)))))
-		 (print-vco-ng-state vco)
+		 (print-vco-state vco)
 		 ;; through-zero!
 		 (assert-true (and
 			       (>= f -11999.5)
 			       (>= f -12000.5))))))
 
 ;; Test updating both cv inputs
-(define-test vco-ng-test-fm-1 ()
-	     (let ((vco (cl-synthesizer-modules-vco-ng:make-module
+(define-test vco-test-fm-1 ()
+	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
@@ -330,7 +330,7 @@
 					  (funcall
 					   (getf vco :get-output)
 					   :sine)))))
-		 (print-vco-ng-state vco)
+		 (print-vco-state vco)
 		 ;; Allow some deviation due to algorithm used by get-frequency
 		 ;; (+ 880 (/ 12000 5)) = 880 + 2400 = 3280
 		 (assert-true (and
@@ -338,8 +338,8 @@
 			       (<= f 3280.5))))))
 
 ;; Test updating both cv inputs with zero crossing
-(define-test vco-ng-test-fm-2 ()
-	     (let ((vco (cl-synthesizer-modules-vco-ng:make-module
+(define-test vco-test-fm-2 ()
+	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440
@@ -356,7 +356,7 @@
 					  (funcall
 					   (getf vco :get-output)
 					   :sine)))))
-		 (print-vco-ng-state vco)
+		 (print-vco-state vco)
 		 ;; Allow some deviation due to algorithm used by get-frequency
 		 ;; 880 - 9600 = -8720
 		 (assert-true (and
@@ -365,8 +365,8 @@
 
 ;; This test assumes, that the square wave output is 5.0 for 0 <= Phi < PI
 ;; and -5.0 for PI < Phi < 2PI 
-(define-test vco-ng-test-through-zero ()
-	     (let ((vco (cl-synthesizer-modules-vco-ng:make-module
+(define-test vco-test-through-zero ()
+	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 0
@@ -376,12 +376,12 @@
 			 :duty-cycle 0.5
 			 )))
 	       (funcall (getf vco :update) :cv-lin 0.5 :cv-exp 0)
-	       (print-vco-ng-state vco)
+	       (print-vco-state vco)
 	       (assert-equality #'= 5.0 (funcall (getf vco :get-output) :square))
 	       ;; Back to zero
 	       (funcall (getf vco :update) :cv-lin -0.5 :cv-exp 0)
 	       ;; One more step back
 	       (funcall (getf vco :update) :cv-lin -0.5 :cv-exp 0)
-	       (print-vco-ng-state vco)
+	       (print-vco-state vco)
 	       (assert-equality #'= -5.0 (funcall (getf vco :get-output) :square))))
 

@@ -38,7 +38,7 @@
 	       (:module "src/modules"
 			:serial t
 			:components ((:file "packages")
-				     (:file "vco-ng")
+				     (:file "vco")
 				     (:file "multiple")
 				     (:file "envelope")
 				     (:file "vca")

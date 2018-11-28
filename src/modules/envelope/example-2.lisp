@@ -61,7 +61,7 @@
     ;; Add LFO
     (cl-synthesizer:add-module
      rack "LFO"
-     #'cl-synthesizer-modules-vco-ng:make-module :base-frequency 0.05 :v-peak 5 :cv-max 5.0 :f-max 12000)
+     #'cl-synthesizer-modules-vco:make-module :base-frequency 0.05 :v-peak 5 :cv-max 5.0 :f-max 12000)
     
     ;; Envelope
     (cl-synthesizer:add-module
@@ -83,7 +83,7 @@
     
     ;; Add VCO, VCA
     (cl-synthesizer:add-module
-     rack "VCO" #'cl-synthesizer-modules-vco-ng:make-module
+     rack "VCO" #'cl-synthesizer-modules-vco:make-module
      :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
      :f-max 12000
      :cv-max 5

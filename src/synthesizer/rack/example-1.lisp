@@ -17,13 +17,13 @@
 	     ;; Add LFO
 	     (cl-synthesizer:add-module
 	      voice "LFO"
-	      #'cl-synthesizer-modules-vco-ng:make-module
+	      #'cl-synthesizer-modules-vco:make-module
 	      :base-frequency lfo-frequency :v-peak 0.1 :f-max 500 :cv-max 5)
 
 	     ;; Add VCO
 	     (cl-synthesizer:add-module
 	      voice "VCO"
-	      #'cl-synthesizer-modules-vco-ng:make-module
+	      #'cl-synthesizer-modules-vco:make-module
 	      :base-frequency vco-frequency :f-max 5000 :v-peak 5 :cv-max 5)
 
 	     ;; Patch LFO with VCO

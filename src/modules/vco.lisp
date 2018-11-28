@@ -1,9 +1,9 @@
-(in-package :cl-synthesizer-modules-vco-ng)
+(in-package :cl-synthesizer-modules-vco)
 
 (defun make-module (name environment &key base-frequency f-max v-peak cv-max
 				       (duty-cycle 0.5) (phase-offset 0.0))
   "Creates a Voltage Controlled Oscillator module with 1V/Octave and linear frequency modulation
-   inputs. The oscillator has through-zero support. On negative frequencies the
+   inputs. The oscillator has through-zero support, as on negative frequencies the
    phase will move backwards (in clockwise direction).
    The function has the following arguments:
     <ul>
@@ -15,7 +15,8 @@
 	<li>:cv-max The absolute value of the frequency control peak voltage of the :cv-lin input which
            represents the maximum frequency of the oscillator.</li>
 	<li>:v-peak Absolute value of the output peak voltage emitted by the oscillator.</li>
-	<li>:duty-cycle The duty cycle of the square wave. 0 >= duty-cycle <= 1.</li>
+	<li>:duty-cycle The duty cycle of the square wave. 0 <= duty-cycle <= 1.</li>
+	<li>:phase-offset A phase offset in radians.</li>
     </ul>
     The module has the following inputs:
     <ul>
@@ -27,6 +28,8 @@
            is 12000Hz and :cv-max is 5.0V then a :cv-lin of 2.5V results in a frequency of 6000Hz and 
            a :cv-lin of -2.5V results in a frequency of -6000Hz.</li>
     </ul>
+    The frequency of the oscillator is calculated by adding the frequencies resulting from the
+    :cv-lin and :cv-exp inputs. It is clipped according to the :f-max setting.
     The module has the following outputs:
     <ul>
 	<li>:sine A sine wave.</li>
@@ -36,11 +39,10 @@
     </ul>
     <p>The module exposes the following states via the get-state function:
        <ul>
-          <li>:frequency The current frequency of the module, consisting of 
-           the clipped sum of the linear and exponential frequencies.</li>
+          <li>:frequency The current frequency of the module.</li>
           <li>:linear-frequency The current linear frequency part of the module.</li>
           <li>:exponential-frequency The current exponential frequency part of the module.</li>
-          <li>:phi The current phase (0..2PI)</li>
+          <li>:phi The current phase in radians (0..2PI).</li>
        </ul>
     </p>"
   (if (not f-max)

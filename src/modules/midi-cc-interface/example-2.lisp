@@ -46,7 +46,7 @@
     
     (cl-synthesizer:add-module
      rack "VCO"
-     #'cl-synthesizer-modules-vco-ng:make-module
+     #'cl-synthesizer-modules-vco:make-module
      :base-frequency 440
      :cv-max vco-cv-max
      :f-max vco-f-max

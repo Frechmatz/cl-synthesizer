@@ -39,7 +39,7 @@
 				     (:file "midi-interface")
 				     (:file "midi-cc-interface")
 				     (:file "vca")
-				     (:file "vco-ng")
+				     (:file "vco")
 				     (:file "envelope")
 				     (:file "adder")
 				     (:file "cv-to-trigger")
@@ -71,7 +71,7 @@
 			:components ((:file "test-vca")))
 	       (:module "test/modules/vco"
 			:serial t
-			:components ((:file "test-vco-ng")))
+			:components ((:file "test-vco")))
 	       (:module "test/modules/adder"
 			:serial t
 			:components ((:file "test-adder")))
