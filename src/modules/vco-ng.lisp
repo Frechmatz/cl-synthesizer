@@ -1,9 +1,10 @@
 (in-package :cl-synthesizer-modules-vco-ng)
 
-(defun make-module (name environment &key base-frequency f-max v-peak cv-max (duty-cycle 0.5))
+(defun make-module (name environment &key base-frequency f-max v-peak cv-max
+				       (duty-cycle 0.5) (phase-offset 0.0))
   "Creates a Voltage Controlled Oscillator module with 1V/Octave and linear frequency modulation
-   inputs. The oscillator has through-zero support that has been realized as follows: If the 
-   frequency of the oscillator is negative, then the amplitude of the outputs will be inverted.
+   inputs. The oscillator has through-zero support. On negative frequencies the
+   phase will move backwards (in clockwise direction).
    The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
@@ -37,8 +38,9 @@
        <ul>
           <li>:frequency The current frequency of the module, consisting of 
            the clipped sum of the linear and exponential frequencies.</li>
-          <li>:linear-frequency The current linear frequency of the module.</li>
-          <li>:exponential-frequency The current exponential frequency of the module.</li>
+          <li>:linear-frequency The current linear frequency part of the module.</li>
+          <li>:exponential-frequency The current exponential frequency part of the module.</li>
+          <li>:phi The current phase (0..2PI)</li>
        </ul>
     </p>"
   (if (not f-max)
@@ -82,6 +84,7 @@
 	 (cur-frequency 0)
 	 (cur-lin-frequency 0)
 	 (cur-exp-frequency 0)
+	 (cur-phi 0.0)
 	 (phase-generator (cl-synthesizer-core:phase-generator sample-rate))
 	 (cur-sine-output 1.0)
 	 (cur-triangle-output 1.0)
@@ -121,14 +124,21 @@
 		 (if (not cv-lin)
 		     (setf cv-lin 0))
 		 (let* ((f (clip-frequency (get-frequency cv-exp cv-lin)))
-			(phi (funcall phase-generator (abs f)))
-			(sgn (signum f)))
+			(phi (funcall phase-generator f)))
 		   (setf cur-frequency f)
-		   (setf cur-sine-output (* sgn v-peak (cl-synthesizer-core:phase-sine-converter phi)))
-		   (setf cur-triangle-output (* sgn v-peak (cl-synthesizer-core:phase-triangle-converter phi)))
-		   (setf cur-saw-output (* sgn v-peak (cl-synthesizer-core:phase-saw-converter phi)))
-		   (setf cur-square-output (* sgn v-peak (cl-synthesizer-core:phase-square-converter
-							  phi :duty-cycle duty-cycle)))))
+		   (setf cur-phi phi)
+		   (setf cur-sine-output
+			 (* v-peak (cl-synthesizer-core:phase-sine-converter
+				    phi :phase-offset phase-offset)))
+		   (setf cur-triangle-output
+			 (* v-peak (cl-synthesizer-core:phase-triangle-converter
+				    phi :phase-offset phase-offset)))
+		   (setf cur-saw-output
+			 (* v-peak (cl-synthesizer-core:phase-saw-converter
+				    phi :phase-offset phase-offset)))
+		   (setf cur-square-output
+			 (* v-peak (cl-synthesizer-core:phase-square-converter
+				    phi :duty-cycle duty-cycle :phase-offset phase-offset)))))
        :get-state (lambda (key)
 		    (cond
 		      ((eq key :frequency)
@@ -137,6 +147,8 @@
 		       cur-lin-frequency)
 		      ((eq key :exponential-frequency)
 		       cur-exp-frequency)
+		      ((eq key :phi)
+		       cur-phi)
 		      (t nil)))
        ))))
   

@@ -363,7 +363,9 @@
 			       (>= f -8719.5)
 			       (>= f -8720.5))))))
 
-(define-test vco-ng-test-through-zero-amplitude-inversion ()
+;; This test assumes, that the square wave output is 5.0 for 0 <= Phi < PI
+;; and -5.0 for PI < Phi < 2PI 
+(define-test vco-ng-test-through-zero ()
 	     (let ((vco (cl-synthesizer-modules-vco-ng:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
@@ -371,11 +373,14 @@
 			 :f-max 12000
 			 :cv-max 5.0
 			 :v-peak 5
-			 :duty-cycle 1.00 ;; duty cycle 100% ==> Square output is always 5.0
+			 :duty-cycle 0.5
 			 )))
 	       (funcall (getf vco :update) :cv-lin 0.5 :cv-exp 0)
 	       (print-vco-ng-state vco)
 	       (assert-equality #'= 5.0 (funcall (getf vco :get-output) :square))
+	       ;; Back to zero
+	       (funcall (getf vco :update) :cv-lin -0.5 :cv-exp 0)
+	       ;; One more step back
 	       (funcall (getf vco :update) :cv-lin -0.5 :cv-exp 0)
 	       (print-vco-ng-state vco)
 	       (assert-equality #'= -5.0 (funcall (getf vco :get-output) :square))))
