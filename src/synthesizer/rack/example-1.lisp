@@ -17,17 +17,17 @@
 	     ;; Add LFO
 	     (cl-synthesizer:add-module
 	      voice "LFO"
-	      #'cl-synthesizer-modules-linear-vco:make-module
-	      :base-frequency lfo-frequency :v-peak 1.0 :f-max 500 :cv-max 5)
+	      #'cl-synthesizer-modules-vco-ng:make-module
+	      :base-frequency lfo-frequency :v-peak 0.1 :f-max 500 :cv-max 5)
 
 	     ;; Add VCO
 	     (cl-synthesizer:add-module
 	      voice "VCO"
-	      #'cl-synthesizer-modules-linear-vco:make-module
+	      #'cl-synthesizer-modules-vco-ng:make-module
 	      :base-frequency vco-frequency :f-max 5000 :v-peak 5 :cv-max 5)
 
 	     ;; Patch LFO with VCO
-	     (cl-synthesizer:add-patch voice "LFO" :sine "VCO" :cv)
+	     (cl-synthesizer:add-patch voice "LFO" :sine "VCO" :cv-lin)
 
 	     ;; Patch VCO with audio output of module
 	     ;; OUTPUT is a virtual module that represents the output sockets of the rack.
@@ -61,7 +61,7 @@
       
       rack)))
 
-(defparameter *attach-audio* nil)
+(defparameter *attach-audio* t)
 #|
 ;; Play rack for five seconds.
 (cl-synthesizer:play-rack (example) 5 
