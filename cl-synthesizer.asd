@@ -51,6 +51,7 @@
 				     (:file "cv-to-trigger")
 				     (:file "wave-file-writer")
 				     (:file "csv-file-writer")
+				     (:file "ramp")
 				     ))
 	       (:module "src/monitor"
 			:serial t
