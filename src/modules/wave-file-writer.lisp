@@ -3,9 +3,9 @@
 (defun wave-writer-float-to-int16 (value)
   (cond
     ((> value 1.0)
-     1)
+     32000)
     ((< value -1.0)
-     -1)
+     -32000)
     (t
      (round (* 32000 value)))))
 
