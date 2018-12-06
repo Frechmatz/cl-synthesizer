@@ -5,7 +5,11 @@
 (in-package :cl-synthesizer-modules-ramp)
 
 (defun make-module (name environment &key time-ms target-output)
-  "TODO"
+  "TODO
+   It cannot be guaranteed that target-output will be exactly reached. 
+   Due to the increments calculated out of time-ms and sample-rate 
+   the ramp may stop at an output value a little bit smaller or 
+   greater than the desired target-output value."
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let* ((output 0.0) (busy 0.0) (done 0.0) (elapsed-time-ms 0.0)
 	 (start 0.0)
