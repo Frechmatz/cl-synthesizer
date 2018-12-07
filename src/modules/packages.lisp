@@ -54,6 +54,6 @@
   (:use :cl)
   (:export :make-module))
 
-(defpackage :cl-synthesizer-modules-ramp
+(defpackage :cl-synthesizer-modules-ramp-stage
   (:use :cl)
   (:export :make-module))
