@@ -43,7 +43,8 @@
 				     (:file "envelope")
 				     (:file "adder")
 				     (:file "cv-to-trigger")
-				     (:file "mixer")))
+				     (:file "mixer")
+				     (:file "ramp-stage")))
 	       (:module "test"
 			:serial t
 			:components ((:file "packages")
@@ -81,6 +82,9 @@
 	       (:module "test/modules/cv-to-trigger"
 			:serial t
 			:components ((:file "test-cv-to-trigger")))
+	       (:module "test/modules/stage"
+			:serial t
+			:components ((:file "test-stage")))
 	       (:module "test/synthesizer"
 			:serial t
 			:components ((:file "test-assembly")
