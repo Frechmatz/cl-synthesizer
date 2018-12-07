@@ -104,6 +104,9 @@
 	       (:module "src/modules/mixer"
 			:serial t
 			:components ((:file "example-1")))
+	       (:module "src/modules/ramp"
+			:serial t
+			:components ((:file "example-1")))
 	       (:module "src/monitor/monitor"
 			:serial t
 			:components ((:file "example-1")))
