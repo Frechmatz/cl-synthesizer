@@ -9,7 +9,8 @@
    It cannot be guaranteed that target-output will be exactly reached. 
    Due to the increments calculated out of time-ms and sample-rate 
    the ramp may stop at an output value a little bit smaller or 
-   greater than the desired target-output value."
+   greater than the desired target-output value.
+   TODO trigger has higher priority than pass-through"
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (if (and gate-state (not (eq gate-state :on)) (not (eq gate-state :off)))
       (cl-synthesizer:signal-assembly-error
