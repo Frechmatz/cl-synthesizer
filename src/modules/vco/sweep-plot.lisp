@@ -37,22 +37,19 @@
      rack
      #'cl-synthesizer-monitor-csv-handler:make-handler
      '(("VCO" :state :frequency :format "~,4F"))
-    :filename "waves/vco-sweep-plot-vco-frequency.csv"
-    :add-header nil)
+    :filename "waves/vco-sweep-plot-vco-frequency.csv")
 
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-csv-handler:make-handler
      '(("VCO" :state :phi :format "~,10F"))
-    :filename "waves/vco-sweep-plot-vco-phi.csv"
-    :add-header nil)
+    :filename "waves/vco-sweep-plot-vco-phi.csv")
     
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-csv-handler:make-handler
      '(("VCO" :output-socket :triangle :format "~,4F"))
-    :filename "waves/vco-sweep-plot-vco.csv"
-    :add-header nil)
+    :filename "waves/vco-sweep-plot-vco.csv")
     
     rack))
       

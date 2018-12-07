@@ -28,8 +28,7 @@
      rack
      #'cl-synthesizer-monitor-csv-handler:make-handler
      '(("VCO" :state :frequency :name "Frequency" :format "~,4F"))
-    :filename "waves/vco-example-2.csv"
-    :add-header nil)
+    :filename "waves/vco-example-2.csv")
     
     rack))
 

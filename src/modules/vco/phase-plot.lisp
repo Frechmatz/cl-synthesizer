@@ -16,8 +16,7 @@
      rack
      #'cl-synthesizer-monitor-csv-handler:make-handler
      '(("VCO" :state :phi :name "Phase" :format "~,10F"))
-     :filename "phase-plot.csv"
-     :add-header nil)
+     :filename "phase-plot.csv")
 
     rack))
       

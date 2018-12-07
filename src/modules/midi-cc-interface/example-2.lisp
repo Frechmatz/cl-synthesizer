@@ -61,8 +61,7 @@
      #'cl-synthesizer-monitor-csv-handler:make-handler
      '(("VCO" :state :frequency :name "Frequency" :format "~,4F")
        ("VCO" :output-socket :sine :name "Sine" :format "~,4F"))
-    :filename "waves/midi-cc-interface-example-2.csv"
-    :add-header nil)
+    :filename "waves/midi-cc-interface-example-2.csv")
 
     (cl-synthesizer-monitor:add-monitor
      rack
