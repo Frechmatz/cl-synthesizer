@@ -4,7 +4,7 @@
   (declare (ignore str-to-quote))
   str)
 
-(defun make-module (name environment &key columns filename (column-separator ",") (add-header nil))
+(defun make-module (name environment &key columns filename (column-separator ",") (add-header t))
   "Creates a CSV File Writer module.
     The function has the following arguments:
   <ul>
