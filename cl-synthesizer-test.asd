@@ -26,7 +26,8 @@
 				     (:file "linear-converter")
 				     (:file "phase-waveform-converter")
 				     (:file "phase-generator")
-				     (:file "function-array")))
+				     (:file "function-array")
+				     (:file "round-time")))
 		(:module "src/midi"
 			:serial t
 			:components ((:file "packages")
