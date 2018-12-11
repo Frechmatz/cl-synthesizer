@@ -130,7 +130,16 @@
 	  (setf zero-crossing-count (+ 1 zero-crossing-count))))
     (float (/ zero-crossing-count (* seconds 2)))))
 
+;;  4.0 4.0001 0.01 => t
+;; -4.0 4.0001 0.01 => nil
+;;  4.0 -4.0001 0.01 => nil
+;;  0.0 0.001  0.01 => t
+;;  0.0 0.1    0.01 => nil
+(defun is-approximately (expected-number number allowed-deviation)
+  (let ((diff (- expected-number number)))
+    (< (abs diff) allowed-deviation)))
 
+  
 
   
 
