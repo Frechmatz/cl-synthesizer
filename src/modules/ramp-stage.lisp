@@ -4,7 +4,9 @@
 
 (in-package :cl-synthesizer-modules-ramp-stage)
 
-(defun make-module (name environment &key time-ms target-output (gate-state nil))
+(defun make-module (name environment
+		    &key time-ms target-output (gate-state nil)
+		      (trigger-threshold 2.5) (gate-threshold 2.5))
   "TODO
    It cannot be guaranteed that target-output will be exactly reached. 
    Due to the increments calculated out of time-ms and sample-rate 
@@ -17,7 +19,7 @@
        :format-control "~a: Invalid gate-state ~a Must be one of nil, :on, :off"
        :format-arguments (list name gate-state)))
   (let* ((output 0.0) (busy 0.0) (done 0.0) (elapsed-time-ms 0.0)
-	 (start 0.0) (cur-gate 0.0)
+	 (start 0.0) (passthrough-gate nil)
 	 (sample-rate (getf environment :sample-rate))
 	 (tick-delta-ms (/ 1 (/ sample-rate 1000.0))))
     (list
@@ -35,15 +37,15 @@
 		     ((eq :done output-socket)
 		      done)
 		     ((eq :gate output-socket)
-		      cur-gate)
+		      passthrough-gate)
 		     (t
 		      (error (format nil "Output socket ~a not supported by module ~a" output-socket name)))))
      :update (lambda (&key trigger input pass-through gate)
 	       ;;(declare (optimize (debug 3) (speed 0) (space 0)))
 	       (setf done 0.0)
+	       (setf passthrough-gate gate)
 	       (if (not gate)
 		   (setf gate 0.0))
-	       (setf cur-gate gate)
 	       (if (not input)
 		   (setf input 0.0))
 	       (if (not trigger)
@@ -53,7 +55,7 @@
 	       (if (> pass-through 0.0)
 		   (setf output input)
 		   (progn 
-		     (if (> trigger 0.0)
+		     (if (>= trigger trigger-threshold)
 			 ;; Start ramp
 			 (progn
 			   (setf busy 5.0)
@@ -63,14 +65,14 @@
 		     ;; Only continue when busy
 		     (if (> busy 0.0)
 			 (if (or (<= time-ms 0.0)
-				 (and gate-state (eq gate-state :on) (<= cur-gate 0.0))
-				 (and gate-state (eq gate-state :off) (> 0.0 cur-gate)))
+				 (and gate-state (eq gate-state :on) (<= gate gate-threshold))
+				 (and gate-state (eq gate-state :off) (> gate gate-threshold)))
 			     (progn
 			       (setf done 5.0)
 			       (setf busy 0.0))
 			     (progn
 			       (setf elapsed-time-ms (+ elapsed-time-ms tick-delta-ms))
-			       (if (> elapsed-time-ms time-ms)
+			       (if (> (cl-synthesizer-core:round-time elapsed-time-ms sample-rate) time-ms)
 				   (progn
 				     (setf done 5.0)
 				     (setf busy 0.0))
