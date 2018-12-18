@@ -44,7 +44,7 @@
        ("RAMP-1" :output-socket :output :name "Ramp 1 Out" :format "~,5F")
        ("RAMP-2" :output-socket :output :name "Ramp 2 Out" :format "~,5F"))
      :filename "waves/ramp-example-1.csv")
-    
+     
     
     rack))
 

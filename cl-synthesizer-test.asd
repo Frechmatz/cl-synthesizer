@@ -83,9 +83,9 @@
 	       (:module "test/modules/cv-to-trigger"
 			:serial t
 			:components ((:file "test-cv-to-trigger")))
-	       (:module "test/modules/stage"
+	       (:module "test/modules/ramp"
 			:serial t
-			:components ((:file "test-stage")))
+			:components ((:file "test-ramp")))
 	       (:module "test/synthesizer"
 			:serial t
 			:components ((:file "test-assembly")
