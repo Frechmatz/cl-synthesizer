@@ -2,7 +2,7 @@
 ;;
 ;;
 
-(in-package :cl-synthesizer-modules-ramp-stage)
+(in-package :cl-synthesizer-modules-ramp)
 
 (defun make-module (name environment
 		    &key time-ms target-output (gate-state nil)

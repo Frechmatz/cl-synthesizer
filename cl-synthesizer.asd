@@ -51,7 +51,7 @@
 				     (:file "cv-to-trigger")
 				     (:file "wave-file-writer")
 				     (:file "csv-file-writer")
-				     (:file "ramp-stage")
+				     (:file "ramp")
 				     ))
 	       (:module "src/monitor"
 			:serial t
@@ -104,7 +104,7 @@
 	       (:module "src/modules/mixer"
 			:serial t
 			:components ((:file "example-1")))
-	       (:module "src/modules/stage"
+	       (:module "src/modules/ramp"
 			:serial t
 			:components ((:file "example-1")))
 	       (:module "src/monitor/monitor"

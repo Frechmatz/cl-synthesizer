@@ -1,7 +1,7 @@
-(defpackage :cl-synthesizer-modules-stage-example-1
+(defpackage :cl-synthesizer-modules-ramp-example-1
   (:use :cl))
 
-(in-package :cl-synthesizer-modules-stage-example-1)
+(in-package :cl-synthesizer-modules-ramp-example-1)
 
 (defun example ()
   "Ramp example"
@@ -21,13 +21,13 @@
     ;; Attack
     (cl-synthesizer:add-module
      rack "RAMP-1"
-     #'cl-synthesizer-modules-ramp-stage:make-module
+     #'cl-synthesizer-modules-ramp:make-module
      :time-ms 200 :target-output 5.0 :gate-state nil)
 
     ;; Decay
     (cl-synthesizer:add-module
      rack "RAMP-2"
-     #'cl-synthesizer-modules-ramp-stage:make-module
+     #'cl-synthesizer-modules-ramp:make-module
      :time-ms 200 :target-output 2.5)
     
     (cl-synthesizer:add-patch rack "LFO" :square "TRIGGER" :input)
@@ -43,7 +43,7 @@
      '(("LFO" :output-socket :square :name "LFO Out" :format "~,5F")
        ("RAMP-1" :output-socket :output :name "Ramp 1 Out" :format "~,5F")
        ("RAMP-2" :output-socket :output :name "Ramp 2 Out" :format "~,5F"))
-     :filename "waves/stage-example-1.csv")
+     :filename "waves/ramp-example-1.csv")
     
     
     rack))

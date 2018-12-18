@@ -45,7 +45,7 @@
 				     (:file "adder")
 				     (:file "cv-to-trigger")
 				     (:file "mixer")
-				     (:file "ramp-stage")))
+				     (:file "ramp")))
 	       (:module "test"
 			:serial t
 			:components ((:file "packages")

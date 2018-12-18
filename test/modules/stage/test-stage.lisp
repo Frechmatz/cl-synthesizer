@@ -25,7 +25,7 @@
 
 (define-test test-stage-gate-passthrough ()
 	     ""
-	     (let* ((module (cl-synthesizer-modules-ramp-stage:make-module
+	     (let* ((module (cl-synthesizer-modules-ramp:make-module
 			     "Ramp"
 			     (make-stage-test-environment)
 			     :time-ms 10 :target-output 99.0 :gate-state nil)))
@@ -40,7 +40,7 @@
 
 (define-test test-stage-initial-output ()
 	     ""
-	     (let* ((module (cl-synthesizer-modules-ramp-stage:make-module
+	     (let* ((module (cl-synthesizer-modules-ramp:make-module
 			     "Ramp"
 			     (make-stage-test-environment)
 			     :time-ms 10 :target-output 99.0 :gate-state nil)))
@@ -51,7 +51,7 @@
 
 (define-test test-stage-passthrough-precedence ()
 	     "Passthrough input has higher precedence than trigger input"
-	     (let* ((module (cl-synthesizer-modules-ramp-stage:make-module
+	     (let* ((module (cl-synthesizer-modules-ramp:make-module
 			     "Ramp"
 			     (make-stage-test-environment)
 			     :time-ms 10 :target-output 99.0 :gate-state nil)))
@@ -63,7 +63,7 @@
 (define-test test-stage-gate-on ()
 	     ""
 	     (let* ((module
-		     (cl-synthesizer-modules-ramp-stage:make-module
+		     (cl-synthesizer-modules-ramp:make-module
 		      "Ramp"
 		      (make-stage-test-environment)
 		      :time-ms 10 :target-output 99.0 :gate-state :on)))
@@ -75,7 +75,7 @@
 (define-test test-stage-gate-off ()
 	     ""
 	     (let* ((module
-		     (cl-synthesizer-modules-ramp-stage:make-module
+		     (cl-synthesizer-modules-ramp:make-module
 		      "Ramp"
 		      (make-stage-test-environment)
 		      :time-ms 10 :target-output 99.0 :gate-state :off)))
@@ -87,7 +87,7 @@
 (define-test test-stage-done-trigger ()
 	     "Test that done output behaves as trigger"
 	     (let* ((module
-		     (cl-synthesizer-modules-ramp-stage:make-module
+		     (cl-synthesizer-modules-ramp:make-module
 		      "Ramp"
 		      (make-stage-test-environment)
 		      :time-ms 10 :target-output 99.0 :gate-state :on)))
@@ -102,7 +102,7 @@
 (define-test test-stage-climb ()
 	     ""
 	     (let* ((time-ms 10) (target-output 10.0)
-		    (module (cl-synthesizer-modules-ramp-stage:make-module
+		    (module (cl-synthesizer-modules-ramp:make-module
 			   "Ramp"
 			   (make-stage-test-environment)
 			   :time-ms time-ms :target-output target-output :gate-state nil))
@@ -127,7 +127,7 @@
 (define-test test-stage-climb-done ()
 	     ""
 	     (let* ((time-ms 10) (target-output 10.0)
-		    (module (cl-synthesizer-modules-ramp-stage:make-module
+		    (module (cl-synthesizer-modules-ramp:make-module
 			   "Ramp"
 			   (make-stage-test-environment)
 			   :time-ms time-ms :target-output target-output :gate-state nil))
@@ -156,7 +156,7 @@
 (define-test test-stage-climb-gate ()
 	     ""
 	     (let* ((time-ms 10) (target-output 10.0)
-		    (module (cl-synthesizer-modules-ramp-stage:make-module
+		    (module (cl-synthesizer-modules-ramp:make-module
 			   "Ramp"
 			   (make-stage-test-environment)
 			   :time-ms time-ms :target-output target-output :gate-state :on))
