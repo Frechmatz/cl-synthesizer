@@ -13,7 +13,7 @@
    the ramp may stop at an output value a little bit smaller or 
    greater than the desired target-output value.
    TODO trigger has higher priority than pass-through"
-  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
+  (declare (optimize (debug 3) (speed 0) (space 0)))
   (if (and gate-state (not (eq gate-state :on)) (not (eq gate-state :off)))
       (cl-synthesizer:signal-assembly-error
        :format-control "~a: Invalid gate-state ~a Must be one of nil, :on, :off"
@@ -41,7 +41,7 @@
 		     (t
 		      (error (format nil "Output socket ~a not supported by module ~a" output-socket name)))))
      :update (lambda (&key trigger input pass-through gate)
-	       ;;(declare (optimize (debug 3) (speed 0) (space 0)))
+	       (declare (optimize (debug 3) (speed 0) (space 0)))
 	       (setf done 0.0)
 	       (setf passthrough-gate gate)
 	       (if (not gate)
@@ -53,7 +53,9 @@
 	       (if (not pass-through)
 		   (setf pass-through 0.0))
 	       (if (> pass-through 0.0)
-		   (setf output input)
+		   (progn
+		     (setf output input)
+		     (setf busy 5.0)) ;; busy with deferring the input
 		   (progn 
 		     (if (>= trigger trigger-threshold)
 			 ;; Start ramp
@@ -65,9 +67,10 @@
 		     ;; Only continue when busy
 		     (if (> busy 0.0)
 			 (if (or (<= time-ms 0.0)
-				 (and gate-state (eq gate-state :on) (<= gate gate-threshold))
-				 (and gate-state (eq gate-state :off) (> gate gate-threshold)))
+				 (and (eq gate-state :on) (<= gate gate-threshold))
+				 (and (eq gate-state :off) (> gate gate-threshold)))
 			     (progn
+			       ;;(break)
 			       (setf done 5.0)
 			       (setf busy 0.0))
 			     (progn

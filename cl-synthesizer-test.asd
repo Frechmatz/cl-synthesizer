@@ -45,7 +45,8 @@
 				     (:file "adder")
 				     (:file "cv-to-trigger")
 				     (:file "mixer")
-				     (:file "ramp")))
+				     (:file "ramp")
+				     (:file "sustain")))
 	       (:module "test"
 			:serial t
 			:components ((:file "packages")
@@ -86,6 +87,9 @@
 	       (:module "test/modules/ramp"
 			:serial t
 			:components ((:file "test-ramp")))
+	       (:module "test/modules/sustain"
+			:serial t
+			:components ((:file "test-sustain")))
 	       (:module "test/synthesizer"
 			:serial t
 			:components ((:file "test-assembly")

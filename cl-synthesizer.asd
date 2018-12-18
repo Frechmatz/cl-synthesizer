@@ -52,6 +52,7 @@
 				     (:file "wave-file-writer")
 				     (:file "csv-file-writer")
 				     (:file "ramp")
+				     (:file "sustain")
 				     ))
 	       (:module "src/monitor"
 			:serial t
