@@ -77,12 +77,10 @@
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-csv-handler:make-handler
-     '(
-       ("MIDI-IFC" :output-socket :gate-1 :name "MIDI Gate" :format "~,5F")
-       ("TRIGGER" :output-socket :output :name "Trigger Out" :format "~,5F")
-       
-       ("ATTACK" :output-socket :done :name "Attack Done" :format "~,5F")
-       ("ATTACK" :output-socket :output :name "Attack Out" :format "~,5F")
+     '(("MIDI-IFC" :output-socket :gate-1 :name "MIDI Gate" :format "~,5F")
+       ;;("TRIGGER" :output-socket :output :name "Trigger Out" :format "~,5F")
+       ;;("ATTACK" :output-socket :done :name "Attack Done" :format "~,5F")
+       ;;("ATTACK" :output-socket :output :name "Attack Out" :format "~,5F")
        ("RELEASE" :output-socket :output :name "Release Out" :format "~,5F"))
      :filename "waves/sustain-example-1.csv")
      
