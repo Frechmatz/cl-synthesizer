@@ -4,14 +4,41 @@
 		    &key time-ms target-output (gate-state nil)
 		      (trigger-threshold 2.5) (gate-threshold 2.5)
 		      (time-cv-to-time-ms (lambda(time-cv) (* (abs time-cv) 1000))))
-  "TODO Due to the time resolution given by the sample-rate 
-   the ramp may stop at an output value a little bit smaller or 
-   greater than the desired target-output value.
-   TODO Retriggering
-   TODO trigger has higher priority than pass-through
-   TODO If a busy ramp aborts due to a switching Gate signal or when its supposed
-   duration has been exceeded due to time modulation then the output value will not jump 
-   to the desired target-output value but will stay at its current value."
+  "Creates a module whose output climbs from a given input value to a given output value
+    in a given time. The function has the following arguments:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:time-ms Default climbing time (duration) in milliseconds.</li>
+	<li>:target-output Desired target output value. Due to the time resolution given by the sample-rate 
+	    of the environment the ramp may stop at an output value a little bit smaller or 
+	    greater than the desired target-output value.</li>
+	<li>:gate-state Required state of the Gate input. One of :on, :off, nil</li>
+	<li>:trigger-threshold Minimum value of the :trigger input that indicates that the trigger is active.</li>
+	<li>:gate-threshold Minimum value of the :gate input that indicates that the gate is on.</li>
+	<li>:time-cv-to-time-ms A function that transforms a time control voltage to a duration in milliseconds.</li>
+    </ul>
+    The module has the following inputs:
+    <ul>
+	<li>:trigger Trigger voltage. If the trigger is active, the module samples the current input value
+	    and starts climbing to the desired target output value.</li>
+	<li>:input Input value.</li>
+	<li>:pass-through If value is >= 5.0 the module passes through its input value.</li>
+	<li>:gate A gate signal.</li>
+	<li>:cv-time NIL or climbing time (duration) of the ramp.</li>
+    </ul>
+    The module has the following outputs:
+    <ul>
+	<li>:output Output value of the module.</li>
+	<li>:busy A value >= 5.0 indicates that the module is busy by either passing through
+	its input value or climbing to the target output value.</li>
+	<li>:done A trigger signal that jumps to 5.0 for the length of one clock cycle when the ramp has
+	finished.</li>
+	<li>:gate Passed through :gate input.</li>
+    </ul>
+    When the ramp aborts due to a toggling Gate signal or when its supposed
+    duration has been exceeded due to time modulation then the output value does not jump 
+    to the desired target-output but stays at its current value."
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (if (and gate-state (not (eq gate-state :on)) (not (eq gate-state :off)))
       (cl-synthesizer:signal-assembly-error
