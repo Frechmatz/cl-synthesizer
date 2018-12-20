@@ -1,19 +1,18 @@
-;;
-;;
-;;
-
 (in-package :cl-synthesizer-modules-ramp)
 
 (defun make-module (name environment
 		    &key time-ms target-output (gate-state nil)
-		      (trigger-threshold 2.5) (gate-threshold 2.5))
-  "TODO
-   It cannot be guaranteed that target-output will be exactly reached. 
-   Due to the increments calculated out of time-ms and sample-rate 
+		      (trigger-threshold 2.5) (gate-threshold 2.5)
+		      (time-cv-to-time-ms (lambda(time-cv) (* (abs time-cv) 1000))))
+  "TODO Due to the time resolution given by the sample-rate 
    the ramp may stop at an output value a little bit smaller or 
    greater than the desired target-output value.
-   TODO trigger has higher priority than pass-through"
-  (declare (optimize (debug 3) (speed 0) (space 0)))
+   TODO Retriggering
+   TODO trigger has higher priority than pass-through
+   TODO If a busy ramp aborts due to a switching Gate signal or when its supposed
+   duration has been exceeded due to time modulation then the output value will not jump 
+   to the desired target-output value but will stay at its current value."
+  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (if (and gate-state (not (eq gate-state :on)) (not (eq gate-state :off)))
       (cl-synthesizer:signal-assembly-error
        :format-control "~a: Invalid gate-state ~a Must be one of nil, :on, :off"
@@ -23,10 +22,7 @@
 	 (sample-rate (getf environment :sample-rate))
 	 (tick-delta-ms (/ 1 (/ sample-rate 1000.0))))
     (list
-     :inputs (lambda () '(:trigger :input :pass-through :gate))
-     ;; :busy -> Gate
-     ;; :done -> Trigger
-     ;; we need both :busy and :done due to retriggering.
+     :inputs (lambda () '(:trigger :input :pass-through :gate :cv-time))
      :outputs (lambda () '(:output :busy :done :gate))
      :get-output (lambda (output-socket)
 		   (cond
@@ -40,9 +36,11 @@
 		      passthrough-gate)
 		     (t
 		      (error (format nil "Output socket ~a not supported by module ~a" output-socket name)))))
-     :update (lambda (&key trigger input pass-through gate)
-	       (declare (optimize (debug 3) (speed 0) (space 0)))
+     :update (lambda (&key trigger input pass-through gate cv-time)
+	       ;;(declare (optimize (debug 3) (speed 0) (space 0)))
 	       (setf done 0.0)
+	       (if cv-time
+		   (setf time-ms (funcall time-cv-to-time-ms cv-time)))
 	       (setf passthrough-gate gate)
 	       (if (not gate)
 		   (setf gate 0.0))
@@ -70,7 +68,6 @@
 				 (and (eq gate-state :on) (<= gate gate-threshold))
 				 (and (eq gate-state :off) (> gate gate-threshold)))
 			     (progn
-			       ;;(break)
 			       (setf done 5.0)
 			       (setf busy 0.0))
 			     (progn
@@ -82,6 +79,3 @@
 				   (let* ((ticks-per-cycle (* time-ms (/ sample-rate 1000)))
 					  (delta (/ (- target-output start) ticks-per-cycle)))
 				     (setf output (+ output delta)))))))))))))
-
-
-

@@ -172,3 +172,47 @@
 		  (:update (:trigger 0.0 :input 10.0 :pass-through 0.0 :gate 0.0)
 			   :expected-outputs ((:output ,(* 2 deltaTick)) (:busy 0.0) (:done 5.0)))))))
 
+
+(define-test test-ramp-modulate-time-1 ()
+	     "Change gradient of ramp by modulating the time"
+	     (let* ((time-ms 10) (target-output 10.0)
+		    (module (cl-synthesizer-modules-ramp:make-module
+			   "Ramp"
+			   (make-ramp-test-environment)
+			   :time-ms time-ms :target-output target-output :gate-state :on
+			   :time-cv-to-time-ms (lambda(time-cv) (* (abs time-cv) 1000))))
+		   (deltaTick (/ target-output (* time-ms *ramp-test-ticks-per-ms*))))
+	       (run-ramp-tests
+		module
+		`((:update (:trigger 5.0 :input 0.0 :pass-through 0.0 :gate 5.0)
+		   :expected-outputs ((:output ,(* 1 deltaTick)) (:busy 5.0) (:done 0.0)))
+		  (:update (:trigger 0.0 :input 10.0 :pass-through 0.0 :gate 5.0
+				     ;; Change time from 10ms to 1000ms (100 times longer)
+				     :cv-time 1.0 )
+			   :expected-outputs ((:output ,(+ deltaTick (* 0.01 deltaTick))) (:busy 5.0) (:done 0.0)))
+		  (:update (:trigger 0.0 :input 10.0 :pass-through 0.0 :gate 5.0
+				     ;; Change time back to 10ms
+				     :cv-time 0.01 )
+			   :expected-outputs ((:output ,(+ (* 2 deltaTick) (* 0.01 deltaTick))) (:busy 5.0) (:done 0.0)))
+		  ))))
+
+(define-test test-ramp-modulate-time-2 ()
+	     "Abort ramp by setting time to 0.0. Output must not jump to 10.0"
+	     (let* ((time-ms 10) (target-output 10.0)
+		    (module (cl-synthesizer-modules-ramp:make-module
+			   "Ramp"
+			   (make-ramp-test-environment)
+			   :time-ms time-ms :target-output target-output :gate-state :on
+			   :time-cv-to-time-ms (lambda(time-cv) (* (abs time-cv) 1000))))
+		   (deltaTick (/ target-output (* time-ms *ramp-test-ticks-per-ms*))))
+	       (run-ramp-tests
+		module
+		`((:update (:trigger 5.0 :input 0.0 :pass-through 0.0 :gate 5.0)
+		   :expected-outputs ((:output ,(* 1 deltaTick)) (:busy 5.0) (:done 0.0)))
+		  (:update (:trigger 0.0 :input 10.0 :pass-through 0.0 :gate 5.0
+				     ;; Change time to 0.0 (abort ramp)
+				     :cv-time 0.0 )
+			   :expected-outputs ((:output ,(* 1 deltaTick)) (:busy 0.0) (:done 5.0)))
+		  ))))
+
+
