@@ -4,7 +4,7 @@
 (in-package :cl-synthesizer-modules-sustain-example-1)
 
 (defun example ()
-  "Ramp example"
+  "Sustain example"
   (let ((rack (cl-synthesizer:make-rack
 	       :environment (cl-synthesizer:make-environment))))
     
