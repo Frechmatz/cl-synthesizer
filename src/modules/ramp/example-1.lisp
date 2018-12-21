@@ -9,7 +9,7 @@
 	       :environment (cl-synthesizer:make-environment))))
     
     (cl-synthesizer:add-module
-     rack "LFO"
+     rack "VCO"
      #'cl-synthesizer-modules-vco:make-module
      :base-frequency 0.5 :v-peak 5.0 :f-max 500 :cv-max 5)
 
@@ -18,33 +18,29 @@
      #'cl-synthesizer-modules-cv-to-trigger:make-module
      :trigger-cv 4.9 :pulse-voltage 5.0)
 
-    ;; Attack
     (cl-synthesizer:add-module
-     rack "RAMP-1"
+     rack "ATTACK"
      #'cl-synthesizer-modules-ramp:make-module
      :time-ms 200 :target-output 5.0 :gate-state nil)
 
-    ;; Decay
     (cl-synthesizer:add-module
-     rack "RAMP-2"
+     rack "DECAY"
      #'cl-synthesizer-modules-ramp:make-module
      :time-ms 200 :target-output 2.5)
     
-    (cl-synthesizer:add-patch rack "LFO" :square "TRIGGER" :input)
-    (cl-synthesizer:add-patch rack "TRIGGER" :output "RAMP-1" :trigger)
-
-    (cl-synthesizer:add-patch rack "RAMP-1" :busy "RAMP-2" :pass-through)
-    (cl-synthesizer:add-patch rack "RAMP-1" :output "RAMP-2" :input)
-    (cl-synthesizer:add-patch rack "RAMP-1" :done "RAMP-2" :trigger)
+    (cl-synthesizer:add-patch rack "VCO" :square "TRIGGER" :input)
+    (cl-synthesizer:add-patch rack "TRIGGER" :output "ATTACK" :trigger)
+    (cl-synthesizer:add-patch rack "ATTACK" :busy "DECAY" :pass-through)
+    (cl-synthesizer:add-patch rack "ATTACK" :output "DECAY" :input)
+    (cl-synthesizer:add-patch rack "ATTACK" :done "DECAY" :trigger)
 
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-csv-handler:make-handler
-     '(("LFO" :output-socket :square :name "LFO Out" :format "~,5F")
-       ("RAMP-1" :output-socket :output :name "Ramp 1 Out" :format "~,5F")
-       ("RAMP-2" :output-socket :output :name "Ramp 2 Out" :format "~,5F"))
+     '(("VCO" :output-socket :square :name "VCO Out" :format "~,5F")
+       ("ATTACK" :output-socket :output :name "Attack Out" :format "~,5F")
+       ("DECAY" :output-socket :output :name "Decay Out" :format "~,5F"))
      :filename "waves/ramp-example-1.csv")
-     
     
     rack))
 

@@ -5,7 +5,8 @@
 		      (trigger-threshold 2.5) (gate-threshold 2.5)
 		      (time-cv-to-time-ms (lambda(time-cv) (* (abs time-cv) 1000))))
   "Creates a module whose output climbs from a given input value to a given output value
-    in a given time. The function has the following arguments:
+    in a given time. Main purpose of this module is to create envelope generators by chaining
+    multiple ramp and sustain modules. The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
@@ -20,25 +21,27 @@
     </ul>
     The module has the following inputs:
     <ul>
-	<li>:trigger Trigger voltage. If the trigger is active, the module samples the current input value
-	    and starts climbing to the desired target output value.</li>
+	<li>:trigger Trigger input. If the trigger is active (see also :trigger-threshold), the module samples
+	    its current input value and begins climbing to the desired target output value.</li>
 	<li>:input Input value.</li>
 	<li>:pass-through If value is >= 5.0 the module passes through its input value.</li>
-	<li>:gate A gate signal.</li>
-	<li>:cv-time NIL or climbing time (duration) of the ramp.</li>
+	<li>:gate A gate signal (see also :gate-threshold).</li>
+	<li>:cv-time NIL or climbing time (duration) of the ramp (see also :time-cv-to-time-ms).</li>
     </ul>
     The module has the following outputs:
     <ul>
-	<li>:output Output value of the module.</li>
+	<li>:output Output value of the module. The initial output value is 0.0.</li>
 	<li>:busy A value >= 5.0 indicates that the module is busy by either passing through
 	its input value or climbing to the target output value.</li>
 	<li>:done A trigger signal that jumps to 5.0 for the length of one clock cycle when the ramp has
 	finished.</li>
-	<li>:gate Passed through :gate input.</li>
+	<li>:gate Passed through :gate input. Purpose of this output is to support more convenient
+	    chaining of ramp and sustain modules.</li>
     </ul>
     When the ramp aborts due to a toggling Gate signal or when its supposed
     duration has been exceeded due to time modulation then the output value does not jump 
-    to the desired target-output but stays at its current value."
+    to the desired target-output but stays at its current value.<br><br>
+    This module has been inspired by <a href=\"https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes\">dhemery</a>"
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (if (and gate-state (not (eq gate-state :on)) (not (eq gate-state :off)))
       (cl-synthesizer:signal-assembly-error
@@ -80,7 +83,7 @@
 	       (if (> pass-through 0.0)
 		   (progn
 		     (setf output input)
-		     (setf busy 5.0)) ;; busy with deferring the input
+		     (setf busy 5.0)) ;; busy with passing through the input
 		   (progn 
 		     (if (>= trigger trigger-threshold)
 			 ;; Start ramp
