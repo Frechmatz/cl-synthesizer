@@ -53,6 +53,7 @@
 				     (:file "csv-file-writer")
 				     (:file "ramp")
 				     (:file "sustain")
+				     (:file "adsr")
 				     ))
 	       (:module "src/monitor"
 			:serial t
@@ -114,5 +115,10 @@
 	       (:module "src/monitor/monitor"
 			:serial t
 			:components ((:file "example-1")))
+	       (:module "src/modules/adsr"
+			:serial t
+			:components ((:file "example-1")
+				     (:file "example-2")
+				     (:file "example-3")))
 	       ))
 
