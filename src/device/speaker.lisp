@@ -59,7 +59,7 @@
        :inputs (lambda() inputs)
        :outputs (lambda() nil)
        :get-output (lambda(socket) (declare (ignore socket)) nil)
-       :update (lambda (&rest args)
+       :update (lambda (args)
 		 (init-out)
 		 (flush-buffer nil)
 		 (dolist (input inputs)

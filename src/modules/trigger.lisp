@@ -26,7 +26,10 @@
      :inputs (lambda () '(:input))
      :outputs (lambda () '(:output))
      :get-output (lambda (output) (declare (ignore output)) cur-output)
-     :update (lambda (&key input)
+     :update (lambda (input-args
+		      ;;&key input
+			  )
+	       (let ((input (getf input-args :input)))
 	       (if (not input)
 		   (setf input 0.0))
 	       (let ((may-fire (>= input trigger-threshold)))
@@ -40,5 +43,5 @@
 		    (setf cur-output pulse-voltage)
 		    (setf waiting t))
 		   (t
-		    (setf cur-output 0))))))))
+		    (setf cur-output 0)))))))))
 

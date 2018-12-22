@@ -14,12 +14,16 @@
 		       ((eq :out-2 output)
 			out-2)
 		       (t (error (format nil "Unknown output ~a requested from test-module" output)))))
-     :update (lambda (&key cv-1 cv-2)
+     :update (lambda (input-args
+		      ;;&key cv-1 cv-2
+			  )
+	       (let ((cv-1 (getf input-args :cv-1))
+		     (cv-2 (getf input-args :cv-2)))
 	       (if cv-1
 		   (setf out-1 cv-1))
 	       (if cv-2
 		   (setf out-2 cv-2)))
-     )))
+     ))))
 
 (defun test-module-counter (name environment)
   "Module that increments its output on each tick"
@@ -33,7 +37,8 @@
 		       ((eq :out output)
 			out)
 		       (t (error (format nil "Unknown output ~a requested from test-module" output)))))
-     :update (lambda ()
+     :update (lambda (input-args)
+	       (declare (ignore input-args))
 	       (setf out (+ 1 out)))
      )))
 
@@ -49,8 +54,10 @@
 		       ((eq :out output)
 			out)
 		       (t (error (format nil "Unknown output ~a requested from test-module-multiply-by-two" output)))))
-     :update (lambda (&key in)
-	       (setf out (* 2 in)))
+     :update (lambda (input-args
+		      ;;&key in
+			  )
+	       (setf out (* 2 (getf input-args :in))))
      )))
 
 (defun test-module-adder (name environment)
@@ -65,9 +72,13 @@
 		       ((eq :out output)
 			out)
 		       (t (error (format nil "Unknown output ~a requested from test-module-add" output)))))
-     :update (lambda (&key in-1 in-2)
+     :update (lambda (input-args
+		      ;;&key in-1 in-2
+			  )
+	       (let ((in-1 (getf input-args :in-1))
+		     (in-2 (getf input-args :in-2)))
 	       (setf out (+ in-1 in-2)))
-     )))
+     ))))
 
 (defun test-module-multiple-1-2 (name environment)
   ""
@@ -81,8 +92,10 @@
 		       ((eq :out-1 output) out)
 		       ((eq :out-2 output) out)
 		       (t (error (format nil "Unknown output ~a requested from test-module-multiple-1-2" output)))))
-     :update (lambda (&key in)
-	       (setf out in))
+     :update (lambda (input-args
+		      ;;&key in
+			  )
+	       (setf out (getf input-args :in)))
      )))
 
 

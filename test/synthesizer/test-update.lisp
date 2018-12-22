@@ -23,14 +23,14 @@
 		  rack
 		  "Counter" :out
 		  "Multiplier" :in)
-		 (assert-equal 0 (apply (cl-synthesizer::get-rack-module-output-fn counter) (list :out)))
-		 (assert-equal 0 (apply (cl-synthesizer::get-rack-module-output-fn multiplier) (list :out)))
+		 (assert-equal 0 (funcall (cl-synthesizer::get-rack-module-output-fn counter) :out))
+		 (assert-equal 0 (funcall (cl-synthesizer::get-rack-module-output-fn multiplier) :out))
 		 (funcall (getf rack :update) nil)
-		 (assert-equal 1 (apply (cl-synthesizer::get-rack-module-output-fn counter) (list :out)))
-		 (assert-equal 2 (apply (cl-synthesizer::get-rack-module-output-fn multiplier) (list :out)))
+		 (assert-equal 1 (funcall (cl-synthesizer::get-rack-module-output-fn counter) :out))
+		 (assert-equal 2 (funcall (cl-synthesizer::get-rack-module-output-fn multiplier) :out))
 		 (funcall (getf rack :update) nil)
-		 (assert-equal 2 (apply (cl-synthesizer::get-rack-module-output-fn counter) (list :out)))
-		 (assert-equal 4 (apply (cl-synthesizer::get-rack-module-output-fn multiplier) (list :out)))
+		 (assert-equal 2 (funcall (cl-synthesizer::get-rack-module-output-fn counter) :out))
+		 (assert-equal 4 (funcall (cl-synthesizer::get-rack-module-output-fn multiplier) :out))
 		 )))
 
 

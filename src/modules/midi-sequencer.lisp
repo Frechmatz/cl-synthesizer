@@ -34,7 +34,8 @@
     (list
      :inputs (lambda () '())
      :outputs (lambda () '(:midi-events))
-     :update (lambda()
+     :update (lambda(input-args)
+	       (declare (ignore input-args))
 	       (setf cur-tick (+ 1 cur-tick))
 	       (setf cur-midi-events (gethash cur-tick lookup-hash)))
      :get-output (lambda (output)

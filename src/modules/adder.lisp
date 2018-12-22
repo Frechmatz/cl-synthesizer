@@ -26,9 +26,9 @@
      :inputs (lambda () inputs)
      :outputs (lambda () '(:output))
      :get-output (lambda (output) (declare (ignore output)) cur-output)
-     :update (lambda (&rest args)
+     :update (lambda (inputs)
 	       (setf cur-output 0)
-	       (dolist (i args)
+	       (dolist (i inputs)
 		 (if (numberp i)
 		     (setf cur-output (+ cur-output i))))))))
 

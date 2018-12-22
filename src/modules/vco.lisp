@@ -120,7 +120,11 @@
 		       ((eq output :saw) cur-saw-output)
 		       ((eq output :square) cur-square-output)
 		       (t (error (format nil "Unknown input ~a requested from ~a" output name)))))
-       :update (lambda (&key cv-exp cv-lin)
+       :update (lambda (input-args
+			;;&key cv-exp cv-lin
+			    )
+		 (let ((cv-exp (getf input-args :cv-exp))
+		       (cv-lin (getf input-args :cv-lin)))
 		 (if (not cv-exp)
 		     (setf cv-exp 0))
 		 (if (not cv-lin)
@@ -140,7 +144,7 @@
 				    phi :phase-offset phase-offset)))
 		   (setf cur-square-output
 			 (* v-peak (cl-synthesizer-core:phase-square-converter
-				    phi :duty-cycle duty-cycle :phase-offset phase-offset)))))
+				    phi :duty-cycle duty-cycle :phase-offset phase-offset))))))
        :get-state (lambda (key)
 		    (cond
 		      ((eq key :frequency)

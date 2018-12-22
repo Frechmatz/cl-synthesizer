@@ -27,5 +27,5 @@
      :inputs (lambda () '(:input))
      :outputs (lambda () outputs)
      :get-output (lambda (output) (declare (ignore output)) cur-input)
-     :update (lambda (&key input) (setf cur-input input)))))
+     :update (lambda (input-args) (setf cur-input (getf input-args :input))))))
 

@@ -67,8 +67,8 @@
        :get-output (lambda (output)
 		     (declare (ignore output))
 		     cur-output)
-       :update (lambda (&key midi-events)
-		 (dolist (midi-event midi-events)
+       :update (lambda (input-args)
+		 (dolist (midi-event (getf input-args :midi-events))
 		   (if (and midi-event
 			    (cl-synthesizer-midi-event:control-change-eventp midi-event)
 			    (find (cl-synthesizer-midi-event:get-controller-number midi-event) controller-numbers)

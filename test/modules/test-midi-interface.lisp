@@ -19,7 +19,7 @@
   (funcall (getf ifc :get-output) output))
 
 (defun test-midi-interface-update (ifc events)
-  (funcall (getf ifc :update) :midi-events events))
+  (funcall (getf ifc :update) (list :midi-events events)))
 
 (defun run-test-case-midi-ifc (test-case)
   (let ((ifc (test-midi-interface-make-midi-interface

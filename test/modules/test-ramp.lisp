@@ -17,7 +17,7 @@
       (dolist (key (funcall (getf module :inputs)))
 	(push (getf (getf test-case :update) key) update-args)
 	(push key update-args))
-      (apply (getf module :update) update-args)
+      (funcall (getf module :update) update-args)
       (dolist (expected (getf test-case :expected-outputs))
 	(let ((value (funcall (getf module :get-output) (first expected))))
 	  (assert-equal (second expected) value))))))

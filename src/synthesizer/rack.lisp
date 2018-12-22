@@ -18,9 +18,11 @@
     (if f (funcall f) nil)))
 
 (defmethod initialize-instance :after ((rm rack-module) &key name module)
-  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (setf (slot-value rm 'name) name)
   (setf (slot-value rm 'module) module)
+  ;; Prepare prototype of parameter with which
+  ;; the update function of the module will be called.
+  ;; (:INPUT-1 nil :INPUT-2 nil ...)
   (let ((input-sockets (get-rack-module-input-sockets rm)))
     (dolist (input-socket input-sockets)
       (push nil (slot-value rm 'input-argument-list-prototype))
@@ -176,7 +178,8 @@
 		    output sockets exposed by the module.</li>
 		<li>:update A function that is called with the values of the modules input sockets
                     in order to update the state of the module (the state of its output sockets).
-		    The value of each input socket is passed via a keyword parameter.</li>
+		    All input parameters are passed as a single argument which consists of a property list or
+                    nil if the module does not expose any inputs.</li>
 		<li>:get-output A function that is called in order to get the value of a specific
 		    output socket. The function is called with a keyword that identifies the output socket
 		    whose state is to be returned. The function must not modify the value
@@ -252,7 +255,7 @@
 	    :outputs (lambda() output-sockets)
 	    :inputs (lambda() input-sockets)
 	    :update
-	    (lambda (&rest args)
+	    (lambda (args)
 	      ;;(declare (optimize (debug 3) (speed 0) (space 0)))
 	      (if has-shut-down
 		  nil
@@ -278,10 +281,6 @@
 				   ;; update this
 				   (let ((lambdalist (get-rack-module-input-argument-list-prototype rm)))
 				     ;; collect inputs
-				     ;; OPTIMIZATION: Can we create "empty" lambdalist out of sockets
-				     ;; e.g. (:INPUT-1 nil :INPUT-2 nil ...)
-				     ;; and then continue with setf instead of pushing to set the
-				     ;; values of the keyword parameters?
 				     (dolist (cur-input-socket (get-rack-module-input-sockets rm))
 				       (let ((patch (get-rack-module-input-patch rm cur-input-socket))
 					     (socket-input-value nil))
@@ -290,15 +289,9 @@
 						    (source-rm-socket (get-rack-patch-socket patch))
 						    (output-fn (get-rack-module-output-fn source-rm)))
 					       (setf socket-input-value (funcall output-fn source-rm-socket))))
-					 ;;(push cur-input-socket lambdalist)
-					 ;;(push socket-input-value lambdalist)
-					 ;;(break)
-					 (setf (getf lambdalist cur-input-socket) socket-input-value)
-					 ))
+					 (setf (getf lambdalist cur-input-socket) socket-input-value)))
 				     ;; call update function on this
-				     ;;(break)
-				     ;;(apply (get-rack-module-update-fn rm) (nreverse lambdalist))
-				     (apply (get-rack-module-update-fn rm) lambdalist)
+				     (funcall (get-rack-module-update-fn rm) lambdalist)
 				     (set-rack-module-state rm :PROCESSED-TICK)
 				     ))))))
 		      ;; for all modules
@@ -332,7 +325,7 @@
 		    (list
 		     :inputs (lambda() nil)
 		     :outputs (lambda() input-sockets)
-		     :update (lambda (&rest args) (declare (ignore args)) nil)
+		     :update (lambda (args) (declare (ignore args)) nil)
 		     :get-output (lambda(socket) (getf inputs socket)))))
       (setf input-rm (get-rm-module rack "INPUT"))
       
@@ -342,7 +335,7 @@
 		    (list
 		     :inputs (lambda() output-sockets)
 		     :outputs (lambda() nil)
-		     :update (lambda (&rest args) (setf outputs args))
+		     :update (lambda (args) (setf outputs args))
 		     :get-output (lambda(socket) (getf outputs socket)))))
       (setf output-rm (get-rm-module rack "OUTPUT"))
 

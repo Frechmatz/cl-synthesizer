@@ -48,8 +48,14 @@
 		      passthrough-gate)
 		     (t
 		      (error (format nil "Output socket ~a not supported by module ~a" output-socket name)))))
-     :update (lambda (&key trigger input pass-through gate)
-	       (declare (optimize (debug 3) (speed 0) (space 0)))
+     :update (lambda (input-args
+		      ;;&key trigger input pass-through gate
+			  )
+	       (let ((trigger (getf input-args :trigger))
+		     (input (getf input-args :input))
+		     (pass-through (getf input-args :pass-through))
+		     (gate (getf input-args :gate)))
+		 ;;(declare (optimize (debug 3) (speed 0) (space 0)))
 	       (setf done 0.0)
 	       (setf passthrough-gate gate)
 	       (if (not gate)
@@ -75,4 +81,4 @@
 			     (progn
 			       ;;(break)
 			       (setf done 5.0)
-			       (setf busy 0.0))))))))))
+			       (setf busy 0.0)))))))))))

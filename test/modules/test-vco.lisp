@@ -20,7 +20,7 @@
 			 :update-fn (lambda()
 				      (funcall
 				       (getf vco :update)
-				       :cv-lin 0.0 :cv-exp 0.0))
+				       (list :cv-lin 0.0 :cv-exp 0.0)))
 			 :get-output-fn (lambda ()
 					  (funcall
 					   (getf vco :get-output)
@@ -42,7 +42,7 @@
 			 :update-fn (lambda()
 				      (funcall
 				       (getf vco :update)
-				       :cv-lin 0.0 :cv-exp 0.0))
+				       (list :cv-lin 0.0 :cv-exp 0.0)))
 			 :get-output-fn (lambda ()
 					  (funcall
 					   (getf vco :get-output)
@@ -65,7 +65,7 @@
 			 :update-fn (lambda()
 				      (funcall
 				       (getf vco :update)
-				       :cv-exp 1.0 :cv-lin 0.0  ;; one octave up
+				       (list :cv-exp 1.0 :cv-lin 0.0)  ;; one octave up
 				       ))
 			 :get-output-fn (lambda ()
 					  (funcall
@@ -87,7 +87,7 @@
 			 :update-fn (lambda()
 				      (funcall
 				       (getf vco :update)
-				       :cv-exp 2.0)) ;; two octaves up
+				       (list :cv-exp 2.0))) ;; two octaves up
 			 :get-output-fn (lambda ()
 					  (funcall
 					   (getf vco :get-output)
@@ -108,7 +108,7 @@
 			 :update-fn (lambda()
 				      (funcall
 				       (getf vco :update)
-				       :cv-exp -1.0 :cv-lin 0.0)) ;; one octave down
+				       (list :cv-exp -1.0 :cv-lin 0.0))) ;; one octave down
 			 :get-output-fn (lambda ()
 					  (funcall
 					   (getf vco :get-output)
@@ -129,7 +129,7 @@
 			 :update-fn (lambda()
 				      (funcall
 				       (getf vco :update)
-				       :cv-exp -2.0 :cv-lin 0.0)) ;; two octaves down
+				       (list :cv-exp -2.0 :cv-lin 0.0))) ;; two octaves down
 			 :get-output-fn (lambda ()
 					  (funcall
 					   (getf vco :get-output)
@@ -151,7 +151,7 @@
 			 :update-fn (lambda()
 				      (funcall
 				       (getf vco :update)
-				       :cv-lin 2.5 :cv-exp 0.0))
+				       (list :cv-lin 2.5 :cv-exp 0.0)))
 			 :get-output-fn (lambda ()
 					  (funcall
 					   (getf vco :get-output)
@@ -173,7 +173,7 @@
 			 :update-fn (lambda()
 				      (funcall
 				       (getf vco :update)
-				       :cv-lin 2.5 :cv-exp 0.0))
+				       (list :cv-lin 2.5 :cv-exp 0.0)))
 			 :get-output-fn (lambda ()
 					  (funcall
 					   (getf vco :get-output)
@@ -195,7 +195,7 @@
 			 :update-fn (lambda()
 				      (funcall
 				       (getf vco :update)
-				       :cv-exp 20.0 :cv-lin 0.0))
+				       (list :cv-exp 20.0 :cv-lin 0.0)))
 			 :get-output-fn (lambda ()
 					  (funcall
 					   (getf vco :get-output)
@@ -217,7 +217,7 @@
 			 :update-fn (lambda()
 				      (funcall
 				       (getf vco :update)
-				       :cv-exp 0.0 :cv-lin 5.0))
+				       (list :cv-exp 0.0 :cv-lin 5.0)))
 			 :get-output-fn (lambda ()
 					  (funcall
 					   (getf vco :get-output)
@@ -240,7 +240,7 @@
 			 :update-fn (lambda()
 				      (funcall
 				       (getf vco :update)
-				       :cv-exp 10.0 :cv-lin 0.0)) 
+				       (list :cv-exp 10.0 :cv-lin 0.0)) )
 			 :get-output-fn (lambda ()
 					  (funcall
 					   (getf vco :get-output)
@@ -265,7 +265,7 @@
 			 :update-fn (lambda()
 				      (funcall
 				       (getf vco :update)
-				       :cv-lin -20.0 :cv-exp 0.0)) 
+				       (list :cv-lin -20.0 :cv-exp 0.0)) )
 			 :get-output-fn (lambda ()
 					  (funcall
 					   (getf vco :get-output)
@@ -290,7 +290,7 @@
 			 :update-fn (lambda()
 				      (funcall
 				       (getf vco :update)
-				       :cv-exp 1.0 :cv-lin 1.0))
+				       (list :cv-exp 1.0 :cv-lin 1.0)))
 			 :get-output-fn (lambda ()
 					  (funcall
 					   (getf vco :get-output)
@@ -313,7 +313,7 @@
 			 :update-fn (lambda()
 				      (funcall
 				       (getf vco :update)
-				       :cv-exp 1.0 :cv-lin -4.0))
+				       (list :cv-exp 1.0 :cv-lin -4.0)))
 			 :get-output-fn (lambda ()
 					  (funcall
 					   (getf vco :get-output)
@@ -335,13 +335,13 @@
 			 :v-peak 5
 			 :duty-cycle 0.5
 			 )))
-	       (funcall (getf vco :update) :cv-lin 0.5 :cv-exp 0)
+	       (funcall (getf vco :update) (list :cv-lin 0.5 :cv-exp 0))
 	       (print-vco-state vco)
 	       (assert-equality #'= 5.0 (funcall (getf vco :get-output) :square))
 	       ;; Back to zero
-	       (funcall (getf vco :update) :cv-lin -0.5 :cv-exp 0)
+	       (funcall (getf vco :update) (list :cv-lin -0.5 :cv-exp 0))
 	       ;; One more step back
-	       (funcall (getf vco :update) :cv-lin -0.5 :cv-exp 0)
+	       (funcall (getf vco :update) (list :cv-lin -0.5 :cv-exp 0))
 	       (print-vco-state vco)
 	       (assert-equality #'= -5.0 (funcall (getf vco :get-output) :square))))
 

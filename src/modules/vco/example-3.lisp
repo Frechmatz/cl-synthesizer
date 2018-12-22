@@ -3,7 +3,7 @@
 
 (in-package :cl-synthesizer-modules-vco-example-3)
 
-(defparameter *attach-audio* nil)
+(defparameter *attach-audio* t)
 
 (defun example ()
   "Play two sinus waves in stereo"

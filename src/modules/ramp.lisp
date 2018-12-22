@@ -70,7 +70,14 @@
 		      passthrough-gate)
 		     (t
 		      (error (format nil "Output socket ~a not supported by module ~a" output-socket name)))))
-     :update (lambda (&key trigger input pass-through gate cv-time)
+     :update (lambda (input-args
+		      ;;&key trigger input pass-through gate cv-time
+			  )
+	       (let ((trigger (getf input-args :trigger))
+		     (input (getf input-args :input))
+		     (pass-through (getf input-args :pass-through))
+		     (gate (getf input-args :gate))
+		     (cv-time (getf input-args :cv-time)))
 	       ;;(declare (optimize (debug 3) (speed 0) (space 0)))
 	       (setf done 0.0)
 	       (if cv-time
@@ -112,4 +119,4 @@
 				     (setf busy 0.0))
 				   (let* ((ticks-per-cycle (* time-ms (/ sample-rate 1000)))
 					  (delta (/ (- target-output start) ticks-per-cycle)))
-				     (setf output (+ output delta)))))))))))))
+				     (setf output (+ output delta))))))))))))))

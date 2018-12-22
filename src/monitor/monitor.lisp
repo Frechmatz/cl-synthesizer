@@ -124,4 +124,4 @@
 			   (push v params)
 			   ;; Key
 			   (push (first p) params)))
-		       (apply backend-update-fn params)))))))))
+		       (funcall backend-update-fn params)))))))))

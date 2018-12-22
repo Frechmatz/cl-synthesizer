@@ -50,7 +50,7 @@
      :inputs (lambda () inputs)
      :outputs (lambda () '())
      :get-output (lambda (output) (declare (ignore output)) nil)
-     :update (lambda (&rest args)
+     :update (lambda (args)
 	       (dolist (input inputs)
 		 (let ((value (getf args input)))
 		   (if (not value)

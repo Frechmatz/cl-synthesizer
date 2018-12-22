@@ -38,10 +38,10 @@
 			 "VCA"
 			 (cl-synthesizer:make-environment)
 			 :cv-max 5.0)))
-	       (funcall (getf vca :update)
+	       (funcall (getf vca :update) (list
 			:input 2.5
 			:cv 5.0
-			:gain 0.0)
+			:gain 0.0))
 
 	       (assert-equality
 		#'= 2.5
@@ -57,10 +57,10 @@
 			 "VCA"
 			 (cl-synthesizer:make-environment)
 			 :cv-max 5.0)))
-	     (funcall (getf vca :update)
+	     (funcall (getf vca :update) (list 
 			:input 10.0
 			:cv 5.0
-			:gain 0.0)
+			:gain 0.0))
 	       (let ((output-exp (float (funcall (getf vca :get-output) :output-exponential))))
 		 (assert-true (and
 			       (<= 9.9 output-exp)
@@ -72,10 +72,10 @@
 			 (cl-synthesizer:make-environment)
 			 :cv-max 10.0
 			 :initial-gain 9.0)))
-	     (funcall (getf vca :update)
+	     (funcall (getf vca :update) (list
 			:input 1.0
 			:cv -5.0
-			:gain 0.0)
+			:gain 0.0))
 	       (assert-equality
 		#'= 0.4
 		(float (funcall (getf vca :get-output) :output-linear)))))

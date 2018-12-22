@@ -61,7 +61,7 @@
 		*audio-device-settings*))
 	      (getter (make-audio-output-getter)))
 	  (values
-	   (lambda () (apply (getf device :update) (funcall getter)))
+	   (lambda () (funcall (getf device :update) (funcall getter)))
 	   (lambda () (funcall (getf device :shutdown))))))))
 
 (defun make-midi-handlers (rack environment attach-midi midi-input-socket)
@@ -108,7 +108,7 @@
       (multiple-value-bind (get-midi shutdown-midi)
 	  (make-midi-handlers rack environment attach-midi midi-input-socket)
 	(dotimes (i (* duration-seconds (getf environment :sample-rate)))
-	  (apply f (funcall get-midi))
+	  (funcall f (funcall get-midi))
 	  (funcall update-audio))
 	(funcall (getf rack :shutdown))
 	(funcall shutdown-audio)

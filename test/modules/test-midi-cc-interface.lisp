@@ -20,9 +20,9 @@
 	      :transform-handler (lambda ())
 	      :channel nil
 	      :initial-output 100)))
-    (funcall (getf ifc :update) :midi-events
+    (funcall (getf ifc :update) (list :midi-events
 	     (list
-	      (cl-synthesizer-midi-event:make-note-on-event 1 64 0)))
+	      (cl-synthesizer-midi-event:make-note-on-event 1 64 0))))
     (assert-equal 100 (funcall (getf ifc :get-output) :output))))
 
 (define-test test-midi-cc-interface-3 ()
@@ -34,9 +34,9 @@
 	      :transform-handler (lambda(o n v) nil)
 	      :channel nil
 	      :initial-output 100)))
-    (funcall (getf ifc :update) :midi-events
+    (funcall (getf ifc :update) (list :midi-events
 	     (list
-	      (cl-synthesizer-midi-event:make-control-change-event 1 101 200)))
+	      (cl-synthesizer-midi-event:make-control-change-event 1 101 200))))
     (assert-equal 100 (funcall (getf ifc :get-output) :output))))
 
 (define-test test-midi-cc-interface-4 ()
@@ -48,9 +48,9 @@
 	      :transform-handler (lambda(o n v) nil)
 	      :channel 777
 	      :initial-output 100)))
-    (funcall (getf ifc :update) :midi-events
+    (funcall (getf ifc :update) (list :midi-events
 	     (list
-	      (cl-synthesizer-midi-event:make-control-change-event 1 100 200)))
+	      (cl-synthesizer-midi-event:make-control-change-event 1 100 200))))
     (assert-equal 100 (funcall (getf ifc :get-output) :output))))
 
 (define-test test-midi-cc-interface-5 ()
@@ -67,9 +67,9 @@
 		v)
 	      :channel nil
 	      :initial-output 200)))
-    (funcall (getf ifc :update) :midi-events
+    (funcall (getf ifc :update) (list :midi-events
 	     (list
-	      (cl-synthesizer-midi-event:make-control-change-event 1 100 999)))
+	      (cl-synthesizer-midi-event:make-control-change-event 1 100 999))))
     (assert-equal 999 (funcall (getf ifc :get-output) :output))))
 
 (define-test test-midi-cc-interface-6 ()
@@ -89,11 +89,11 @@
 		   (assert-equal 1 2))))
 	      :channel 1
 	      :initial-output 200)))
-    (funcall (getf ifc :update) :midi-events
+    (funcall (getf ifc :update) (list :midi-events
 	     (list
 	      (cl-synthesizer-midi-event:make-control-change-event 1 100 500)
 	      (cl-synthesizer-midi-event:make-control-change-event 999 100 500)
-	      (cl-synthesizer-midi-event:make-control-change-event 1 101 1000)))
+	      (cl-synthesizer-midi-event:make-control-change-event 1 101 1000))))
     (assert-equal 2700 (funcall (getf ifc :get-output) :output))))
 
 (define-test test-midi-cc-interface-7 ()
@@ -120,9 +120,9 @@
 	      :initial-output 100
 	      :min-output 200
 	      :max-output 300)))
-    (funcall (getf ifc :update) :midi-events
+    (funcall (getf ifc :update) (list :midi-events
 	     (list
-	      (cl-synthesizer-midi-event:make-control-change-event 1 100 500)))
+	      (cl-synthesizer-midi-event:make-control-change-event 1 100 500))))
     (assert-equal 300 (funcall (getf ifc :get-output) :output))))
 
 (define-test test-midi-cc-interface-9 ()
@@ -136,9 +136,9 @@
 	      :initial-output 100
 	      :min-output 200
 	      :max-output 300)))
-    (funcall (getf ifc :update) :midi-events
+    (funcall (getf ifc :update) (list :midi-events
 	     (list
-	      (cl-synthesizer-midi-event:make-control-change-event 1 100 50)))
+	      (cl-synthesizer-midi-event:make-control-change-event 1 100 50))))
     (assert-equal 200 (funcall (getf ifc :get-output) :output))))
 
 (define-test test-midi-cc-interface-10 ()
@@ -152,8 +152,8 @@
 	      :initial-output 100.0
 	      :min-output 200.5
 	      :max-output 300.5)))
-    (funcall (getf ifc :update) :midi-events
+    (funcall (getf ifc :update) (list :midi-events
 	     (list
-	      (cl-synthesizer-midi-event:make-control-change-event 1 100 50)))
+	      (cl-synthesizer-midi-event:make-control-change-event 1 100 50))))
     (assert-equal 200.5 (funcall (getf ifc :get-output) :output))))
 

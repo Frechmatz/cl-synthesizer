@@ -100,7 +100,12 @@
 		      cur-out-exponential)
 		     (t
 		      (error "Invalid output requested from vca"))))
-     :update (lambda (&key cv input gain)
+     :update (lambda (input-args
+		      ;;&key cv input gain
+			  )
+	       (let ((cv (getf input-args :cv))
+		     (input (getf input-args :input))
+		     (gain (getf input-args :gain)))
 	       ;; (declare (optimize (debug 3) (speed 0) (space 0)))
 	       (if (not input)
 		   (setf input 0.0))
@@ -115,5 +120,5 @@
 		   (setf cv 0.0))
 	       (setf cv (funcall cv-converter cv))
 	       (setf cur-out-linear (* input (funcall vca-core-lin cv)))
-	       (setf cur-out-exponential (* input (funcall vca-core-exp cv)))))))
+	       (setf cur-out-exponential (* input (funcall vca-core-exp cv))))))))
 

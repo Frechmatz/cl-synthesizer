@@ -25,6 +25,6 @@
      :get-output (lambda (output)
 		   (declare (ignore output))
 		   value)
-     :update (lambda () nil))))
+     :update (lambda (input-args) (declare (ignore input-args)) nil))))
 
 

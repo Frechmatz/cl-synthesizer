@@ -133,7 +133,7 @@
 		     (if (not handler)
 			 (error (format nil "Unknown input ~a requested from ~a" output name)))
 		     (funcall handler)))
-     :update (lambda (&key midi-events)
+     :update (lambda (input-args)
 	       ;; Set pending gates to on.
 	       (dolist (voice-index pending-gate-on-voices)
 		 (let ((voice-state (elt voice-states voice-index)))
@@ -141,7 +141,7 @@
 		       (set-voice-state-gate voice-state cv-gate-on))))
 	       (setf pending-gate-on-voices nil)
 	       ;; Update voices
-	       (dolist (midi-event midi-events)
+	       (dolist (midi-event (getf input-args :midi-events))
 		 (if (and midi-event
 			  (or (not channel)
 			      (= channel (cl-synthesizer-midi-event:get-channel midi-event))))
