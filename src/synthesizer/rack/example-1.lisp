@@ -59,7 +59,7 @@
        ("OUTPUT" :input-socket :right))
      :filename "rack-example-1.wav")
     
-    rack)))
+    rack))
 
 (defparameter *attach-audio* t)
 #|
