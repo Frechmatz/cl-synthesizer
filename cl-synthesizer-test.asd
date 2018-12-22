@@ -41,7 +41,6 @@
 				     (:file "midi-cc-interface")
 				     (:file "vca")
 				     (:file "vco")
-				     (:file "envelope")
 				     (:file "adder")
 				     (:file "cv-to-trigger")
 				     (:file "mixer")
@@ -65,10 +64,6 @@
 	       (:module "test/modules/midi-cc-interface"
 			:serial t
 			:components ((:file "test-midi-cc-interface")))
-	       (:module "test/modules/envelope"
-			:serial t
-			:components ((:file "test-envelope")
-				     (:file "test-envelope-validation")))
 	       (:module "test/modules/vca"
 			:serial t
 			:components ((:file "test-vca")))

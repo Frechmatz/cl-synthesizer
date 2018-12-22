@@ -40,7 +40,6 @@
 			:components ((:file "packages")
 				     (:file "vco")
 				     (:file "multiple")
-				     (:file "envelope")
 				     (:file "vca")
 				     (:file "midi-interface")
 				     (:file "midi-cc-interface")
@@ -83,10 +82,6 @@
 				     (:file "example-3")
 				     (:file "phase-plot")
 				     (:file "sweep-plot")))
-	       (:module "src/modules/envelope"
-			:serial t
-			:components ((:file "example-1")
-				     (:file "example-2")))
 	       (:module "src/modules/midi-interface"
 			:serial t
 			:components ((:file "example-1")))

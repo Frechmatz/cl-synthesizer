@@ -12,11 +12,6 @@
   (:use :cl)
   (:export :make-module))
 
-(defpackage :cl-synthesizer-modules-envelope
-  (:use :cl)
-  (:export
-   :make-module))
-
 (defpackage :cl-synthesizer-modules-vca
   (:use :cl)
   (:export

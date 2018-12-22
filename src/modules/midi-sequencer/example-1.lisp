@@ -48,16 +48,10 @@
     ;; Add ADSR
     (cl-synthesizer:add-module
      rack "ADSR"
-     #'cl-synthesizer-modules-envelope:make-module
-     :segments
-     '(;; Attack
-       (:duration-ms 100 :target-cv 5 :required-gate-state :on)
-       ;; Decay
-       (:duration-ms 50 :target-cv 3 :required-gate-state :on)
-       ;; Sustain
-       (:required-gate-state :on)
-       ;; Release
-       (:duration-ms 100 :target-cv 0 :required-gate-state :off)))
+     #'cl-synthesizer-modules-adsr:make-module
+     :attack-time-ms 100 :attack-target-output 5.0
+     :decay-time-ms 50 :decay-target-output 3.0
+     :release-time-ms 100)
     
     ;; Add VCA
     (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:make-module :cv-max 5.0)

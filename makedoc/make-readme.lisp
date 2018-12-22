@@ -19,7 +19,6 @@
 		   "<ul>"
 		   "<li><a href=\"#vco\">VCO</a></li>"
 		   "<li><a href=\"#vca\">VCA</a></li>"
-		   "<li><a href=\"#envelope\">Envelope</a></li>"
 		   "<li><a href=\"#multiple\">Multiple</a></li>"
 		   "<li><a href=\"#midi-interface\">MIDI Interface</a></li>"
 		   "<li><a href=\"#midi-cc-interface\">MIDI CC Interface</a></li>"
@@ -60,9 +59,6 @@
 		   "<h4 id=\"vca\">VCA</h4>"
 		   (make-function-string 'cl-synthesizer-modules-vca:make-module :append-separator nil)
 		   (example-code "src/modules/vca/example-1.lisp")
-		   "<h4 id=\"envelope\">Envelope</h4>"
-		   (make-function-string 'cl-synthesizer-modules-envelope:make-module :append-separator nil)
-		   (example-code "src/modules/envelope/example-1.lisp")
 		   "<h4 id=\"multiple\">Multiple</h4>"
 		   (make-function-string 'cl-synthesizer-modules-multiple:make-module :append-separator nil)
 		   (example-code "src/modules/multiple/example-1.lisp")
