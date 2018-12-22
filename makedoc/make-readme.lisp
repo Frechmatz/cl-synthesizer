@@ -19,6 +19,7 @@
 		   "<ul>"
 		   "<li><a href=\"#vco\">VCO</a></li>"
 		   "<li><a href=\"#vca\">VCA</a></li>"
+		   "<li><a href=\"#adsr\">ADSR</a></li>"
 		   "<li><a href=\"#multiple\">Multiple</a></li>"
 		   "<li><a href=\"#midi-interface\">MIDI Interface</a></li>"
 		   "<li><a href=\"#midi-cc-interface\">MIDI CC Interface</a></li>"
@@ -27,6 +28,8 @@
 		   "<li><a href=\"#adder\">Adder</a></li>"
 		   "<li><a href=\"#mixer\">Mixer</a></li>"
 		   "<li><a href=\"#cv-to-trigger\">CV to Trigger</a></li>"
+		   "<li><a href=\"#ramp\">Ramp</a></li>"
+		   "<li><a href=\"#sustain\">Sustain</a></li>"
 		   "<li><a href=\"#wave-file-writer\">Wave File Writer</a></li>"
 		   "<li><a href=\"#csv-file-writer\">CSV File Writer</a></li>"
 		   "</ul>"
@@ -59,6 +62,9 @@
 		   "<h4 id=\"vca\">VCA</h4>"
 		   (make-function-string 'cl-synthesizer-modules-vca:make-module :append-separator nil)
 		   (example-code "src/modules/vca/example-1.lisp")
+		   "<h4 id=\"adsr\">ADSR</h4>"
+		   (make-function-string 'cl-synthesizer-modules-adsr:make-module :append-separator nil)
+		   (example-code "src/modules/adsr/example-1.lisp")
 		   "<h4 id=\"multiple\">Multiple</h4>"
 		   (make-function-string 'cl-synthesizer-modules-multiple:make-module :append-separator nil)
 		   (example-code "src/modules/multiple/example-1.lisp")
@@ -82,6 +88,12 @@
 		   "<h4 id=\"cv-to-trigger\">CV to Trigger</h4>"
 		   (make-function-string 'cl-synthesizer-modules-cv-to-trigger:make-module :append-separator nil)
 		   (example-code "src/modules/cv-to-trigger/example-1.lisp")
+		   "<h4 id=\"ramp\">Ramp</h4>"
+		   (make-function-string 'cl-synthesizer-modules-ramp:make-module :append-separator nil)
+		   (example-code "src/modules/ramp/example-1.lisp")
+		   "<h4 id=\"sustain\">Sustain</h4>"
+		   (make-function-string 'cl-synthesizer-modules-sustain:make-module :append-separator nil)
+		   (example-code "src/modules/sustain/example-1.lisp")
 		   "<h4 id=\"wave-file-writer\">Wave File Writer</h4>"
 		   (make-function-string 'cl-synthesizer-modules-wave-file-writer:make-module :append-separator nil)
 		   "<h4 id=\"csv-file-writer\">CSV File Writer</h4>"

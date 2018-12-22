@@ -106,7 +106,7 @@ API Reference
 *   [Modules](#modules)
     *   [VCO](#vco)
     *   [VCA](#vca)
-    *   [Envelope](#envelope)
+    *   [ADSR](#adsr)
     *   [Multiple](#multiple)
     *   [MIDI Interface](#midi-interface)
     *   [MIDI CC Interface](#midi-cc-interface)
@@ -115,6 +115,8 @@ API Reference
     *   [Adder](#adder)
     *   [Mixer](#mixer)
     *   [CV to Trigger](#cv-to-trigger)
+    *   [Ramp](#ramp)
+    *   [Sustain](#sustain)
     *   [Wave File Writer](#wave-file-writer)
     *   [CSV File Writer](#csv-file-writer)
 *   [Monitor](#monitor)
@@ -413,70 +415,79 @@ The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.
     
     ;;(cl-synthesizer:play-rack (example) 5)
 
-#### Envelope
+#### ADSR
 
-**cl-synthesizer-modules-envelope:make-module** name environment &key segments (gate-threshold 4.9)
+**cl-synthesizer-modules-adsr:make-module** name environment &key attack-time-ms attack-target-output decay-time-ms decay-target-output release-time-ms (time-cv-to-time-ms nil) (gate-threshold 2.5)
 
-Creates an envelope generator module. An envelope consists of a list of segments where each segment defines rules how to behave. The module generates linear envelopes. The function has the following arguments:
+Creates an envelope generator module with the phases Attack, Decay, Sustain and Release. This module has been realized using other modules such as Ramp, Sustain, Trigger and Multiple. The function has the following arguments:
 
 *   name Name of the module.
 *   environment The synthesizer environment.
-*   :segments The segments of the envelope. Each segment consists of a property list with the following keys:
-    
-    *   :duration-ms Optional duration of the segment in milli-seconds. The effective duration depends on the sample rate as specified by the environment.
-    *   :target-cv Optional target voltage to which the segment shall climb.
-    *   :required-gate-state One of :on :off :ignore
-    *   :duration-controller Declares a controller with which the duration of the segment can be modulated.
-    *   :target-cv-controller Declares a controller with which the target voltage of the segment can be modulated.
-    
-    A Controller represents an external input that is exposed by the module and can be used to modulate a certain property of the segment. External input values are mapped by a linear function to the actual values that are processed by the segment. Controllers are represented as property lists with the following keys:
-    
-    *   :socket A keyword that defines the input socket that will be exposed by the envelope module and to which other modules can be connected.
-    *   :input-min The minimum input value of the socket.
-    *   :input-max The maximum input value of the socket.
-    *   :output-min The minimum target value of the mapping.
-    *   :output-max The maximum target value of the mapping.
-    
-    Clipping is generally not applied except for cases such as a negative segment duration. Controller inputs are always offsets that are added to the initial value as provided by :duration-ms or :target-cv. Controller inputs do not affect the behaviour of the currently active segment.
-    
-*   :gate-threshold An optional threshold which defines the minimum input value of the :gate input that is interpreted as gate on.
+*   :attack-time-ms Duration of the attack phase in milliseconds.
+*   :attack-target-output Target value of the attack phase.
+*   :decay-time-ms Duration of the decay phase in milliseconds.
+*   :decay-target-output Target value of the decay phase.
+*   :release-time-ms Duration of the release phase in milliseconds. The release phase climbs to 0.0.
+*   :time-cv-to-time-ms Optional function that converts a time control voltage to a duration in milliseconds (see also Ramp module).
+*   :gate-threshold Minimum value of the :gate input that indicates that the gate is on.
 
 The module has the following inputs:
 
-*   :gate The gate signal as provided for example by a MIDI sequencer. If the gate switches from :off to :on the output voltage is reset to 0.0 and the module switches to the first segment.
-*   Inputs as defined by segment controllers.
+*   :gate The gate signal (see also :gate-threshold). The envelope starts working when the gate input switches to "on" and enters into the release phase when it switches to "off".
+*   :attack-cv-time Modulates the climbing time of the attack phase (see also Ramp module).
+*   :release-cv-time Modulates the climbing time of the release phase (see also Ramp module).
 
 The module has the following outputs:
 
-*   :cv The current value of the envelope. The initial value is 0.0
+*   :cv The envelope.
 
 **Example:**
 
-    (defpackage :cl-synthesizer-modules-envelope-example-1
+    (defpackage :cl-synthesizer-modules-adsr-example-1
       (:use :cl))
     
-    (in-package :cl-synthesizer-modules-envelope-example-1)
+    (in-package :cl-synthesizer-modules-adsr-example-1)
     
     (defun example ()
-      "Simple envelope example"
-      (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+      "ADSR example"
+      (let ((rack (cl-synthesizer:make-rack
+    	       :environment (cl-synthesizer:make-environment))))
+        
+        (cl-synthesizer:add-module
+         rack "MIDI-SEQUENCER"
+         #'cl-synthesizer-modules-midi-sequencer:make-module :events
+         (list 
+          (list :timestamp-milli-seconds 0
+    	    :midi-events (list
+    			  (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+          (list :timestamp-milli-seconds 1500
+    	    :midi-events (list
+    			  (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))))
+    
+        (cl-synthesizer:add-module
+         rack "MIDI-IFC"
+         #'cl-synthesizer-modules-midi-interface:make-module :voice-count 1)
     
         (cl-synthesizer:add-module
          rack "ADSR"
-         #'cl-synthesizer-modules-envelope:make-module
-         :segments
-         '(;; Attack (duration can be modulated via input socket :attack-duration)
-           (:duration-ms 100 :target-cv 5 :required-gate-state :on
-            :duration-controller
-            (:socket :attack-duration :input-min 0.0 :input-max 5.0 :output-min 0 :output-max 800))
-           ;; Decay
-           (:duration-ms 50 :target-cv 3 :required-gate-state :on)
-           ;; Sustain
-           (:required-gate-state :on)
-           ;; Release
-           (:duration-ms 100 :target-cv 0 :required-gate-state :off)))
-    
+         #'cl-synthesizer-modules-adsr:make-module
+         :attack-time-ms 500 :attack-target-output 5.0
+         :decay-time-ms 250 :decay-target-output 4.0
+         :release-time-ms 1000)
+        
+        (cl-synthesizer:add-patch rack "MIDI-SEQUENCER" :midi-events "MIDI-IFC" :midi-events)
+        (cl-synthesizer:add-patch rack "MIDI-IFC" :gate-1 "ADSR" :gate)
+        
+        (cl-synthesizer-monitor:add-monitor
+         rack
+         #'cl-synthesizer-monitor-csv-handler:make-handler
+         '(("ADSR" :input-socket :gate :name "ADSR Gate In" :format "~,5F")
+           ("ADSR" :output-socket :cv :name "ADSR Out" :format "~,5F"))
+         :filename "waves/adsr-example-1.csv")
+        
         rack))
+    
+    ;;(cl-synthesizer:play-rack (example) 3)
 
 #### Multiple
 
@@ -697,8 +708,7 @@ The module has the following outputs:
          #'cl-synthesizer-monitor-csv-handler:make-handler
          '(("VCO" :state :frequency :name "Frequency" :format "~,4F")
            ("VCO" :output-socket :sine :name "Sine" :format "~,4F"))
-        :filename "waves/midi-cc-interface-example-2.csv"
-        :add-header nil)
+        :filename "waves/midi-cc-interface-example-2.csv")
     
         (cl-synthesizer-monitor:add-monitor
          rack
@@ -780,16 +790,10 @@ The module has no inputs. The module has one output socket :midi-events.
         ;; Add ADSR
         (cl-synthesizer:add-module
          rack "ADSR"
-         #'cl-synthesizer-modules-envelope:make-module
-         :segments
-         '(;; Attack
-           (:duration-ms 100 :target-cv 5 :required-gate-state :on)
-           ;; Decay
-           (:duration-ms 50 :target-cv 3 :required-gate-state :on)
-           ;; Sustain
-           (:required-gate-state :on)
-           ;; Release
-           (:duration-ms 100 :target-cv 0 :required-gate-state :off)))
+         #'cl-synthesizer-modules-adsr:make-module
+         :attack-time-ms 100 :attack-target-output 5.0
+         :decay-time-ms 50 :decay-target-output 3.0
+         :release-time-ms 100)
         
         ;; Add VCA
         (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:make-module :cv-max 5.0)
@@ -982,6 +986,190 @@ The module has the following outputs:
           
     ;;(cl-synthesizer:play-rack (example) 2)
 
+#### Ramp
+
+**cl-synthesizer-modules-ramp:make-module** name environment &key time-ms target-output (gate-state nil) (trigger-threshold 2.5) (gate-threshold 2.5) (time-cv-to-time-ms nil)
+
+Creates a module whose output climbs from a given input value to a given output value in a given time. Main purpose of this module is to create envelope generators by chaining multiple ramp and sustain modules. The function has the following arguments:
+
+*   name Name of the module.
+*   environment The synthesizer environment.
+*   :time-ms Default climbing time (duration) in milliseconds.
+*   :target-output Desired target output value. Due to the time resolution given by the sample-rate of the environment the ramp may stop at an output value a little bit smaller or greater than the desired target-output value.
+*   :gate-state Required state of the Gate input. One of :on, :off, nil
+*   :trigger-threshold Minimum value of the :trigger input that indicates that the trigger is active.
+*   :gate-threshold Minimum value of the :gate input that indicates that the gate is on.
+*   :time-cv-to-time-ms An optional function that converts a time control voltage to a duration in milliseconds. The default implementation is 1000ms/1V (abs(cv-time) \* 1000).
+
+The module has the following inputs:
+
+*   :trigger Trigger input. If the trigger is active (see also :trigger-threshold), the module samples its current input value and begins climbing to the desired target output value.
+*   :input Input value.
+*   :pass-through If value is >= 5.0 the module passes through its input value.
+*   :gate A gate signal (see also :gate-threshold).
+*   :cv-time NIL or climbing time (duration) of the ramp (see also :time-cv-to-time-ms).
+
+The module has the following outputs:
+
+*   :output Output value of the module. The initial output value is 0.0.
+*   :busy A value >= 5.0 indicates that the module is busy by either passing through its input value or climbing to the target output value.
+*   :done A trigger signal that jumps to 5.0 for the length of one clock cycle when the ramp has finished.
+*   :gate Passed through :gate input. Purpose of this output is to support more convenient chaining of ramp and sustain modules.
+
+When the ramp aborts due to a toggling Gate signal or when its supposed duration has been exceeded due to time modulation then the output value does not jump to the desired target-output but stays at its current value.  
+  
+This module has been inspired by [dhemery](https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes)
+
+**Example:**
+
+    (defpackage :cl-synthesizer-modules-ramp-example-1
+      (:use :cl))
+    
+    (in-package :cl-synthesizer-modules-ramp-example-1)
+    
+    (defun example ()
+      "Ramp example"
+      (let ((rack (cl-synthesizer:make-rack
+    	       :environment (cl-synthesizer:make-environment))))
+        
+        (cl-synthesizer:add-module
+         rack "VCO"
+         #'cl-synthesizer-modules-vco:make-module
+         :base-frequency 0.5 :v-peak 5.0 :f-max 500 :cv-max 5)
+    
+        (cl-synthesizer:add-module
+         rack "TRIGGER"
+         #'cl-synthesizer-modules-cv-to-trigger:make-module
+         :trigger-cv 4.9 :pulse-voltage 5.0)
+    
+        (cl-synthesizer:add-module
+         rack "ATTACK"
+         #'cl-synthesizer-modules-ramp:make-module
+         :time-ms 200 :target-output 5.0 :gate-state nil)
+    
+        (cl-synthesizer:add-module
+         rack "DECAY"
+         #'cl-synthesizer-modules-ramp:make-module
+         :time-ms 200 :target-output 2.5)
+        
+        (cl-synthesizer:add-patch rack "VCO" :square "TRIGGER" :input)
+        (cl-synthesizer:add-patch rack "TRIGGER" :output "ATTACK" :trigger)
+        (cl-synthesizer:add-patch rack "ATTACK" :busy "DECAY" :pass-through)
+        (cl-synthesizer:add-patch rack "ATTACK" :output "DECAY" :input)
+        (cl-synthesizer:add-patch rack "ATTACK" :done "DECAY" :trigger)
+    
+        (cl-synthesizer-monitor:add-monitor
+         rack
+         #'cl-synthesizer-monitor-csv-handler:make-handler
+         '(("VCO" :output-socket :square :name "VCO Out" :format "~,5F")
+           ("ATTACK" :output-socket :output :name "Attack Out" :format "~,5F")
+           ("DECAY" :output-socket :output :name "Decay Out" :format "~,5F"))
+         :filename "waves/ramp-example-1.csv")
+        
+        rack))
+    
+    ;;(cl-synthesizer:play-rack (example) 5)
+
+#### Sustain
+
+**cl-synthesizer-modules-sustain:make-module** name environment &key (trigger-threshold 2.5) (gate-threshold 2.5)
+
+Creates a module which holds a given input as long as its gate input is "on". Main purpose of this module is to create envelope generators by chaining multiple ramp and sustain modules. The function has the following arguments:
+
+*   name Name of the module.
+*   environment The synthesizer environment.
+*   :trigger-threshold Minimum value of the :trigger input that indicates that the trigger is active.
+*   :gate-threshold Minimum value of the :gate input that indicates that the gate is on.
+
+The module has the following inputs:
+
+*   :trigger Trigger input. If the trigger is active (see also :trigger-threshold), the module samples its current input value and begins passing it to its output socket.
+*   :input Input value.
+*   :pass-through If value is >= 5.0 the module passes through its input value.
+*   :gate A gate signal (see also :gate-threshold).
+
+The module has the following outputs:
+
+*   :output Output value of the module. The initial output value is 0.0.
+*   :busy A value >= 5.0 indicates that the module is busy by either passing through its input value or holding the sampled input value until the gate input falls to zero.
+*   :done A trigger signal that jumps to 5.0 for the length of one clock cycle when the sustain cycle has finished.
+*   :gate Passed through :gate input. Purpose of this output is to support more convenient chaining of ramp and sustain modules.
+
+This module has been inspired by [dhemery](https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes)
+
+**Example:**
+
+    (defpackage :cl-synthesizer-modules-sustain-example-1
+      (:use :cl))
+    
+    (in-package :cl-synthesizer-modules-sustain-example-1)
+    
+    (defun example ()
+      "Sustain example"
+      (let ((rack (cl-synthesizer:make-rack
+    	       :environment (cl-synthesizer:make-environment))))
+        
+        ;; Use MIDI sequencer for generation of Gate signals
+        (cl-synthesizer:add-module
+         rack "MIDI-SEQUENCER"
+         #'cl-synthesizer-modules-midi-sequencer:make-module :events
+         (list 
+          (list :timestamp-milli-seconds 300
+    	    :midi-events (list
+    			  (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+          (list :timestamp-milli-seconds 700
+    	    :midi-events (list
+    			  (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
+          (list :timestamp-milli-seconds 1800
+    	    :midi-events (list
+    			  (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+          (list :timestamp-milli-seconds 2100
+    	    :midi-events (list
+    			  (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))))
+    
+        (cl-synthesizer:add-module
+         rack "MIDI-IFC"
+         #'cl-synthesizer-modules-midi-interface:make-module :voice-count 1)
+    
+        (cl-synthesizer:add-module
+         rack "GATE-MULTIPLE"
+         #'cl-synthesizer-modules-multiple:make-module :output-count 2)
+    
+        (cl-synthesizer:add-module
+         rack "TRIGGER"
+         #'cl-synthesizer-modules-cv-to-trigger:make-module
+         :trigger-cv 4.9 :pulse-voltage 5.0)
+    
+        (cl-synthesizer:add-module
+         rack "VCO"
+         #'cl-synthesizer-modules-vco:make-module
+         :base-frequency 0.5 :v-peak 5 :cv-max 5 :f-max 12000)
+        
+        (cl-synthesizer:add-module
+         rack "SUSTAIN"
+         #'cl-synthesizer-modules-sustain:make-module)
+    
+        (cl-synthesizer:add-patch rack "MIDI-SEQUENCER" :midi-events "MIDI-IFC" :midi-events)
+        (cl-synthesizer:add-patch rack "MIDI-IFC" :gate-1 "GATE-MULTIPLE" :input)
+        (cl-synthesizer:add-patch rack "GATE-MULTIPLE" :output-1 "TRIGGER" :input)
+        (cl-synthesizer:add-patch rack "GATE-MULTIPLE" :output-2 "SUSTAIN" :gate)
+        (cl-synthesizer:add-patch rack "TRIGGER" :output "SUSTAIN" :trigger)
+        (cl-synthesizer:add-patch rack "VCO" :sine "SUSTAIN" :input)
+        
+        (cl-synthesizer-monitor:add-monitor
+         rack
+         #'cl-synthesizer-monitor-csv-handler:make-handler
+         '(("MIDI-IFC" :output-socket :gate-1 :name "Gate" :format "~,5F")
+           ("SUSTAIN" :input-socket :trigger :name "Sustain Trigger In" :format "~,5F")
+           ("SUSTAIN" :input-socket :input :name "Sustain In" :format "~,5F")
+           ("SUSTAIN" :output-socket :output :name "Sustain Out" :format "~,5F")
+           ("SUSTAIN" :output-socket :done :name "Sustain Done Out" :format "~,5F"))
+         :filename "waves/sustain-example-1.csv")
+        
+        rack))
+    
+    ;;(cl-synthesizer:play-rack (example) 3)
+
 #### Wave File Writer
 
 **cl-synthesizer-modules-wave-file-writer:make-module** name environment &key channel-count filename (v-peak 5.0)
@@ -1004,7 +1192,7 @@ See also cl-synthesizer-monitor:add-monitor which provides Wave-File-Writing wit
 
 #### CSV File Writer
 
-**cl-synthesizer-modules-csv-file-writer:make-module** name environment &key columns filename (column-separator ",") (add-header nil)
+**cl-synthesizer-modules-csv-file-writer:make-module** name environment &key columns filename (column-separator ",") (add-header t)
 
 Creates a CSV File Writer module. The function has the following arguments:
 
@@ -1199,4 +1387,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-11-28 21:34:38
+Generated 2018-12-22 15:11:48
