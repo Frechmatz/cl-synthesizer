@@ -6,7 +6,8 @@
 		      (time-cv-to-time-ms nil))
   "Creates a module whose output climbs from a given input value to a given output value
     in a given time. Main purpose of this module is to create envelope generators by chaining
-    multiple ramp and sustain modules. The function has the following arguments:
+    multiple ramp and sustain modules. The module climbs linearly (exponential climbing will
+    be added later). The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>

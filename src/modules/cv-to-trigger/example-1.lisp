@@ -16,7 +16,7 @@
      rack
      "TRIGGER"
      #'cl-synthesizer-modules-cv-to-trigger:make-module
-     :trigger-cv 4.9 :pulse-voltage 3.0)
+     :trigger-threshold 4.9 :pulse-voltage 3.0)
 
     (cl-synthesizer:add-patch rack "VCO" :sine "TRIGGER" :input)
     

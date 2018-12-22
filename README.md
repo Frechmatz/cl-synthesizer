@@ -934,13 +934,13 @@ The module has the following outputs:
 
 #### CV to Trigger
 
-**cl-synthesizer-modules-cv-to-trigger:make-module** name environment &key trigger-cv pulse-voltage
+**cl-synthesizer-modules-cv-to-trigger:make-module** name environment &key trigger-threshold pulse-voltage
 
-Creates a Voltage to Trigger Converter module. The module fires a one clock cycle long pulse when input voltage >= trigger-cv and then waits that the input voltage descends below trigger-cv before the next pulse can be triggered. The module can for example be used to generate a trigger out of a gate signal. The function has the following arguments:
+Creates a Voltage to Trigger Converter module. The module fires a one clock cycle long pulse when input voltage >= trigger-threshold and then waits that the input voltage descends below trigger-threshold before the next pulse can be triggered. The module can for example be used to generate a trigger out of a gate signal. The function has the following arguments:
 
 *   name Name of the module.
 *   environment The synthesizer environment.
-*   :trigger-cv The minimum value of the input which triggers a pulse.
+*   :trigger-threshold The minimum value of the input which triggers a pulse.
 *   :pulse-voltage The voltage of the pulse.
 
 The module has the following inputs:
@@ -971,7 +971,7 @@ The module has the following outputs:
          rack
          "TRIGGER"
          #'cl-synthesizer-modules-cv-to-trigger:make-module
-         :trigger-cv 4.9 :pulse-voltage 3.0)
+         :trigger-threshold 4.9 :pulse-voltage 3.0)
     
         (cl-synthesizer:add-patch rack "VCO" :sine "TRIGGER" :input)
         
@@ -990,7 +990,7 @@ The module has the following outputs:
 
 **cl-synthesizer-modules-ramp:make-module** name environment &key time-ms target-output (gate-state nil) (trigger-threshold 2.5) (gate-threshold 2.5) (time-cv-to-time-ms nil)
 
-Creates a module whose output climbs from a given input value to a given output value in a given time. Main purpose of this module is to create envelope generators by chaining multiple ramp and sustain modules. The function has the following arguments:
+Creates a module whose output climbs from a given input value to a given output value in a given time. Main purpose of this module is to create envelope generators by chaining multiple ramp and sustain modules. The module climbs linearly (exponential climbing will be added later). The function has the following arguments:
 
 *   name Name of the module.
 *   environment The synthesizer environment.
@@ -1040,7 +1040,7 @@ This module has been inspired by [dhemery](https://github.com/dhemery/DHE-Module
         (cl-synthesizer:add-module
          rack "TRIGGER"
          #'cl-synthesizer-modules-cv-to-trigger:make-module
-         :trigger-cv 4.9 :pulse-voltage 5.0)
+         :trigger-threshold 4.9 :pulse-voltage 5.0)
     
         (cl-synthesizer:add-module
          rack "ATTACK"
@@ -1138,7 +1138,7 @@ This module has been inspired by [dhemery](https://github.com/dhemery/DHE-Module
         (cl-synthesizer:add-module
          rack "TRIGGER"
          #'cl-synthesizer-modules-cv-to-trigger:make-module
-         :trigger-cv 4.9 :pulse-voltage 5.0)
+         :trigger-threshold 4.9 :pulse-voltage 5.0)
     
         (cl-synthesizer:add-module
          rack "VCO"
@@ -1387,4 +1387,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-12-22 15:11:48
+Generated 2018-12-22 15:42:13

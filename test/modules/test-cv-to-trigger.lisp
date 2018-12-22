@@ -4,7 +4,7 @@
   (let ((module (cl-synthesizer-modules-cv-to-trigger:make-module
 		 "CVT"
 		 (cl-synthesizer:make-environment)
-		 :trigger-cv 4.5
+		 :trigger-threshold 4.5
 		 :pulse-voltage 2.0)))
       (assert-equality #'= 0.0 (funcall (getf module :get-output) :output))
       ;; Trigger on for one tick

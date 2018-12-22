@@ -1,15 +1,15 @@
 (in-package :cl-synthesizer-modules-cv-to-trigger)
 
-(defun make-module (name environment &key trigger-cv pulse-voltage)
+(defun make-module (name environment &key trigger-threshold pulse-voltage)
   "Creates a Voltage to Trigger Converter module. 
-   The module fires a one clock cycle long pulse when input voltage >= trigger-cv
-   and then waits that the input voltage descends below trigger-cv before the next
+   The module fires a one clock cycle long pulse when input voltage >= trigger-threshold
+   and then waits that the input voltage descends below trigger-threshold before the next
    pulse can be triggered. The module can for example be used to generate a trigger
    out of a gate signal. The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
-	<li>:trigger-cv The minimum value of the input which triggers a pulse.</li>
+	<li>:trigger-threshold The minimum value of the input which triggers a pulse.</li>
 	<li>:pulse-voltage The voltage of the pulse.</li>
     </ul>
     The module has the following inputs:
@@ -29,7 +29,7 @@
      :update (lambda (&key input)
 	       (if (not input)
 		   (setf input 0.0))
-	       (let ((may-fire (>= input trigger-cv)))
+	       (let ((may-fire (>= input trigger-threshold)))
 		 (cond
 		   ((and waiting may-fire)
 		    (setf cur-output 0))
