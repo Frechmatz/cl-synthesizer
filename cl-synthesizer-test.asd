@@ -56,33 +56,17 @@
 			:serial t
 			:components ((:file "test-voice-manager-voice")
 				     (:file "test-voice-manager")))
-	       (:module "test/modules/midi-interface"
+	       (:module "test/modules"
 			:serial t
-			:components ((:file "test-interface")))
-	       (:module "test/modules/midi-cc-interface"
-			:serial t
-			:components ((:file "test-midi-cc-interface")))
-	       (:module "test/modules/vca"
-			:serial t
-			:components ((:file "test-vca")))
-	       (:module "test/modules/vco"
-			:serial t
-			:components ((:file "test-vco")))
-	       (:module "test/modules/adder"
-			:serial t
-			:components ((:file "test-adder")))
-	       (:module "test/modules/mixer"
-			:serial t
-			:components ((:file "test-mixer")))
-	       (:module "test/modules/cv-to-trigger"
-			:serial t
-			:components ((:file "test-cv-to-trigger")))
-	       (:module "test/modules/ramp"
-			:serial t
-			:components ((:file "test-ramp")))
-	       (:module "test/modules/sustain"
-			:serial t
-			:components ((:file "test-sustain")))
+			:components ((:file "test-adder")
+				     (:file "test-cv-to-trigger")
+				     (:file "test-midi-cc-interface")
+				     (:file "test-midi-interface")
+				     (:file "test-mixer")
+				     (:file "test-ramp")
+				     (:file "test-sustain")
+				     (:file "test-vca")
+				     (:file "test-vco")))
 	       (:module "test/synthesizer"
 			:serial t
 			:components ((:file "test-assembly")
