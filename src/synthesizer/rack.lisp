@@ -9,12 +9,25 @@
    (name :initarg nil)
    (module :initarg nil)
    (input-patches :initform (make-hash-table))
-   (output-patches :initform (make-hash-table)))
+   (output-patches :initform (make-hash-table))
+   (input-argument-list-prototype :initform nil))
   (:documentation "Represents a module holding input/output connections to other modules"))
 
+(defun get-rack-module-input-sockets (rm)
+  (let ((f (getf (slot-value rm 'module) :inputs)))
+    (if f (funcall f) nil)))
+
 (defmethod initialize-instance :after ((rm rack-module) &key name module)
+  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (setf (slot-value rm 'name) name)
-  (setf (slot-value rm 'module) module))
+  (setf (slot-value rm 'module) module)
+  (let ((input-sockets (get-rack-module-input-sockets rm)))
+    (dolist (input-socket input-sockets)
+      (push nil (slot-value rm 'input-argument-list-prototype))
+      (push input-socket (slot-value rm 'input-argument-list-prototype)))))
+
+(defun get-rack-module-input-argument-list-prototype (rm)
+  (copy-list (slot-value rm 'input-argument-list-prototype)))
 
 (defun get-rack-module-name (rm)
   (slot-value rm 'name))
@@ -24,10 +37,6 @@
 
 (defun set-rack-module-state (rm state)
   (setf (slot-value rm 'state) state))
-
-(defun get-rack-module-input-sockets (rm)
-  (let ((f (getf (slot-value rm 'module) :inputs)))
-    (if f (funcall f) nil)))
 
 (defun get-rack-module-output-sockets (rm)
   (let ((f (getf (slot-value rm 'module) :outputs)))
@@ -267,8 +276,12 @@
 				       (if patch 
 					   (update-rm (get-rack-patch-module patch)))))
 				   ;; update this
-				   (let ((lambdalist nil))
+				   (let ((lambdalist (get-rack-module-input-argument-list-prototype rm)))
 				     ;; collect inputs
+				     ;; OPTIMIZATION: Can we create "empty" lambdalist out of sockets
+				     ;; e.g. (:INPUT-1 nil :INPUT-2 nil ...)
+				     ;; and then continue with setf instead of pushing to set the
+				     ;; values of the keyword parameters?
 				     (dolist (cur-input-socket (get-rack-module-input-sockets rm))
 				       (let ((patch (get-rack-module-input-patch rm cur-input-socket))
 					     (socket-input-value nil))
@@ -277,10 +290,15 @@
 						    (source-rm-socket (get-rack-patch-socket patch))
 						    (output-fn (get-rack-module-output-fn source-rm)))
 					       (setf socket-input-value (funcall output-fn source-rm-socket))))
-					 (push cur-input-socket lambdalist)
-					 (push socket-input-value lambdalist)))
+					 ;;(push cur-input-socket lambdalist)
+					 ;;(push socket-input-value lambdalist)
+					 ;;(break)
+					 (setf (getf lambdalist cur-input-socket) socket-input-value)
+					 ))
 				     ;; call update function on this
-				     (apply (get-rack-module-update-fn rm) (nreverse lambdalist))
+				     ;;(break)
+				     ;;(apply (get-rack-module-update-fn rm) (nreverse lambdalist))
+				     (apply (get-rack-module-update-fn rm) lambdalist)
 				     (set-rack-module-state rm :PROCESSED-TICK)
 				     ))))))
 		      ;; for all modules
