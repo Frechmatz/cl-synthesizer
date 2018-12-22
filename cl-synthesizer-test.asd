@@ -26,7 +26,6 @@
 				     (:file "linear-converter")
 				     (:file "phase-waveform-converter")
 				     (:file "phase-generator")
-				     (:file "function-array")
 				     (:file "round-time")))
 		(:module "src/midi"
 			:serial t
@@ -52,8 +51,7 @@
 				     (:file "test-util")))
 	       (:module "test/core"
 			:serial t
-			:components ((:file "test-waveform")
-				     (:file "test-function-array")))
+			:components ((:file "test-waveform")))
 	       (:module "test/midi"
 			:serial t
 			:components ((:file "test-voice-manager-voice")
