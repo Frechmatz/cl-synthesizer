@@ -46,7 +46,7 @@
 				     (:file "fixed-output")
 				     (:file "adder")
 				     (:file "mixer")
-				     (:file "cv-to-trigger")
+				     (:file "trigger")
 				     (:file "wave-file-writer")
 				     (:file "csv-file-writer")
 				     (:file "ramp")
@@ -107,6 +107,9 @@
 			:serial t
 			:components ((:file "example-1")))
 	       (:module "src/monitor/monitor"
+			:serial t
+			:components ((:file "example-1")))
+	       (:module "src/modules/trigger"
 			:serial t
 			:components ((:file "example-1")))
 	       (:module "src/modules/adsr"

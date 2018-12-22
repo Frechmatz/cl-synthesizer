@@ -1,4 +1,4 @@
-(in-package :cl-synthesizer-modules-cv-to-trigger)
+(in-package :cl-synthesizer-modules-trigger)
 
 (defun make-module (name environment &key trigger-threshold pulse-voltage)
   "Creates a Voltage to Trigger Converter module. 

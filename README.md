@@ -114,7 +114,7 @@ API Reference
     *   [Fixed Output](#fixed-output)
     *   [Adder](#adder)
     *   [Mixer](#mixer)
-    *   [CV to Trigger](#cv-to-trigger)
+    *   [Trigger](#trigger)
     *   [Ramp](#ramp)
     *   [Sustain](#sustain)
     *   [Wave File Writer](#wave-file-writer)
@@ -932,9 +932,9 @@ The module has the following outputs:
         
         rack))
 
-#### CV to Trigger
+#### Trigger
 
-**cl-synthesizer-modules-cv-to-trigger:make-module** name environment &key trigger-threshold pulse-voltage
+**cl-synthesizer-modules-trigger:make-module** name environment &key trigger-threshold pulse-voltage
 
 Creates a Voltage to Trigger Converter module. The module fires a one clock cycle long pulse when input voltage >= trigger-threshold and then waits that the input voltage descends below trigger-threshold before the next pulse can be triggered. The module can for example be used to generate a trigger out of a gate signal. The function has the following arguments:
 
@@ -953,10 +953,10 @@ The module has the following outputs:
 
 **Example:**
 
-    (defpackage :cl-synthesizer-modules-cv-to-trigger-example-1
+    (defpackage :cl-synthesizer-modules-trigger-example-1
       (:use :cl))
     
-    (in-package :cl-synthesizer-modules-cv-to-trigger-example-1)
+    (in-package :cl-synthesizer-modules-trigger-example-1)
     
     (defun example ()
       "Emit trigger signal based on sine input"
@@ -970,7 +970,7 @@ The module has the following outputs:
         (cl-synthesizer:add-module
          rack
          "TRIGGER"
-         #'cl-synthesizer-modules-cv-to-trigger:make-module
+         #'cl-synthesizer-modules-trigger:make-module
          :trigger-threshold 4.9 :pulse-voltage 3.0)
     
         (cl-synthesizer:add-patch rack "VCO" :sine "TRIGGER" :input)
@@ -980,7 +980,7 @@ The module has the following outputs:
          #'cl-synthesizer-monitor-wave-handler:make-handler
          '(("TRIGGER" :input-socket :input)
            ("TRIGGER" :output-socket :output))
-         :filename "waves/cv-to-trigger-example-1.wav")
+         :filename "waves/trigger-example-1.wav")
     
         rack))
           
@@ -1039,7 +1039,7 @@ This module has been inspired by [dhemery](https://github.com/dhemery/DHE-Module
     
         (cl-synthesizer:add-module
          rack "TRIGGER"
-         #'cl-synthesizer-modules-cv-to-trigger:make-module
+         #'cl-synthesizer-modules-trigger:make-module
          :trigger-threshold 4.9 :pulse-voltage 5.0)
     
         (cl-synthesizer:add-module
@@ -1137,7 +1137,7 @@ This module has been inspired by [dhemery](https://github.com/dhemery/DHE-Module
     
         (cl-synthesizer:add-module
          rack "TRIGGER"
-         #'cl-synthesizer-modules-cv-to-trigger:make-module
+         #'cl-synthesizer-modules-trigger:make-module
          :trigger-threshold 4.9 :pulse-voltage 5.0)
     
         (cl-synthesizer:add-module
@@ -1387,4 +1387,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-12-22 15:42:13
+Generated 2018-12-22 15:50:32

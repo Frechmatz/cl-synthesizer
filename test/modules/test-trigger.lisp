@@ -1,7 +1,7 @@
 (in-package :cl-synthesizer-test)
 
-(define-test test-cv-to-trigger-1 ()
-  (let ((module (cl-synthesizer-modules-cv-to-trigger:make-module
+(define-test test-trigger-1 ()
+  (let ((module (cl-synthesizer-modules-trigger:make-module
 		 "CVT"
 		 (cl-synthesizer:make-environment)
 		 :trigger-threshold 4.5

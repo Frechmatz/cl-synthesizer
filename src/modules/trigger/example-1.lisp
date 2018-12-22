@@ -1,7 +1,7 @@
-(defpackage :cl-synthesizer-modules-cv-to-trigger-example-1
+(defpackage :cl-synthesizer-modules-trigger-example-1
   (:use :cl))
 
-(in-package :cl-synthesizer-modules-cv-to-trigger-example-1)
+(in-package :cl-synthesizer-modules-trigger-example-1)
 
 (defun example ()
   "Emit trigger signal based on sine input"
@@ -15,7 +15,7 @@
     (cl-synthesizer:add-module
      rack
      "TRIGGER"
-     #'cl-synthesizer-modules-cv-to-trigger:make-module
+     #'cl-synthesizer-modules-trigger:make-module
      :trigger-threshold 4.9 :pulse-voltage 3.0)
 
     (cl-synthesizer:add-patch rack "VCO" :sine "TRIGGER" :input)
@@ -25,7 +25,7 @@
      #'cl-synthesizer-monitor-wave-handler:make-handler
      '(("TRIGGER" :input-socket :input)
        ("TRIGGER" :output-socket :output))
-     :filename "waves/cv-to-trigger-example-1.wav")
+     :filename "waves/trigger-example-1.wav")
 
     rack))
       

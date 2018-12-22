@@ -33,7 +33,7 @@
   (:use :cl)
   (:export :make-module))
 
-(defpackage :cl-synthesizer-modules-cv-to-trigger
+(defpackage :cl-synthesizer-modules-trigger
   (:use :cl)
   (:export :make-module))
 

@@ -27,7 +27,7 @@
 		   "<li><a href=\"#fixed-output\">Fixed Output</a></li>"
 		   "<li><a href=\"#adder\">Adder</a></li>"
 		   "<li><a href=\"#mixer\">Mixer</a></li>"
-		   "<li><a href=\"#cv-to-trigger\">CV to Trigger</a></li>"
+		   "<li><a href=\"#trigger\">Trigger</a></li>"
 		   "<li><a href=\"#ramp\">Ramp</a></li>"
 		   "<li><a href=\"#sustain\">Sustain</a></li>"
 		   "<li><a href=\"#wave-file-writer\">Wave File Writer</a></li>"
@@ -85,9 +85,9 @@
 		   "<h4 id=\"mixer\">Mixer</h4>"
 		   (make-function-string 'cl-synthesizer-modules-mixer:make-module :append-separator nil)
 		   (example-code "src/modules/mixer/example-1.lisp")
-		   "<h4 id=\"cv-to-trigger\">CV to Trigger</h4>"
-		   (make-function-string 'cl-synthesizer-modules-cv-to-trigger:make-module :append-separator nil)
-		   (example-code "src/modules/cv-to-trigger/example-1.lisp")
+		   "<h4 id=\"trigger\">Trigger</h4>"
+		   (make-function-string 'cl-synthesizer-modules-trigger:make-module :append-separator nil)
+		   (example-code "src/modules/trigger/example-1.lisp")
 		   "<h4 id=\"ramp\">Ramp</h4>"
 		   (make-function-string 'cl-synthesizer-modules-ramp:make-module :append-separator nil)
 		   (example-code "src/modules/ramp/example-1.lisp")

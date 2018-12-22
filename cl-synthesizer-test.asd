@@ -41,7 +41,7 @@
 				     (:file "vca")
 				     (:file "vco")
 				     (:file "adder")
-				     (:file "cv-to-trigger")
+				     (:file "trigger")
 				     (:file "mixer")
 				     (:file "ramp")
 				     (:file "sustain")))
@@ -59,7 +59,7 @@
 	       (:module "test/modules"
 			:serial t
 			:components ((:file "test-adder")
-				     (:file "test-cv-to-trigger")
+				     (:file "test-trigger")
 				     (:file "test-midi-cc-interface")
 				     (:file "test-midi-interface")
 				     (:file "test-mixer")

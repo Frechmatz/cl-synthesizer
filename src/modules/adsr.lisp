@@ -46,7 +46,7 @@
 
     (cl-synthesizer:add-module
      rack "TRIGGER"
-     #'cl-synthesizer-modules-cv-to-trigger:make-module
+     #'cl-synthesizer-modules-trigger:make-module
      :trigger-threshold 4.9 :pulse-voltage 5.0)
 
     (cl-synthesizer:add-module
