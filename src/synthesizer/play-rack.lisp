@@ -41,6 +41,10 @@
 	   (let ((map nil) (cur-channel 0) (get-output (getf rack :get-output)))
 	     (dolist (socket audio-output-sockets)
 	       (let ((cur-socket socket))
+		 (if (not (find cur-socket (funcall (getf rack :outputs))))
+		     (cl-synthesizer:signal-assembly-error
+		      :format-control "Audio output socket ~a not exposed by rack"
+		      :format-arguments (list cur-socket)))
 		 (push (lambda () (funcall get-output cur-socket)) map)
 		 (push (cl-synthesizer-macro-util:make-keyword "channel" cur-channel) map)
 		 (setf cur-channel (+ 1 cur-channel))))
