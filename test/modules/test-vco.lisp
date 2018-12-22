@@ -26,10 +26,7 @@
 					   (getf vco :get-output)
 					   :sine)))))
 		 (print-vco-state vco)
-		 ;; Allow some deviation due to algorithm used by get-frequency
-		 (assert-true (and
-			       (<= 439.5 f)
-			       (<= f 440.5))))))
+		 (assert-true (is-approximately 440.0 f 0.5)))))
 
 ;; Test that VCO emits base-frequency when cv inputs are 0.0 and base-frequency is initialized with negative frequency
 (define-test vco-test-1-1 ()
@@ -51,10 +48,7 @@
 					   (getf vco :get-output)
 					   :sine)))))
 		 (print-vco-state vco)
-		 ;; Allow some deviation due to algorithm used by get-frequency
-		 (assert-true (and
-			       (<= 439.5 f)
-			       (<= f 440.5))))))
+		 (assert-true (is-approximately 440.0 f 0.5)))))
 
 
 ;; Test that frequency of VCO goes up one octave when cv-exp input is 1.0
@@ -77,10 +71,7 @@
 					  (funcall
 					   (getf vco :get-output)
 					   :sine)))))
-		 ;; Allow some deviation due to algorithm used by get-frequency
-		 (assert-true (and
-			       (<= 879.5 f)
-			       (<= f 880.5))))))
+		 (assert-true (is-approximately 880.0 f 0.5)))))
 
 ;; Test that frequency of VCO goes up two octaves when cv-exp input is 2.0
 (define-test vco-test-exp-2 ()
@@ -101,10 +92,7 @@
 					  (funcall
 					   (getf vco :get-output)
 					   :sine)))))
-		 ;; Allow some deviation due to algorithm used by get-frequency
-		 (assert-true (and
-			       (<= 1759.5 f)
-			       (<= f 1760.5))))))
+		 (assert-true (is-approximately 1760.0 f 0.5)))))
 
 ;; Test that frequency of VCO goes down one octave when cv input is -1.0
 (define-test vco-test-exp-3 ()
@@ -125,10 +113,7 @@
 					  (funcall
 					   (getf vco :get-output)
 					   :sine)))))
-		 ;; Allow some deviation due to algorithm used by get-frequency
-		 (assert-true (and
-			       (<= 219.5 f)
-			       (<= f 220.5))))))
+		 (assert-true (is-approximately 220.0 f 0.5)))))
 
 ;; Test that frequency of VCO goes down two octave when cv-exp input is -2.0
 (define-test vco-test-exp-4 ()
@@ -149,14 +134,8 @@
 					  (funcall
 					   (getf vco :get-output)
 					   :sine)))))
-		 ;; Allow some deviation due to algorithm used by get-frequency
-		 (assert-true (and
-			       (<= 109.5 f)
-			       (<= f 110.5))))))
+		 (assert-true (is-approximately 110.0 f 0.5)))))
 
-
-
-	  
 ;; Add 6000Hz via linear CV input
 (define-test vco-test-lin-1 ()
 	     (let ((vco (cl-synthesizer-modules-vco:make-module
@@ -178,10 +157,7 @@
 					   (getf vco :get-output)
 					   :sine)))))
 		 (print-vco-state vco)
-		 ;; Allow some deviation due to algorithm used by get-frequency
-		 (assert-true (and
-			       (<= 5999.5 f)
-			       (<= f 6000.5))))))
+		 (assert-true (is-approximately 6000 f 0.5)))))
 
 ;; Add 6000Hz to 440Hz via linear CV input
 (define-test vco-test-lin-2 ()
@@ -203,10 +179,7 @@
 					   (getf vco :get-output)
 					   :sine)))))
 		 (print-vco-state vco)
-		 ;; Allow some deviation due to algorithm used by get-frequency
-		 (assert-true (and
-			       (<= 6439.5 f)
-			       (<= f 6440.5))))))
+		 (assert-true (is-approximately 6440 f 0.5)))))
 
 ;; Test frequency clipping (exp input)
 (define-test vco-test-frequency-clipping-exp-upper ()
@@ -228,10 +201,7 @@
 					   (getf vco :get-output)
 					   :sine)))))
 		 (print-vco-state vco)
-		 ;; Allow some deviation due to algorithm used by get-frequency
-		 (assert-true (and
-			       (<= 11999.5 f)
-			       (<= f 12000.5))))))
+		 (assert-true (is-approximately 12000 f 0.5)))))
 
 ;; Test frequency clipping (lin input)
 (define-test vco-test-frequency-clipping-lin-upper ()
@@ -253,10 +223,7 @@
 					   (getf vco :get-output)
 					   :sine)))))
 		 (print-vco-state vco)
-		 ;; Allow some deviation due to algorithm used by get-frequency
-		 (assert-true (and
-			       (<= 11999.5 f)
-			       (<= f 12000.5))))))
+		 (assert-true (is-approximately 12000 f 0.5)))))
 
 
 ;; Test lower clipping exp input
@@ -279,12 +246,10 @@
 					   (getf vco :get-output)
 					   :sine)))))
 		 (print-vco-state vco)
-		 ;; Allow some deviation due to algorithm used by get-frequency
-		 ;; through-zero!
-		 (assert-true (and
-			       (>= f -11999.5)
-			       (>= f -12000.5))))))
-
+		 ;; Frequency calculated by frequency counter
+		 (assert-true (is-approximately 12000 f 0.5))
+		 ;; Internal frequency of module
+		 (assert-true (is-approximately -12000 (funcall (getf vco :get-state) :frequency) 0.5)))))
 
 ;; Test lower clipping lin input
 (define-test vco-test-frequency-clipping-lin-bottom ()
@@ -306,10 +271,10 @@
 					   (getf vco :get-output)
 					   :sine)))))
 		 (print-vco-state vco)
-		 ;; through-zero!
-		 (assert-true (and
-			       (>= f -11999.5)
-			       (>= f -12000.5))))))
+		 ;; Frequency calculated by frequency counter
+		 (assert-true (is-approximately 12000 f 0.5))
+		 ;; Internal frequency of module
+		 (assert-true (is-approximately -12000 (funcall (getf vco :get-state) :frequency) 0.5)))))
 
 ;; Test updating both cv inputs
 (define-test vco-test-fm-1 ()
@@ -331,11 +296,8 @@
 					   (getf vco :get-output)
 					   :sine)))))
 		 (print-vco-state vco)
-		 ;; Allow some deviation due to algorithm used by get-frequency
 		 ;; (+ 880 (/ 12000 5)) = 880 + 2400 = 3280
-		 (assert-true (and
-			       (<= 3279.5 f)
-			       (<= f 3280.5))))))
+		 (assert-true (is-approximately 3280 f 0.5)))))
 
 ;; Test updating both cv inputs with zero crossing
 (define-test vco-test-fm-2 ()
@@ -357,11 +319,9 @@
 					   (getf vco :get-output)
 					   :sine)))))
 		 (print-vco-state vco)
-		 ;; Allow some deviation due to algorithm used by get-frequency
 		 ;; 880 - 9600 = -8720
-		 (assert-true (and
-			       (>= f -8719.5)
-			       (>= f -8720.5))))))
+		 (assert-true (is-approximately 8720 f 0.5))
+		 (assert-true (is-approximately -8720 (funcall (getf vco :get-state) :frequency) 0.5)))))
 
 ;; This test assumes, that the square wave output is 5.0 for 0 <= Phi < PI
 ;; and -5.0 for PI < Phi < 2PI 
