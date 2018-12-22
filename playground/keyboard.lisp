@@ -27,12 +27,11 @@
 
     (cl-synthesizer:add-module
      rack "ADSR"
-     #'cl-synthesizer-modules-envelope:make-module
-     :segments '((:duration-ms 1000 :target-cv 5 :required-gate-state :on)
-		 (:duration-ms 1000 :target-cv 3 :required-gate-state :on)
-		 (:required-gate-state :on)
-		 (:duration-ms 1000 :target-cv 0 :required-gate-state :ignore)))
-
+     #'cl-synthesizer-modules-adsr:make-module
+     :attack-time-ms 100 :attack-target-output 5.0
+     :decay-time-ms 20 :decay-target-output 3.0
+     :release-time-ms 100)
+    
     (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:make-module :cv-max 5.0)
 
     (cl-synthesizer:add-patch rack "VCO" :sine "VCA" :input)
@@ -84,10 +83,8 @@
     rack))
 
 #|
-(cl-synthesizer::play-rack (keyboard) 10 
-    :attach-audio t :audio-output-sockets '(:line-out-1 :line-out-2) 
+(cl-synthesizer::play-rack (keyboard) 15 
+    :attach-audio t :audio-output-sockets '(:line-out-1) 
     :attach-midi t :midi-input-socket :midi-events)
 |#
-
-
 
