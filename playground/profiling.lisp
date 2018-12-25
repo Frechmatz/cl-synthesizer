@@ -83,7 +83,7 @@ overhead estimation parameters:
 |#
 
 #| Profiling report: Rack with two modules and play time duration of 10 seconds
-Second version with first approach to minimize consing
+First step: Minimize consing
   seconds  |     gc     |   consed   |    calls   |  sec/call  |  name  
 -------------------------------------------------------------
      0.984 |      0.000 |     15,840 |          1 |   0.983604 | CL-SYNTHESIZER:PLAY-RACK
@@ -119,33 +119,71 @@ overhead estimation parameters:
 
 |#
 
+#| Second step: with minimized consing. Approach holds a "static" list
+   of input arguments for update function, which is modified during successive
+   update calls.
+   
+measuring PROFILE overhead..done
+  seconds  |     gc     |   consed  |    calls   |  sec/call  |  name  
+------------------------------------------------------------
+     3.325 |      0.000 |         0 |          1 |   3.324627 | CL-SYNTHESIZER:PLAY-RACK
+     0.306 |      0.000 |         0 |  9,702,018 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-INPUT-SOCKETS
+     0.152 |      0.000 |         0 |  3,528,004 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-INPUT-PATCH
+     0.100 |      0.000 |         0 |  4,851,000 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-UPDATE-FN
+     0.072 |      0.000 |         0 |  4,851,000 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-INPUT-ARGUMENT-LIST-PROTOTYPE
+     0.060 |      0.000 |         0 |  1,323,000 |   0.000000 | CL-SYNTHESIZER::SET-STATE
+     0.043 |      0.000 |         0 |  1,764,000 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-OUTPUT-FN
+     0.013 |      0.000 |         0 |  1,764,000 |   0.000000 | CL-SYNTHESIZER::GET-RACK-PATCH-SOCKET
+     0.003 |      0.000 |   897,840 |         14 |   0.000205 | CL-SYNTHESIZER:ADD-MODULE
+     0.001 |      0.000 |   558,800 |          8 |   0.000124 | CL-SYNTHESIZER::MAKE-RACK-MODULE-PATCH
+     0.001 |      0.000 |         0 |         28 |   0.000034 | CL-SYNTHESIZER::GET-RM-MODULE
+     0.000 |      0.000 |         0 |  7,938,000 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-STATE
+     0.000 |      0.000 |         0 |          1 |   0.000000 | CL-SYNTHESIZER::MAKE-MIDI-HANDLERS
+     0.000 |      0.000 |         0 |  3,528,000 |   0.000000 | CL-SYNTHESIZER::GET-RACK-PATCH-MODULE
+     0.000 |      0.000 |         0 |         14 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-MODULE
+     0.000 |      0.000 |         0 |          4 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-OUTPUT-PATCH
+     0.000 |      0.000 |         0 |         50 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-NAME
+     0.000 |      0.000 |         0 | 11,025,000 |   0.000000 | CL-SYNTHESIZER::SET-RACK-MODULE-STATE
+     0.000 |      0.000 |         0 |         14 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-SHUTDOWN-FN
+     0.000 |      0.000 |         0 |          4 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-OUTPUT-SOCKETS
+     0.000 |      0.000 |         0 |          1 |   0.000000 | CL-SYNTHESIZER::MAKE-AUDIO-HANDLERS
+     0.000 |      0.000 |         0 |          3 |   0.000000 | CL-SYNTHESIZER:MAKE-RACK
+     0.000 |      0.000 |         0 |          1 |   0.000000 | CL-SYNTHESIZER:MAKE-ENVIRONMENT
+     0.000 |      0.000 |         0 |          4 |   0.000000 | CL-SYNTHESIZER:ADD-PATCH
+------------------------------------------------------------
+     4.077 |      0.000 | 1,456,640 | 50,274,169 |            | Total
 
-
-#| Profiling report: Rack with zero modules and play time duration of 10 seconds
-================================================================================
-  seconds  |     gc     | consed |   calls   |  sec/call  |  name  
---------------------------------------------------------
-     0.165 |      0.000 | 32,592 |         1 |   0.165388 | CL-SYNTHESIZER:PLAY-RACK
-     0.064 |      0.000 |      0 |   882,000 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-INPUT-SOCKETS
-     0.055 |      0.000 |      0 |   441,000 |   0.000000 | CL-SYNTHESIZER::SET-STATE
-     0.027 |      0.000 |      0 |   882,000 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-STATE
-     0.020 |      0.000 |      0 |   441,000 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-UPDATE-FN
-     0.020 |      0.000 |      0 | 1,323,000 |   0.000000 | CL-SYNTHESIZER::SET-RACK-MODULE-STATE
-     0.000 |      0.000 |      0 |         4 |   0.000000 | CL-SYNTHESIZER::GET-RM-MODULE
-     0.000 |      0.000 |      0 |         1 |   0.000000 | CL-SYNTHESIZER::MAKE-MIDI-HANDLERS
-     0.000 |      0.000 |      0 |         2 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-MODULE
-     0.000 |      0.000 |      0 |         3 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-NAME
-     0.000 |      0.000 |      0 |         2 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-SHUTDOWN-FN
-     0.000 |      0.000 |      0 |         1 |   0.000000 | CL-SYNTHESIZER::MAKE-AUDIO-HANDLERS
-     0.000 |      0.000 |      0 |         1 |   0.000000 | CL-SYNTHESIZER:MAKE-RACK
-     0.000 |      0.000 | 32,768 |         2 |   0.000000 | CL-SYNTHESIZER:ADD-MODULE
-     0.000 |      0.000 |      0 |         1 |   0.000000 | CL-SYNTHESIZER:MAKE-ENVIRONMENT
---------------------------------------------------------
-     0.350 |      0.000 | 65,360 | 3,969,018 |            | Total
-
-estimated total profiling overhead: 4.88 seconds
+estimated total profiling overhead: 58.22 seconds
 overhead estimation parameters:
-  6.0e-9s/call, 1.2299998e-6s total profiling, 5.4000003e-7s internal profiling
+  4.0000003e-9s/call, 1.158e-6s total profiling, 5.18e-7s internal profiling
 
 |#
 
+#| Third step with inlining
+
+measuring PROFILE overhead..done
+  seconds  |     gc     |   consed  |   calls   |  sec/call  |  name  
+-----------------------------------------------------------
+     0.828 |      0.000 |         0 |         1 |   0.828269 | CL-SYNTHESIZER:PLAY-RACK
+     0.061 |      0.000 |    52,448 | 1,323,000 |   0.000000 | CL-SYNTHESIZER::SET-STATE
+     0.004 |      0.000 |   848,128 |        14 |   0.000278 | CL-SYNTHESIZER:ADD-MODULE
+     0.001 |      0.000 |   550,016 |         8 |   0.000125 | CL-SYNTHESIZER::MAKE-RACK-MODULE-PATCH
+     0.000 |      0.000 |         0 |        28 |   0.000000 | CL-SYNTHESIZER::GET-RM-MODULE
+     0.000 |      0.000 |         0 |         1 |   0.000000 | CL-SYNTHESIZER::MAKE-MIDI-HANDLERS
+     0.000 |      0.000 |         0 |        14 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-MODULE
+     0.000 |      0.000 |         0 |         4 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-OUTPUT-PATCH
+     0.000 |      0.000 |         0 |        50 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-NAME
+     0.000 |      0.000 |         0 |        14 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-SHUTDOWN-FN
+     0.000 |      0.000 |         0 |         4 |   0.000000 | CL-SYNTHESIZER::GET-RACK-MODULE-OUTPUT-SOCKETS
+     0.000 |      0.000 |         0 |         1 |   0.000000 | CL-SYNTHESIZER::MAKE-AUDIO-HANDLERS
+     0.000 |      0.000 |         0 |         3 |   0.000000 | CL-SYNTHESIZER:MAKE-RACK
+     0.000 |      0.000 |         0 |         1 |   0.000000 | CL-SYNTHESIZER:MAKE-ENVIRONMENT
+     0.000 |      0.000 |         0 |         4 |   0.000000 | CL-SYNTHESIZER:ADD-PATCH
+-----------------------------------------------------------
+     0.894 |      0.000 | 1,450,592 | 1,323,147 |            | Total
+
+estimated total profiling overhead: 1.51 seconds
+overhead estimation parameters:
+  6.0e-9s/call, 1.14e-6s total profiling, 5.0e-7s internal profiling
+
+|#

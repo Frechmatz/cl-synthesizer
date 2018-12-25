@@ -13,6 +13,7 @@
    (input-argument-list-prototype :initform nil))
   (:documentation "Represents a module holding input/output connections to other modules"))
 
+(declaim (inline get-rack-module-input-sockets))
 (defun get-rack-module-input-sockets (rm)
   (let ((f (getf (slot-value rm 'module) :inputs)))
     (if f (funcall f) nil)))
@@ -28,15 +29,19 @@
       (push nil (slot-value rm 'input-argument-list-prototype))
       (push input-socket (slot-value rm 'input-argument-list-prototype)))))
 
+(declaim (inline get-rack-module-input-argument-list-prototype))
 (defun get-rack-module-input-argument-list-prototype (rm)
-  (copy-list (slot-value rm 'input-argument-list-prototype)))
+  ;;(copy-list (slot-value rm 'input-argument-list-prototype)))
+  (slot-value rm 'input-argument-list-prototype))
 
 (defun get-rack-module-name (rm)
   (slot-value rm 'name))
 
+(declaim (inline get-rack-module-state))
 (defun get-rack-module-state (rm)
   (slot-value rm 'state))
 
+(declaim (inline set-rack-module-state))
 (defun set-rack-module-state (rm state)
   (setf (slot-value rm 'state) state))
 
@@ -44,12 +49,14 @@
   (let ((f (getf (slot-value rm 'module) :outputs)))
     (if f (funcall f) nil)))
 
+(declaim (inline get-rack-module-update-fn))
 (defun get-rack-module-update-fn (rm)
   (getf (slot-value rm 'module) :update))
 
 (defun get-rack-module-module (rm)
   (slot-value rm 'module))
 
+(declaim (inline get-rack-module-output-fn))
 (defun get-rack-module-output-fn (rm)
   (getf (slot-value rm 'module) :get-output))
 
@@ -60,6 +67,7 @@
   (let ((f (getf (slot-value rm 'module) :shutdown)))
     (if f f (lambda() ()))))
 
+(declaim (inline get-rack-module-input-patch))
 (defun get-rack-module-input-patch (rm input-socket)
   (gethash input-socket (slot-value rm 'input-patches)))
 
@@ -79,9 +87,11 @@
 (defun get-rack-patch-target-name (patch)
   (get-rack-module-name (slot-value patch 'rack-module)))
 
+(declaim (inline get-rack-patch-socket))
 (defun get-rack-patch-socket (patch)
   (slot-value patch 'socket))
 
+(declaim (inline get-rack-patch-module))
 (defun get-rack-patch-module (patch)
   (slot-value patch 'rack-module))
 
@@ -179,7 +189,8 @@
 		<li>:update A function that is called with the values of the modules input sockets
                     in order to update the state of the module (the state of its output sockets).
 		    All input parameters are passed as a single argument which consists of a property list or
-                    nil if the module does not expose any inputs.</li>
+                    nil if the module does not expose any inputs. <b>To avoid excessive consing this
+                   list is allocated on instantiation of the module and then used for all update calls.</b></li>
 		<li>:get-output A function that is called in order to get the value of a specific
 		    output socket. The function is called with a keyword that identifies the output socket
 		    whose state is to be returned. The function must not modify the value
@@ -257,6 +268,15 @@
 	    :update
 	    (lambda (args)
 	      ;;(declare (optimize (debug 3) (speed 0) (space 0)))
+	      (declare (inline set-rack-module-state
+			       get-rack-module-state
+			       get-rack-module-input-sockets
+			       get-rack-module-input-argument-list-prototype
+			       get-rack-module-update-fn
+			       get-rack-module-input-patch
+			       get-rack-patch-module
+			       get-rack-module-output-fn
+			       get-rack-patch-socket))
 	      (if has-shut-down
 		  nil
 		  (progn
@@ -279,7 +299,7 @@
 				       (if patch 
 					   (update-rm (get-rack-patch-module patch)))))
 				   ;; update this
-				   (let ((lambdalist (get-rack-module-input-argument-list-prototype rm)))
+				   (let ((input-args (get-rack-module-input-argument-list-prototype rm)))
 				     ;; collect inputs
 				     (dolist (cur-input-socket (get-rack-module-input-sockets rm))
 				       (let ((patch (get-rack-module-input-patch rm cur-input-socket))
@@ -289,9 +309,9 @@
 						    (source-rm-socket (get-rack-patch-socket patch))
 						    (output-fn (get-rack-module-output-fn source-rm)))
 					       (setf socket-input-value (funcall output-fn source-rm-socket))))
-					 (setf (getf lambdalist cur-input-socket) socket-input-value)))
+					 (setf (getf input-args cur-input-socket) socket-input-value)))
 				     ;; call update function on this
-				     (funcall (get-rack-module-update-fn rm) lambdalist)
+				     (funcall (get-rack-module-update-fn rm) input-args)
 				     (set-rack-module-state rm :PROCESSED-TICK)
 				     ))))))
 		      ;; for all modules

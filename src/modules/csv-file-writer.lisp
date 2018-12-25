@@ -63,7 +63,7 @@
      :outputs (lambda () '())
      :get-output (lambda (output) (declare (ignore output)) nil)
      :update (lambda (inputs)
-	       (push inputs rows))
+	       (push (copy-list inputs) rows))
      :shutdown (lambda ()
 		 ;;(declare (optimize (debug 3) (speed 0) (space 0))) 
 		 (with-open-file (fh (merge-pathnames filename (getf environment :home-directory))
