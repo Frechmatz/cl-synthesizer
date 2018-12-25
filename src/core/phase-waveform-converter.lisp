@@ -7,6 +7,7 @@
 
 (in-package :cl-synthesizer-core)
 
+(declaim (inline phase-sine-converter))
 (defun phase-sine-converter (phi &key (phase-offset 0))
   "phi -- The phase in radiant. 0...POSITIVE-INFINITY
    phase-offset -- An optional phase offset in radians. Must be greater or equal zero"
@@ -14,12 +15,14 @@
 
 (alexandria:define-constant +SAW-OFFSET+ PI
   :documentation "Phase offset of saw-converter to align with amplitude of sine")
+(declaim (inline phase-saw-converter))
 (defun phase-saw-converter (phi &key (phase-offset 0))
   "phi -- The phase in radiant. 0...POSITIVE-INFINITY
    phase-offset -- An optional phase offset in radians. Must be greater or equal zero"
   (let ((normalized (/ (mod (+ phi +SAW-OFFSET+ phase-offset) (* 2 PI)) PI))) ;; 0..2
     (+ -1 (mod normalized 2))))
 
+(declaim (inline phase-square-converter))
 (defun phase-square-converter (phi &key (duty-cycle 0.5) (phase-offset 0))
   "phi -- The phase in radiant. 0...POSITIVE-INFINITY
    duty-cycle -- An optional duty-cycle. The default value is 0.5. 0 >= duty-cycle <= 1
@@ -29,6 +32,7 @@
 
 (alexandria:define-constant +TRIANGLE-OFFSET+ (* 0.75 2 PI)
   :documentation "Phase offset of triangle-converter to align with amplitude of sine")
+(declaim (inline phase-triangle-converter))
 (defun phase-triangle-converter (phi &key (phase-offset 0))
   "phi -- The phase in radiant. 0...POSITIVE-INFINITY
    phase-offset -- An optional phase offset in radians. Must be greater or equal zero"
