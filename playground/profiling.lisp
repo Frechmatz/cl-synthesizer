@@ -45,6 +45,12 @@
 
 ;;(run-rack)
 
+(defun run-rack-no-profiling ()
+  (cl-synthesizer:play-rack (make-test-rack) 10))
+
+;;(run-rack-no-profiling)
+
+  
 
 #| Profiling report: Rack with two modules and play time duration of 10 seconds
 initial not optimized version

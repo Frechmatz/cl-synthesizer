@@ -111,6 +111,7 @@
   "Returns the environment of the rack."
   (getf rack :environment))
 
+(declaim (inline set-state))
 (defun set-state (rack state)
   (dolist (m (getf rack :modules))
     (setf (slot-value m 'state) state)))
@@ -276,7 +277,8 @@
 			       get-rack-module-input-patch
 			       get-rack-patch-module
 			       get-rack-module-output-fn
-			       get-rack-patch-socket))
+			       get-rack-patch-socket
+			       set-state))
 	      (if has-shut-down
 		  nil
 		  (progn
