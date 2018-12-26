@@ -190,8 +190,9 @@
 		<li>:update A function that is called with the values of the modules input sockets
                     in order to update the state of the module (the state of its output sockets).
 		    All input parameters are passed as a single argument which consists of a property list or
-                    nil if the module does not expose any inputs. <b>To avoid excessive consing this
-                   list is allocated on instantiation of the module and then used for all update calls.</b></li>
+                    nil if the module does not expose any inputs. To avoid excessive consing this
+                   list is allocated on instantiation of the module and then used for all update calls
+                   of the module.</li>
 		<li>:get-output A function that is called in order to get the value of a specific
 		    output socket. The function is called with a keyword that identifies the output socket
 		    whose state is to be returned. The function must not modify the value
