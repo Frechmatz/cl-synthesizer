@@ -36,7 +36,7 @@
 	    (apply ctor name environment (prepare-init-args))
 	    (error (format nil "Device instantiation failed. Symbol ~a::~a not found" symbol-name package-name)))))))
 
-(defun make-audio-handlers (rack environment attach-audio audio-output-sockets)
+(defun prepare-audio-output (rack environment attach-audio audio-output-sockets)
   (flet ((make-audio-output-getter ()
 	   (let ((map nil) (cur-channel 0) (get-output (getf rack :get-output)))
 	     (dolist (socket audio-output-sockets)
@@ -49,6 +49,7 @@
 		 (push (cl-synthesizer-macro-util:make-keyword "channel" cur-channel) map)
 		 (setf cur-channel (+ 1 cur-channel))))
 	     (lambda ()
+	       ;; TODO: Do not create a new list on each audio update
 	       (mapcar (lambda(item) (if (keywordp item) item (funcall item))) map)))))
     (if (or (not attach-audio) (eq 0 (length audio-output-sockets)))
 	(values
@@ -64,12 +65,12 @@
 	   (lambda () (funcall (getf device :update) (funcall getter)))
 	   (lambda () (funcall (getf device :shutdown))))))))
 
-(defun make-midi-handlers (rack environment attach-midi midi-input-socket)
+(defun prepare-midi-input (rack environment attach-midi midi-input-socket)
   (declare (ignore rack))
   (flet ((make-midi-input-getter (device)
 	   (let ((update (getf device :update)) (get-output (getf device :get-output)))
 	     (lambda ()
-	       (funcall update)
+	       (funcall update) ;; update MIDI device
 	       (list midi-input-socket (funcall get-output nil))))))
     (if (or (not attach-midi) (not midi-input-socket))
 	(values
@@ -104,11 +105,11 @@
     <p>See also: cl-synthesizer-device-speaker:speaker-cl-out123, cl-synthesizer-device-midi:midi-device</p>"
   (let ((environment (getf rack :environment)) (f (getf rack :update)))
     (multiple-value-bind (update-audio shutdown-audio)
-	(make-audio-handlers rack environment attach-audio audio-output-sockets)
-      (multiple-value-bind (get-midi shutdown-midi)
-	  (make-midi-handlers rack environment attach-midi midi-input-socket)
+	(prepare-audio-output rack environment attach-audio audio-output-sockets)
+      (multiple-value-bind (get-midi-input shutdown-midi)
+	  (prepare-midi-input rack environment attach-midi midi-input-socket)
 	(dotimes (i (* duration-seconds (getf environment :sample-rate)))
-	  (funcall f (funcall get-midi))
+	  (funcall f (funcall get-midi-input))
 	  (funcall update-audio))
 	(funcall (getf rack :shutdown))
 	(funcall shutdown-audio)
