@@ -417,7 +417,7 @@ The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.
 
 #### ADSR
 
-**cl-synthesizer-modules-adsr:make-module** name environment &key attack-time-ms attack-target-output decay-time-ms decay-target-output release-time-ms (time-cv-to-time-ms nil) (gate-threshold 2.5)
+**cl-synthesizer-modules-adsr:make-module** name environment &key attack-time-ms attack-target-output decay-time-ms decay-target-output release-time-ms (time-cv-to-time-ms nil) (gate-threshold 2.5) (backward-coupled nil)
 
 Creates an envelope generator module with the phases Attack, Decay, Sustain and Release. This module has been realized using other modules such as Ramp, Sustain, Trigger and Multiple. The function has the following arguments:
 
@@ -430,6 +430,7 @@ Creates an envelope generator module with the phases Attack, Decay, Sustain and 
 *   :release-time-ms Duration of the release phase in milliseconds. The release phase climbs to 0.0.
 *   :time-cv-to-time-ms Optional function that converts a time control voltage to a duration in milliseconds (see also Ramp module).
 *   :gate-threshold Minimum value of the :gate input that indicates that the gate is on.
+*   :backward-coupled If t then the output signal of the envelope will be connected with the input of the attack phase. This can be used to avoid sudden jumps of the envelope as the attack phase by default starts at 0.0.
 
 The module has the following inputs:
 
@@ -1387,4 +1388,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-12-26 01:05:11
+Generated 2018-12-27 13:04:41

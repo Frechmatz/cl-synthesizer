@@ -28,9 +28,10 @@
     (cl-synthesizer:add-module
      rack "ADSR"
      #'cl-synthesizer-modules-adsr:make-module
-     :attack-time-ms 100 :attack-target-output 5.0
+     :attack-time-ms 50 :attack-target-output 5.0
      :decay-time-ms 20 :decay-target-output 3.0
-     :release-time-ms 100)
+     :release-time-ms 30
+     :backward-coupled t)
     
     (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:make-module :cv-max 5.0)
 

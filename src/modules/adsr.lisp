@@ -6,7 +6,8 @@
 		      decay-time-ms decay-target-output
 		      release-time-ms
 		      (time-cv-to-time-ms nil)
-		      (gate-threshold 2.5))
+		      (gate-threshold 2.5)
+		      (backward-coupled nil))
   "Creates an envelope generator module with the phases Attack, Decay, Sustain and Release.
     This module has been realized using other modules such as Ramp, Sustain, Trigger and Multiple.
     The function has the following arguments:
@@ -21,6 +22,9 @@
 	<li>:time-cv-to-time-ms Optional function that converts a time control voltage to a duration in milliseconds
 	    (see also Ramp module).</li>
 	<li>:gate-threshold Minimum value of the :gate input that indicates that the gate is on.</li>
+        <li>:backward-coupled If t then the output signal of the envelope will be connected with 
+            the input of the attack phase. This can be used to avoid sudden jumps of the envelope 
+            as the attack phase by default starts at 0.0.</li>
     </ul>
     The module has the following inputs:
     <ul>
@@ -101,7 +105,14 @@
     (cl-synthesizer:add-patch rack "SUSTAIN" :output "RELEASE" :input)
     (cl-synthesizer:add-patch rack "SUSTAIN" :gate "RELEASE" :gate)
     (cl-synthesizer:add-patch rack "SUSTAIN" :done "RELEASE" :trigger)
-    
-    (cl-synthesizer:add-patch rack "RELEASE" :output "OUTPUT" :cv)
-    
+
+    (cl-synthesizer:add-module
+     rack
+     "OUTPUT-MULTIPLE"
+     #'cl-synthesizer-modules-multiple:make-module :output-count 2)
+    (cl-synthesizer:add-patch rack "RELEASE" :output "OUTPUT-MULTIPLE" :input)
+    (cl-synthesizer:add-patch rack "OUTPUT-MULTIPLE" :output-1 "OUTPUT" :cv)
+    (if backward-coupled
+	(cl-synthesizer:add-patch rack "OUTPUT-MULTIPLE" :output-2 "ATTACK" :input))
+	
     rack))
