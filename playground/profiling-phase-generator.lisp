@@ -5,10 +5,10 @@
 
 (defun run-phase-generator ()
   ""
-  (let ((pg (cl-synthesizer-core:phase-generator 44100))
+  (let ((pg (cl-synthesizer-core:phase-generator 44100.0))
 	(phi 0))
-    (dotimes (i 10000000)
-      (setf phi (funcall pg 440)))
+    (dotimes (i (* 44100 1200))
+      (setf phi (funcall pg 440.0)))
     phi))
 
 
@@ -25,7 +25,7 @@
 ;;(profile)
 
 (defun run-no-profiling ()
-  (cl-synthesizer-playground-profiling-phase-generator::run-phase-generator))
+  (time (cl-synthesizer-playground-profiling-phase-generator::run-phase-generator)))
 
 
 ;;(run-no-profiling)

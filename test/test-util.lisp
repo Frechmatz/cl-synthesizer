@@ -124,12 +124,12 @@
        nil)))
 
 (defun zero-crossing-trigger ()
-  (let ((cur-value 0))
+  (let ((cur-value 0.0))
     (lambda (v)
       (let ((is-crossing
 	     (or
-	      (and (< cur-value 0) (< 0 v))
-	      (and (< v 0) (< 0 cur-value)))))
+	      (and (< cur-value 0.0) (< 0.0 v))
+	      (and (< v 0.0) (< 0.0 cur-value)))))
 	(setf cur-value v)
 	is-crossing))))
 

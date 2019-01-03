@@ -7,35 +7,43 @@
 
 (in-package :cl-synthesizer-core)
 
+(alexandria:define-constant +SHORT-PI+ (coerce PI 'single-float)
+  :documentation "")
+
+
 (declaim (inline phase-sine-converter))
-(defun phase-sine-converter (phi &key (phase-offset 0))
+(defun phase-sine-converter (phi &key (phase-offset 0.0))
   "phi -- The phase in radiant. 0...POSITIVE-INFINITY
    phase-offset -- An optional phase offset in radians. Must be greater or equal zero"
+  (declare (type single-float phi phase-offset))
   (sin (+ phi phase-offset)))
 
-(alexandria:define-constant +SAW-OFFSET+ PI
+(alexandria:define-constant +SAW-OFFSET+ (coerce PI 'single-float)
   :documentation "Phase offset of saw-converter to align with amplitude of sine")
 (declaim (inline phase-saw-converter))
-(defun phase-saw-converter (phi &key (phase-offset 0))
+(defun phase-saw-converter (phi &key (phase-offset 0.0))
   "phi -- The phase in radiant. 0...POSITIVE-INFINITY
    phase-offset -- An optional phase offset in radians. Must be greater or equal zero"
-  (let ((normalized (/ (mod (+ phi +SAW-OFFSET+ phase-offset) (* 2 PI)) PI))) ;; 0..2
-    (+ -1 (mod normalized 2))))
+  (declare (type single-float phi phase-offset))
+  (let ((normalized (/ (mod (+ phi +SAW-OFFSET+ phase-offset) (* 2.0 +SHORT-PI+)) +SHORT-PI+))) ;; 0..2
+    (+ -1.0 (mod normalized 2.0))))
 
 (declaim (inline phase-square-converter))
-(defun phase-square-converter (phi &key (duty-cycle 0.5) (phase-offset 0))
+(defun phase-square-converter (phi &key (duty-cycle 0.5) (phase-offset 0.0))
   "phi -- The phase in radiant. 0...POSITIVE-INFINITY
    duty-cycle -- An optional duty-cycle. The default value is 0.5. 0 >= duty-cycle <= 1
    phase-offset -- An optional phase offset in radians. Must be greater or equal zero"
-  (let ((y (if (< (mod (+ phi phase-offset) (* 2 PI)) (* 2 PI duty-cycle)) 1 -1)))
+  (declare (type single-float phi phase-offset duty-cycle))
+  (let ((y (if (< (mod (+ phi phase-offset) (* 2.0 +SHORT-PI+)) (* 2.0 +SHORT-PI+ duty-cycle)) 1.0 -1.0)))
     y))
 
-(alexandria:define-constant +TRIANGLE-OFFSET+ (* 0.75 2 PI)
+(alexandria:define-constant +TRIANGLE-OFFSET+ (coerce (* 0.75 2.0 +SHORT-PI+) 'single-float)
   :documentation "Phase offset of triangle-converter to align with amplitude of sine")
 (declaim (inline phase-triangle-converter))
-(defun phase-triangle-converter (phi &key (phase-offset 0))
+(defun phase-triangle-converter (phi &key (phase-offset 0.0))
   "phi -- The phase in radiant. 0...POSITIVE-INFINITY
    phase-offset -- An optional phase offset in radians. Must be greater or equal zero"
-  (let ((normalized (/ (mod (+ phi +TRIANGLE-OFFSET+ phase-offset) (* 2 PI)) PI))) ;; 0..2
-    (let ((y (+ -1 (* 2 (abs (+ -1 normalized))))))
+  (declare (type single-float phi phase-offset))
+  (let ((normalized (/ (mod (+ phi +TRIANGLE-OFFSET+ phase-offset) (* 2.0 +SHORT-PI+)) +SHORT-PI+))) ;; 0..2
+    (let ((y (+ -1.0 (* 2.0 (abs (+ -1.0 normalized))))))
       y)))

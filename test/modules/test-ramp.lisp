@@ -1,7 +1,7 @@
 (in-package :cl-synthesizer-test)
 
 
-(defparameter *ramp-test-sample-rate* 10000)
+(defparameter *ramp-test-sample-rate* 10000.0)
 (defparameter *ramp-test-ticks-per-ms* (/ *ramp-test-sample-rate* 1000))
 
 (defun make-ramp-test-environment ()

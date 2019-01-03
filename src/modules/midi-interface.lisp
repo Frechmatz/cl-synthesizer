@@ -14,8 +14,8 @@
 
 (defun make-voice-state ()
   (let ((voice-state (make-array (length +voice-states+))))
-    (setf (elt voice-state +voice-state-cv+) 0)
-    (setf (elt voice-state +voice-state-gate+) 0)
+    (setf (elt voice-state +voice-state-cv+) 0.0)
+    (setf (elt voice-state +voice-state-gate+) 0.0)
     voice-state))
 
 (defun get-voice-state-cv (state) (elt state +voice-state-cv+))

@@ -11,10 +11,10 @@
 	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
-			 :base-frequency 440
-			 :f-max 12000
+			 :base-frequency 440.0
+			 :f-max 12000.0
 			 :cv-max 5.0
-			 :v-peak 5)))
+			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::get-frequency
 			 :sample-rate 44100
 			 :update-fn (lambda()
@@ -33,10 +33,10 @@
 	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
-			 :base-frequency -440
-			 :f-max 12000
+			 :base-frequency -440.0
+			 :f-max 12000.0
 			 :cv-max 5.0
-			 :v-peak 5)))
+			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::get-frequency
 			 :sample-rate 44100
 			 :update-fn (lambda()
@@ -56,10 +56,10 @@
 	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
-			 :base-frequency 440
+			 :base-frequency 440.0
 			 :cv-max 5.0
-			 :f-max 12000
-			 :v-peak 5)))
+			 :f-max 12000.0
+			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::get-frequency
 			 :sample-rate 44100
 			 :update-fn (lambda()
@@ -78,10 +78,10 @@
 	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
-			 :base-frequency 440
-			 :f-max 12000
+			 :base-frequency 440.0
+			 :f-max 12000.0
 			 :cv-max 5.0
-			 :v-peak 5)))
+			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::get-frequency
 			 :sample-rate 44100
 			 :update-fn (lambda()
@@ -99,10 +99,10 @@
 	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
-			 :base-frequency 440
-			 :f-max 12000
+			 :base-frequency 440.0
+			 :f-max 12000.0
 			 :cv-max 5.0
-			 :v-peak 5)))
+			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::get-frequency
 			 :sample-rate 44100
 			 :update-fn (lambda()
@@ -120,10 +120,10 @@
 	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
-			 :base-frequency 440
-			 :f-max 12000
+			 :base-frequency 440.0
+			 :f-max 12000.0
 			 :cv-max 5.0
-			 :v-peak 5)))
+			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::get-frequency
 			 :sample-rate 44100
 			 :update-fn (lambda()
@@ -141,11 +141,11 @@
 	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
-			 :cv-max 5
-			 :f-max 12000
 			 :cv-max 5.0
-			 :base-frequency 0
-			 :v-peak 5)))
+			 :f-max 12000.0
+			 :cv-max 5.0
+			 :base-frequency 0.0
+			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::get-frequency
 			 :sample-rate 44100
 			 :update-fn (lambda()
@@ -164,10 +164,10 @@
 	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
-			 :cv-max 5
-			 :f-max 12000
-			 :base-frequency 440
-			 :v-peak 5)))
+			 :cv-max 5.0
+			 :f-max 12000.0
+			 :base-frequency 440.0
+			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::get-frequency
 			 :sample-rate 44100
 			 :update-fn (lambda()
@@ -186,10 +186,10 @@
 	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
-			 :base-frequency 440
-			 :f-max 12000
+			 :base-frequency 440.0
+			 :f-max 12000.0
 			 :cv-max 5.0
-			 :v-peak 5)))
+			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::get-frequency
 			 :sample-rate 44100
 			 :update-fn (lambda()
@@ -208,10 +208,10 @@
 	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
-			 :base-frequency 440
-			 :f-max 12000
+			 :base-frequency 440.0
+			 :f-max 12000.0
 			 :cv-max 5.0
-			 :v-peak 5)))
+			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::get-frequency
 			 :sample-rate 44100
 			 :update-fn (lambda()
@@ -231,10 +231,10 @@
 	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
-			 :base-frequency -5000
-			 :f-max 12000
+			 :base-frequency -5000.0
+			 :f-max 12000.0
 			 :cv-max 5.0
-			 :v-peak 5)))
+			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::get-frequency
 			 :sample-rate 44100
 			 :update-fn (lambda()
@@ -256,10 +256,10 @@
 	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
-			 :base-frequency 440
-			 :f-max 12000
+			 :base-frequency 440.0
+			 :f-max 12000.0
 			 :cv-max 5.0
-			 :v-peak 5)))
+			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::get-frequency
 			 :sample-rate 44100
 			 :update-fn (lambda()
@@ -281,10 +281,10 @@
 	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
-			 :base-frequency 440
-			 :f-max 12000
+			 :base-frequency 440.0
+			 :f-max 12000.0
 			 :cv-max 5.0
-			 :v-peak 5)))
+			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::get-frequency
 			 :sample-rate 44100
 			 :update-fn (lambda()
@@ -304,10 +304,10 @@
 	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
-			 :base-frequency 440
-			 :f-max 12000
+			 :base-frequency 440.0
+			 :f-max 12000.0
 			 :cv-max 5.0
-			 :v-peak 5)))
+			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::get-frequency
 			 :sample-rate 44100
 			 :update-fn (lambda()
@@ -329,19 +329,19 @@
 	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
-			 :base-frequency 0
-			 :f-max 12000
+			 :base-frequency 0.0
+			 :f-max 12000.0
 			 :cv-max 5.0
-			 :v-peak 5
+			 :v-peak 5.0
 			 :duty-cycle 0.5
 			 )))
-	       (funcall (getf vco :update) (list :cv-lin 0.5 :cv-exp 0))
+	       (funcall (getf vco :update) (list :cv-lin 0.5 :cv-exp 0.0))
 	       (print-vco-state vco)
 	       (assert-equality #'= 5.0 (funcall (getf vco :get-output) :square))
 	       ;; Back to zero
-	       (funcall (getf vco :update) (list :cv-lin -0.5 :cv-exp 0))
+	       (funcall (getf vco :update) (list :cv-lin -0.5 :cv-exp 0.0))
 	       ;; One more step back
-	       (funcall (getf vco :update) (list :cv-lin -0.5 :cv-exp 0))
+	       (funcall (getf vco :update) (list :cv-lin -0.5 :cv-exp 0.0))
 	       (print-vco-state vco)
 	       (assert-equality #'= -5.0 (funcall (getf vco :get-output) :square))))
 

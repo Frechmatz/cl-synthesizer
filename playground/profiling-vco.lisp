@@ -10,10 +10,10 @@
     (cl-synthesizer:add-module
      rack "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 5000
-     :f-max 13000
+     :base-frequency 5000.0
+     :f-max 13000.0
      :cv-max 5.0
-     :v-peak 5)
+     :v-peak 5.0)
     
     rack))
 
@@ -21,7 +21,7 @@
   "Test rack"
   (let ((rack (cl-synthesizer:make-rack
 	       :environment (cl-synthesizer:make-environment))))
-    (dotimes (i 10)
+    (dotimes (i 100)
       (cl-synthesizer:add-module rack (format nil "MODULE-~a" i) #'make-module))
     rack))
 
@@ -34,7 +34,8 @@
 ;;(run-rack)
 
 (defun run-rack-no-profiling ()
-  (cl-synthesizer:play-rack (make-test-rack) 10))
+  (time (cl-synthesizer:play-rack (make-test-rack) 10)))
 
 ;;(run-rack-no-profiling)
+
 

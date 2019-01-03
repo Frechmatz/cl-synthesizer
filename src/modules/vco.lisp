@@ -45,26 +45,15 @@
           <li>:phi The current phase in radians (0..2PI).</li>
        </ul>
     </p>"
-  (if (not f-max)
-      (cl-synthesizer:signal-assembly-error
-       :format-control "f-max of VCO ~a must not be nil"
-       :format-arguments (list name)))
+  (declare (type single-float base-frequency f-max v-peak cv-max phase-offset duty-cycle))
   (if (> 0.0 f-max)
       (cl-synthesizer:signal-assembly-error
        :format-control "f-max of VCO ~a must be greater than 0: ~a"
        :format-arguments (list name f-max)))
-  (if (not v-peak)
-      (cl-synthesizer:signal-assembly-error
-       :format-control "v-peak of VCO ~a must not be nil"
-       :format-arguments (list name)))
   (if (>= 0.0 v-peak)
       (cl-synthesizer:signal-assembly-error
        :format-control "v-peak of VCO ~a must be greater than 0: ~a"
        :format-arguments (list name v-peak)))
-  (if (not duty-cycle)
-      (cl-synthesizer:signal-assembly-error
-       :format-control "duty-cycle of VCO ~a must not be nil"
-       :format-arguments (list name)))
   (if (< duty-cycle 0)
       (cl-synthesizer:signal-assembly-error
        :format-control "duty-cycle of VCO ~a must not be negative: ~a"
@@ -73,19 +62,11 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "duty-cycle of VCO ~a must not be greater than 1: ~a"
        :format-arguments (list name duty-cycle)))
-  (if (not base-frequency)
-      (cl-synthesizer:signal-assembly-error
-       :format-control "base-frequency of VCO ~a must not be nil"
-       :format-arguments (list name)))
-  (if (not cv-max)
-      (cl-synthesizer:signal-assembly-error
-       :format-control "cv-max of VCO ~a must not be nil"
-       :format-arguments (list name)))
 
   (let* ((sample-rate (getf environment :sample-rate))
-	 (cur-frequency 0)
-	 (cur-lin-frequency 0)
-	 (cur-exp-frequency 0)
+	 (cur-frequency 0.0)
+	 (cur-lin-frequency 0.0)
+	 (cur-exp-frequency 0.0)
 	 (cur-phi 0.0)
 	 (phase-generator (cl-synthesizer-core:phase-generator sample-rate))
 	 (cur-sine-output 1.0)
@@ -101,12 +82,15 @@
 		:get-y))
 	 (exp-converter
 	  (lambda (cv)
-	    (* base-frequency (expt 2 cv)))))
+	    (declare (type single-float cv))
+	    (* base-frequency (expt 2.0 cv)))))
     (flet ((clip-frequency (f)
+	     (declare (type single-float f))
 	     (if (> (abs f) f-max)
 		 (* f-max (signum f))
 		 f))
 	   (get-frequency (cv-exp cv-lin)
+	     (declare (type single-float cv-exp cv-lin))
 	     (setf cur-lin-frequency (funcall lin-converter cv-lin))
 	     (setf cur-exp-frequency (funcall exp-converter cv-exp))
 	     (+ cur-lin-frequency cur-exp-frequency)))
@@ -120,15 +104,13 @@
 		       ((eq output :saw) cur-saw-output)
 		       ((eq output :square) cur-square-output)
 		       (t (error (format nil "Unknown input ~a requested from ~a" output name)))))
-       :update (lambda (input-args
-			;;&key cv-exp cv-lin
-			    )
+       :update (lambda (input-args)
 		 (let ((cv-exp (getf input-args :cv-exp))
 		       (cv-lin (getf input-args :cv-lin)))
 		 (if (not cv-exp)
-		     (setf cv-exp 0))
+		     (setf cv-exp 0.0))
 		 (if (not cv-lin)
-		     (setf cv-lin 0))
+		     (setf cv-lin 0.0))
 		 (let* ((f (clip-frequency (get-frequency cv-exp cv-lin)))
 			(phi (funcall phase-generator f)))
 		   (setf cur-frequency f)
@@ -144,7 +126,8 @@
 				    phi :phase-offset phase-offset)))
 		   (setf cur-square-output
 			 (* v-peak (cl-synthesizer-core:phase-square-converter
-				    phi :duty-cycle duty-cycle :phase-offset phase-offset))))))
+				    phi :duty-cycle duty-cycle :phase-offset phase-offset)))
+		   )))
        :get-state (lambda (key)
 		    (cond
 		      ((eq key :frequency)
