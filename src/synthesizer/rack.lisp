@@ -8,31 +8,39 @@
   ((state :initarg nil :documentation ":PROCESS-TICK, :PROCESSING-TICK, :TICK-PROCESSED")
    (name :initarg nil)
    (module :initarg nil)
+   (module-input-sockets :initarg nil)
+   (module-output-sockets :initarg nil)
    (input-patches :initform (make-hash-table))
    (output-patches :initform (make-hash-table))
    (input-argument-list-prototype :initform nil))
   (:documentation "Represents a module holding input/output connections to other modules"))
 
-(declaim (inline get-rack-module-input-sockets))
-(defun get-rack-module-input-sockets (rm)
-  (let ((f (getf (slot-value rm 'module) :inputs)))
-    (if f (funcall f) nil)))
-
 (defmethod initialize-instance :after ((rm rack-module) &key name module)
   (setf (slot-value rm 'name) name)
   (setf (slot-value rm 'module) module)
+  (setf (slot-value rm 'module-input-sockets) 
+	(funcall (getf (slot-value rm 'module) :inputs)))
+  (setf (slot-value rm 'module-output-sockets)
+	(funcall (getf (slot-value rm 'module) :outputs)))
   ;; Prepare prototype of parameter with which
   ;; the update function of the module will be called.
   ;; (:INPUT-1 nil :INPUT-2 nil ...)
-  (let ((input-sockets (get-rack-module-input-sockets rm)))
-    (dolist (input-socket input-sockets)
+  (dolist (input-socket (slot-value rm 'module-input-sockets))
       (push nil (slot-value rm 'input-argument-list-prototype))
-      (push input-socket (slot-value rm 'input-argument-list-prototype)))))
+      (push input-socket (slot-value rm 'input-argument-list-prototype))))
 
 (declaim (inline get-rack-module-input-argument-list-prototype))
 (defun get-rack-module-input-argument-list-prototype (rm)
   ;;(copy-list (slot-value rm 'input-argument-list-prototype)))
   (slot-value rm 'input-argument-list-prototype))
+
+(declaim (inline get-rack-module-input-sockets))
+(defun get-rack-module-input-sockets (rm)
+  (slot-value rm 'module-input-sockets))
+
+(declaim (inline get-rack-module-output-sockets))
+(defun get-rack-module-output-sockets (rm)
+  (slot-value rm 'module-output-sockets))
 
 (defun get-rack-module-name (rm)
   (slot-value rm 'name))
@@ -44,10 +52,6 @@
 (declaim (inline set-rack-module-state))
 (defun set-rack-module-state (rm state)
   (setf (slot-value rm 'state) state))
-
-(defun get-rack-module-output-sockets (rm)
-  (let ((f (getf (slot-value rm 'module) :outputs)))
-    (if f (funcall f) nil)))
 
 (declaim (inline get-rack-module-update-fn))
 (defun get-rack-module-update-fn (rm)
@@ -205,9 +209,7 @@
                     example :frequency.</li>
 	    </ul>
             <p>
-	    The input/output socket lists exposed by the module are not buffered by the rack. Therefore the
-	    module should return either a quoted list or keep it in an internal variable. The module must
-	    not add or remove input/output sockets after it has been instantiated.
+	    A module must not add or remove input/output sockets after it has been instantiated.
             </p>
 	</li>
 	<li>&rest args Arbitrary additional arguments to be passed to the module instantiation function.
