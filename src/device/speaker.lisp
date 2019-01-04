@@ -47,7 +47,7 @@
 		   (cl-out123:connect out :driver driver)
 		   (cl-out123:start
 		    out
-		    :rate (getf environment :sample-rate)
+		    :rate (floor (getf environment :sample-rate))
 		    :channels channel-count
 		    :encoding :float))))
 	   (flush-buffer (force)

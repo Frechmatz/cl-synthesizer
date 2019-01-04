@@ -11,13 +11,13 @@
      rack
      "LFO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 0.25 :v-peak 5 :cv-max 5 :f-max 12000)
+     :base-frequency 0.25 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
 
     (cl-synthesizer:add-module
      rack
      "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 1 :v-peak 5 :cv-max 5 :f-max 5000)
+     :base-frequency 1.0 :v-peak 5.0 :cv-max 5.0 :f-max 5000.0)
 
     (cl-synthesizer:add-patch rack "LFO" :triangle "VCO" :cv-lin)
     

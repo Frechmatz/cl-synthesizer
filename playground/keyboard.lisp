@@ -21,9 +21,9 @@
      rack "VCO"
      #'cl-synthesizer-modules-vco:make-module
      :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
-     :f-max 13000
+     :f-max 13000.0
      :cv-max 5.0
-     :v-peak 5)
+     :v-peak 5.0)
 
     (cl-synthesizer:add-module
      rack "ADSR"
@@ -73,7 +73,7 @@
     (cl-synthesizer:add-patch rack "VOICE-1" :audio "MIXER" :channel-1)
     (cl-synthesizer:add-patch rack "VOICE-2" :audio "MIXER" :channel-2)
     (cl-synthesizer:add-patch rack "MIXER" :output "OUTPUT" :line-out-1)
-    
+
     ;; Write LINE-OUT to Wave-File
     (cl-synthesizer-monitor:add-monitor
      rack
@@ -84,8 +84,9 @@
     rack))
 
 #|
-(cl-synthesizer::play-rack (keyboard) 15 
-    :attach-audio t :audio-output-sockets '(:line-out-1) 
-    :attach-midi t :midi-input-socket :midi-events)
+(let ((rack (keyboard)))
+  (time (cl-synthesizer::play-rack rack 15 
+      :attach-audio t :audio-output-sockets '(:line-out-1) 
+      :attach-midi t :midi-input-socket :midi-events)))
 |#
 

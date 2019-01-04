@@ -14,7 +14,7 @@
      :base-frequency 0.5
      :v-peak 5.0
      :cv-max 5.0
-     :f-max 12000)
+     :f-max 12000.0)
 
     ;; set up oscillator providing the audio signal
     (cl-synthesizer:add-module
@@ -23,7 +23,7 @@
      :base-frequency 10000.0
      :v-peak 5.0
      :cv-max 5.0
-     :f-max 12000)
+     :f-max 12000.0)
 
     ;; Set up VCA
     (cl-synthesizer:add-module
@@ -44,7 +44,11 @@
        ("VCA" :output-socket :output-linear)
        ("VCA" :output-socket :output-exponential))
      :filename "waves/vca-example-1.wav")
-
+    
     rack))
 
-;;(cl-synthesizer:play-rack (example) 5)
+#|
+(let ((rack (example)))
+  (time (cl-synthesizer:play-rack rack 120)))
+|#
+

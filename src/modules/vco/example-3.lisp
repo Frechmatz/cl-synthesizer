@@ -12,10 +12,10 @@
 	       :output-sockets '(:line-out-1 :line-out-2))))
     (cl-synthesizer:add-module
      rack "VCO-1"
-     #'cl-synthesizer-modules-vco:make-module :base-frequency 440 :f-max 8000 :v-peak 5 :cv-max 5.0)
+     #'cl-synthesizer-modules-vco:make-module :base-frequency 440.0 :f-max 8000.0 :v-peak 5.0 :cv-max 5.0)
     (cl-synthesizer:add-module
      rack "VCO-2"
-     #'cl-synthesizer-modules-vco:make-module :base-frequency 442 :f-max 8000 :v-peak 5 :cv-max 5.0)
+     #'cl-synthesizer-modules-vco:make-module :base-frequency 442.0 :f-max 8000.0 :v-peak 5.0 :cv-max 5.0)
     (cl-synthesizer:add-patch rack "VCO-1" :sine "OUTPUT" :line-out-1)
     (cl-synthesizer:add-patch rack "VCO-2" :sine "OUTPUT" :line-out-2)
     
@@ -31,6 +31,6 @@
     rack))
 
 #|
-(cl-synthesizer::play-rack (example) 5
-    :attach-audio *attach-audio* :audio-output-sockets '(:line-out-1 :line-out-2))
+(let ((rack (example))) (time (cl-synthesizer::play-rack rack 5
+    :attach-audio *attach-audio* :audio-output-sockets '(:line-out-1 :line-out-2))))
 |#

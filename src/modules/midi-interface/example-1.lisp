@@ -22,8 +22,8 @@
      #'cl-synthesizer-modules-vco:make-module
      :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
      :cv-max 5.0
-     :f-max 13000
-     :v-peak 5)
+     :f-max 13000.0
+     :v-peak 5.0)
     
     (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-IFC" :midi-events)
     (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv-exp)
@@ -31,7 +31,8 @@
     rack))
 
 #|
-(cl-synthesizer::play-rack (example) 10 
+(let ((rack (example)))
+   (time (cl-synthesizer::play-rack rack 10 
     :attach-audio t :audio-output-sockets '(:line-out) 
-    :attach-midi t :midi-input-socket :midi-events)
+    :attach-midi t :midi-input-socket :midi-events)))
 |#

@@ -27,7 +27,7 @@
 		       &key
 			 (voice-count 1)
 			 (channel nil)
-			 (note-number-to-cv (lambda (note-number) (/ note-number 12)))
+			 (note-number-to-cv (lambda (note-number) (the single-float (/ note-number 12.0))))
 			 (play-mode :PLAY-MODE-POLY)
 			 (cv-gate-on 5.0)
 			 (cv-gate-off 0.0)

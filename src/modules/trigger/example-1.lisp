@@ -10,7 +10,7 @@
      rack
      "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 5 :v-peak 5 :cv-max 5 :f-max 12000)
+     :base-frequency 5.0 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
 
     (cl-synthesizer:add-module
      rack
@@ -29,5 +29,5 @@
 
     rack))
       
-;;(cl-synthesizer:play-rack (example) 2)
+;;(let ((rack (example))) (time (cl-synthesizer:play-rack rack 2)))
 

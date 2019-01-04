@@ -61,7 +61,7 @@
 			      (merge-pathnames filename (getf environment :home-directory))
 			      :direction :output)))
 		   (cl-wave:set-num-channels wave channel-count)
-		   (cl-wave:set-sample-rate wave (getf environment :sample-rate))
+		   (cl-wave:set-sample-rate wave (floor (getf environment :sample-rate)))
 		   (cl-wave:set-frames wave (nreverse samples))
 		   (cl-wave:close-wave wave)
 		   (setf samples nil))))))

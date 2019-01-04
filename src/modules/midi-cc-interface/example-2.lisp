@@ -18,15 +18,15 @@
 	 (msb-controller-number
 	  (funcall
 	   (getf cl-synthesizer-vendor:*arturia-minilab-mk2* :get-controller-number) :encoder-9))
-	 (vco-f-max 5000)
-	 (vco-cv-max 5)
+	 (vco-f-max 5000.0)
+	 (vco-cv-max 5.0)
 	 (1Hz (/ vco-cv-max vco-f-max)))
     
     (cl-synthesizer:add-module
      rack "MIDI-CC-IFC" #'cl-synthesizer-modules-midi-cc-interface:make-module
      :controller-numbers (list msb-controller-number lsb-controller-number)
      :initial-output 0.0
-     :min-output (* -1 vco-cv-max)
+     :min-output (* -1.0 vco-cv-max)
      :max-output vco-cv-max
      :channel nil
      :transform-handler
@@ -47,10 +47,10 @@
     (cl-synthesizer:add-module
      rack "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 440
+     :base-frequency 440.0
      :cv-max vco-cv-max
      :f-max vco-f-max
-     :v-peak 5)
+     :v-peak 5.0)
 
     (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-CC-IFC" :midi-events)
     (cl-synthesizer:add-patch rack "MIDI-CC-IFC" :output "VCO" :cv-lin)
@@ -72,7 +72,8 @@
     rack))
 
 #|
-(cl-synthesizer::play-rack (example) 5 
+(let ((rack (example)))
+   (time (cl-synthesizer::play-rack rack 5 
     :attach-audio t :audio-output-sockets '(:line-out) 
-    :attach-midi t :midi-input-socket :midi-events)
+    :attach-midi t :midi-input-socket :midi-events)))
 |#

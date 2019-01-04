@@ -42,7 +42,7 @@
     (cl-synthesizer:add-module
      rack "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 0.5 :v-peak 5 :cv-max 5 :f-max 12000)
+     :base-frequency 0.5 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
     
     (cl-synthesizer:add-module
      rack "SUSTAIN"
@@ -54,7 +54,7 @@
     (cl-synthesizer:add-patch rack "GATE-MULTIPLE" :output-2 "SUSTAIN" :gate)
     (cl-synthesizer:add-patch rack "TRIGGER" :output "SUSTAIN" :trigger)
     (cl-synthesizer:add-patch rack "VCO" :sine "SUSTAIN" :input)
-    
+
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-csv-handler:make-handler
@@ -67,4 +67,4 @@
     
     rack))
 
-;;(cl-synthesizer:play-rack (example) 3)
+;;(let ((rack (example))) (time (cl-synthesizer:play-rack rack 3)))
