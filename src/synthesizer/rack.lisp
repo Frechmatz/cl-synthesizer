@@ -75,6 +75,17 @@
 (defun get-rack-module-input-patch (rm input-socket)
   (gethash input-socket (slot-value rm 'input-patches)))
 
+(defun add-rack-module-input-patch (rm input-socket patch)
+  ;;(setf (gethash destination-input-socket (slot-value destination-rm 'input-patches))
+  ;; (make-rack-module-patch source-rm source-output-socket))
+  (setf (gethash input-socket (slot-value rm 'input-patches)) patch))
+
+(defun add-rack-module-output-patch (rm output-socket patch)
+  ;;(setf (gethash source-output-socket (slot-value source-rm 'output-patches))
+  ;;	  (make-rack-module-patch destination-rm destination-input-socket))))
+  (setf (gethash output-socket (slot-value rm 'output-patches)) patch))
+
+
 (defun get-rack-module-output-patch (rm output-socket)
   (gethash output-socket (slot-value rm 'output-patches)))
 
@@ -427,12 +438,19 @@
 			      (get-rack-module-name source-rm)
 			      (get-rack-patch-socket p)
 			      (get-rack-patch-target-name p)))))
+
+    ;;(setf (gethash destination-input-socket (slot-value destination-rm 'input-patches))
+    ;;	  (make-rack-module-patch source-rm source-output-socket))
+    (add-rack-module-input-patch
+     destination-rm destination-input-socket
+     (make-rack-module-patch source-rm source-output-socket))
     
-    (setf (gethash destination-input-socket (slot-value destination-rm 'input-patches))
-	  (make-rack-module-patch source-rm source-output-socket))
-    (setf (gethash source-output-socket (slot-value source-rm 'output-patches))
-	  (make-rack-module-patch destination-rm destination-input-socket))))
-  
+    ;;(setf (gethash source-output-socket (slot-value source-rm 'output-patches))
+    ;;  (make-rack-module-patch destination-rm destination-input-socket))))
+    (add-rack-module-output-patch
+     source-rm source-output-socket 
+     (make-rack-module-patch destination-rm destination-input-socket))))
+
 (defun get-patch (rack module-name socket-type socket)
   "Returns the destination module and input/output socket, to which a given
     source module and one if its input/output sockets is connected.
