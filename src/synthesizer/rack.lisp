@@ -10,8 +10,8 @@
    (module :initarg nil)
    (module-input-sockets :initarg nil)
    (module-output-sockets :initarg nil)
-   (input-patches :initform (make-hash-table))
-   (output-patches :initform (make-hash-table))
+   (input-patches :initform nil)
+   (output-patches :initform nil)
    (input-argument-list-prototype :initform nil))
   (:documentation "Represents a module holding input/output connections to other modules"))
 
@@ -31,7 +31,6 @@
 
 (declaim (inline get-rack-module-input-argument-list-prototype))
 (defun get-rack-module-input-argument-list-prototype (rm)
-  ;;(copy-list (slot-value rm 'input-argument-list-prototype)))
   (slot-value rm 'input-argument-list-prototype))
 
 (declaim (inline get-rack-module-input-sockets))
@@ -73,22 +72,19 @@
 
 (declaim (inline get-rack-module-input-patch))
 (defun get-rack-module-input-patch (rm input-socket)
-  (gethash input-socket (slot-value rm 'input-patches)))
+  (getf (slot-value rm 'input-patches) input-socket))
+
+(declaim (inline get-rack-module-output-patch))
+(defun get-rack-module-output-patch (rm output-socket)
+  (getf (slot-value rm 'output-patches) output-socket))
 
 (defun add-rack-module-input-patch (rm input-socket patch)
-  ;;(setf (gethash destination-input-socket (slot-value destination-rm 'input-patches))
-  ;; (make-rack-module-patch source-rm source-output-socket))
-  (setf (gethash input-socket (slot-value rm 'input-patches)) patch))
+  (push patch (slot-value rm 'input-patches))
+  (push input-socket (slot-value rm 'input-patches)))
 
 (defun add-rack-module-output-patch (rm output-socket patch)
-  ;;(setf (gethash source-output-socket (slot-value source-rm 'output-patches))
-  ;;	  (make-rack-module-patch destination-rm destination-input-socket))))
-  (setf (gethash output-socket (slot-value rm 'output-patches)) patch))
-
-
-(defun get-rack-module-output-patch (rm output-socket)
-  (gethash output-socket (slot-value rm 'output-patches)))
-
+  (push patch (slot-value rm 'output-patches))
+  (push output-socket (slot-value rm 'output-patches)))
 
 ;;
 ;; Patch
@@ -289,6 +285,7 @@
 			       get-rack-module-input-argument-list-prototype
 			       get-rack-module-update-fn
 			       get-rack-module-input-patch
+			       get-rack-module-output-patch
 			       get-rack-patch-module
 			       get-rack-module-output-fn
 			       get-rack-patch-socket
@@ -439,14 +436,10 @@
 			      (get-rack-patch-socket p)
 			      (get-rack-patch-target-name p)))))
 
-    ;;(setf (gethash destination-input-socket (slot-value destination-rm 'input-patches))
-    ;;	  (make-rack-module-patch source-rm source-output-socket))
     (add-rack-module-input-patch
      destination-rm destination-input-socket
      (make-rack-module-patch source-rm source-output-socket))
     
-    ;;(setf (gethash source-output-socket (slot-value source-rm 'output-patches))
-    ;;  (make-rack-module-patch destination-rm destination-input-socket))))
     (add-rack-module-output-patch
      source-rm source-output-socket 
      (make-rack-module-patch destination-rm destination-input-socket))))
