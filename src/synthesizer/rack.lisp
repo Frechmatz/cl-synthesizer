@@ -35,12 +35,18 @@
    (module-output-sockets :initarg nil)
    (input-patches :initarg nil)
    (output-patches :initarg nil)
+   (rack-module-update-fn :initarg nil)
+   (rack-module-output-fn :initarg nil)
    (input-argument-list-prototype :initform nil))
   (:documentation "Represents a module holding input/output connections to other modules"))
 
 (defmethod initialize-instance :after ((rm rack-module) &key name module)
   (setf (slot-value rm 'name) name)
   (setf (slot-value rm 'module) module)
+  (setf (slot-value rm 'rack-module-update-fn)
+	(getf (slot-value rm 'module) :update))
+  (setf (slot-value rm 'rack-module-output-fn)
+	(getf (slot-value rm 'module) :get-output))
   (setf (slot-value rm 'module-input-sockets) 
 	(funcall (getf (slot-value rm 'module) :inputs)))
   (setf (slot-value rm 'module-output-sockets)
@@ -79,17 +85,14 @@
 
 (declaim (inline get-rack-module-update-fn))
 (defun get-rack-module-update-fn (rm)
-  (getf (slot-value rm 'module) :update))
+  (slot-value rm 'rack-module-update-fn))
 
 (defun get-rack-module-module (rm)
   (slot-value rm 'module))
 
 (declaim (inline get-rack-module-output-fn))
 (defun get-rack-module-output-fn (rm)
-  (getf (slot-value rm 'module) :get-output))
-
-(defun get-rack-module-output (rm socket)
-  (funcall (getf (slot-value rm 'module) :get-output) socket))
+  (slot-value rm 'rack-module-output-fn))
 
 (defun get-rack-module-shutdown-fn (rm)
   (let ((f (getf (slot-value rm 'module) :shutdown)))
@@ -157,8 +160,6 @@
 (defun get-rm-module (rack name)
   "Helper function that returns internal representation of a module or nil."
   (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (getf rack :modules)))
-
-
 
 (defun get-module (rack name)
   "Get a module of a rack. The function has the following arguments:
