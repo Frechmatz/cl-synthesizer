@@ -1,6 +1,29 @@
 (in-package :cl-synthesizer)
 
 ;;
+;; Patch-Management
+;;
+
+(defun patches-init (sockets)
+  (let ((patches nil))
+    (dolist (socket sockets)
+      (push (list socket nil) patches))
+    patches))
+
+(defun patches-set-patch (patches socket patch)
+  (setf (second (find-if (lambda (entry) (eq (first entry) socket)) patches)) patch))
+
+(defun patches-get-patch (patches socket)
+  "This function should only be used in non-time-critical code"
+  (second (find-if (lambda (entry) (eq (first entry) socket)) patches)))
+
+(defmacro patches-with-patches (patches socket patch &body body)
+  (let ((p (gensym)))
+    `(dolist (,p ,patches)
+       (let ((,socket (first ,p)) (,patch (second ,p)))
+	 ,@body))))
+
+;;
 ;; Rack-Module
 ;; 
 
@@ -10,8 +33,8 @@
    (module :initarg nil)
    (module-input-sockets :initarg nil)
    (module-output-sockets :initarg nil)
-   (input-patches :initform nil)
-   (output-patches :initform nil)
+   (input-patches :initarg nil)
+   (output-patches :initarg nil)
    (input-argument-list-prototype :initform nil))
   (:documentation "Represents a module holding input/output connections to other modules"))
 
@@ -22,6 +45,8 @@
 	(funcall (getf (slot-value rm 'module) :inputs)))
   (setf (slot-value rm 'module-output-sockets)
 	(funcall (getf (slot-value rm 'module) :outputs)))
+  (setf (slot-value rm 'input-patches) (patches-init (funcall (getf (slot-value rm 'module) :inputs))))
+  (setf (slot-value rm 'output-patches) (patches-init (funcall (getf (slot-value rm 'module) :outputs))))
   ;; Prepare prototype of parameter with which
   ;; the update function of the module will be called.
   ;; (:INPUT-1 nil :INPUT-2 nil ...)
@@ -72,19 +97,21 @@
 
 (declaim (inline get-rack-module-input-patch))
 (defun get-rack-module-input-patch (rm input-socket)
-  (getf (slot-value rm 'input-patches) input-socket))
+  (patches-get-patch (slot-value rm 'input-patches) input-socket))
 
 (declaim (inline get-rack-module-output-patch))
 (defun get-rack-module-output-patch (rm output-socket)
-  (getf (slot-value rm 'output-patches) output-socket))
+  (patches-get-patch (slot-value rm 'output-patches) output-socket))
 
 (defun add-rack-module-input-patch (rm input-socket patch)
-  (push patch (slot-value rm 'input-patches))
-  (push input-socket (slot-value rm 'input-patches)))
+  ;;(push patch (slot-value rm 'input-patches))
+  ;;(push input-socket (slot-value rm 'input-patches)))
+  (patches-set-patch (slot-value rm 'input-patches) input-socket patch))
 
 (defun add-rack-module-output-patch (rm output-socket patch)
-  (push patch (slot-value rm 'output-patches))
-  (push output-socket (slot-value rm 'output-patches)))
+  ;;(push patch (slot-value rm 'output-patches))
+  ;;(push output-socket (slot-value rm 'output-patches)))
+  (patches-set-patch (slot-value rm 'output-patches) output-socket patch))
 
 ;;
 ;; Patch
@@ -307,16 +334,16 @@
 				 (progn
 				   (set-rack-module-state rm :PROCESSING-TICK)
 				   ;; update input modules
-				   (dolist (cur-input-socket (get-rack-module-input-sockets rm))
-				     (let ((patch (get-rack-module-input-patch rm cur-input-socket)))
-				       (if patch 
-					   (update-rm (get-rack-patch-module patch)))))
+				   (patches-with-patches (slot-value rm 'input-patches) cur-input-socket patch
+				     (declare (ignore cur-input-socket))
+				     (if patch 
+					 (update-rm (get-rack-patch-module patch))))
+				   
 				   ;; update this
 				   (let ((input-args (get-rack-module-input-argument-list-prototype rm)))
 				     ;; collect inputs
-				     (dolist (cur-input-socket (get-rack-module-input-sockets rm))
-				       (let ((patch (get-rack-module-input-patch rm cur-input-socket))
-					     (socket-input-value nil))
+				     (patches-with-patches (slot-value rm 'input-patches) cur-input-socket patch
+				       (let ((socket-input-value nil))
 					 (if patch
 					     (let* ((source-rm (get-rack-patch-module patch))
 						    (source-rm-socket (get-rack-patch-socket patch))
