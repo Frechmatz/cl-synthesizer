@@ -334,22 +334,20 @@
 				 nil ;; module is already processing -> do nothing
 				 (progn
 				   (set-rack-module-state rm :PROCESSING-TICK)
-				   ;; update input modules
-				   (patches-with-patches (slot-value rm 'input-patches) cur-input-socket patch
-				     (declare (ignore cur-input-socket))
-				     (if patch 
-					 (update-rm (get-rack-patch-module patch))))
-				   
 				   ;; update this
 				   (let ((input-args (get-rack-module-input-argument-list-prototype rm)))
-				     ;; collect inputs
+				     ;; for inputs
 				     (patches-with-patches (slot-value rm 'input-patches) cur-input-socket patch
 				       (let ((socket-input-value nil))
 					 (if patch
-					     (let* ((source-rm (get-rack-patch-module patch))
-						    (source-rm-socket (get-rack-patch-socket patch))
-						    (output-fn (get-rack-module-output-fn source-rm)))
-					       (setf socket-input-value (funcall output-fn source-rm-socket))))
+					     (progn
+					       ;; update input module
+					       (update-rm (get-rack-patch-module patch))
+					       ;; get value
+					       (let* ((source-rm (get-rack-patch-module patch))
+						      (source-rm-socket (get-rack-patch-socket patch))
+						      (output-fn (get-rack-module-output-fn source-rm)))
+						 (setf socket-input-value (funcall output-fn source-rm-socket)))))
 					 (setf (getf input-args cur-input-socket) socket-input-value)))
 				     ;; call update function on this
 				     (funcall (get-rack-module-update-fn rm) input-args)
