@@ -144,7 +144,7 @@
 
 (defun get-rm-module (rack name)
   "Helper function that returns internal representation of a module or nil."
-  (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (getf rack :rack-modules)))
+  (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (funcall (getf rack :rack-modules))))
 
 (defun get-module (rack name)
   "Get a module of a rack. The function has the following arguments:
@@ -154,7 +154,7 @@
     </ul>
    Returns the module (represented as a property list) or nil if a module
    with the given name has not been added to the rack."
-  (let ((rm (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (getf rack :rack-modules))))
+  (let ((rm (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (funcall (getf rack :rack-modules)))))
     (if rm
 	(slot-value rm 'module)
 	nil)))
@@ -172,7 +172,7 @@
       (setf module-path (list module-path)))
   (if (not module-path)
       (values nil nil nil)
-      (let* ((rm (find-if (lambda (rm) (string= (first module-path) (get-rack-module-name rm))) (getf rack :rack-modules))))
+      (let* ((rm (find-if (lambda (rm) (string= (first module-path) (get-rack-module-name rm))) (funcall (getf rack :rack-modules)))))
 	(if rm
 	    (let ((module (slot-value rm 'module)))
 	      (if (< 1 (length module-path))
@@ -190,7 +190,7 @@
       <li>:shutdown A function with no arguments that is called when the rack is shutting down.</li>
    </ul>
    Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>."
-  (push hook (getf rack :hooks)))
+  (funcall (getf rack :add-hook) hook))
 
 (defun add-module (rack module-name module-fn &rest args)
   "Adds a module to a rack. The function has the following arguments:
@@ -251,7 +251,7 @@
 	       :format-control "Invalid module ~a: Property ~a must be a function but is ~a"
 	       :format-arguments (list module-name property (getf m property))))))
 
-      (push rm (getf rack :rack-modules))
+      (funcall (getf rack :add-rack-module) rm)
       nil)))
 
 (defun make-rack (&key environment (input-sockets nil) (output-sockets nil))
@@ -282,11 +282,11 @@
        :format-arguments nil))
 
   (let* ((this nil) (has-shut-down nil) (input-rm nil)
-	 (inputs nil) (output-rm nil) (outputs nil))
+	 (inputs nil) (output-rm nil) (outputs nil)
+	 (rack-modules) (hooks nil))
     (let ((rack
 	   (list
-	    :rack-modules nil
-	    :hooks nil
+	    :rack-modules (lambda() rack-modules)
 	    :outputs (lambda() output-sockets)
 	    :inputs (lambda() input-sockets)
 	    :update
@@ -299,13 +299,12 @@
 			       get-rack-module-update-fn
 			       get-rack-module-input-patch
 			       get-rack-module-output-patch
-			       get-rack-module-output-fn
-			       set-state))
+			       get-rack-module-output-fn))
 	      (if has-shut-down
 		  nil
 		  (progn
-		    (dolist (rm (getf this :rack-modules))
-		      (setf (slot-value rm 'state) :PROCESS-TICK))
+		    (dolist (rm rack-modules)
+		      (set-rack-module-state rm :PROCESS-TICK))
 		    (setf inputs args)
 		    (set-rack-module-state input-rm :PROCESSED-TICK)
 		    (labels
@@ -338,23 +337,29 @@
 				     (set-rack-module-state rm :PROCESSED-TICK)
 				     ))))))
 		      ;; for all modules
-		      (dolist (rm (getf this :rack-modules))
+		      (dolist (rm rack-modules)
 			(update-rm rm))
 		      ;; for all hooks
-		      (dolist (m (getf this :hooks))
+		      (dolist (m hooks)
 			(funcall (getf m :update))))
 		    t)))
 	    :get-output
 	    (lambda (socket)
 	      (getf outputs socket))
+	    :add-rack-module
+	    (lambda (rm)
+	      (push rm rack-modules))
+	    :add-hook
+	    (lambda (hook)
+	      (push hook hooks))
 	    :shutdown
 	    (lambda()
 	      (if (not has-shut-down)
 		  (progn
 		    (setf has-shut-down t)
-		    (dolist (rm (getf this :rack-modules))
+		    (dolist (rm rack-modules)
 		      (funcall (get-rack-module-shutdown-fn rm)))
-		    (dolist (m (getf this :hooks))
+		    (dolist (m hooks)
 		      (if (getf m :shutdown)
 			  (funcall (getf m :shutdown)))))))
 	    :environment environment
