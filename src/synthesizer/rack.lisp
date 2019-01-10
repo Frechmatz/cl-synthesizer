@@ -142,11 +142,6 @@
   "Returns the environment of the rack."
   (getf rack :environment))
 
-(declaim (inline set-state))
-(defun set-state (rack state)
-  (dolist (rm (getf rack :rack-modules))
-    (setf (slot-value rm 'state) state)))
-
 (defun get-rm-module (rack name)
   "Helper function that returns internal representation of a module or nil."
   (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (getf rack :rack-modules)))
@@ -309,7 +304,8 @@
 	      (if has-shut-down
 		  nil
 		  (progn
-		    (set-state this :PROCESS-TICK)
+		    (dolist (rm (getf this :rack-modules))
+		      (setf (slot-value rm 'state) :PROCESS-TICK))
 		    (setf inputs args)
 		    (set-rack-module-state input-rm :PROCESSED-TICK)
 		    (labels
