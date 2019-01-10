@@ -144,12 +144,12 @@
 
 (declaim (inline set-state))
 (defun set-state (rack state)
-  (dolist (m (getf rack :modules))
-    (setf (slot-value m 'state) state)))
+  (dolist (rm (getf rack :rack-modules))
+    (setf (slot-value rm 'state) state)))
 
 (defun get-rm-module (rack name)
   "Helper function that returns internal representation of a module or nil."
-  (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (getf rack :modules)))
+  (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (getf rack :rack-modules)))
 
 (defun get-module (rack name)
   "Get a module of a rack. The function has the following arguments:
@@ -159,7 +159,7 @@
     </ul>
    Returns the module (represented as a property list) or nil if a module
    with the given name has not been added to the rack."
-  (let ((rm (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (getf rack :modules))))
+  (let ((rm (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (getf rack :rack-modules))))
     (if rm
 	(slot-value rm 'module)
 	nil)))
@@ -177,7 +177,7 @@
       (setf module-path (list module-path)))
   (if (not module-path)
       (values nil nil nil)
-      (let* ((rm (find-if (lambda (rm) (string= (first module-path) (get-rack-module-name rm))) (getf rack :modules))))
+      (let* ((rm (find-if (lambda (rm) (string= (first module-path) (get-rack-module-name rm))) (getf rack :rack-modules))))
 	(if rm
 	    (let ((module (slot-value rm 'module)))
 	      (if (< 1 (length module-path))
@@ -256,7 +256,7 @@
 	       :format-control "Invalid module ~a: Property ~a must be a function but is ~a"
 	       :format-arguments (list module-name property (getf m property))))))
 
-      (push rm (getf rack :modules))
+      (push rm (getf rack :rack-modules))
       nil)))
 
 (defun make-rack (&key environment (input-sockets nil) (output-sockets nil))
@@ -290,7 +290,7 @@
 	 (inputs nil) (output-rm nil) (outputs nil))
     (let ((rack
 	   (list
-	    :modules nil
+	    :rack-modules nil
 	    :hooks nil
 	    :outputs (lambda() output-sockets)
 	    :inputs (lambda() input-sockets)
@@ -342,7 +342,7 @@
 				     (set-rack-module-state rm :PROCESSED-TICK)
 				     ))))))
 		      ;; for all modules
-		      (dolist (rm (getf this :modules))
+		      (dolist (rm (getf this :rack-modules))
 			(update-rm rm))
 		      ;; for all hooks
 		      (dolist (m (getf this :hooks))
@@ -356,7 +356,7 @@
 	      (if (not has-shut-down)
 		  (progn
 		    (setf has-shut-down t)
-		    (dolist (rm (getf this :modules))
+		    (dolist (rm (getf this :rack-modules))
 		      (funcall (get-rack-module-shutdown-fn rm)))
 		    (dolist (m (getf this :hooks))
 		      (if (getf m :shutdown)
