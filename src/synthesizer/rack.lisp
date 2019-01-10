@@ -120,27 +120,17 @@
 ;; Patch
 ;;
 
-(defclass rack-module-patch ()
-  ((rack-module :initarg nil)
-   (socket :initarg nil))
-  (:documentation "Represents an end-point to which an input/output socket of a module is connected."))
+(defun make-rack-module-patch (rm socket)
+  (cons rm socket))
+
+(defmacro get-rack-patch-socket (patch)
+  `(cdr ,patch))
+
+(defmacro get-rack-patch-module (patch)
+  `(car ,patch))
 
 (defun get-rack-patch-target-name (patch)
-  (get-rack-module-name (slot-value patch 'rack-module)))
-
-(declaim (inline get-rack-patch-socket))
-(defun get-rack-patch-socket (patch)
-  (slot-value patch 'socket))
-
-(declaim (inline get-rack-patch-module))
-(defun get-rack-patch-module (patch)
-  (slot-value patch 'rack-module))
-
-(defun make-rack-module-patch (rm socket)
-  (let ((c (make-instance 'rack-module-patch)))
-    (setf (slot-value c 'rack-module) rm)
-    (setf (slot-value c 'socket) socket)
-    c))
+  (get-rack-module-name (car patch)))
 
 ;;
 ;;
@@ -314,9 +304,7 @@
 			       get-rack-module-update-fn
 			       get-rack-module-input-patch
 			       get-rack-module-output-patch
-			       get-rack-patch-module
 			       get-rack-module-output-fn
-			       get-rack-patch-socket
 			       set-state))
 	      (if has-shut-down
 		  nil
