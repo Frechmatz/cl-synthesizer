@@ -100,7 +100,7 @@
 
 ;;
 ;; ------------------------------------------------
-;; Run rack with determinsitic SBCL profiler
+;; Run rack with deterministic SBCL profiler
 ;; ------------------------------------------------
 ;;
 #| 
@@ -142,7 +142,7 @@
 ;;
 #| 
 (defun measure-rack-time ()
-  (sb-profile:unprofile "CL-SYNTHESIZER")
+;;  (sb-profile:unprofile "CL-SYNTHESIZER")
   (let ((rack (make-test-rack))) (time (play rack))))
 
 ;; (measure-rack-time)
