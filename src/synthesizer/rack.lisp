@@ -37,7 +37,7 @@
    (output-patches :initarg nil)
    (rack-module-update-fn :initarg nil)
    (rack-module-output-fn :initarg nil)
-   (input-argument-list-prototype :initform nil))
+   (input-argument-list :initform nil))
   (:documentation "Represents a module holding input/output connections to other modules"))
 
 (defmethod initialize-instance :after ((rm rack-module) &key name module)
@@ -53,16 +53,16 @@
 	(funcall (getf (slot-value rm 'module) :outputs)))
   (setf (slot-value rm 'input-patches) (patches-init (funcall (getf (slot-value rm 'module) :inputs))))
   (setf (slot-value rm 'output-patches) (patches-init (funcall (getf (slot-value rm 'module) :outputs))))
-  ;; Prepare prototype of parameter with which
+  ;; Prepare input property list with which
   ;; the update function of the module will be called.
   ;; (:INPUT-1 nil :INPUT-2 nil ...)
   (dolist (input-socket (slot-value rm 'module-input-sockets))
-      (push nil (slot-value rm 'input-argument-list-prototype))
-      (push input-socket (slot-value rm 'input-argument-list-prototype))))
+      (push nil (slot-value rm 'input-argument-list))
+      (push input-socket (slot-value rm 'input-argument-list))))
 
-(declaim (inline get-rack-module-input-argument-list-prototype))
-(defun get-rack-module-input-argument-list-prototype (rm)
-  (slot-value rm 'input-argument-list-prototype))
+(declaim (inline get-rack-module-input-argument-list))
+(defun get-rack-module-input-argument-list (rm)
+  (slot-value rm 'input-argument-list))
 
 (declaim (inline get-rack-module-input-sockets))
 (defun get-rack-module-input-sockets (rm)
@@ -281,92 +281,84 @@
        :format-control "Environment must not be nil"
        :format-arguments nil))
 
-  (let* ((this nil) (has-shut-down nil) (input-rm nil)
+  (let ((has-shut-down nil) (input-rm nil)
 	 (inputs nil) (output-rm nil) (outputs nil)
 	 (rack-modules) (hooks nil))
     (let ((rack
 	   (list
+	    :update (lambda (args)
+		      ;;(declare (optimize (debug 3) (speed 0) (space 0)))
+		      (declare (inline
+				set-rack-module-state
+				get-rack-module-state
+				get-rack-module-input-sockets
+				get-rack-module-input-argument-list
+				get-rack-module-update-fn
+				get-rack-module-input-patch
+				get-rack-module-output-patch
+				get-rack-module-output-fn))
+		      (if has-shut-down
+			  nil
+			  (progn
+			    (dolist (rm rack-modules)
+			      (set-rack-module-state rm :PROCESS-TICK))
+			    ;; Set outputs of INPUT bridge module
+			    (setf inputs args)
+			    ;; Mark INPUT bridge module as done
+			    (set-rack-module-state input-rm :PROCESSED-TICK)
+			    (labels
+				((update-rm (rm)
+				   "Updates a module"
+				   (if (eq (get-rack-module-state rm) :PROCESS-TICK)
+				       (progn
+					 ;; Update all input modules
+					 (set-rack-module-state rm :PROCESSING-TICK)
+					 (let ((input-args (get-rack-module-input-argument-list rm)))
+					   (patches-with-patches (slot-value rm 'input-patches) cur-input-socket patch
+					     (let ((socket-input-value nil))
+					       (if patch
+						   (let ((rack-patch-module (get-rack-patch-module patch)))
+						     ;; Update input module
+						     (update-rm rack-patch-module)
+						     ;; Retrieve output value from input module
+						     (setf socket-input-value
+							   (funcall
+							    (get-rack-module-output-fn rack-patch-module)
+							    (get-rack-patch-socket patch)))))
+					       ;; The following setf is kind of a performance killer.
+					       ;; In a test setup (profiling-rack.lisp) it consumed
+					       ;; about 10..15% of runtime
+					       (setf (getf input-args cur-input-socket) socket-input-value)))
+					   (funcall (get-rack-module-update-fn rm) input-args)
+					   (set-rack-module-state rm :PROCESSED-TICK))))))
+			      ;; for all modules
+			      (dolist (rm rack-modules)
+				(update-rm rm))
+			      ;; for all hooks
+			      (dolist (m hooks)
+				(funcall (getf m :update))))
+			    t)))
+	    :get-output (lambda (socket) (getf outputs socket))
 	    :rack-modules (lambda() rack-modules)
 	    :outputs (lambda() output-sockets)
 	    :inputs (lambda() input-sockets)
-	    :update
-	    (lambda (args)
-	      ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-	      (declare (inline set-rack-module-state
-			       get-rack-module-state
-			       get-rack-module-input-sockets
-			       get-rack-module-input-argument-list-prototype
-			       get-rack-module-update-fn
-			       get-rack-module-input-patch
-			       get-rack-module-output-patch
-			       get-rack-module-output-fn))
-	      (if has-shut-down
-		  nil
-		  (progn
-		    (dolist (rm rack-modules)
-		      (set-rack-module-state rm :PROCESS-TICK))
-		    (setf inputs args)
-		    (set-rack-module-state input-rm :PROCESSED-TICK)
-		    (labels
-			((update-rm (rm)
-			   ;; Update a module
-			   ;; If module is already updating do nothing
-			   ;; Otherwise update all input modules and then update outputs
-			   (let ((state (get-rack-module-state rm)))
-			     (if (not (eq state :PROCESS-TICK))
-				 nil ;; module is already processing -> do nothing
-				 (progn
-				   (set-rack-module-state rm :PROCESSING-TICK)
-				   ;; update this
-				   (let ((input-args (get-rack-module-input-argument-list-prototype rm)))
-				     ;; for inputs
-				     (patches-with-patches (slot-value rm 'input-patches) cur-input-socket patch
-				       (let ((socket-input-value nil))
-					 (if patch
-					     (progn
-					       ;; update input module
-					       (update-rm (get-rack-patch-module patch))
-					       ;; get value
-					       (let* ((source-rm (get-rack-patch-module patch))
-						      (source-rm-socket (get-rack-patch-socket patch))
-						      (output-fn (get-rack-module-output-fn source-rm)))
-						 (setf socket-input-value (funcall output-fn source-rm-socket)))))
-					 (setf (getf input-args cur-input-socket) socket-input-value)))
-				     ;; call update function on this
-				     (funcall (get-rack-module-update-fn rm) input-args)
-				     (set-rack-module-state rm :PROCESSED-TICK)
-				     ))))))
-		      ;; for all modules
-		      (dolist (rm rack-modules)
-			(update-rm rm))
-		      ;; for all hooks
-		      (dolist (m hooks)
-			(funcall (getf m :update))))
-		    t)))
-	    :get-output
-	    (lambda (socket)
-	      (getf outputs socket))
-	    :add-rack-module
-	    (lambda (rm)
-	      (push rm rack-modules))
-	    :add-hook
-	    (lambda (hook)
-	      (push hook hooks))
-	    :shutdown
-	    (lambda()
-	      (if (not has-shut-down)
-		  (progn
-		    (setf has-shut-down t)
-		    (dolist (rm rack-modules)
-		      (funcall (get-rack-module-shutdown-fn rm)))
-		    (dolist (m hooks)
-		      (if (getf m :shutdown)
-			  (funcall (getf m :shutdown)))))))
+	    :add-rack-module (lambda (rm) (push rm rack-modules))
+	    :add-hook (lambda (hook) (push hook hooks))
+	    :shutdown (lambda()
+			(if (not has-shut-down)
+			    (progn
+			      (setf has-shut-down t)
+			      (dolist (rm rack-modules)
+				(funcall (get-rack-module-shutdown-fn rm)))
+			      (dolist (m hooks)
+				(if (getf m :shutdown)
+				    (funcall (getf m :shutdown)))))))
 	    :environment environment
 	    :is-rack t)))
 
-      (setf this rack)
-
+      ;;
+      ;; Add bridge modules
+      ;;
       (add-module rack "INPUT"
 		  (lambda(name environment)
 		    (declare (ignore name environment))
