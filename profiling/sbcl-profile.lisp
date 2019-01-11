@@ -1,5 +1,10 @@
 ;;
-;; Profiling using Time-Macro and SBCL Profiling-API
+;; Basic profiling using Time-Macro and SBCL Profiling-API
+;;
+;; How to run:
+;; - load cl-synthesizer system
+;; - load this file
+;; - (run-jobs)
 ;;
 
 (defpackage :cl-synthesizer-profiling
@@ -13,101 +18,87 @@
 (load "profile-vco.lisp")
 (load "profile-phase-generator.lisp")
 
-(defun simple-play-rack (rack &key duration-seconds)
+(defun simple-play-rack (rack &key duration-seconds (rack-input nil))
   "Simple play function without the overhead of cl-synthesizer::play-rack"
   (let* ((update-fn (getf rack :update))
 	(environment (getf rack :environment))
 	(ticks (* duration-seconds (floor (getf environment :sample-rate)))))
     (dotimes (i ticks)
-      (funcall update-fn nil))
-    (format t "~%Executed ticks: ~a Duration: ~a seconds~%" ticks duration-seconds)))
+      (funcall update-fn rack-input))
+    (format t "~%Play-Rack: Executed ~a ticks. Duration ~a seconds~%" ticks duration-seconds)))
 
 (defparameter *jobs*
   (list
    (list
-    :name "Rack Core" :disabled nil :max-samples 5000
-    :time t :statistic t    
-    :setup (lambda()
-	     (let ((rack (cl-synthesizer-profiling-rack::make-test-rack :main-module-count 4)))
-	       (values 
-		(lambda ()
-		  (simple-play-rack rack :duration-seconds 60))
-		"Core details"
-		))))
-   (list
-    :name "Phase Generator" :disabled nil :max-samples 500
+    :name "Rack Core" :max-samples 5000
     :time t :statistic nil
     :setup (lambda()
+	     (let ((main-module-count 4) (sub-module-count 4) (module-io-socket-count 4)
+		   (duration-seconds 60))
+	       (let ((rack (cl-synthesizer-profiling-rack::make-test-rack
+			    :main-module-count main-module-count)))
+		 (values 
+		  (lambda ()
+		    (simple-play-rack
+		     rack
+		     :duration-seconds duration-seconds
+		     :rack-input (list :input-1 1.0 :input-2 1.0 :input-3 1.0 :input-4 1.0)))
+		  (format nil "Updating ~a main-modules, ~a sub-modules and ~a i/o sockets for ~a seconds"
+			  main-module-count sub-module-count module-io-socket-count duration-seconds)
+		  )))))
+    (list
+    :name "Phase Generator" :max-samples 500
+    :time nil :statistic nil
+    :setup (lambda()
+	     (let ((duration-seconds 1200))
 	     (values 
 	      (lambda()
 		(cl-synthesizer-profiling-phase-generator::run-phase-generator
-		 :duration-seconds 1200))
-	      "Phase generator details"
-	      )))
+		 :duration-seconds duration-seconds))
+	      (format nil "Updating phase generator for ~a seconds" duration-seconds)))))
    (list
-    :name "VCO" :disabled nil :max-samples 5000
-    :time t :statistic nil
+    :name "VCO" :max-samples 5000
+    :time nil :statistic nil
     :setup (lambda()
-	     (let ((rack (cl-synthesizer-profiling-vco::make-test-rack :vco-count 100)))
+	     (let ((vco-count 100) (duration-seconds 60))
+	     (let ((rack (cl-synthesizer-profiling-vco::make-test-rack :vco-count vco-count)))
 	       (values 
 		(lambda ()
-		  (simple-play-rack rack :duration-seconds 60))
-		"VCO-Details"
-		))))
-   ))
+		  (simple-play-rack rack :duration-seconds duration-seconds))
+		(format nil "Updating ~a VCOs for ~a seconds" vco-count duration-seconds))))))))
 
 ;; Run job with statistical SBCL profiler
-(defun profile-statistic (job)
-  (let ((f (funcall (getf job :setup))))
-    (sb-sprof:with-profiling
-	(:max-samples (getf job :max-samples)
-		      :report :flat
-		      :loop t
-		      :show-progress t)
-      (funcall f)))
+(defun profile-statistic (fn settings)
+  (sb-sprof:with-profiling
+      (:max-samples (getf settings :max-samples)
+		    :report :flat
+		    :loop t
+		    :show-progress t)
+    (funcall fn))
   nil)
 
 ;; Run job with time macro
-(defun profile-time (job)
-  (let ((f (funcall (getf job :setup))))
-    (time (funcall f)))
+(defun profile-time (fn settings)
+  (declare (ignore settings))
+  (time (funcall fn))
   nil)
 
-;; Run job with deterministic SBCL profiler
-;; Not supported yet, as i have problems to set
-;; job specific packages that are to be profiled :(
-#|
-(defun profile-deterministic (job)
-  (let ((context (funcall (getf job :prepare)))
-	(packages (getf job :packages)))
-    (if (not packages)
-	(format t "~%Skipping determistic profiling as no packages are defined~%")
-	(progn
-	  (sb-profile:profile "CL-SYNTHESIZER")
-	  (funcall (getf job :run) context)
-	  (sb-profile:report))))
-  nil)
-|#
-
+(defun run-profiler (job profiler-name profiler-fn)
+  (let ((job-name (getf job :name)))
+    (multiple-value-bind (fn description)
+	(funcall (getf job :setup))
+      (format t "~%Running job '~a' with profiler ~a...~%==> ~a~%" job-name profiler-name description)
+      (funcall profiler-fn fn job)
+      (format t "~%Job '~a' with profiler ~a has completed~%" job-name profiler-name))))
+  
 (defun run-jobs ()
-  (format t "~%~%################### Running profiling jobs ###################~%~%")
+  (format t "~%~%################### Running profiling jobs~%~%")
   (dolist (job *jobs*)
-    (let ((job-name (getf job :name)))
-      (if (getf job :disabled)
-	  (format t "~%Skipping profiling job '~a'~%" job-name)
-	  (progn 
-	    (if (getf job :time)
-		(progn
-		  (format t "~%Running job '~a' with time profiling...~%" job-name)
-		  (profile-time job)
-		  (format t "~%Job '~a' with time profiling has completed~%" job-name)))
-	    (if (getf job :statistic)
-		(progn
-		  (format t "~%Running job '~a' with statistic profiling...~%" job-name)
-		  (profile-statistic job)
-		  (format t "~%Job '~a' with statistic profiling has completed~%" job-name)))
-	    ))))
-  (format t "~%~%################### Profiling jobs completed ###################~%~%")
+    (if (getf job :time)
+	(run-profiler job "TIME" #'profile-time))
+    (if (getf job :statistic)
+	(run-profiler job "STATISTICS" #'profile-statistic)))
+  (format t "~%~%################### Profiling jobs completed~%~%")
   "Profiling has completed")
 
 ;; (run-jobs)
