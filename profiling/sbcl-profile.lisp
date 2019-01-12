@@ -2,8 +2,7 @@
 ;; Basic profiling using Time-Macro and SBCL Profiling-API
 ;;
 ;; How to run:
-;; - load cl-synthesizer system
-;; - load this file
+;; - load system cl-synthesizer-profiling
 ;; - (run-jobs)
 ;;
 
@@ -11,12 +10,6 @@
   (:use :cl))
 
 (in-package :cl-synthesizer-profiling)
-
-(require :sb-sprof)
-
-(load "profile-rack.lisp")
-(load "profile-vco.lisp")
-(load "profile-phase-generator.lisp")
 
 (defun simple-play-rack (rack &key duration-seconds (rack-input nil))
   "Simple play function without the overhead of cl-synthesizer::play-rack"
@@ -31,7 +24,7 @@
   (list
    (list
     :name "Rack Core" :max-samples 5000
-    :time t :statistic nil
+    :time t :statistic t
     :setup (lambda()
 	     (let ((main-module-count 4) (sub-module-count 4) (module-io-socket-count 4)
 		   (duration-seconds 60))
@@ -41,14 +34,13 @@
 		  (lambda ()
 		    (simple-play-rack
 		     rack
-		     :duration-seconds duration-seconds
-		     :rack-input (list :input-1 1.0 :input-2 1.0 :input-3 1.0 :input-4 1.0)))
+		     :duration-seconds duration-seconds))
 		  (format nil "Updating ~a main-modules, ~a sub-modules and ~a i/o sockets for ~a seconds"
 			  main-module-count sub-module-count module-io-socket-count duration-seconds)
 		  )))))
     (list
     :name "Phase Generator" :max-samples 500
-    :time nil :statistic nil
+    :time t :statistic nil
     :setup (lambda()
 	     (let ((duration-seconds 1200))
 	     (values 
@@ -58,7 +50,7 @@
 	      (format nil "Updating phase generator for ~a seconds" duration-seconds)))))
    (list
     :name "VCO" :max-samples 5000
-    :time nil :statistic nil
+    :time t :statistic nil
     :setup (lambda()
 	     (let ((vco-count 100) (duration-seconds 60))
 	     (let ((rack (cl-synthesizer-profiling-vco::make-test-rack :vco-count vco-count)))
