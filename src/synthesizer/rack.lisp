@@ -23,6 +23,15 @@
        (let ((,socket (first ,p)) (,patch (second ,p)))
 	 ,@body))))
 
+(defun patches-get-count (patches)
+  "Returns number of set patches"
+  (let ((count 0))
+    (patches-with-patches patches socket patch
+      (declare (ignore socket))
+      (if patch
+	  (setf count (+ 1 count))))
+    count))
+
 ;;
 ;; Rack-Module
 ;; 
@@ -492,4 +501,22 @@
 	       (get-rack-module-module (get-rack-patch-module patch))
 	       (get-rack-patch-socket patch)))))))
 
+
+(defun get-rack-info (rack)
+  (declare (optimize (debug 3) (speed 0) (space 0)))
+  (let ((module-count 0) (patch-count 0))
+    ;; Added modules + INPUT + OUTPUT
+    (dolist (rm (funcall (getf rack :rack-modules)))
+      (setf module-count (+ module-count 1))
+      (setf patch-count (+ patch-count
+			   (patches-get-count
+			    (slot-value rm 'input-patches))))
+      (let ((module (get-rack-module-module rm)))
+	(if (getf module :is-rack)
+	    (let ((info (get-rack-info module)))
+	      (setf module-count (+ module-count (getf info :module-count)))
+	      (setf patch-count (+ patch-count (getf info :patch-count)))))))
+    (list
+     :module-count module-count
+     :patch-count patch-count)))
 
