@@ -14,5 +14,6 @@
 				     (:file "profile-rack")
 				     (:file "profile-vco")
 				     (:file "profile-phase-generator")
+				     (:file "profile-phase-waveform-converter")
 				     (:file "sbcl-profile")))))
 
