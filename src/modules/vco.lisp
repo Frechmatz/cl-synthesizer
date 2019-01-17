@@ -105,6 +105,11 @@
 		       ((eq output :square) cur-square-output)
 		       (t (error (format nil "Unknown input ~a requested from ~a" output name)))))
        :update (lambda (input-args)
+		 (declare (inline
+			   cl-synthesizer-core:phase-sine-converter
+			   cl-synthesizer-core:phase-saw-converter
+			   cl-synthesizer-core:phase-square-converter
+			   cl-synthesizer-core:phase-triangle-converter))
 		 (let ((cv-exp (getf input-args :cv-exp))
 		       (cv-lin (getf input-args :cv-lin)))
 		 (if (not cv-exp)
