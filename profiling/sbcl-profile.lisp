@@ -118,8 +118,7 @@
 		(format nil "Converting phase ~,2F to saw for ~a seconds" phi duration-seconds)))))
    (list
     :id :vco :name "VCO"
-    :setup (lambda(&key duration-seconds)
-	     (let ((vco-count 100))
+    :setup (lambda(&key duration-seconds vco-count)
 	       (let ((rack (cl-synthesizer-profiling-vco::make-test-rack :vco-count vco-count)))
 		 (let ((info (cl-synthesizer::get-rack-info rack)))
 		   (values 
@@ -128,7 +127,7 @@
 		    (format
 		     nil
 		     "Updating ~a VCOs for ~a seconds (Modules: ~a Patches: ~a)"
-		     vco-count duration-seconds (getf info :module-count) (getf info :patch-count))))))))))
+		     vco-count duration-seconds (getf info :module-count) (getf info :patch-count)))))))))
 
 ;;
 ;; Plan runner
@@ -163,8 +162,7 @@
    :profile-time t
    :profile-statistics t
    :init '(:duration-seconds 3600)
-   :jobs '(
-	   (:client-id :phase-sine-converter :init nil)
+   :jobs '((:client-id :phase-sine-converter :init nil)
 	   (:client-id :phase-square-converter :init nil)
 	   (:client-id :phase-triangle-converter :init nil)
 	   (:client-id :phase-saw-converter :init nil)
@@ -175,8 +173,8 @@
    :name "VCO"
    :max-samples 500
    :profile-time t
-   :profile-statistics t
-   :init '(:duration-seconds 60)
+   :profile-statistics nil
+   :init '(:duration-seconds 60 :vco-count 100)
    :jobs '((:client-id :vco :init nil))))
 
 (defparameter *profiling-plan-rack-core*
@@ -188,6 +186,29 @@
    :init '(:duration-seconds 60)
    :jobs '((:client-id :rack-core :init nil))))
 
+(defparameter *profiling-plan-phase-generator-100-vcos*
+  (list
+   :name "Phase Generator assuming 100 instances in place"
+   :max-samples 500
+   :profile-time t
+   :profile-statistics nil
+   :init (list :duration-seconds (* 60 100))
+   :jobs '((:client-id :phase-generator :init nil))))
+
+;; Measure overhead of 100 VCO Modules against corresponding Core-Calls
+(defparameter *profiling-plan-vco-overhead*
+  (list
+   :name "Comparing 100 VCOs against core calls"
+   :max-samples 500
+   :profile-time t
+   :profile-statistics nil
+   :init nil
+   :jobs '((:client-id :vco :init (:duration-seconds 60 :vco-count 100))
+	   (:client-id :phase-sine-converter :init (:duration-seconds 6000))
+	   (:client-id :phase-square-converter :init (:duration-seconds 6000))
+	   (:client-id :phase-triangle-converter :init (:duration-seconds 6000))
+	   (:client-id :phase-saw-converter :init (:duration-seconds 6000))
+	   (:client-id :phase-generator :init (:duration-seconds 6000)))))
 
 ;;
 ;;
@@ -196,4 +217,5 @@
 ;; (run-plan *profiling-plan-vco-core*)
 ;; (run-plan *profiling-plan-vco*)
 ;; (run-plan *profiling-plan-rack-core*)
-
+;; (run-plan *profiling-plan-phase-generator-100-vcos*)
+;; (run-plan *profiling-plan-vco-overhead*)
