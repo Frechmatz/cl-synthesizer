@@ -10,7 +10,7 @@ A Modular Audio Synthesizer library implemented in Common Lisp.
     
     (in-package :cl-synthesizer-rack-example-1)
     
-    (defun make-saw-signal-generator (name environment &key lfo-frequency vco-frequency)
+    (defun make-voice (name environment &key lfo-frequency vco-frequency)
       "Creates a module which generates a frequency modulated saw signal."
       (declare (ignore name))
       (let ((voice
@@ -23,13 +23,13 @@ A Modular Audio Synthesizer library implemented in Common Lisp.
         (cl-synthesizer:add-module
          voice "LFO"
          #'cl-synthesizer-modules-vco:make-module
-         :base-frequency lfo-frequency :v-peak 0.1 :f-max 500 :cv-max 5)
+         :base-frequency lfo-frequency :v-peak 0.1 :f-max 500.0 :cv-max 5.0)
     
         ;; Add VCO
         (cl-synthesizer:add-module
          voice "VCO"
          #'cl-synthesizer-modules-vco:make-module
-         :base-frequency vco-frequency :f-max 5000 :v-peak 5 :cv-max 5)
+         :base-frequency vco-frequency :f-max 5000.0 :v-peak 5.0 :cv-max 5.0)
     
         ;; Patch LFO with VCO
         (cl-synthesizer:add-patch voice "LFO" :sine "VCO" :cv-lin)
@@ -40,7 +40,6 @@ A Modular Audio Synthesizer library implemented in Common Lisp.
         
         voice))
       
-    
     (defun example ()
       "Two frequency modulated saw signals on left and right channel."
       (let ((rack (cl-synthesizer:make-rack
@@ -50,9 +49,9 @@ A Modular Audio Synthesizer library implemented in Common Lisp.
     
         ;; Add saw-signal generators
         (cl-synthesizer:add-module
-         rack "VOICE-1" #'make-saw-signal-generator :lfo-frequency 1.0 :vco-frequency 440)
+         rack "VOICE-1" #'make-voice :lfo-frequency 1.0 :vco-frequency 440.0)
         (cl-synthesizer:add-module
-         rack "VOICE-2" #'make-saw-signal-generator :lfo-frequency 2.0 :vco-frequency 442)
+         rack "VOICE-2" #'make-voice :lfo-frequency 2.0 :vco-frequency 442.0)
     
         ;; Patch generators with left/right outputs
         (cl-synthesizer:add-patch rack "VOICE-1" :audio "OUTPUT" :left)
@@ -68,12 +67,14 @@ A Modular Audio Synthesizer library implemented in Common Lisp.
         
         rack))
     
-    (defparameter *attach-audio* t)
-    #|
-    ;; Play rack for five seconds.
-    (cl-synthesizer:play-rack (example) 5 
-        :attach-audio *attach-audio* :audio-output-sockets '(:left :right))
-    |#
+    (defparameter *attach-audio* nil)
+    (defun run-example ()
+      (cl-synthesizer:play-rack
+       (example) 5 
+       :attach-audio *attach-audio*
+       :audio-output-sockets '(:left :right)))
+      
+    ;;(run-example)
 
 Installation
 ------------
@@ -127,7 +128,7 @@ API Reference
 
 ### Environment
 
-**cl-synthesizer:make-environment** &key (sample-rate 44100) (home-directory nil)
+**cl-synthesizer:make-environment** &key (sample-rate 44100.0) (home-directory nil)
 
 Creates an environment. The environment defines properties such as the sample rate of the rack. An enviroment is a property list with the following keys:
 
@@ -173,7 +174,7 @@ Adds a module to a rack. The function has the following arguments:
     *   :shutdown An optional function with no arguments that is called when the rack is shutting down.
     *   :get-state An optional function with which an internal state of a module can be exposed, for example a VCO may expose its frequency. The function has one argument that consists of a keyword identifying the requested state, for example :frequency.
     
-    The input/output socket lists exposed by the module are not buffered by the rack. Therefore the module should return either a quoted list or keep it in an internal variable. The module must not add or remove input/output sockets after it has been instantiated.
+    A module must not add or remove input/output sockets after it has been instantiated.
     
 *   &rest args Arbitrary additional arguments to be passed to the module instantiation function. These arguments typically consist of keyword parameters.
 
@@ -325,8 +326,8 @@ The module exposes the following states via the get-state function:
          rack
          "VCO"
          #'cl-synthesizer-modules-vco:make-module
-         :base-frequency 10 :v-peak 5 :cv-max 5 :f-max 12000)
-        
+         :base-frequency 10.0 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
+    
         (cl-synthesizer-monitor:add-monitor
          rack
          #'cl-synthesizer-monitor-wave-handler:make-handler
@@ -334,11 +335,15 @@ The module exposes the following states via the get-state function:
            ("VCO" :output-socket :triangle)
            ("VCO" :output-socket :saw)
            ("VCO" :output-socket :square))
-         :filename "waves/vco-example-1.wav")
-    
+         :filename "cl-synthesizer-examples/vco-example-1.wav")
+        
         rack))
-          
-    ;;(cl-synthesizer:play-rack (example) 3)
+    
+    (defun run-example ()
+      (let ((rack (example)))
+        (cl-synthesizer:play-rack rack 60)))
+    
+    ;; (run-example)
 
 #### VCA
 
@@ -380,7 +385,7 @@ The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.
          :base-frequency 0.5
          :v-peak 5.0
          :cv-max 5.0
-         :f-max 12000)
+         :f-max 12000.0)
     
         ;; set up oscillator providing the audio signal
         (cl-synthesizer:add-module
@@ -389,7 +394,7 @@ The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.
          :base-frequency 10000.0
          :v-peak 5.0
          :cv-max 5.0
-         :f-max 12000)
+         :f-max 12000.0)
     
         ;; Set up VCA
         (cl-synthesizer:add-module
@@ -409,11 +414,15 @@ The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.
            ("VCA" :input-socket :input)
            ("VCA" :output-socket :output-linear)
            ("VCA" :output-socket :output-exponential))
-         :filename "waves/vca-example-1.wav")
-    
+         :filename "cl-synthesizer-examples/vca-example-1.wav")
+        
         rack))
     
-    ;;(cl-synthesizer:play-rack (example) 5)
+    (defun run-example ()
+      (let ((rack (example)))
+        (cl-synthesizer:play-rack rack 120)))
+    
+    ;; (run-example)
 
 #### ADSR
 
@@ -484,11 +493,15 @@ The module has the following outputs:
          #'cl-synthesizer-monitor-csv-handler:make-handler
          '(("ADSR" :input-socket :gate :name "ADSR Gate In" :format "~,5F")
            ("ADSR" :output-socket :cv :name "ADSR Out" :format "~,5F"))
-         :filename "waves/adsr-example-1.csv")
+         :filename "cl-synthesizer-examples/adsr-example-1.csv")
         
         rack))
     
-    ;;(cl-synthesizer:play-rack (example) 3)
+    (defun run-example ()
+      (let ((rack (example)))
+        (cl-synthesizer:play-rack rack 3)))
+    
+    ;; (run-example)
 
 #### Multiple
 
@@ -524,7 +537,7 @@ The module has the following outputs:
         (cl-synthesizer:add-module
          rack "LFO"
          #'cl-synthesizer-modules-vco:make-module
-         :base-frequency 1.0 :v-peak 1.0 :f-max 500 :cv-max 5)
+         :base-frequency 1.0 :v-peak 1.0 :f-max 500.0 :cv-max 5.0)
         
         (cl-synthesizer:add-module rack "MULTIPLE"
     			       #'cl-synthesizer-modules-multiple:make-module :output-count 5)
@@ -534,11 +547,15 @@ The module has the following outputs:
     
         rack))
     
-    ;;(cl-synthesizer:play-rack (example) 1)
+    (defun run-example ()
+      (let ((rack (example)))
+        (cl-synthesizer:play-rack rack 10)))
+    
+    ;; (run-example)
 
 #### MIDI Interface
 
-**cl-synthesizer-modules-midi-interface:make-module** name environment &key (voice-count 1) (channel nil) (note-number-to-cv (lambda (note-number) (/ note-number 12))) (play-mode :play-mode-poly) (cv-gate-on 5.0) (cv-gate-off 0.0) (force-gate-retrigger nil)
+**cl-synthesizer-modules-midi-interface:make-module** name environment &key (voice-count 1) (channel nil) (note-number-to-cv (lambda (note-number) (the single-float (/ note-number 12.0)))) (play-mode :play-mode-poly) (cv-gate-on 5.0) (cv-gate-off 0.0) (force-gate-retrigger nil)
 
 Creates a MIDI interface module. The module dispatches MIDI-Note events to so called voices where each voice is represented by a control-voltage and a gate signal. The function has the following arguments:
 
@@ -600,19 +617,22 @@ The module has the following outputs:
          #'cl-synthesizer-modules-vco:make-module
          :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
          :cv-max 5.0
-         :f-max 13000
-         :v-peak 5)
+         :f-max 13000.0
+         :v-peak 5.0)
         
         (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-IFC" :midi-events)
         (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv-exp)
         (cl-synthesizer:add-patch rack "VCO" :saw "OUTPUT" :line-out)
         rack))
     
-    #|
-    (cl-synthesizer::play-rack (example) 10 
-        :attach-audio t :audio-output-sockets '(:line-out) 
-        :attach-midi t :midi-input-socket :midi-events)
-    |#
+    (defun run-example ()
+      (let ((rack (example)))
+        (time (cl-synthesizer::play-rack
+    	   rack 10 
+    	   :attach-audio t :audio-output-sockets '(:line-out) 
+    	   :attach-midi t :midi-input-socket :midi-events))))
+    
+    ;; (run-example)
 
 #### MIDI CC Interface
 
@@ -666,15 +686,15 @@ The module has the following outputs:
     	 (msb-controller-number
     	  (funcall
     	   (getf cl-synthesizer-vendor:*arturia-minilab-mk2* :get-controller-number) :encoder-9))
-    	 (vco-f-max 5000)
-    	 (vco-cv-max 5)
+    	 (vco-f-max 5000.0)
+    	 (vco-cv-max 5.0)
     	 (1Hz (/ vco-cv-max vco-f-max)))
         
         (cl-synthesizer:add-module
          rack "MIDI-CC-IFC" #'cl-synthesizer-modules-midi-cc-interface:make-module
          :controller-numbers (list msb-controller-number lsb-controller-number)
          :initial-output 0.0
-         :min-output (* -1 vco-cv-max)
+         :min-output (* -1.0 vco-cv-max)
          :max-output vco-cv-max
          :channel nil
          :transform-handler
@@ -695,10 +715,10 @@ The module has the following outputs:
         (cl-synthesizer:add-module
          rack "VCO"
          #'cl-synthesizer-modules-vco:make-module
-         :base-frequency 440
+         :base-frequency 440.0
          :cv-max vco-cv-max
          :f-max vco-f-max
-         :v-peak 5)
+         :v-peak 5.0)
     
         (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-CC-IFC" :midi-events)
         (cl-synthesizer:add-patch rack "MIDI-CC-IFC" :output "VCO" :cv-lin)
@@ -709,21 +729,24 @@ The module has the following outputs:
          #'cl-synthesizer-monitor-csv-handler:make-handler
          '(("VCO" :state :frequency :name "Frequency" :format "~,4F")
            ("VCO" :output-socket :sine :name "Sine" :format "~,4F"))
-        :filename "waves/midi-cc-interface-example-2.csv")
+        :filename "cl-synthesizer-examples/midi-cc-interface-example-2.csv")
     
         (cl-synthesizer-monitor:add-monitor
          rack
          #'cl-synthesizer-monitor-wave-handler:make-handler
          '(("VCO" :output-socket :sine))
-        :filename "waves/midi-cc-interface-example-2.wav")
+        :filename "cl-synthesizer-examples/midi-cc-interface-example-2.wav")
         
         rack))
     
-    #|
-    (cl-synthesizer::play-rack (example) 5 
-        :attach-audio t :audio-output-sockets '(:line-out) 
-        :attach-midi t :midi-input-socket :midi-events)
-    |#
+    (defun run-example ()
+      (let ((rack (example)))
+        (time (cl-synthesizer::play-rack
+    	   rack 5 
+    	   :attach-audio t :audio-output-sockets '(:line-out) 
+    	   :attach-midi t :midi-input-socket :midi-events))))
+    
+    ;; (run-example)
 
 #### MIDI Sequencer
 
@@ -746,7 +769,7 @@ The module has no inputs. The module has one output socket :midi-events.
     
     (in-package :cl-synthesizer-modules-midi-sequencer-example-1)
     
-    (defparameter *attach-audio* t)
+    (defparameter *attach-audio* nil)
     
     (defun example ()
       "Midi-Sequencer example"
@@ -784,9 +807,9 @@ The module has no inputs. The module has one output socket :midi-events.
         (cl-synthesizer:add-module
          rack "VCO" #'cl-synthesizer-modules-vco:make-module
          :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
-         :f-max 12000
+         :f-max 12000.0
          :cv-max 5.0
-         :v-peak 5)
+         :v-peak 5.0)
     
         ;; Add ADSR
         (cl-synthesizer:add-module
@@ -813,14 +836,17 @@ The module has no inputs. The module has one output socket :midi-events.
          rack
          #'cl-synthesizer-monitor-wave-handler:make-handler
          '(("OUTPUT" :input-socket :line-out))
-         :filename "waves/midi-sequencer-example-1.wav")
+         :filename "cl-synthesizer-examples/midi-sequencer-example-1.wav")
         
         rack))
     
-    #|
-    (cl-synthesizer::play-rack (example) 5 
-        :attach-audio t :audio-output-sockets '(:line-out))
-    |#
+    (defun run-example ()
+      (let ((rack (example)))
+        (cl-synthesizer::play-rack
+         rack 5 
+         :attach-audio *attach-audio* :audio-output-sockets '(:line-out))))
+    
+    ;; (run-example)
 
 #### Fixed Output
 
@@ -858,7 +884,10 @@ The module has no inputs. The module has one output socket according to the :out
     
         rack))
     
-    ;;(cl-synthesizer:play-rack (example) 1)
+    (defun run-example ()
+      (cl-synthesizer:play-rack (example) 1))
+    
+    ;; (run-example)
 
 #### Adder
 
@@ -966,7 +995,7 @@ The module has the following outputs:
          rack
          "VCO"
          #'cl-synthesizer-modules-vco:make-module
-         :base-frequency 5 :v-peak 5 :cv-max 5 :f-max 12000)
+         :base-frequency 5.0 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
     
         (cl-synthesizer:add-module
          rack
@@ -981,11 +1010,14 @@ The module has the following outputs:
          #'cl-synthesizer-monitor-wave-handler:make-handler
          '(("TRIGGER" :input-socket :input)
            ("TRIGGER" :output-socket :output))
-         :filename "waves/trigger-example-1.wav")
+         :filename "cl-synthesizer-examples/trigger-example-1.wav")
     
         rack))
-          
-    ;;(cl-synthesizer:play-rack (example) 2)
+    
+    (defun run-example ()
+      (let ((rack (example))) (cl-synthesizer:play-rack rack 2)))
+    
+    ;; (run-example)
 
 #### Ramp
 
@@ -1036,7 +1068,7 @@ This module has been inspired by [dhemery](https://github.com/dhemery/DHE-Module
         (cl-synthesizer:add-module
          rack "VCO"
          #'cl-synthesizer-modules-vco:make-module
-         :base-frequency 0.5 :v-peak 5.0 :f-max 500 :cv-max 5)
+         :base-frequency 0.5 :v-peak 5.0 :f-max 500.0 :cv-max 5.0)
     
         (cl-synthesizer:add-module
          rack "TRIGGER"
@@ -1065,11 +1097,14 @@ This module has been inspired by [dhemery](https://github.com/dhemery/DHE-Module
          '(("VCO" :output-socket :square :name "VCO Out" :format "~,5F")
            ("ATTACK" :output-socket :output :name "Attack Out" :format "~,5F")
            ("DECAY" :output-socket :output :name "Decay Out" :format "~,5F"))
-         :filename "waves/ramp-example-1.csv")
+         :filename "cl-synthesizer-examples/ramp-example-1.csv")
         
         rack))
     
-    ;;(cl-synthesizer:play-rack (example) 5)
+    (defun run-example ()
+      (let ((rack (example))) (cl-synthesizer:play-rack rack 5)))
+    
+    ;; (run-example)
 
 #### Sustain
 
@@ -1144,7 +1179,7 @@ This module has been inspired by [dhemery](https://github.com/dhemery/DHE-Module
         (cl-synthesizer:add-module
          rack "VCO"
          #'cl-synthesizer-modules-vco:make-module
-         :base-frequency 0.5 :v-peak 5 :cv-max 5 :f-max 12000)
+         :base-frequency 0.5 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
         
         (cl-synthesizer:add-module
          rack "SUSTAIN"
@@ -1156,7 +1191,7 @@ This module has been inspired by [dhemery](https://github.com/dhemery/DHE-Module
         (cl-synthesizer:add-patch rack "GATE-MULTIPLE" :output-2 "SUSTAIN" :gate)
         (cl-synthesizer:add-patch rack "TRIGGER" :output "SUSTAIN" :trigger)
         (cl-synthesizer:add-patch rack "VCO" :sine "SUSTAIN" :input)
-        
+    
         (cl-synthesizer-monitor:add-monitor
          rack
          #'cl-synthesizer-monitor-csv-handler:make-handler
@@ -1165,11 +1200,14 @@ This module has been inspired by [dhemery](https://github.com/dhemery/DHE-Module
            ("SUSTAIN" :input-socket :input :name "Sustain In" :format "~,5F")
            ("SUSTAIN" :output-socket :output :name "Sustain Out" :format "~,5F")
            ("SUSTAIN" :output-socket :done :name "Sustain Done Out" :format "~,5F"))
-         :filename "waves/sustain-example-1.csv")
+         :filename "cl-synthesizer-examples/sustain-example-1.csv")
         
         rack))
     
-    ;;(cl-synthesizer:play-rack (example) 3)
+    (defun run-example ()
+      (let ((rack (example))) (cl-synthesizer:play-rack rack 3)))
+    
+    ;; (run-example)
 
 #### Wave File Writer
 
@@ -1256,7 +1294,7 @@ Adds a monitor to a rack. A monitor is a high-level Rack hook that collects modu
          rack
          "VCO"
          #'cl-synthesizer-modules-vco:make-module
-         :base-frequency 10 :v-peak 5 :cv-max 5 :f-max 12000)
+         :base-frequency 10.0 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
     
         (cl-synthesizer-monitor:add-monitor
          rack
@@ -1265,7 +1303,7 @@ Adds a monitor to a rack. A monitor is a high-level Rack hook that collects modu
            ("VCO" :output-socket :square)
            ("VCO" :output-socket :triangle)
            ("VCO" :output-socket :saw))
-         :filename "waves/monitor-example-1.wav")
+         :filename "cl-synthesizer-examples/monitor-example-1.wav")
     
         (cl-synthesizer-monitor:add-monitor
          rack
@@ -1274,13 +1312,16 @@ Adds a monitor to a rack. A monitor is a high-level Rack hook that collects modu
            ("VCO" :output-socket :square :format "~,4F" :name "Square")
            ("VCO" :output-socket :triangle :format "~,4F" :name "Triangle")
            ("VCO" :output-socket :saw :format "~,4F" :name "Saw"))
-         :filename "waves/monitor-example-1.csv"
+         :filename "cl-synthesizer-examples/monitor-example-1.csv"
          :add-header t
          :column-separator ",")
         
         rack))
-          
-    ;;(cl-synthesizer:play-rack (example) 1)
+    
+    (defun run-example ()
+      (cl-synthesizer:play-rack (example) 1))
+    
+    ;; (run-example)
 
 **cl-synthesizer-monitor-wave-handler:make-handler** name environment inputs &rest rest &key filename &allow-other-keys
 
@@ -1388,4 +1429,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2018-12-27 13:04:41
+Generated 2019-01-18 22:24:51
