@@ -30,6 +30,7 @@
 
     rack))
 
-#|
-(cl-synthesizer::play-rack (example) 5)
-|#
+(defun run-example ()
+  (cl-synthesizer::play-rack (example) 5))
+
+;; (run-example)

@@ -22,15 +22,19 @@
      rack
      #'cl-synthesizer-monitor-wave-handler:make-handler
      '(("VCO" :output-socket :triangle))
-     :filename "waves/vco-example-2.wav")
+     :filename "cl-synthesizer-examples/vco-example-2.wav")
 
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-csv-handler:make-handler
      '(("VCO" :state :frequency :name "Frequency" :format "~,4F"))
-    :filename "waves/vco-example-2.csv")
+    :filename "cl-synthesizer-examples/vco-example-2.csv")
     
     rack))
 
-;;(let ((rack (example))) (time (cl-synthesizer:play-rack rack 2)))
+(defun run-example ()
+  (let ((rack (example))) (cl-synthesizer:play-rack rack 2)))
+
+;; (run-example)
+
   

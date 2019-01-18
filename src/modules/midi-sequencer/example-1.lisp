@@ -3,7 +3,7 @@
 
 (in-package :cl-synthesizer-modules-midi-sequencer-example-1)
 
-(defparameter *attach-audio* t)
+(defparameter *attach-audio* nil)
 
 (defun example ()
   "Midi-Sequencer example"
@@ -70,12 +70,15 @@
      rack
      #'cl-synthesizer-monitor-wave-handler:make-handler
      '(("OUTPUT" :input-socket :line-out))
-     :filename "waves/midi-sequencer-example-1.wav")
+     :filename "cl-synthesizer-examples/midi-sequencer-example-1.wav")
     
     rack))
 
-#|
-(let ((rack (example)))
-    (time (cl-synthesizer::play-rack rack 5 
-    :attach-audio t :audio-output-sockets '(:line-out))))
-|#
+(defun run-example ()
+  (let ((rack (example)))
+    (cl-synthesizer::play-rack
+     rack 5 
+     :attach-audio *attach-audio* :audio-output-sockets '(:line-out))))
+
+;; (run-example)
+

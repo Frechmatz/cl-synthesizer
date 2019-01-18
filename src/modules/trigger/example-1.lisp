@@ -25,9 +25,11 @@
      #'cl-synthesizer-monitor-wave-handler:make-handler
      '(("TRIGGER" :input-socket :input)
        ("TRIGGER" :output-socket :output))
-     :filename "waves/trigger-example-1.wav")
+     :filename "cl-synthesizer-examples/trigger-example-1.wav")
 
     rack))
-      
-;;(let ((rack (example))) (time (cl-synthesizer:play-rack rack 2)))
 
+(defun run-example ()
+  (let ((rack (example))) (cl-synthesizer:play-rack rack 2)))
+
+;; (run-example)

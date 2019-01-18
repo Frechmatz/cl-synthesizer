@@ -10,7 +10,7 @@
      rack
      "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 10 :v-peak 5 :cv-max 5 :f-max 12000)
+     :base-frequency 10.0 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
 
     (cl-synthesizer-monitor:add-monitor
      rack
@@ -19,7 +19,7 @@
        ("VCO" :output-socket :square)
        ("VCO" :output-socket :triangle)
        ("VCO" :output-socket :saw))
-     :filename "waves/monitor-example-1.wav")
+     :filename "cl-synthesizer-examples/monitor-example-1.wav")
 
     (cl-synthesizer-monitor:add-monitor
      rack
@@ -28,11 +28,13 @@
        ("VCO" :output-socket :square :format "~,4F" :name "Square")
        ("VCO" :output-socket :triangle :format "~,4F" :name "Triangle")
        ("VCO" :output-socket :saw :format "~,4F" :name "Saw"))
-     :filename "waves/monitor-example-1.csv"
+     :filename "cl-synthesizer-examples/monitor-example-1.csv"
      :add-header t
      :column-separator ",")
     
     rack))
-      
-;;(cl-synthesizer:play-rack (example) 1)
 
+(defun run-example ()
+  (cl-synthesizer:play-rack (example) 1))
+
+;; (run-example)

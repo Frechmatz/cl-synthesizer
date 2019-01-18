@@ -19,13 +19,15 @@
        ("VCO" :output-socket :triangle)
        ("VCO" :output-socket :saw)
        ("VCO" :output-socket :square))
-     :filename "waves/vco-example-1.wav")
+     :filename "cl-synthesizer-examples/vco-example-1.wav")
     
     rack))
 
-#|
-(let ((rack (example)))
-  (time (cl-synthesizer:play-rack rack 60)))
-|#
+(defun run-example ()
+  (let ((rack (example)))
+    (cl-synthesizer:play-rack rack 60)))
+
+;; (run-example)
+
 
 

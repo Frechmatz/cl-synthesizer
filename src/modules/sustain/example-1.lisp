@@ -63,8 +63,12 @@
        ("SUSTAIN" :input-socket :input :name "Sustain In" :format "~,5F")
        ("SUSTAIN" :output-socket :output :name "Sustain Out" :format "~,5F")
        ("SUSTAIN" :output-socket :done :name "Sustain Done Out" :format "~,5F"))
-     :filename "waves/sustain-example-1.csv")
+     :filename "cl-synthesizer-examples/sustain-example-1.csv")
     
     rack))
 
-;;(let ((rack (example))) (time (cl-synthesizer:play-rack rack 3)))
+(defun run-example ()
+  (let ((rack (example))) (cl-synthesizer:play-rack rack 3)))
+
+;; (run-example)
+

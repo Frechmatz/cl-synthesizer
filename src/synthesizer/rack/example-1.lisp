@@ -61,10 +61,12 @@
     rack))
 
 (defparameter *attach-audio* nil)
-#|
-;; Play rack for five seconds.
-(cl-synthesizer:play-rack (example) 5 
-    :attach-audio *attach-audio* :audio-output-sockets '(:left :right))
-|#
+(defun run-example ()
+  (cl-synthesizer:play-rack
+   (example) 5 
+   :attach-audio *attach-audio*
+   :audio-output-sockets '(:left :right)))
+  
+;;(run-example)
 
 

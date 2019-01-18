@@ -40,10 +40,11 @@
      '(("VCO" :output-socket :square :name "VCO Out" :format "~,5F")
        ("ATTACK" :output-socket :output :name "Attack Out" :format "~,5F")
        ("DECAY" :output-socket :output :name "Decay Out" :format "~,5F"))
-     :filename "waves/ramp-example-1.csv")
+     :filename "cl-synthesizer-examples/ramp-example-1.csv")
     
     rack))
 
-#|
-(let ((rack (example))) (time (cl-synthesizer:play-rack rack 5)))
-|#
+(defun run-example ()
+  (let ((rack (example))) (cl-synthesizer:play-rack rack 5)))
+
+;; (run-example)

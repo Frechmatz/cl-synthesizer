@@ -19,4 +19,8 @@
 
     rack))
 
-;;(cl-synthesizer:play-rack (example) 1)
+(defun run-example ()
+  (cl-synthesizer:play-rack (example) 1))
+
+;; (run-example)
+

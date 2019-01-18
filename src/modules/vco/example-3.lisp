@@ -3,7 +3,7 @@
 
 (in-package :cl-synthesizer-modules-vco-example-3)
 
-(defparameter *attach-audio* t)
+(defparameter *attach-audio* nil)
 
 (defun example ()
   "Play two sinus waves in stereo"
@@ -25,12 +25,16 @@
      #'cl-synthesizer-monitor-wave-handler:make-handler
      '(("OUTPUT" :input-socket :line-out-1)
        ("OUTPUT" :input-socket :line-out-2))
-     :filename "waves/vco-example-3.wav"
+     :filename "cl-synthesizer-examples/vco-example-3.wav"
      :v-peak 5.0)
 
     rack))
 
-#|
-(let ((rack (example))) (time (cl-synthesizer::play-rack rack 5
-    :attach-audio *attach-audio* :audio-output-sockets '(:line-out-1 :line-out-2))))
-|#
+(defun run-example ()
+  (let ((rack (example)))
+    (cl-synthesizer::play-rack
+     rack
+     5
+     :attach-audio *attach-audio* :audio-output-sockets '(:line-out-1 :line-out-2))))
+
+;; (run-example)

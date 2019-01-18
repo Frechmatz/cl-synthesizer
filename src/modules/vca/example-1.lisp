@@ -43,12 +43,13 @@
        ("VCA" :input-socket :input)
        ("VCA" :output-socket :output-linear)
        ("VCA" :output-socket :output-exponential))
-     :filename "waves/vca-example-1.wav")
+     :filename "cl-synthesizer-examples/vca-example-1.wav")
     
     rack))
 
-#|
-(let ((rack (example)))
-  (time (cl-synthesizer:play-rack rack 120)))
-|#
+(defun run-example ()
+  (let ((rack (example)))
+    (cl-synthesizer:play-rack rack 120)))
+
+;; (run-example)
 

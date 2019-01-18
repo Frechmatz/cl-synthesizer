@@ -45,8 +45,11 @@
      #'cl-synthesizer-monitor-csv-handler:make-handler
      '(("ADSR" :input-socket :gate :name "ADSR Gate In" :format "~,5F")
        ("ADSR" :output-socket :cv :name "ADSR Out" :format "~,5F"))
-     :filename "waves/adsr-example-3.csv")
+     :filename "cl-synthesizer-examples/adsr-example-3.csv")
     
     rack))
 
-;;(cl-synthesizer:play-rack (example) 3)
+(defun run-example ()
+  (cl-synthesizer:play-rack (example) 3))
+
+;; (run-example)

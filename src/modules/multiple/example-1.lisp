@@ -22,7 +22,8 @@
 
     rack))
 
-#|
-(let ((rack (example)))
-    (time (cl-synthesizer:play-rack rack 10)))
-|#
+(defun run-example ()
+  (let ((rack (example)))
+    (cl-synthesizer:play-rack rack 10)))
+
+;; (run-example)

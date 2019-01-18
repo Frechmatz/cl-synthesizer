@@ -33,19 +33,17 @@
     (cl-synthesizer:add-patch rack "MIDI-SEQUENCER" :midi-events "MIDI-IFC" :midi-events)
     (cl-synthesizer:add-patch rack "MIDI-IFC" :gate-1 "ADSR" :gate)
 
-    #|
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-csv-handler:make-handler
      '(("ADSR" :input-socket :gate :name "ADSR Gate In" :format "~,5F")
        ("ADSR" :output-socket :cv :name "ADSR Out" :format "~,5F"))
-     :filename "waves/adsr-example-1.csv")
-    |#
+     :filename "cl-synthesizer-examples/adsr-example-1.csv")
     
     rack))
 
-#|
-(let ((rack (example)))
-  (time (cl-synthesizer:play-rack rack 3)))
-|#
+(defun run-example ()
+  (let ((rack (example)))
+    (cl-synthesizer:play-rack rack 3)))
 
+;; (run-example)

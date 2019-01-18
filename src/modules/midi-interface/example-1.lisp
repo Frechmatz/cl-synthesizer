@@ -30,9 +30,11 @@
     (cl-synthesizer:add-patch rack "VCO" :saw "OUTPUT" :line-out)
     rack))
 
-#|
-(let ((rack (example)))
-   (time (cl-synthesizer::play-rack rack 10 
-    :attach-audio t :audio-output-sockets '(:line-out) 
-    :attach-midi t :midi-input-socket :midi-events)))
-|#
+(defun run-example ()
+  (let ((rack (example)))
+    (time (cl-synthesizer::play-rack
+	   rack 10 
+	   :attach-audio t :audio-output-sockets '(:line-out) 
+	   :attach-midi t :midi-input-socket :midi-events))))
+
+;; (run-example)
