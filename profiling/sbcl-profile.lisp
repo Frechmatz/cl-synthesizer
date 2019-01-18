@@ -3,7 +3,7 @@
 ;;
 ;; How to run:
 ;; - load system cl-synthesizer-profiling
-;; - (run-jobs)
+;; - Execute (run-plan plan) with any profiling plan
 ;;
 
 (defpackage :cl-synthesizer-profiling
