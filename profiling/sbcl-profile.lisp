@@ -160,7 +160,7 @@
    :name "Phase Generator and Waveform Converters"
    :max-samples 500
    :profile-time t
-   :profile-statistics t
+   :profile-statistics nil
    :init '(:duration-seconds 3600)
    :jobs '((:client-id :phase-sine-converter :init nil)
 	   (:client-id :phase-square-converter :init nil)
@@ -186,15 +186,6 @@
    :init '(:duration-seconds 60)
    :jobs '((:client-id :rack-core :init nil))))
 
-(defparameter *profiling-plan-phase-generator-100-vcos*
-  (list
-   :name "Phase Generator assuming 100 instances in place"
-   :max-samples 500
-   :profile-time t
-   :profile-statistics nil
-   :init (list :duration-seconds (* 60 100))
-   :jobs '((:client-id :phase-generator :init nil))))
-
 ;; Measure overhead of 100 VCO Modules against corresponding Core-Calls
 (defparameter *profiling-plan-vco-overhead*
   (list
@@ -217,5 +208,4 @@
 ;; (run-plan *profiling-plan-vco-core*)
 ;; (run-plan *profiling-plan-vco*)
 ;; (run-plan *profiling-plan-rack-core*)
-;; (run-plan *profiling-plan-phase-generator-100-vcos*)
 ;; (run-plan *profiling-plan-vco-overhead*)
