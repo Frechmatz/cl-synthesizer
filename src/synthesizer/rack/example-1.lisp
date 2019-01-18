@@ -3,7 +3,7 @@
 
 (in-package :cl-synthesizer-rack-example-1)
 
-(defun make-saw-signal-generator (name environment &key lfo-frequency vco-frequency)
+(defun make-voice (name environment &key lfo-frequency vco-frequency)
   "Creates a module which generates a frequency modulated saw signal."
   (declare (ignore name))
   (let ((voice
@@ -16,13 +16,13 @@
     (cl-synthesizer:add-module
      voice "LFO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency lfo-frequency :v-peak 0.1 :f-max 500 :cv-max 5)
+     :base-frequency lfo-frequency :v-peak 0.1 :f-max 500.0 :cv-max 5.0)
 
     ;; Add VCO
     (cl-synthesizer:add-module
      voice "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency vco-frequency :f-max 5000 :v-peak 5 :cv-max 5)
+     :base-frequency vco-frequency :f-max 5000.0 :v-peak 5.0 :cv-max 5.0)
 
     ;; Patch LFO with VCO
     (cl-synthesizer:add-patch voice "LFO" :sine "VCO" :cv-lin)
@@ -33,7 +33,6 @@
     
     voice))
   
-
 (defun example ()
   "Two frequency modulated saw signals on left and right channel."
   (let ((rack (cl-synthesizer:make-rack
@@ -43,9 +42,9 @@
 
     ;; Add saw-signal generators
     (cl-synthesizer:add-module
-     rack "VOICE-1" #'make-saw-signal-generator :lfo-frequency 1.0 :vco-frequency 440)
+     rack "VOICE-1" #'make-voice :lfo-frequency 1.0 :vco-frequency 440.0)
     (cl-synthesizer:add-module
-     rack "VOICE-2" #'make-saw-signal-generator :lfo-frequency 2.0 :vco-frequency 442)
+     rack "VOICE-2" #'make-voice :lfo-frequency 2.0 :vco-frequency 442.0)
 
     ;; Patch generators with left/right outputs
     (cl-synthesizer:add-patch rack "VOICE-1" :audio "OUTPUT" :left)
@@ -61,7 +60,7 @@
     
     rack))
 
-(defparameter *attach-audio* t)
+(defparameter *attach-audio* nil)
 #|
 ;; Play rack for five seconds.
 (cl-synthesizer:play-rack (example) 5 
