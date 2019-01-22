@@ -109,7 +109,7 @@
 		  (setf input-fetcher (lambda() (funcall get-state-fn socket-key)))))
 	       (t
 		(cl-synthesizer:signal-assembly-error
-		 :format-control "Monitor: Socket-Type not supported: ~a. Must be one of :input-socket, :output-socket"
+		 :format-control "Monitor: Socket-Type not supported: ~a. Must be one of :input-socket, :output-socket, :state"
 		 :format-arguments (list socket-type))))
 	     (push (list key input-fetcher) input-fetchers)))))
 
