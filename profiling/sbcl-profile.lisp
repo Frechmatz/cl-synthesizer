@@ -127,10 +127,22 @@
 		    (format
 		     nil
 		     "Updating ~a VCOs for ~a seconds (Modules: ~a Patches: ~a)"
-		     vco-count duration-seconds (getf info :module-count) (getf info :patch-count)))))))))
+		     vco-count duration-seconds (getf info :module-count) (getf info :patch-count)))))))
+   (list
+    :id :monitor :name "Monitor"
+    :setup (lambda(&key duration-seconds)
+	     (let ((rack (cl-synthesizer-profiling-monitor::make-test-rack)))
+	       (let ((info (cl-synthesizer::get-rack-info rack)))
+		 (values 
+		  (lambda ()
+		    (simple-play-rack rack :duration-seconds duration-seconds))
+		  (format
+		   nil
+		   "Calling monitor for ~a seconds (Modules: ~a Patches: ~a)"
+		   duration-seconds (getf info :module-count) (getf info :patch-count)))))))))
 
 ;;
-;; Plan runner
+;; Profiling plan runner
 ;;
 
 (defun run-plan (profiling-plan)
@@ -201,11 +213,17 @@
 	   (:client-id :phase-saw-converter :init (:duration-seconds 6000))
 	   (:client-id :phase-generator :init (:duration-seconds 6000)))))
 
-;;
-;;
-;;
+(defparameter *profiling-plan-monitor*
+  (list
+   :name "Monitor"
+   :max-samples 500
+   :profile-time t
+   :profile-statistics nil
+   :init '(:duration-seconds 120)
+   :jobs '((:client-id :monitor :init nil))))
 
 ;; (run-plan *profiling-plan-vco-core*)
 ;; (run-plan *profiling-plan-vco*)
 ;; (run-plan *profiling-plan-rack-core*)
 ;; (run-plan *profiling-plan-vco-overhead*)
+;; (run-plan *profiling-plan-monitor*)
