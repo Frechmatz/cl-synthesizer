@@ -85,16 +85,20 @@
 	       ((eq :output-socket socket-type)
 		(if (not (find socket-key (funcall (getf module :outputs))))
 		    (cl-synthesizer:signal-assembly-error
-		     :format-control "Monitor: Module ~a does not have output socket ~a"
+		     :format-control "Monitor: Module ~a does not expose output socket ~a"
 		     :format-arguments (list module-path socket-key)))
 		(let ((get-output-fn (getf module :get-output)))
 		  (setf input-fetcher (lambda() (funcall get-output-fn socket-key)))))
 	       ((eq :input-socket socket-type)
+		(if (not (find socket-key (funcall (getf module :inputs))))
+		    (cl-synthesizer:signal-assembly-error
+		     :format-control "Monitor: Module ~a does not expose input socket ~a"
+		     :format-arguments (list module-path socket-key)))
 		(multiple-value-bind (source-module-name source-module source-socket)
 		    (cl-synthesizer:get-patch module-rack module-name :input-socket socket-key)
 		  (if (not source-module-name)
 		      (cl-synthesizer:signal-assembly-error
-		       :format-control "Monitor: Socket not patched or not exposed by module: ~a ~a ~a"
+		       :format-control "Monitor: Input socket exposed by module but it is not patched: ~a ~a ~a"
 		       :format-arguments (list module-name socket-type socket-key)))
 		  (setf input-fetcher
 			(lambda () (funcall (getf source-module :get-output) source-socket)))))
