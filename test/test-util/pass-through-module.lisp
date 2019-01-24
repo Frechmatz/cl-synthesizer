@@ -1,7 +1,7 @@
 (in-package :cl-synthesizer-test)
 
 (defun pass-through-module (name environment)
-  "Module that passes through input :cv-1 and cv-2 to outputs :out-1 and :out-2"
+  "Module that passes through inputs (:cv-1 :cv-2) to outputs (:out-1 :out-2)"
   (declare (ignore environment name))
   (let ((out-1 0) (out-2 0))
     (list
