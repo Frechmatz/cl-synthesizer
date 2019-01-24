@@ -22,7 +22,7 @@
 	   (core (cl-synthesizer-modules-vca::vca-core))
 	   (core-lin (getf core :linear))
 	   (core-exp (getf core :exponential)))
-      (expect-invalid-arguments-exception
+      (expect-invalid-arguments-error
 	(funcall core-lin -1.0))))
 
 (define-test test-vca-core-4 ()
@@ -30,7 +30,7 @@
 	   (core (cl-synthesizer-modules-vca::vca-core))
 	   (core-lin (getf core :linear))
 	   (core-exp (getf core :exponential)))
-      (expect-invalid-arguments-exception
+      (expect-invalid-arguments-error
 	(funcall core-lin 11.0))))
 
 (define-test vca-test-1 ()

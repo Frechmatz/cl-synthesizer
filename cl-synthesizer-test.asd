@@ -47,8 +47,17 @@
 				     (:file "sustain")))
 	       (:module "test"
 			:serial t
-			:components ((:file "packages")
-				     (:file "test-util")))
+			:components ((:file "packages")))
+	       (:module "test/test-util"
+			:serial t
+			:components ((:file "mirror-module")
+				     (:file "update-counter-module")
+				     (:file "multiplier-module")
+				     (:file "input-adder-module")
+				     (:file "expect-error")
+				     (:file "zero-crossing-trigger")
+				     (:file "frequency-counter")
+				     (:file "is-approximately")))
 	       (:module "test/core"
 			:serial t
 			:components ((:file "test-waveform")))

@@ -7,7 +7,7 @@
 	       :environment environment
 	       :input-sockets '(:in)
 	       :output-sockets '(:out))))
-    (cl-synthesizer:add-module rack "Multiplier" #'cl-synthesizer-test::test-module-multiply-by-two)
+    (cl-synthesizer:add-module rack "Multiplier" #'cl-synthesizer-test::multiplier-module)
     (cl-synthesizer:add-patch rack "INPUT" :in "Multiplier" :in)
     (cl-synthesizer:add-patch rack "Multiplier" :out "OUTPUT" :out)
     rack))

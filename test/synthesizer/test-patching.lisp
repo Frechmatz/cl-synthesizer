@@ -3,8 +3,8 @@
 
 (defun create-test-rack ()
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
-    (cl-synthesizer:add-module rack "Module 1" #'cl-synthesizer-test::test-module)
-    (cl-synthesizer:add-module rack "Module 2" #'cl-synthesizer-test::test-module)
+    (cl-synthesizer:add-module rack "Module 1" #'cl-synthesizer-test::mirror-module)
+    (cl-synthesizer:add-module rack "Module 2" #'cl-synthesizer-test::mirror-module)
     ;; plus 2 default modules of the rack
     (assert-eq 4 (length (funcall (getf rack :rack-modules))))
     (let ((found-module-1 (cl-synthesizer::get-rm-module rack "Module 1"))
@@ -53,7 +53,7 @@
 		   (assert-false module-name)
 		   (assert-false module)
 		   (assert-false socket))
-		 (expect-invalid-arguments-exception
+		 (expect-invalid-arguments-error
 		   (cl-synthesizer:get-patch rack "Module 1" :xx-socket :cv-1))
 		 )))
 
@@ -66,13 +66,13 @@
 		  "Module 1" :out-1
 		  "Module 2" :cv-1)
 		 ;; connect out-1 of "Module 1" once more 
-		 (expect-assembly-exception
+		 (expect-assembly-error
 		   (cl-synthesizer:add-patch
 		    rack
 		    "Module 1" :out-1
 		    "Module 2" :cv-2))
 		 ;; connect cv-1 of "Module 2" once more 
-		 (expect-assembly-exception
+		 (expect-assembly-error
 		   (cl-synthesizer:add-patch
 		    rack
 		    "Module 1" :out-2
@@ -91,12 +91,12 @@
 (define-test test-short-circuit ()
 	     (let ((rack (create-test-rack)))
 	       (cl-synthesizer::get-rm-module rack "Module 1")
-	       (expect-assembly-exception
+	       (expect-assembly-error
 		 (cl-synthesizer:add-patch
 		  rack
 		  "Module 1" :out-1
 		  "Module 1" :out-2))
-	       (expect-assembly-exception
+	       (expect-assembly-error
 		 (cl-synthesizer:add-patch
 		  rack
 		  "Module 1" :cv-1
@@ -105,12 +105,12 @@
 (define-test test-unknown-module ()
 	     (let ((rack (create-test-rack)))
 	       (cl-synthesizer::get-rm-module rack "Module 1")
-	       (expect-assembly-exception
+	       (expect-assembly-error
 		 (cl-synthesizer:add-patch
 		  rack
 		  "Module 1" :out-1
 		  "Module 3" :cv-1))
-	       (expect-assembly-exception
+	       (expect-assembly-error
 		 (cl-synthesizer:add-patch
 		  rack
 		  "Module 3" :out-1
@@ -120,12 +120,12 @@
 	     (let ((rack (create-test-rack)))
 	       (cl-synthesizer::get-rm-module rack "Module 1")
 	       (cl-synthesizer::get-rm-module rack "Module 2")
-		 (expect-assembly-exception
+		 (expect-assembly-error
 		   (cl-synthesizer:add-patch
 		    rack
 		    "Module 1" :out-3
 		    "Module 2" :cv-1))
-		 (expect-assembly-exception
+		 (expect-assembly-error
 		   (cl-synthesizer:add-patch
 		    rack
 		    "Module 1" :out-1

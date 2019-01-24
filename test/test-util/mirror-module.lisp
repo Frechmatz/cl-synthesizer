@@ -1,0 +1,23 @@
+(in-package :cl-synthesizer-test)
+
+(defun mirror-module (name environment)
+  "Module that mirrors its input"
+  (declare (ignore environment name))
+  (let ((out-1 0) (out-2 0))
+    (list
+     :inputs (lambda () (list :cv-1 :cv-2))
+     :outputs (lambda () (list :out-1 :out-2))
+     :get-output (lambda (output)
+		     (cond 
+		       ((eq :out-1 output)
+			out-1)
+		       ((eq :out-2 output)
+			out-2)
+		       (t (error (format nil "Unknown output ~a requested from mirror-module" output)))))
+     :update (lambda (input-args)
+	       (let ((cv-1 (getf input-args :cv-1))
+		     (cv-2 (getf input-args :cv-2)))
+	       (if cv-1
+		   (setf out-1 cv-1))
+	       (if cv-2
+		   (setf out-2 cv-2)))))))

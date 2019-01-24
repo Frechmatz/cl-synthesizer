@@ -3,8 +3,8 @@
 
 (defun create-test-rack-simple ()
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
-    (cl-synthesizer:add-module rack "Counter" #'cl-synthesizer-test::test-module-counter)
-    (cl-synthesizer:add-module rack "Multiplier" #'cl-synthesizer-test::test-module-multiply-by-two)
+    (cl-synthesizer:add-module rack "Counter" #'cl-synthesizer-test::update-counter-module)
+    (cl-synthesizer:add-module rack "Multiplier" #'cl-synthesizer-test::multiplier-module)
     ;; plus 2 default modules of the rack
     (assert-eq 4 (length (funcall (getf rack :rack-modules))))
     (let ((found-module-1 (cl-synthesizer::get-rm-module rack "Counter"))
@@ -36,9 +36,9 @@
 
 (defun create-test-rack-adder ()
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
-    (cl-synthesizer:add-module rack "Counter 1" #'cl-synthesizer-test::test-module-counter)
-    (cl-synthesizer:add-module rack "Counter 2" #'cl-synthesizer-test::test-module-counter)
-    (cl-synthesizer:add-module rack "Adder" #'cl-synthesizer-test::test-module-adder)
+    (cl-synthesizer:add-module rack "Counter 1" #'cl-synthesizer-test::update-counter-module)
+    (cl-synthesizer:add-module rack "Counter 2" #'cl-synthesizer-test::update-counter-module)
+    (cl-synthesizer:add-module rack "Adder" #'cl-synthesizer-test::input-adder-module)
     ;; plus 2 default modules of the rack
     (assert-eq 5 (length (funcall (getf rack :rack-modules))))
     (let ((found-module-1 (cl-synthesizer::get-rm-module rack "Counter 1"))
@@ -81,8 +81,8 @@
 (defun create-test-rack-recursive ()
   "Input of adder is connected with one of its outputs"
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
-    (cl-synthesizer:add-module rack "Counter" #'cl-synthesizer-test::test-module-counter)
-    (cl-synthesizer:add-module rack "Adder" #'cl-synthesizer-test::test-module-adder)
+    (cl-synthesizer:add-module rack "Counter" #'cl-synthesizer-test::update-counter-module)
+    (cl-synthesizer:add-module rack "Adder" #'cl-synthesizer-test::input-adder-module)
     ;; plus 2 default modules of the rack
     (assert-eq 4 (length (funcall (getf rack :rack-modules))))
     (let ((found-module-1 (cl-synthesizer::get-rm-module rack "Counter"))

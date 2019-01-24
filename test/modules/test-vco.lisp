@@ -15,7 +15,7 @@
 			 :f-max 12000.0
 			 :cv-max 5.0
 			 :v-peak 5.0)))
-	       (let ((f (cl-synthesizer-test::get-frequency
+	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda()
 				      (funcall
@@ -37,7 +37,7 @@
 			 :f-max 12000.0
 			 :cv-max 5.0
 			 :v-peak 5.0)))
-	       (let ((f (cl-synthesizer-test::get-frequency
+	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda()
 				      (funcall
@@ -60,7 +60,7 @@
 			 :cv-max 5.0
 			 :f-max 12000.0
 			 :v-peak 5.0)))
-	       (let ((f (cl-synthesizer-test::get-frequency
+	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda()
 				      (funcall
@@ -82,7 +82,7 @@
 			 :f-max 12000.0
 			 :cv-max 5.0
 			 :v-peak 5.0)))
-	       (let ((f (cl-synthesizer-test::get-frequency
+	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda()
 				      (funcall
@@ -103,7 +103,7 @@
 			 :f-max 12000.0
 			 :cv-max 5.0
 			 :v-peak 5.0)))
-	       (let ((f (cl-synthesizer-test::get-frequency
+	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda()
 				      (funcall
@@ -124,7 +124,7 @@
 			 :f-max 12000.0
 			 :cv-max 5.0
 			 :v-peak 5.0)))
-	       (let ((f (cl-synthesizer-test::get-frequency
+	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda()
 				      (funcall
@@ -146,7 +146,7 @@
 			 :cv-max 5.0
 			 :base-frequency 0.0
 			 :v-peak 5.0)))
-	       (let ((f (cl-synthesizer-test::get-frequency
+	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda()
 				      (funcall
@@ -168,7 +168,7 @@
 			 :f-max 12000.0
 			 :base-frequency 440.0
 			 :v-peak 5.0)))
-	       (let ((f (cl-synthesizer-test::get-frequency
+	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda()
 				      (funcall
@@ -190,7 +190,7 @@
 			 :f-max 12000.0
 			 :cv-max 5.0
 			 :v-peak 5.0)))
-	       (let ((f (cl-synthesizer-test::get-frequency
+	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda()
 				      (funcall
@@ -212,7 +212,7 @@
 			 :f-max 12000.0
 			 :cv-max 5.0
 			 :v-peak 5.0)))
-	       (let ((f (cl-synthesizer-test::get-frequency
+	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda()
 				      (funcall
@@ -235,7 +235,7 @@
 			 :f-max 12000.0
 			 :cv-max 5.0
 			 :v-peak 5.0)))
-	       (let ((f (cl-synthesizer-test::get-frequency
+	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda()
 				      (funcall
@@ -260,7 +260,7 @@
 			 :f-max 12000.0
 			 :cv-max 5.0
 			 :v-peak 5.0)))
-	       (let ((f (cl-synthesizer-test::get-frequency
+	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda()
 				      (funcall
@@ -285,7 +285,7 @@
 			 :f-max 12000.0
 			 :cv-max 5.0
 			 :v-peak 5.0)))
-	       (let ((f (cl-synthesizer-test::get-frequency
+	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda()
 				      (funcall
@@ -308,7 +308,7 @@
 			 :f-max 12000.0
 			 :cv-max 5.0
 			 :v-peak 5.0)))
-	       (let ((f (cl-synthesizer-test::get-frequency
+	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda()
 				      (funcall
