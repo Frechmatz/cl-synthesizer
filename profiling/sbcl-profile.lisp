@@ -154,6 +154,7 @@
       (let ((client (find-if (lambda (c) (eq (getf job :client-id) (getf c :id))) *clients*)))
 	(if (not client)
 	    (error (format nil "Client not found: ~a" (getf job :id))))
+
 	(let ((lambdalist (concatenate 'list (getf profiling-plan :init) (getf job :init))))
 	  (if (getf profiling-plan :profile-time)
 	      (run-profiler client lambdalist profiler-settings "TIME" #'profile-time))
@@ -198,10 +199,9 @@
    :init '(:duration-seconds 60)
    :jobs '((:client-id :rack-core :init nil))))
 
-;; Measure overhead of 100 VCO Modules against corresponding Core-Calls
 (defparameter *profiling-plan-vco-overhead*
   (list
-   :name "Comparing 100 VCOs against core calls"
+   :name "Measure overhead of 100 VCO Modules against corresponding Core-Calls"
    :max-samples 500
    :profile-time t
    :profile-statistics nil
