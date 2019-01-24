@@ -50,7 +50,7 @@
 			:components ((:file "packages")))
 	       (:module "test/test-util"
 			:serial t
-			:components ((:file "mirror-module")
+			:components ((:file "pass-through-module")
 				     (:file "update-counter-module")
 				     (:file "multiplier-module")
 				     (:file "input-adder-module")

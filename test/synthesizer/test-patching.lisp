@@ -3,8 +3,8 @@
 
 (defun create-test-rack ()
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
-    (cl-synthesizer:add-module rack "Module 1" #'cl-synthesizer-test::mirror-module)
-    (cl-synthesizer:add-module rack "Module 2" #'cl-synthesizer-test::mirror-module)
+    (cl-synthesizer:add-module rack "Module 1" #'cl-synthesizer-test::pass-through-module)
+    (cl-synthesizer:add-module rack "Module 2" #'cl-synthesizer-test::pass-through-module)
     ;; plus 2 default modules of the rack
     (assert-eq 4 (length (funcall (getf rack :rack-modules))))
     (let ((found-module-1 (cl-synthesizer::get-rm-module rack "Module 1"))

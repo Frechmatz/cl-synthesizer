@@ -1,7 +1,7 @@
 (in-package :cl-synthesizer-test)
 
-(defun mirror-module (name environment)
-  "Module that mirrors its input"
+(defun pass-through-module (name environment)
+  "Module that passes through input :cv-1 and cv-2 to outputs :out-1 and :out-2"
   (declare (ignore environment name))
   (let ((out-1 0) (out-2 0))
     (list
@@ -13,7 +13,7 @@
 			out-1)
 		       ((eq :out-2 output)
 			out-2)
-		       (t (error (format nil "Unknown output ~a requested from mirror-module" output)))))
+		       (t (error (format nil "Unknown output ~a requested from pass-through-module" output)))))
      :update (lambda (input-args)
 	       (let ((cv-1 (getf input-args :cv-1))
 		     (cv-2 (getf input-args :cv-2)))
