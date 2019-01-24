@@ -15,9 +15,6 @@
 			out-2)
 		       (t (error (format nil "Unknown output ~a requested from pass-through-module" output)))))
      :update (lambda (input-args)
-	       (let ((cv-1 (getf input-args :cv-1))
-		     (cv-2 (getf input-args :cv-2)))
-	       (if cv-1
-		   (setf out-1 cv-1))
-	       (if cv-2
-		   (setf out-2 cv-2)))))))
+	       (setf out-1 (getf input-args :cv-1))
+	       (setf out-2 (getf input-args :cv-2))))))
+
