@@ -2,6 +2,7 @@
 
 
 (defmacro expect-assembly-error(&body body)
+  "Fail test if body does not signal an assembly-error."
   `(handler-case
        (progn
          ,@body
@@ -14,6 +15,7 @@
        nil)))
 
 (defmacro expect-invalid-arguments-error(&body body)
+  "Fail test if body does not signal an invalid-arguments-error."
   `(handler-case
        (progn
          ,@body

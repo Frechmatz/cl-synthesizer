@@ -1,7 +1,7 @@
 (in-package :cl-synthesizer-test)
 
 (defun zero-crossing-trigger ()
-  "Returns a lambda which returns t if the input signal has crossed zero."
+  "Returns a lambda(input-signal) which returns t when input-signal has crossed zero."
   (let ((cur-value 0.0))
     (lambda (v)
       (let ((is-crossing

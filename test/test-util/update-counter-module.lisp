@@ -1,7 +1,7 @@
 (in-package :cl-synthesizer-test)
 
 (defun update-counter-module (name environment)
-  "Module that increments its output on each update call"
+  "Module with no inputs that counts invocations of the update function and exposes the count via output :out"
   (declare (ignore environment name))
   (let ((out 0))
     (list

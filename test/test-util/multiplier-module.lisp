@@ -1,7 +1,7 @@
 (in-package :cl-synthesizer-test)
 
 (defun multiplier-module (name environment)
-  "Module that multiplies its input by two"
+  "Module that multiplies its input :in by two and exposes the result via output :out"
   (declare (ignore environment name))
   (let ((out 0))
     (list
