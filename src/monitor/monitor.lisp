@@ -113,7 +113,16 @@
 		 :format-arguments (list socket-type))))
 	     (push (list key input-fetcher) input-fetchers)))))
 
-       (let* ((backend-update-fn (getf backend :update)))
+       ;; Prepare input property list with which
+       ;; the update function of the backend will be called.
+       ;; (:INPUT-1 nil :INPUT-2 nil ...)
+       (let ((backend-update-fn (getf backend :update))
+	     (input-argument-list nil))
+	 (dolist (p input-fetchers)
+	   ;; Value
+	   (push nil input-argument-list)
+	   ;; Key
+	   (push (first p) input-argument-list))
 	 (cl-synthesizer:add-hook
 	  rack
 	  (list 
@@ -121,11 +130,6 @@
 		       (if (getf backend :shutdown)
 			   (funcall (getf backend :shutdown))))
 	   :update (lambda()
-		     (let ((params nil))
-		       (dolist (p input-fetchers)
-			 (let ((v (funcall (second p))))
-			   ;; Value
-			   (push v params)
-			   ;; Key
-			   (push (first p) params)))
-		       (funcall backend-update-fn params)))))))))
+		     (dolist (p input-fetchers)
+		       (setf (getf input-argument-list (first p)) (funcall (second p))))
+		     (funcall backend-update-fn input-argument-list))))))))
