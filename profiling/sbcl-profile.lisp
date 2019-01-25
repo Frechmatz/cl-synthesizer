@@ -139,7 +139,18 @@
 		  (format
 		   nil
 		   "Calling monitor for ~a seconds (Modules: ~a Patches: ~a)"
-		   duration-seconds (getf info :module-count) (getf info :patch-count)))))))))
+		   duration-seconds (getf info :module-count) (getf info :patch-count)))))))
+   (list
+    :id :play-rack :name "Play-Rack"
+    :setup (lambda(&key duration-seconds attach-input-device attach-output-device)
+	     (values 
+	      (cl-synthesizer-profiling-play-rack::prepare
+	       :duration-seconds duration-seconds
+	       :attach-input-device attach-input-device
+	       :attach-output-device attach-output-device
+	       )
+	      (format nil "Running cl-synthesizer::play-rack for ~a seconds" duration-seconds)))))
+   )
 
 ;;
 ;; Profiling plan runner
@@ -222,8 +233,18 @@
    :init '(:duration-seconds 120)
    :jobs '((:client-id :monitor :init nil))))
 
+(defparameter *profiling-plan-play-rack*
+  (list
+   :name "Play-Rack"
+   :max-samples 500
+   :profile-time t
+   :profile-statistics nil
+   :init '(:duration-seconds 600 :attach-input-device t :attach-output-device t)
+   :jobs '((:client-id :play-rack :init nil))))
+
 ;; (run-plan *profiling-plan-vco-core*)
 ;; (run-plan *profiling-plan-vco*)
 ;; (run-plan *profiling-plan-rack-core*)
 ;; (run-plan *profiling-plan-vco-overhead*)
 ;; (run-plan *profiling-plan-monitor*)
+;; (run-plan *profiling-plan-play-rack*)

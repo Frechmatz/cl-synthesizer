@@ -16,5 +16,6 @@
 				     (:file "profile-phase-generator")
 				     (:file "profile-phase-waveform-converter")
 				     (:file "profile-monitor")
+				     (:file "profile-play-rack")
 				     (:file "sbcl-profile")))))
 
