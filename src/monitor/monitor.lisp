@@ -27,9 +27,14 @@
 	    </ul>
 	    The function must return a values object with the following entries:
 	    <ul>
-		<li>module A property list that represents a module. See also cl-synthesizer:add-module.</li>
-		<li>An ordered list of input keys of the module, where the first key represents 
-                   the first entry of the socket mappings (e.g. column-1) and so on.</li>
+		<li>module A property list that represents a subset of a module. 
+                    At least :update must be implemented. See also cl-synthesizer:add-module.</li>
+		<li>An ordered list of input sockets of the module, where the first entry represents 
+                   the first entry of the socket mappings (e.g. column-1) and so on. This list
+                   is in place because we do not want to depend on the actual input sockets
+                   exposed by the module. It is up to the monitor-handler to know about 
+                   specifica of modules, for example that the csv-file-writer module
+                   uses input socket :column-1 to represent the first column.</li>
 	    </ul>
 	</li>
 	<li>socket-mappings Declares the input/outputs whose values are to be monitored.
