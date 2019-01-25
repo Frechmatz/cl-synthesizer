@@ -38,19 +38,31 @@
 
 (defun prepare-audio-output (rack environment attach-audio audio-output-sockets)
   (flet ((make-audio-output-getter ()
-	   (let ((map nil) (cur-channel 0) (get-output (getf rack :get-output)))
+	   (let ((cur-channel 0)
+		 (get-output (getf rack :get-output))
+		 (audio-input-arguments nil) ;; Shared list for all audio updates
+		 (audio-input-lambdas nil))
 	     (dolist (socket audio-output-sockets)
 	       (let ((cur-socket socket))
 		 (if (not (find cur-socket (funcall (getf rack :outputs))))
 		     (cl-synthesizer:signal-assembly-error
 		      :format-control "Audio output socket ~a not exposed by rack"
 		      :format-arguments (list cur-socket)))
-		 (push (lambda () (funcall get-output cur-socket)) map)
-		 (push (cl-synthesizer-macro-util:make-keyword "channel" cur-channel) map)
-		 (setf cur-channel (+ 1 cur-channel))))
+		 (let ((device-socket (cl-synthesizer-macro-util:make-keyword "channel" cur-channel)))
+		   ;; Push updater function (modifies audio-input-arguments)
+		   (push (lambda ()
+			   (setf (getf audio-input-arguments device-socket)
+				 (funcall get-output cur-socket)))
+			 audio-input-lambdas)
+		   ;; Value
+		   (push nil audio-input-arguments)
+		   ;; Key
+		   (push device-socket audio-input-arguments)))
+	       (setf cur-channel (+ 1 cur-channel)))
 	     (lambda ()
-	       ;; TODO: Do not create a new list on each audio update
-	       (mapcar (lambda(item) (if (keywordp item) item (funcall item))) map)))))
+	       (dolist (fn audio-input-lambdas)
+		 (funcall fn))
+	       audio-input-arguments))))
     (if (or (not attach-audio) (eq 0 (length audio-output-sockets)))
 	(values
 	 (lambda () nil)
@@ -68,10 +80,17 @@
 (defun prepare-midi-input (rack environment attach-midi midi-input-socket)
   (declare (ignore rack))
   (flet ((make-midi-input-getter (device)
-	   (let ((update (getf device :update)) (get-output (getf device :get-output)))
+	   (let ((midi-output nil) ;; Shared list for all device requests
+		 (update-device (getf device :update))
+		 (get-device-output (getf device :get-output)))
+	     ;; Value
+	     (push nil midi-output)
+	     ;; Key
+	     (push midi-input-socket midi-output)
 	     (lambda ()
-	       (funcall update) ;; update MIDI device
-	       (list midi-input-socket (funcall get-output nil))))))
+	       (funcall update-device) ;; update MIDI device
+	       (setf (getf midi-output midi-input-socket) (funcall get-device-output nil))
+	       midi-output))))
     (if (or (not attach-midi) (not midi-input-socket))
 	(values
 	 (lambda () nil)
