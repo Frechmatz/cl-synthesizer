@@ -39,81 +39,58 @@
 (defclass rack-module ()
   ((name :initarg nil)
    (module :initarg nil)
-   (module-input-sockets :initarg nil)
-   (module-output-sockets :initarg nil)
    (input-patches :initarg nil)
    (output-patches :initarg nil)
-   (rack-module-update-fn :initarg nil)
-   (rack-module-output-fn :initarg nil)
    (input-argument-list :initform nil))
   (:documentation "Represents a module holding input/output connections to other modules"))
 
 (defmethod initialize-instance :after ((rm rack-module) &key name module)
   (setf (slot-value rm 'name) name)
   (setf (slot-value rm 'module) module)
-  (setf (slot-value rm 'rack-module-update-fn)
-	(getf (slot-value rm 'module) :update))
-  (setf (slot-value rm 'rack-module-output-fn)
-	(getf (slot-value rm 'module) :get-output))
-  (setf (slot-value rm 'module-input-sockets) 
-	(funcall (getf (slot-value rm 'module) :inputs)))
-  (setf (slot-value rm 'module-output-sockets)
-	(funcall (getf (slot-value rm 'module) :outputs)))
   (setf (slot-value rm 'input-patches) (patches-init (funcall (getf (slot-value rm 'module) :inputs))))
   (setf (slot-value rm 'output-patches) (patches-init (funcall (getf (slot-value rm 'module) :outputs))))
-  ;; Prepare input property list with which
+  ;; Prepare static input property list with which
   ;; the update function of the module will be called.
   ;; (:INPUT-1 nil :INPUT-2 nil ...)
-  (dolist (input-socket (slot-value rm 'module-input-sockets))
+  (dolist (input-socket (funcall (getf (slot-value rm 'module) :inputs)))
       (push nil (slot-value rm 'input-argument-list))
       (push input-socket (slot-value rm 'input-argument-list))))
 
-(declaim (inline get-rack-module-input-argument-list))
 (defun get-rack-module-input-argument-list (rm)
   (slot-value rm 'input-argument-list))
 
-(declaim (inline get-rack-module-input-sockets))
 (defun get-rack-module-input-sockets (rm)
-  (slot-value rm 'module-input-sockets))
+  (funcall (getf (slot-value rm 'module) :inputs)))
 
-(declaim (inline get-rack-module-output-sockets))
 (defun get-rack-module-output-sockets (rm)
-  (slot-value rm 'module-output-sockets))
+  (funcall (getf (slot-value rm 'module) :outputs)))
 
 (defun get-rack-module-name (rm)
   (slot-value rm 'name))
 
-(declaim (inline get-rack-module-update-fn))
 (defun get-rack-module-update-fn (rm)
-  (slot-value rm 'rack-module-update-fn))
+  (getf (slot-value rm 'module) :update))
 
 (defun get-rack-module-module (rm)
   (slot-value rm 'module))
 
-(declaim (inline get-rack-module-output-fn))
 (defun get-rack-module-output-fn (rm)
-  (slot-value rm 'rack-module-output-fn))
+  (getf (slot-value rm 'module) :get-output))
 
 (defun get-rack-module-shutdown-fn (rm)
   (let ((f (getf (slot-value rm 'module) :shutdown)))
     (if f f (lambda() ()))))
 
-(declaim (inline get-rack-module-input-patch))
 (defun get-rack-module-input-patch (rm input-socket)
   (patches-get-patch (slot-value rm 'input-patches) input-socket))
 
-(declaim (inline get-rack-module-output-patch))
 (defun get-rack-module-output-patch (rm output-socket)
   (patches-get-patch (slot-value rm 'output-patches) output-socket))
 
 (defun add-rack-module-input-patch (rm input-socket patch)
-  ;;(push patch (slot-value rm 'input-patches))
-  ;;(push input-socket (slot-value rm 'input-patches)))
   (patches-set-patch (slot-value rm 'input-patches) input-socket patch))
 
 (defun add-rack-module-output-patch (rm output-socket patch)
-  ;;(push patch (slot-value rm 'output-patches))
-  ;;(push output-socket (slot-value rm 'output-patches)))
   (patches-set-patch (slot-value rm 'output-patches) output-socket patch))
 
 ;;
