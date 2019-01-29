@@ -291,10 +291,97 @@
        :format-arguments nil))
 
   (let ((has-shut-down nil) (input-rm nil)
-	 (inputs nil) (output-rm nil) (outputs nil)
-	 (rack-modules) (hooks nil))
+	(inputs nil) (output-rm nil) (outputs nil)
+	(rack-modules) (hooks nil) (compiled-rack nil))
+    (flet ((compile-rack ()
+	     ;;(declare (optimize (debug 3) (speed 0) (space 0)))
+	     ;;(format t "~%Compiling rack")
+	     (dolist (rm rack-modules)
+	       (set-rack-module-state rm :PROCESS-TICK))
+	     (let ((ordered-rms nil))
+	       ;; Mark INPUT bridge module as done
+	       (set-rack-module-state input-rm :PROCESSED-TICK)
+	       ;; Build module execution plan
+	       (labels ((traverse-rm (rm)
+			  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
+			  (if (eq (get-rack-module-state rm) :PROCESS-TICK)
+			      (progn
+				(set-rack-module-state rm :PROCESSING-TICK)
+				(patches-with-patches (slot-value rm 'input-patches) cur-input-socket patch
+				  (declare (ignore cur-input-socket))
+				  (if patch
+				      (let ((rack-patch-module (get-rack-patch-module patch)))
+					(traverse-rm rack-patch-module))))
+				(push rm ordered-rms)
+				(set-rack-module-state rm :PROCESSED-TICK)))))
+		 (dolist (rm rack-modules)
+		   (traverse-rm rm))
+		 ;; Generate lambdas
+		 ;;(break)
+		 (let ((lambdas nil))
+		   (dolist (rm ordered-rms)
+		     (push
+		      (lambda ()
+			  (declare (inline
+				  set-rack-module-state
+				  get-rack-module-state
+				  get-rack-module-input-sockets
+				  get-rack-module-input-argument-list
+				  get-rack-module-update-fn
+				  get-rack-module-input-patch
+				  get-rack-module-output-patch
+				  get-rack-module-output-fn))
+			(let ((input-args (get-rack-module-input-argument-list rm)))
+			  (patches-with-patches (slot-value rm 'input-patches) cur-input-socket patch
+			    (let ((socket-input-value nil))
+			      (if patch
+				  (let ((rack-patch-module (get-rack-patch-module patch)))
+				    ;; Retrieve output value from input module
+				    (setf socket-input-value
+					  (funcall
+					   (get-rack-module-output-fn rack-patch-module)
+					   (get-rack-patch-socket patch)))))
+			      ;; The following setf is kind of a performance killer.
+			      ;; In a test setup (profiling-rack.lisp) it consumed
+			      ;; about 10..15% of runtime
+			      (setf (getf input-args cur-input-socket) socket-input-value)))
+			  (funcall (get-rack-module-update-fn rm) input-args)))
+		      
+		      lambdas))
+		   ;; Do not reverse lambdas as we already had two push cycles
+		   ;;(setf lambdas (reverse lambdas))
+		   ;; Resulting lambda of compilation
+		   (lambda (args)
+		     ;; Set outputs of INPUT bridge module
+		     (setf inputs args)
+		     ;; Update modules
+		     (dolist (fn lambdas)
+		       (funcall fn))
+		     ;; Call hooks
+		     (dolist (h hooks)
+		       (funcall (getf h :update)))
+		     ))
+		 ))))
     (let ((rack
 	   (list
+
+
+	    ;;
+	    ;; New update function using rack compiler
+	    ;;
+	    :update (lambda (args)
+		      (if has-shut-down
+			  nil
+			  (progn
+			    (if (not compiled-rack)
+				(setf compiled-rack (compile-rack)))
+			    (funcall compiled-rack args)
+			    t)))
+
+	    #|
+	    ;;
+	    ;; Update without compiler
+	    ;;
 	    :update (lambda (args)
 		      ;;(declare (optimize (debug 3) (speed 0) (space 0)))
 		      (declare (inline
@@ -347,6 +434,9 @@
 			      (dolist (m hooks)
 				(funcall (getf m :update))))
 			    t)))
+	    |#
+
+	    
 	    :get-output (lambda (socket) (getf outputs socket))
 	    :rack-modules (lambda() rack-modules)
 	    :outputs (lambda() output-sockets)
@@ -388,7 +478,7 @@
 		     :get-output (lambda(socket) (getf outputs socket)))))
       (setf output-rm (get-rm-module rack "OUTPUT"))
 
-      rack)))
+      rack))))
 
 (defun add-patch (rack source-rm-name source-output-socket destination-rm-name destination-input-socket)
   "Adds a patch to the rack. A patch is an unidirectional connection between an output socket
