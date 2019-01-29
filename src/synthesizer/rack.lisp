@@ -285,13 +285,11 @@
 	(inputs nil) (output-rm nil) (outputs nil)
 	(rack-modules) (hooks nil) (compiled-rack nil))
     (flet ((compile-rack ()
-	     ;;(declare (optimize (debug 3) (speed 0) (space 0)))
 	     ;; Build module execution plan
 	     (let ((ordered-rack-modules nil) (processing-rack-modules nil))
 	       ;; Mark INPUT bridge module as done
 	       (push input-rm processing-rack-modules)
 	       (labels ((traverse-rm (rm)
-			  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
 			  (if (not (find rm processing-rack-modules :test #'eq))
 			      (progn
 				(push rm processing-rack-modules)
@@ -303,47 +301,44 @@
 				(push rm ordered-rack-modules)))))
 		 (dolist (rm rack-modules)
 		   (traverse-rm rm))
-		 ;; Generate lambdas
-		 (let ((lambdas nil))
-		   (dolist (rm ordered-rack-modules)
-		     (push
-		      (lambda ()
-			(declare (inline
-				  get-rack-module-input-sockets
-				  get-rack-module-input-argument-list
-				  get-rack-module-update-fn
-				  get-rack-module-input-patch
-				  get-rack-module-output-patch
-				  get-rack-module-output-fn))
-			(let ((input-args (get-rack-module-input-argument-list rm)))
-			  (patches-with-patches (slot-value rm 'input-patches) cur-input-socket patch
-			    (let ((socket-input-value nil))
+		 (flet ((compile-update-rm (rm)
+			  "Compile update-rm by collecting all inputs and generating getter functions"
+			  ;; The setfs of the generated code are the performance killers
+			  (let ((input-args (get-rack-module-input-argument-list rm))
+				(input-getters nil)
+				(rm-update-fn (get-rack-module-update-fn rm)))
+			    ;; Push getters for all inputs
+			    (patches-with-patches (slot-value rm 'input-patches) cur-input-socket patch
 			      (if patch
-				  (let ((rack-patch-module (get-rack-patch-module patch)))
-				    ;; Retrieve output value from input module
-				    (setf socket-input-value
-					  (funcall
-					   (get-rack-module-output-fn rack-patch-module)
-					   (get-rack-patch-socket patch)))))
-			      ;; The following setf is kind of a performance killer.
-			      ;; In a test setup (profiling-rack.lisp) it consumed
-			      ;; about 10..15% of runtime
-			      (setf (getf input-args cur-input-socket) socket-input-value)))
-			  (funcall (get-rack-module-update-fn rm) input-args)))
-		      
-		      lambdas))
-		   ;;
-		   ;; Resulting compilation
-		   ;;
-		   (lambda (args)
-		     ;; Set outputs of INPUT bridge module
-		     (setf inputs args)
-		     ;; Update modules
-		     (dolist (fn lambdas)
-		       (funcall fn))
-		     ;; Call hooks
-		     (dolist (h hooks)
-		       (funcall (getf h :update)))))))))
+				  (let ((get-output-fn (get-rack-module-output-fn (get-rack-patch-module patch)))
+					(rack-patch-socket (get-rack-patch-socket patch)))
+				    (push (lambda()
+					    ;; Get output value from input module
+					    (setf (getf input-args cur-input-socket)
+						  (funcall get-output-fn rack-patch-socket)))
+					  input-getters))
+				  (push (lambda()
+					  (setf (getf input-args cur-input-socket) nil))
+					input-getters)))
+			    ;; The compiled updated function
+			    (lambda ()
+			      (dolist (fn input-getters)
+				(funcall fn))
+			      (funcall rm-update-fn input-args)))))
+		   ;; Compile
+		   (let ((lambdas nil))
+		     (dolist (rm ordered-rack-modules)
+		       (push (compile-update-rm rm) lambdas))
+		     ;; The compiled update function
+		     (lambda (args)
+		       ;; Set outputs of INPUT bridge module
+		       (setf inputs args)
+		       ;; Update modules (lambdas are already ordered due to two previous push cycles)
+		       (dolist (fn lambdas)
+			 (funcall fn))
+		       ;; Call hooks
+		       (dolist (h hooks)
+			 (funcall (getf h :update))))))))))
       (let ((rack
 	     (list
 	      :update (lambda (args)
@@ -510,7 +505,7 @@
 
 
 (defun get-rack-info (rack)
-  (declare (optimize (debug 3) (speed 0) (space 0)))
+  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((module-count 0) (patch-count 0))
     ;; Added modules + INPUT + OUTPUT
     (dolist (rm (funcall (getf rack :rack-modules)))
