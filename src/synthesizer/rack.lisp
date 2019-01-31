@@ -61,6 +61,12 @@
 (defun get-rack-module-module (rm)
   (slot-value rm 'module))
 
+(defun get-rack-module-input-patches (rm)
+  (slot-value rm 'input-patches))
+
+(defun get-rack-module-output-patches (rm)
+  (slot-value rm 'output-patches))
+
 (defun get-rack-module-output-fn (rm)
   (getf (slot-value rm 'module) :get-output))
 
@@ -116,7 +122,7 @@
    with the given name has not been added to the rack."
   (let ((rm (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (funcall (getf rack :rack-modules)))))
     (if rm
-	(slot-value rm 'module)
+	(get-rack-module-module rm)
 	nil)))
 
 (defun find-module (rack module-path)
@@ -134,7 +140,7 @@
       (values nil nil nil)
       (let* ((rm (find-if (lambda (rm) (string= (first module-path) (get-rack-module-name rm))) (funcall (getf rack :rack-modules)))))
 	(if rm
-	    (let ((module (slot-value rm 'module)))
+	    (let ((module (get-rack-module-module rm)))
 	      (if (< 1 (length module-path))
 		  (if (getf module :is-rack)
 		      (find-module module (rest module-path))
@@ -252,7 +258,7 @@
 			  (if (not (find rm visited-rack-modules :test #'eq))
 			      (progn
 				(push rm visited-rack-modules)
-				(patches-with-patches (slot-value rm 'input-patches) cur-input-socket patch
+				(patches-with-patches (get-rack-module-input-patches rm) cur-input-socket patch
 				  (declare (ignore cur-input-socket))
 				  (if patch
 				      (let ((rack-patch-module (get-rack-patch-module patch)))
@@ -264,15 +270,15 @@
 			  "Compile update-rm by collecting all inputs and generating getter functions"
 			  ;; The setfs of the generated code are the performance killers
 			  (let ((input-args nil) (input-getters nil)
-				(rm-update-fn (getf (slot-value rm 'module) :update)))
+				(rm-update-fn (getf (get-rack-module-module rm) :update)))
 			    ;; Prepare static input property list with which
 			    ;; the update function of the module will be called.
 			    ;; (:INPUT-1 nil :INPUT-2 nil ...)
-			    (dolist (input-socket (funcall (getf (slot-value rm 'module) :inputs)))
+			    (dolist (input-socket (funcall (getf (get-rack-module-module rm) :inputs)))
 			      (push nil input-args)
 			      (push input-socket input-args))
 			    ;; Push getters for all inputs
-			    (patches-with-patches (slot-value rm 'input-patches) cur-input-socket patch
+			    (patches-with-patches (get-rack-module-input-patches rm) cur-input-socket patch
 			      (if patch
 				  (let ((get-output-fn (get-rack-module-output-fn (get-rack-patch-module patch)))
 					(rack-patch-socket (get-rack-patch-socket patch)))
@@ -324,7 +330,7 @@
 			      (progn
 				(setf has-shut-down t)
 				(dolist (rm rack-modules)
-				  (let ((f (getf (slot-value rm 'module) :shutdown)))
+				  (let ((f (getf (get-rack-module-module rm) :shutdown)))
 				    (if f (funcall f))))
 				(dolist (m hooks)
 				  (let ((h (getf m :shutdown)))
@@ -477,7 +483,7 @@
       (setf module-count (+ module-count 1))
       (setf patch-count (+ patch-count
 			   (patches-get-count
-			    (slot-value rm 'input-patches))))
+			    (get-rack-module-input-patches rm))))
       (let ((module (get-rack-module-module rm)))
 	(if (getf module :is-rack)
 	    (let ((info (get-rack-info module)))
