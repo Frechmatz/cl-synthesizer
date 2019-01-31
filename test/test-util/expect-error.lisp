@@ -7,7 +7,7 @@
        (progn
          ,@body
          (assert-true nil))
-     (cl-synthesizer::assembly-error (err)
+     (cl-synthesizer:assembly-error (err)
        (assert-true err) ;; increase test count of lisp-unit summary
        t)
      (error (err)
@@ -20,7 +20,7 @@
        (progn
          ,@body
          (assert-true nil))
-     (cl-synthesizer::invalid-arguments-error (err)
+     (cl-synthesizer:invalid-arguments-error (err)
        (assert-true err) ;; increase test count of lisp-unit summary
        t)
      (error (err)
