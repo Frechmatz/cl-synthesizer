@@ -58,9 +58,6 @@
 (defun get-rack-module-name (rm)
   (slot-value rm 'name))
 
-(defun get-rack-module-update-fn (rm)
-  (getf (slot-value rm 'module) :update))
-
 (defun get-rack-module-module (rm)
   (slot-value rm 'module))
 
@@ -267,7 +264,7 @@
 			  "Compile update-rm by collecting all inputs and generating getter functions"
 			  ;; The setfs of the generated code are the performance killers
 			  (let ((input-args nil) (input-getters nil)
-				(rm-update-fn (get-rack-module-update-fn rm)))
+				(rm-update-fn (getf (slot-value rm 'module) :update)))
 			    ;; Prepare static input property list with which
 			    ;; the update function of the module will be called.
 			    ;; (:INPUT-1 nil :INPUT-2 nil ...)
