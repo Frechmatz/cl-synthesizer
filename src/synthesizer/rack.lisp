@@ -40,24 +40,14 @@
   ((name :initarg nil)
    (module :initarg nil)
    (input-patches :initarg nil)
-   (output-patches :initarg nil)
-   (input-argument-list :initform nil))
+   (output-patches :initarg nil))
   (:documentation "Represents a module holding input/output connections to other modules"))
 
 (defmethod initialize-instance :after ((rm rack-module) &key name module)
   (setf (slot-value rm 'name) name)
   (setf (slot-value rm 'module) module)
   (setf (slot-value rm 'input-patches) (patches-init (funcall (getf (slot-value rm 'module) :inputs))))
-  (setf (slot-value rm 'output-patches) (patches-init (funcall (getf (slot-value rm 'module) :outputs))))
-  ;; Prepare static input property list with which
-  ;; the update function of the module will be called.
-  ;; (:INPUT-1 nil :INPUT-2 nil ...)
-  (dolist (input-socket (funcall (getf (slot-value rm 'module) :inputs)))
-      (push nil (slot-value rm 'input-argument-list))
-      (push input-socket (slot-value rm 'input-argument-list))))
-
-(defun get-rack-module-input-argument-list (rm)
-  (slot-value rm 'input-argument-list))
+  (setf (slot-value rm 'output-patches) (patches-init (funcall (getf (slot-value rm 'module) :outputs)))))
 
 (defun get-rack-module-input-sockets (rm)
   (funcall (getf (slot-value rm 'module) :inputs)))
@@ -281,9 +271,14 @@
 		 (flet ((compile-update-rm (rm)
 			  "Compile update-rm by collecting all inputs and generating getter functions"
 			  ;; The setfs of the generated code are the performance killers
-			  (let ((input-args (get-rack-module-input-argument-list rm))
-				(input-getters nil)
+			  (let ((input-args nil) (input-getters nil)
 				(rm-update-fn (get-rack-module-update-fn rm)))
+			    ;; Prepare static input property list with which
+			    ;; the update function of the module will be called.
+			    ;; (:INPUT-1 nil :INPUT-2 nil ...)
+			    (dolist (input-socket (funcall (getf (slot-value rm 'module) :inputs)))
+			      (push nil input-args)
+			      (push input-socket input-args))
 			    ;; Push getters for all inputs
 			    (patches-with-patches (slot-value rm 'input-patches) cur-input-socket patch
 			      (if patch
