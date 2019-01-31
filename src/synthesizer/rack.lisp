@@ -67,10 +67,6 @@
 (defun get-rack-module-output-fn (rm)
   (getf (slot-value rm 'module) :get-output))
 
-(defun get-rack-module-shutdown-fn (rm)
-  (let ((f (getf (slot-value rm 'module) :shutdown)))
-    (if f f (lambda() ()))))
-
 (defun get-rack-module-input-patch (rm input-socket)
   (patches-get-patch (slot-value rm 'input-patches) input-socket))
 
@@ -206,20 +202,19 @@
       (signal-assembly-error
        :format-control "A module with name ~a has already been added to the rack"
        :format-arguments (list module-name)))
-
   (let ((environment (getf rack :environment)))
-    (let ((rm (make-instance 'rack-module
-			     :module (apply module-fn `(,module-name ,environment ,@args))
-			     :name module-name)))
-      (let ((m (get-rack-module-module rm)))
-	(dolist (property '(:inputs :outputs :update :get-output))
-	  (if (not (functionp (getf m property)))
-	      (signal-assembly-error
-	       :format-control "Invalid module ~a: Property ~a must be a function but is ~a"
-	       :format-arguments (list module-name property (getf m property))))))
-
+    (let ((module (apply module-fn `(,module-name ,environment ,@args))))
+      (dolist (property '(:inputs :outputs :update :get-output))
+	(if (not (functionp (getf module property)))
+	    (signal-assembly-error
+	     :format-control "Invalid module ~a: Property ~a must be a function but is ~a"
+	     :format-arguments (list module-name property (getf module property)))))
+      (let ((rm (make-instance
+		 'rack-module
+		 :module module
+		 :name module-name)))
       (funcall (getf rack :add-rack-module) rm)
-      nil)))
+      nil))))
 
 (defun make-rack (&key environment (input-sockets nil) (output-sockets nil))
   "Creates a rack. A rack is a module container and also a module, which means that racks 
@@ -332,10 +327,11 @@
 			      (progn
 				(setf has-shut-down t)
 				(dolist (rm rack-modules)
-				  (funcall (get-rack-module-shutdown-fn rm)))
+				  (let ((f (getf (slot-value rm 'module) :shutdown)))
+				    (if f (funcall f))))
 				(dolist (m hooks)
-				  (if (getf m :shutdown)
-				      (funcall (getf m :shutdown)))))))
+				  (let ((h (getf m :shutdown)))
+				    (if h (funcall h)))))))
 	      :environment environment
 	      :is-rack t)))
 
