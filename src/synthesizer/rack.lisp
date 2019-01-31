@@ -263,13 +263,13 @@
 	(rack-modules) (hooks nil) (compiled-rack nil))
     (flet ((compile-rack ()
 	     ;; Build module execution plan
-	     (let ((ordered-rack-modules nil) (processing-rack-modules nil))
-	       ;; Mark INPUT bridge module as done
-	       (push input-rm processing-rack-modules)
+	     (let ((ordered-rack-modules nil) (visited-rack-modules nil))
+	       ;; Mark INPUT bridge module as visited
+	       (push input-rm visited-rack-modules)
 	       (labels ((traverse-rm (rm)
-			  (if (not (find rm processing-rack-modules :test #'eq))
+			  (if (not (find rm visited-rack-modules :test #'eq))
 			      (progn
-				(push rm processing-rack-modules)
+				(push rm visited-rack-modules)
 				(patches-with-patches (slot-value rm 'input-patches) cur-input-socket patch
 				  (declare (ignore cur-input-socket))
 				  (if patch
