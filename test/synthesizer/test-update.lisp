@@ -7,8 +7,8 @@
     (cl-synthesizer:add-module rack "Multiplier" #'cl-synthesizer-test::multiplier-module)
     ;; plus 2 default modules of the rack
     (assert-eq 4 (length (funcall (getf rack :rack-modules))))
-    (let ((found-module-1 (cl-synthesizer::get-rm-module rack "Counter"))
-	  (found-module-2 (cl-synthesizer::get-rm-module rack "Multiplier")))
+    (let ((found-module-1 (funcall (getf rack :get-rack-module-by-name) "Counter"))
+	  (found-module-2 (funcall (getf rack :get-rack-module-by-name) "Multiplier")))
       (assert-true found-module-1)
       (assert-true found-module-2)
       (assert-equal "Counter" (cl-synthesizer::get-rack-module-name found-module-1))
@@ -17,8 +17,8 @@
 
 (define-test test-rack-update-1 ()
 	     (let ((rack (create-test-rack-simple)))
-	       (let ((counter (cl-synthesizer::get-rm-module rack "Counter"))
-		     (multiplier (cl-synthesizer::get-rm-module rack "Multiplier")))
+	       (let ((counter (funcall (getf rack :get-rack-module-by-name) "Counter"))
+		     (multiplier (funcall (getf rack :get-rack-module-by-name) "Multiplier")))
 		 (cl-synthesizer:add-patch
 		  rack
 		  "Counter" :out
@@ -41,22 +41,22 @@
     (cl-synthesizer:add-module rack "Adder" #'cl-synthesizer-test::input-adder-module)
     ;; plus 2 default modules of the rack
     (assert-eq 5 (length (funcall (getf rack :rack-modules))))
-    (let ((found-module-1 (cl-synthesizer::get-rm-module rack "Counter 1"))
-	  (found-module-2 (cl-synthesizer::get-rm-module rack "Counter 2"))
-	  (found-module-3 (cl-synthesizer::get-rm-module rack "Adder")))
+    (let ((found-module-1 (funcall (getf rack :get-rack-module-by-name) "Counter 1"))
+	  (found-module-2 (funcall (getf rack :get-rack-module-by-name) "Counter 2"))
+	  (found-module-3 (funcall (getf rack :get-rack-module-by-name) "Adder")))
       (assert-true found-module-1)
       (assert-true found-module-2)
       (assert-true found-module-3)
       (assert-equal "Counter 1" (cl-synthesizer::get-rack-module-name found-module-1))
-	(assert-equal "Counter 2" (cl-synthesizer::get-rack-module-name found-module-2))
-	(assert-equal "Adder" (cl-synthesizer::get-rack-module-name found-module-3)))
+      (assert-equal "Counter 2" (cl-synthesizer::get-rack-module-name found-module-2))
+      (assert-equal "Adder" (cl-synthesizer::get-rack-module-name found-module-3)))
     rack))
 
 (define-test test-rack-update-adder ()
 	     (let ((rack (create-test-rack-adder)))
-	       (let ((counter-1 (cl-synthesizer::get-rm-module rack "Counter 1"))
-		     (counter-2 (cl-synthesizer::get-rm-module rack "Counter 2"))
-		     (adder (cl-synthesizer::get-rm-module rack "Adder")))
+	       (let ((counter-1 (funcall (getf rack :get-rack-module-by-name) "Counter 1"))
+		     (counter-2 (funcall (getf rack :get-rack-module-by-name) "Counter 2"))
+		     (adder (funcall (getf rack :get-rack-module-by-name) "Adder")))
 		 (cl-synthesizer:add-patch
 		  rack
 		  "Counter 1" :out
@@ -85,8 +85,8 @@
     (cl-synthesizer:add-module rack "Adder" #'cl-synthesizer-test::input-adder-module)
     ;; plus 2 default modules of the rack
     (assert-eq 4 (length (funcall (getf rack :rack-modules))))
-    (let ((found-module-1 (cl-synthesizer::get-rm-module rack "Counter"))
-	  (found-module-2 (cl-synthesizer::get-rm-module rack "Adder")))
+    (let ((found-module-1 (funcall (getf rack :get-rack-module-by-name) "Counter"))
+	  (found-module-2 (funcall (getf rack :get-rack-module-by-name) "Adder")))
       (assert-true found-module-1)
       (assert-true found-module-2)
       (assert-equal "Counter" (cl-synthesizer::get-rack-module-name found-module-1))
@@ -95,8 +95,8 @@
 
 (define-test test-rack-update-recursive ()
 	     (let ((rack (create-test-rack-recursive)))
-	       (let ((counter (cl-synthesizer::get-rm-module rack "Counter"))
-		     (adder (cl-synthesizer::get-rm-module rack "Adder")))
+	       (let ((counter (funcall (getf rack :get-rack-module-by-name) "Counter"))
+		     (adder (funcall (getf rack :get-rack-module-by-name) "Adder")))
 		 (cl-synthesizer:add-patch
 		  rack
 		  "Counter" :out

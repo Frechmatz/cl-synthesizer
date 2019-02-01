@@ -95,8 +95,12 @@
 (defmacro get-rack-patch-module (patch)
   `(car ,patch))
 
+;; Das kriegen wir erstmal nicht rausgelöst.
+;; Die Patches müssen erst ins Rack verschoben werden
+;; Problem: Wir haben nur das rm aber nicht dessen Parent
 (defun get-rack-patch-target-name (patch)
   (get-rack-module-name (car patch)))
+
 
 ;;
 ;;
@@ -108,10 +112,6 @@
   "Returns the environment of the rack."
   (getf rack :environment))
 
-(defun get-rm-module (rack name)
-  "Helper function that returns internal representation of a module or nil."
-  (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (funcall (getf rack :rack-modules))))
-
 (defun get-module (rack name)
   "Get a module of a rack. The function has the following arguments:
     <ul>
@@ -120,7 +120,7 @@
     </ul>
    Returns the module (represented as a property list) or nil if a module
    with the given name has not been added to the rack."
-  (let ((rm (find-if (lambda (rm) (string= name (get-rack-module-name rm))) (funcall (getf rack :rack-modules)))))
+  (let ((rm (funcall (getf rack :get-rack-module-by-name) name)))
     (if rm
 	(get-rack-module-module rm)
 	nil)))
@@ -138,7 +138,7 @@
       (setf module-path (list module-path)))
   (if (not module-path)
       (values nil nil nil)
-      (let* ((rm (find-if (lambda (rm) (string= (first module-path) (get-rack-module-name rm))) (funcall (getf rack :rack-modules)))))
+      (let* ((rm (funcall (getf rack :get-rack-module-by-name) (first module-path))))
 	(if rm
 	    (let ((module (get-rack-module-module rm)))
 	      (if (< 1 (length module-path))
@@ -201,7 +201,7 @@
 	<li>&rest args Arbitrary additional arguments to be passed to the module instantiation function.
 	    These arguments typically consist of keyword parameters.</li>
     </ul>"
-  (if (get-rm-module rack module-name)
+  (if (funcall (getf rack :get-rack-module-by-name) module-name)
       (signal-assembly-error
        :format-control "A module with name ~a has already been added to the rack"
        :format-arguments (list module-name)))
@@ -216,8 +216,8 @@
 		 'rack-module
 		 :module module
 		 :name module-name)))
-      (funcall (getf rack :add-rack-module) rm)
-      nil))))
+      (funcall (getf rack :add-rack-module) rm module-name)
+      rm))))
 
 (defun make-rack (&key environment (input-sockets nil) (output-sockets nil))
   "Creates a rack. A rack is a module container and also a module, which means that racks 
@@ -248,7 +248,8 @@
 
   (let ((has-shut-down nil) (input-rm nil)
 	(inputs nil) (output-rm nil) (outputs nil)
-	(rack-modules) (hooks nil) (compiled-rack nil))
+	(rack-modules) ;; list of (:rm rm :name name) ;; to be later replaced by a cons
+	(hooks nil) (compiled-rack nil))
     (flet ((compile-rack ()
 	     ;; Build module execution plan
 	     (let ((ordered-rack-modules nil) (visited-rack-modules nil))
@@ -265,7 +266,7 @@
 					(traverse-rm rack-patch-module))))
 				(push rm ordered-rack-modules)))))
 		 (dolist (rm rack-modules)
-		   (traverse-rm rm))
+		   (traverse-rm (getf rm :rm)))
 		 (flet ((compile-update-rm (rm)
 			  "Compile update-rm by collecting all inputs and generating getter functions"
 			  ;; The setfs of the generated code are the performance killers
@@ -311,6 +312,7 @@
 			 (funcall (getf h :update))))))))))
       (let ((rack
 	     (list
+	      ;; TODO Order list by relevance of keys
 	      :update (lambda (args)
 			(if has-shut-down
 			    nil
@@ -320,17 +322,28 @@
 			      (funcall compiled-rack args)
 			      t)))
 	      :get-output (lambda (socket) (getf outputs socket))
-	      :rack-modules (lambda() rack-modules)
+	      :rack-modules (lambda() (mapcar (lambda (rm) (getf rm :rm)) rack-modules))
+	      :get-rack-module-by-name (lambda(name)
+					 (let ((rm
+						(find-if (lambda (rm) (string= name (getf rm :name)))
+							 rack-modules)))
+					   (if rm (getf rm :rm) nil)))
+	      :get-rack-module-name (lambda (rm)
+				      (let ((match (find-if (lambda (cur-rm) (eq rm (getf cur-rm :rm)))
+							    rack-modules)))
+					(if match (getf match :name) nil)))
 	      :outputs (lambda() output-sockets)
 	      :inputs (lambda() input-sockets)
-	      :add-rack-module (lambda (rm) (push rm rack-modules))
+	      :add-rack-module (lambda (rm module-name)
+				 (push (list :rm rm :name module-name) rack-modules)
+				 )
 	      :add-hook (lambda (hook) (push hook hooks))
 	      :shutdown (lambda()
 			  (if (not has-shut-down)
 			      (progn
 				(setf has-shut-down t)
 				(dolist (rm rack-modules)
-				  (let ((f (getf (get-rack-module-module rm) :shutdown)))
+				  (let ((f (getf (get-rack-module-module (getf rm :rm)) :shutdown)))
 				    (if f (funcall f))))
 				(dolist (m hooks)
 				  (let ((h (getf m :shutdown)))
@@ -341,25 +354,24 @@
 	;;
 	;; Add bridge modules
 	;;
-	(add-module rack "INPUT"
-		    (lambda(name environment)
-		      (declare (ignore name environment))
-		      (list
-		       :inputs (lambda() nil)
-		       :outputs (lambda() input-sockets)
-		       :update (lambda (args) (declare (ignore args)) nil)
-		       :get-output (lambda(socket) (getf inputs socket)))))
-	(setf input-rm (get-rm-module rack "INPUT"))
+	(setf input-rm
+	      (add-module rack "INPUT"
+			  (lambda(name environment)
+			    (declare (ignore name environment))
+			    (list
+			     :inputs (lambda() nil)
+			     :outputs (lambda() input-sockets)
+			     :update (lambda (args) (declare (ignore args)) nil)
+			     :get-output (lambda(socket) (getf inputs socket))))))
 	
-	(add-module rack "OUTPUT"
+	(setf output-rm (add-module rack "OUTPUT"
 		    (lambda(name environment)
 		      (declare (ignore name environment))
 		      (list
 		       :inputs (lambda() output-sockets)
 		       :outputs (lambda() nil)
 		       :update (lambda (args) (setf outputs args))
-		       :get-output (lambda(socket) (getf outputs socket)))))
-	(setf output-rm (get-rm-module rack "OUTPUT"))
+		       :get-output (lambda(socket) (getf outputs socket))))))
 
 	rack))))
 
@@ -387,8 +399,8 @@
 	<li>The given destination-input-socket is not exposed by the destination module.</li>
     </ul>"
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-  (let ((source-rm (get-rm-module rack source-rm-name))
-	(destination-rm (get-rm-module rack destination-rm-name)))
+  (let ((source-rm (funcall (getf rack :get-rack-module-by-name) source-rm-name))
+	(destination-rm (funcall (getf rack :get-rack-module-by-name) destination-rm-name)))
     (if (not source-rm)
 	(signal-assembly-error
 	 :format-control "Cannot find source module ~a"
@@ -460,7 +472,7 @@
       (signal-invalid-arguments-error
        :format-control "get-patch: socket must be one of :input-socket or :output-socket"
        :format-arguments nil))
-  (let ((rm (get-rm-module rack module-name)))
+  (let ((rm (funcall (getf rack :get-rack-module-by-name) module-name)))
     (if (not rm)
 	(values nil nil nil)
 	(let ((patch nil))
