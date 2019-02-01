@@ -4,7 +4,7 @@
   (:export
    :make-module))
 
-(defpackage ::cl-synthesizer-modules-midi-cc-interface
+(defpackage :cl-synthesizer-modules-midi-cc-interface
   (:use :cl)
   (:export :make-module))
 
@@ -21,7 +21,7 @@
   (:use :cl)
   (:export :make-module))
 
-(defpackage ::cl-synthesizer-modules-midi-sequencer
+(defpackage :cl-synthesizer-modules-midi-sequencer
   (:use :cl)
   (:export :make-module))
 
