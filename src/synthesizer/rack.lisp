@@ -5,6 +5,7 @@
 ;;
 
 (defun patches-init (sockets)
+  "A list of '(socket patch)  Where a patch is a (cons rm socket)"
   (let ((patches nil))
     (dolist (socket sockets)
       (push (list socket nil) patches))
@@ -348,6 +349,8 @@
 		:rack-modules (lambda() (mapcar (lambda (rm) (getf rm :rm)) rack-modules))
 		:get-rack-module-by-name (lambda(name) (get-rack-module-by-name name))
 		:get-rack-module-name (lambda (rm) (get-rack-module-name rm))
+		:get-module-name (lambda (module) (get-module-name module))
+		:get-module-by-name (lambda(name) (get-module-by-name name))
 		:outputs (lambda() output-sockets)
 		:inputs (lambda() input-sockets)
 		:add-rack-module (lambda (rm module-name)
@@ -381,6 +384,22 @@
 		      (if (string= name (getf patch :input-name))
 			  (push patch found-patches)))
 		    found-patches))
+		:get-module-input-patch
+		(lambda (module input-socket)
+		  (let* ((name (get-module-name module))
+			 ;; list of (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
+			 (patch (find-if (lambda (p) (and (string= name (getf p :input-name))
+					      (eq input-socket (getf p :input-socket))))
+					 patches)))
+		    patch))
+		:get-module-output-patch
+		(lambda (module output-socket)
+		  (let* ((name (get-module-name module))
+			 ;; list of (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
+			 (patch (find-if (lambda (p) (and (string= name (getf p :output-name))
+					      (eq output-socket (getf p :output-socket))))
+					 patches)))
+		    patch))
 		    
 		
 		)))
