@@ -531,19 +531,24 @@
       (signal-invalid-arguments-error
        :format-control "get-patch: socket must be one of :input-socket or :output-socket"
        :format-arguments nil))
-  (let ((rm (funcall (getf rack :get-rack-module-by-name) module-name)))
+  (let ((rm (funcall (getf rack :get-module-by-name) module-name)))
     (if (not rm)
 	(values nil nil nil)
-	(let ((patch nil))
-	  (if (eq :input-socket socket-type)
-	      (setf patch (get-rack-module-input-patch rm socket))
-	      (setf patch (get-rack-module-output-patch rm socket)))
-	  (if (not patch)
-	      (values nil nil nil)
-	      (values
-	       (get-rack-patch-target-name patch)
-	       (get-rack-module-module (get-rack-patch-module patch))
-	       (get-rack-patch-socket patch)))))))
+	(if (eq :input-socket socket-type)
+	    (let ((patch (funcall (getf rack :get-module-input-patch) rm socket)))
+	      (if (not patch)
+		  (values nil nil nil)
+		  (values
+		   (getf patch :output-name)
+		   (funcall (getf rack :get-module-by-name) (getf patch :output-name))
+		   (getf patch :output-socket))))
+	    (let ((patch (funcall (getf rack :get-module-output-patch) rm socket)))
+	      (if (not patch)
+		  (values nil nil nil)
+		  (values
+		   (getf patch :input-name)
+		   (funcall (getf rack :get-module-by-name) (getf patch :input-name))
+		   (getf patch :input-socket))))))))
 
 
 (defun get-rack-info (rack)
