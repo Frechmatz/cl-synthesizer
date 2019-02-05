@@ -17,21 +17,6 @@
   "This function should only be used in non-time-critical code"
   (second (find-if (lambda (entry) (eq (first entry) socket)) patches)))
 
-(defmacro patches-with-patches (patches socket patch &body body)
-  (let ((p (gensym)))
-    `(dolist (,p ,patches)
-       (let ((,socket (first ,p)) (,patch (second ,p)))
-	 ,@body))))
-
-(defun patches-get-count (patches)
-  "Returns number of set patches"
-  (let ((count 0))
-    (patches-with-patches patches socket patch
-      (declare (ignore socket))
-      (if patch
-	  (setf count (+ 1 count))))
-    count))
-
 ;;
 ;; Rack-Module
 ;; 
@@ -254,7 +239,11 @@
 	(patches nil) ;; list of (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
 	(compiled-rack nil))
 
-    (labels ((get-module-name (module)
+    (labels ((get-rack-module-name (rm)
+	       (let ((match (find-if (lambda (cur-rm) (eq rm (getf cur-rm :rm)))
+				     rack-modules)))
+		 (if match (getf match :name) nil)))
+	     (get-module-name (module)
 	       (let ((match (find-if (lambda (cur-module) (eq module (getf cur-module :module)))
 				     modules)))
 		 (if match (getf match :name) nil)))
@@ -358,10 +347,7 @@
 		:get-output (lambda (socket) (getf outputs socket))
 		:rack-modules (lambda() (mapcar (lambda (rm) (getf rm :rm)) rack-modules))
 		:get-rack-module-by-name (lambda(name) (get-rack-module-by-name name))
-		:get-rack-module-name (lambda (rm)
-					(let ((match (find-if (lambda (cur-rm) (eq rm (getf cur-rm :rm)))
-							      rack-modules)))
-					  (if match (getf match :name) nil)))
+		:get-rack-module-name (lambda (rm) (get-rack-module-name rm))
 		:outputs (lambda() output-sockets)
 		:inputs (lambda() input-sockets)
 		:add-rack-module (lambda (rm module-name)
@@ -387,7 +373,17 @@
 				    :output-socket output-socket
 				    :input-name input-name
 				    :input-socket input-socket)
-				   patches)))))
+				   patches))
+		:get-rack-module-input-patches
+		(lambda (rm)
+		  (let ((name (get-rack-module-name rm)) (found-patches nil))
+		    (dolist (patch patches)
+		      (if (string= name (getf patch :input-name))
+			  (push patch found-patches)))
+		    found-patches))
+		    
+		
+		)))
 	  ;;
 	  ;; Add bridge modules
 	  ;;
@@ -537,9 +533,7 @@
     ;; Added modules + INPUT + OUTPUT
     (dolist (rm (funcall (getf rack :rack-modules)))
       (setf module-count (+ module-count 1))
-      (setf patch-count (+ patch-count
-			   (patches-get-count
-			    (get-rack-module-input-patches rm))))
+      (setf patch-count (+ patch-count (length (funcall (getf rack :get-rack-module-input-patches) rm))))
       (let ((module (get-rack-module-module rm)))
 	(if (getf module :is-rack)
 	    (let ((info (get-rack-info module)))
