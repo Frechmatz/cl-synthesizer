@@ -53,9 +53,6 @@
 (defun get-rack-module-output-patches (rm)
   (slot-value rm 'output-patches))
 
-(defun get-rack-module-output-fn (rm)
-  (getf (slot-value rm 'module) :get-output))
-
 (defun get-rack-module-input-patch (rm input-socket)
   (patches-get-patch (slot-value rm 'input-patches) input-socket))
 
@@ -346,7 +343,9 @@
 				(funcall compiled-rack args)
 				t)))
 		:get-output (lambda (socket) (getf outputs socket))
+		;; TODO Consider if we should expose this function
 		:rack-modules (lambda() (mapcar (lambda (rm) (getf rm :rm)) rack-modules))
+		:modules (lambda() (mapcar (lambda (m) (getf m :module)) modules))
 		:get-rack-module-by-name (lambda(name) (get-rack-module-by-name name))
 		:get-rack-module-name (lambda (rm) (get-rack-module-name rm))
 		:get-module-name (lambda (module) (get-module-name module))
