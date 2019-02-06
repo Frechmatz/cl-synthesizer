@@ -1,85 +1,6 @@
 (in-package :cl-synthesizer)
 
 ;;
-;; Patch-Management
-;;
-
-(defun patches-init (sockets)
-  "A list of '(socket patch)  Where a patch is a (cons rm socket)"
-  (let ((patches nil))
-    (dolist (socket sockets)
-      (push (list socket nil) patches))
-    patches))
-
-(defun patches-set-patch (patches socket patch)
-  (setf (second (find-if (lambda (entry) (eq (first entry) socket)) patches)) patch))
-
-(defun patches-get-patch (patches socket)
-  "This function should only be used in non-time-critical code"
-  (second (find-if (lambda (entry) (eq (first entry) socket)) patches)))
-
-;;
-;; Rack-Module
-;; 
-
-(defclass rack-module ()
-  ((name :initarg nil)
-   (module :initarg nil)
-   (input-patches :initarg nil)
-   (output-patches :initarg nil))
-  (:documentation "Represents a module holding input/output connections to other modules"))
-
-(defmethod initialize-instance :after ((rm rack-module) &key name module)
-  (setf (slot-value rm 'name) name)
-  (setf (slot-value rm 'module) module)
-  (setf (slot-value rm 'input-patches) (patches-init (funcall (getf (slot-value rm 'module) :inputs))))
-  (setf (slot-value rm 'output-patches) (patches-init (funcall (getf (slot-value rm 'module) :outputs)))))
-
-(defun get-rack-module-input-sockets (rm)
-  (funcall (getf (slot-value rm 'module) :inputs)))
-
-(defun get-rack-module-output-sockets (rm)
-  (funcall (getf (slot-value rm 'module) :outputs)))
-
-(defun get-rack-module-name (rm)
-  (slot-value rm 'name))
-
-(defun get-rack-module-module (rm)
-  (slot-value rm 'module))
-
-(defun get-rack-module-input-patch (rm input-socket)
-  (patches-get-patch (slot-value rm 'input-patches) input-socket))
-
-(defun get-rack-module-output-patch (rm output-socket)
-  (patches-get-patch (slot-value rm 'output-patches) output-socket))
-
-(defun add-rack-module-input-patch (rm input-socket patch)
-  (patches-set-patch (slot-value rm 'input-patches) input-socket patch))
-
-(defun add-rack-module-output-patch (rm output-socket patch)
-  (patches-set-patch (slot-value rm 'output-patches) output-socket patch))
-
-;;
-;; Patch
-;;
-
-(defun make-rack-module-patch (rm socket)
-  (cons rm socket))
-
-(defmacro get-rack-patch-socket (patch)
-  `(cdr ,patch))
-
-(defmacro get-rack-patch-module (patch)
-  `(car ,patch))
-
-;; Das kriegen wir erstmal nicht rausgelöst.
-;; Die Patches müssen erst ins Rack verschoben werden
-;; Problem: Wir haben nur das rm aber nicht dessen Parent
-(defun get-rack-patch-target-name (patch)
-  (get-rack-module-name (car patch)))
-
-
-;;
 ;;
 ;; Rack
 ;;
@@ -175,7 +96,7 @@
 	<li>&rest args Arbitrary additional arguments to be passed to the module instantiation function.
 	    These arguments typically consist of keyword parameters.</li>
     </ul>"
-  (if (funcall (getf rack :get-rack-module-by-name) module-name)
+  (if (funcall (getf rack :get-module-by-name) module-name)
       (signal-assembly-error
        :format-control "A module with name ~a has already been added to the rack"
        :format-arguments (list module-name)))
@@ -186,12 +107,8 @@
 	    (signal-assembly-error
 	     :format-control "Invalid module ~a: Property ~a must be a function but is ~a"
 	     :format-arguments (list module-name property (getf module property)))))
-      (let ((rm (make-instance
-		 'rack-module
-		 :module module
-		 :name module-name)))
-      (funcall (getf rack :add-rack-module) rm module-name)
-      rm))))
+      (funcall (getf rack :add-module) module module-name)
+      module)))
 
 (defun make-rack (&key environment (input-sockets nil) (output-sockets nil))
   "Creates a rack. A rack is a module container and also a module, which means that racks 
@@ -222,25 +139,16 @@
 
   (let ((has-shut-down nil)
 	(input-rm nil) (inputs nil) (output-rm nil) (outputs nil)
-	(rack-modules) ;; list of (:rm rm :name name)
 	(modules nil) ;; list of (:module module :name name)
 	(hooks nil)
 	(patches nil) ;; list of (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
 	(compiled-rack nil))
 
-    (labels ((get-rack-module-name (rm)
-	       (let ((match (find-if (lambda (cur-rm) (eq rm (getf cur-rm :rm)))
-				     rack-modules)))
-		 (if match (getf match :name) nil)))
+    (labels (
 	     (get-module-name (module)
 	       (let ((match (find-if (lambda (cur-module) (eq module (getf cur-module :module)))
 				     modules)))
 		 (if match (getf match :name) nil)))
-	     (get-rack-module-by-name (name)
-	       (let ((rm
-		      (find-if (lambda (rm) (string= name (getf rm :name)))
-			       rack-modules)))
-		 (if rm (getf rm :rm) nil)))
 	     (get-module-by-name (name)
 	       (let ((module
 		      (find-if (lambda (m) (string= name (getf m :name)))
@@ -335,17 +243,13 @@
 				t)))
 		:get-output (lambda (socket) (getf outputs socket))
 		;; TODO Consider if we should expose this function
-		:rack-modules (lambda() (mapcar (lambda (rm) (getf rm :rm)) rack-modules))
 		:modules (lambda() (mapcar (lambda (m) (getf m :module)) modules))
-		:get-rack-module-by-name (lambda(name) (get-rack-module-by-name name))
-		:get-rack-module-name (lambda (rm) (get-rack-module-name rm))
 		:get-module-name (lambda (module) (get-module-name module))
 		:get-module-by-name (lambda(name) (get-module-by-name name))
 		:outputs (lambda() output-sockets)
 		:inputs (lambda() input-sockets)
-		:add-rack-module (lambda (rm module-name)
-				   (push (list :rm rm :name module-name) rack-modules)
-				   (push (list :module (get-rack-module-module rm) :name module-name) modules)
+		:add-module (lambda (module module-name)
+				   (push (list :module module :name module-name) modules)
 				   )
 		:add-hook (lambda (hook) (push hook hooks))
 		:shutdown (lambda()
@@ -367,14 +271,6 @@
 				    :input-name input-name
 				    :input-socket input-socket)
 				   patches))
-		:get-rack-module-input-patches
-		(lambda (rm)
-		  (let ((name (get-rack-module-name rm)) (found-patches nil))
-		    (dolist (patch patches)
-		      (if (string= name (getf patch :input-name))
-			  (push patch found-patches)))
-		    found-patches))
-
 		:get-module-input-patches
 		(lambda (rm)
 		  (let ((name (get-module-name rm)) (found-patches nil))
@@ -451,8 +347,8 @@
 	<li>The given destination-input-socket is not exposed by the destination module.</li>
     </ul>"
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-  (let ((source-rm (funcall (getf rack :get-rack-module-by-name) source-rm-name))
-	(destination-rm (funcall (getf rack :get-rack-module-by-name) destination-rm-name)))
+  (let ((source-rm (funcall (getf rack :get-module-by-name) source-rm-name))
+	(destination-rm (funcall (getf rack :get-module-by-name) destination-rm-name)))
     (if (not source-rm)
 	(signal-assembly-error
 	 :format-control "Cannot find source module ~a"
@@ -461,41 +357,34 @@
 	(signal-assembly-error
 	 :format-control "Cannot find destination module ~a"
 	 :format-arguments (list destination-rm-name)))
-    (if (not (find source-output-socket (get-rack-module-output-sockets source-rm)))
+    (if (not (find source-output-socket (funcall (getf source-rm :outputs))))
 	(signal-assembly-error
 	 :format-control "Module ~a does not have output socket ~a"
-	 :format-arguments (list (get-rack-module-name source-rm) source-output-socket)))
-    (if (not (find destination-input-socket (get-rack-module-input-sockets destination-rm)))
+	 :format-arguments (list source-rm-name source-output-socket)))
+    (if (not (find destination-input-socket (funcall (getf destination-rm :inputs))))
 	(signal-assembly-error
 	 :format-control "Module ~a does not have input socket ~a"
-	 :format-arguments (list (get-rack-module-name destination-rm) destination-input-socket)))
-    (let ((p (get-rack-module-input-patch destination-rm destination-input-socket)))
+	 :format-arguments (list destination-rm-name destination-input-socket)))
+    ;; (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
+    (let ((p (funcall (getf rack :get-module-input-patch) destination-rm destination-input-socket)))
       (if p
 	  (signal-assembly-error
 	   :format-control "Input socket ~a of module ~a is already connected to output socket ~a of module ~a"
 	   :format-arguments (list
 			      destination-input-socket
-			      (get-rack-module-name destination-rm)
-			      (get-rack-patch-target-name p)
-			      (get-rack-patch-socket p)))))
+			      destination-rm-name
+			      (getf p :output-name)
+			      (getf p :output-socket)))))
     
-    (let ((p (get-rack-module-output-patch source-rm source-output-socket)))
+    (let ((p (funcall (getf rack :get-module-output-patch) source-rm source-output-socket)))
       (if p
 	  (signal-assembly-error
 	   :format-control "Output socket ~a of module ~a is already connected to input socket ~a of module ~a"
 	   :format-arguments (list
 			      source-output-socket
-			      (get-rack-module-name source-rm)
-			      (get-rack-patch-socket p)
-			      (get-rack-patch-target-name p)))))
-
-    (add-rack-module-input-patch
-     destination-rm destination-input-socket
-     (make-rack-module-patch source-rm source-output-socket))
-    
-    (add-rack-module-output-patch
-     source-rm source-output-socket 
-     (make-rack-module-patch destination-rm destination-input-socket))
+			      source-rm-name
+			      (getf p :input-name)
+			      (getf p :input-socket)))))
 
     (funcall (getf rack :add-patch)
 	     :output-name source-rm-name
@@ -551,7 +440,6 @@
 
 
 (defun get-rack-info (rack)
-  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((module-count 0) (patch-count 0))
     ;; Added modules + INPUT + OUTPUT
     (dolist (module (funcall (getf rack :modules)))
