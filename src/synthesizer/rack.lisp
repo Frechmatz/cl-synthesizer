@@ -178,25 +178,7 @@
 		    (dolist (patch patches)
 		      (if (string= name (getf patch :input-name))
 			  (push patch found-patches)))
-		    found-patches))
-
-		:get-module-input-patch
-		(lambda (module input-socket)
-		  (let* ((name (get-module-name module))
-			 ;; list of (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
-			 (patch (find-if (lambda (p) (and (string= name (getf p :input-name))
-					      (eq input-socket (getf p :input-socket))))
-					 patches)))
-		    patch))
-		:get-module-output-patch
-		(lambda (module output-socket)
-		  (let* ((name (get-module-name module))
-			 ;; list of (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
-			 (patch (find-if (lambda (p) (and (string= name (getf p :output-name))
-							  (eq output-socket (getf p :output-socket))))
-					 patches)))
-		    patch))
-		)))
+		    found-patches)))))
 	  ;;
 	  ;; Add bridge modules
 	  ;;
@@ -354,9 +336,9 @@
 	<li>The given destination-input-socket is already connected with a module.</li>
 	<li>The given destination-input-socket is not exposed by the destination module.</li>
     </ul>"
-  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((source-rm (funcall (getf rack :get-module-by-name) source-rm-name))
-	(destination-rm (funcall (getf rack :get-module-by-name) destination-rm-name)))
+	(destination-rm (funcall (getf rack :get-module-by-name) destination-rm-name))
+	(patches (funcall (getf rack :patches))))
     (if (not source-rm)
 	(signal-assembly-error
 	 :format-control "Cannot find source module ~a"
@@ -373,27 +355,30 @@
 	(signal-assembly-error
 	 :format-control "Module ~a does not have input socket ~a"
 	 :format-arguments (list destination-rm-name destination-input-socket)))
-    ;; (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
-    (let ((p (funcall (getf rack :get-module-input-patch) destination-rm destination-input-socket)))
-      (if p
-	  (signal-assembly-error
+    (let ((p (find-if
+	      (lambda (p)
+		(and (string= destination-rm-name (getf p :input-name))
+		     (eq destination-input-socket (getf p :input-socket))))
+	      patches)))
+      (if p (signal-assembly-error
 	   :format-control "Input socket ~a of module ~a is already connected to output socket ~a of module ~a"
 	   :format-arguments (list
 			      destination-input-socket
 			      destination-rm-name
 			      (getf p :output-name)
 			      (getf p :output-socket)))))
-    
-    (let ((p (funcall (getf rack :get-module-output-patch) source-rm source-output-socket)))
-      (if p
-	  (signal-assembly-error
-	   :format-control "Output socket ~a of module ~a is already connected to input socket ~a of module ~a"
-	   :format-arguments (list
-			      source-output-socket
-			      source-rm-name
-			      (getf p :input-name)
-			      (getf p :input-socket)))))
-
+    (let ((p (find-if
+	      (lambda (p)
+		(and (string= source-rm-name (getf p :output-name))
+		     (eq source-output-socket (getf p :output-socket))))
+	      patches)))
+      (if p (signal-assembly-error
+	     :format-control "Output socket ~a of module ~a is already connected to input socket ~a of module ~a"
+	     :format-arguments (list
+				source-output-socket
+				source-rm-name
+				(getf p :input-name)
+				(getf p :input-socket)))))
     (funcall (getf rack :add-patch)
 	     :output-name source-rm-name
 	     :output-socket source-output-socket

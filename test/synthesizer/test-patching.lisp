@@ -23,17 +23,17 @@
 		  rack
 		  "Module 1" :out-1
 		  "Module 2" :cv-1)
-		 (let ((input-patch (funcall (getf rack :get-module-input-patch) rm-2 :cv-1)))
+		 (let ((input-patch (cl-synthesizer-test::get-module-input-patch rack rm-2 :cv-1)))
 		   (assert-true input-patch)
 		   (assert-equal "Module 1" (getf input-patch :output-name)))
-		 (let ((output-patch (funcall (getf rack :get-module-output-patch) rm-1 :out-1)))
+		 (let ((output-patch (cl-synthesizer-test::get-module-output-patch rack rm-1 :out-1)))
 		   (assert-true output-patch)
 		   (assert-equal "Module 2" (getf output-patch :input-name)))
 
-		 (assert-false (funcall (getf rack :get-module-input-patch) rm-2 :cv-2))
-		 (assert-false (funcall (getf rack :get-module-output-patch) rm-1 :out-2))
-		 (assert-false (funcall (getf rack :get-module-input-patch) rm-1 :cv-1))
-		 (assert-false (funcall (getf rack :get-module-input-patch) rm-1 :cv-2)))
+		 (assert-false (cl-synthesizer-test::get-module-input-patch rack rm-2 :cv-2))
+		 (assert-false (cl-synthesizer-test::get-module-output-patch rack rm-1 :out-2))
+		 (assert-false (cl-synthesizer-test::get-module-input-patch rack rm-1 :cv-1))
+		 (assert-false (cl-synthesizer-test::get-module-input-patch rack rm-1 :cv-2)))
 
 	       (multiple-value-bind (module-name module socket)
 		   (cl-synthesizer-test::get-patch rack "Module 2" :input-socket :cv-1)
@@ -79,16 +79,16 @@
 		    rack
 		    "Module 1" :out-2
 		    "Module 2" :cv-1))
-		 (let ((input-patch (funcall (getf rack :get-module-input-patch) rm-2 :cv-1)))
+		 (let ((input-patch (cl-synthesizer-test::get-module-input-patch rack rm-2 :cv-1)))
 		   (assert-true input-patch)
 		   (assert-equal "Module 1" (getf input-patch :output-name)))
-		 (let ((output-patch (funcall (getf rack :get-module-output-patch) rm-1 :out-1)))
+		 (let ((output-patch (cl-synthesizer-test::get-module-output-patch rack rm-1 :out-1)))
 		   (assert-true output-patch)
 		   (assert-equal "Module 2" (getf output-patch :input-name)))
-		 (assert-false (funcall (getf rack :get-module-input-patch) rm-2 :cv-2))
-		 (assert-false (funcall (getf rack :get-module-output-patch) rm-1 :out-2))
-		 (assert-false (funcall (getf rack :get-module-input-patch) rm-1 :cv-1))
-		 (assert-false (funcall (getf rack :get-module-input-patch) rm-1 :cv-2)))))
+		 (assert-false (cl-synthesizer-test::get-module-input-patch rack rm-2 :cv-2))
+		 (assert-false (cl-synthesizer-test::get-module-output-patch rack rm-1 :out-2))
+		 (assert-false (cl-synthesizer-test::get-module-input-patch rack rm-1 :cv-1))
+		 (assert-false (cl-synthesizer-test::get-module-input-patch rack rm-1 :cv-2)))))
 
 (define-test test-short-circuit ()
 	     (let ((rack (create-test-rack)))
