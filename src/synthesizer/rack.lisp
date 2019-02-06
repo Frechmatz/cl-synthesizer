@@ -171,6 +171,7 @@
 				    :input-name input-name
 				    :input-socket input-socket)
 				   patches))
+		:patches (lambda() patches)
 		:get-module-input-patches
 		(lambda (rm)
 		  (let ((name (get-module-name rm)) (found-patches nil))
@@ -444,19 +445,3 @@
 		   (getf patch :input-name)
 		   (funcall (getf rack :get-module-by-name) (getf patch :input-name))
 		   (getf patch :input-socket))))))))
-
-(defun get-rack-info (rack)
-  (let ((module-count 0) (patch-count 0))
-    ;; Added modules + INPUT + OUTPUT
-    (dolist (module (funcall (getf rack :modules)))
-      (setf module-count (+ module-count 1))
-      (setf patch-count (+ patch-count (length (funcall (getf rack :get-module-input-patches) module))))
-      (let ((module module))
-	(if (getf module :is-rack)
-	    (let ((info (get-rack-info module)))
-	      (setf module-count (+ module-count (getf info :module-count)))
-	      (setf patch-count (+ patch-count (getf info :patch-count)))))))
-    (list
-     :module-count module-count
-     :patch-count patch-count)))
-

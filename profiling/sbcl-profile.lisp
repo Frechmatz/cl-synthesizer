@@ -15,6 +15,20 @@
 ;; Tooling
 ;;
 
+(defun get-rack-info (rack)
+  (let ((module-count 0) (patch-count (length (funcall (getf rack :patches)))))
+    ;; Added modules + INPUT + OUTPUT
+    (dolist (module (funcall (getf rack :modules)))
+      (setf module-count (+ module-count 1))
+      (let ((module module))
+	(if (getf module :is-rack)
+	    (let ((info (get-rack-info module)))
+	      (setf module-count (+ module-count (getf info :module-count)))
+	      (setf patch-count (+ patch-count (getf info :patch-count)))))))
+    (list
+     :module-count module-count
+     :patch-count patch-count)))
+
 (defun profile-statistic (fn settings)
   "Run job with statistical SBCL profiler"
   (sb-sprof:with-profiling
@@ -60,7 +74,7 @@
 	     (let ((main-module-count 4) (sub-module-count 4) (module-io-socket-count 4))
 	       (let ((rack (cl-synthesizer-profiling-rack::make-test-rack
 			    :main-module-count main-module-count)))
-		 (let ((info (cl-synthesizer::get-rack-info rack)))
+		 (let ((info (get-rack-info rack)))
 		   (values 
 		    (lambda ()
 		      (simple-play-rack
@@ -120,7 +134,7 @@
     :id :vco :name "VCO"
     :setup (lambda(&key duration-seconds vco-count)
 	       (let ((rack (cl-synthesizer-profiling-vco::make-test-rack :vco-count vco-count)))
-		 (let ((info (cl-synthesizer::get-rack-info rack)))
+		 (let ((info (get-rack-info rack)))
 		   (values 
 		    (lambda ()
 		      (simple-play-rack rack :duration-seconds duration-seconds))
@@ -132,7 +146,7 @@
     :id :monitor :name "Monitor"
     :setup (lambda(&key duration-seconds)
 	     (let ((rack (cl-synthesizer-profiling-monitor::make-test-rack)))
-	       (let ((info (cl-synthesizer::get-rack-info rack)))
+	       (let ((info (get-rack-info rack)))
 		 (values 
 		  (lambda ()
 		    (simple-play-rack rack :duration-seconds duration-seconds))
