@@ -47,12 +47,6 @@
 (defun get-rack-module-module (rm)
   (slot-value rm 'module))
 
-(defun get-rack-module-input-patches (rm)
-  (slot-value rm 'input-patches))
-
-(defun get-rack-module-output-patches (rm)
-  (slot-value rm 'output-patches))
-
 (defun get-rack-module-input-patch (rm input-socket)
   (patches-get-patch (slot-value rm 'input-patches) input-socket))
 
@@ -103,10 +97,7 @@
     </ul>
    Returns the module (represented as a property list) or nil if a module
    with the given name has not been added to the rack."
-  (let ((rm (funcall (getf rack :get-rack-module-by-name) name)))
-    (if rm
-	(get-rack-module-module rm)
-	nil)))
+  (funcall (getf rack :get-module-by-name) name))
 
 (defun find-module (rack module-path)
   "Get a module of a rack. The function has the following arguments:
@@ -121,9 +112,9 @@
       (setf module-path (list module-path)))
   (if (not module-path)
       (values nil nil nil)
-      (let* ((rm (funcall (getf rack :get-rack-module-by-name) (first module-path))))
-	(if rm
-	    (let ((module (get-rack-module-module rm)))
+      (let* ((module (funcall (getf rack :get-module-by-name) (first module-path))))
+	(if module
+	    (let ((module module))
 	      (if (< 1 (length module-path))
 		  (if (getf module :is-rack)
 		      (find-module module (rest module-path))
@@ -361,8 +352,8 @@
 			    (if (not has-shut-down)
 				(progn
 				  (setf has-shut-down t)
-				  (dolist (rm rack-modules)
-				    (let ((f (getf (get-rack-module-module (getf rm :rm)) :shutdown)))
+				  (dolist (module modules)
+				    (let ((f (getf module :shutdown)))
 				      (if f (funcall f))))
 				  (dolist (m hooks)
 				    (let ((h (getf m :shutdown)))
@@ -383,6 +374,15 @@
 		      (if (string= name (getf patch :input-name))
 			  (push patch found-patches)))
 		    found-patches))
+
+		:get-module-input-patches
+		(lambda (rm)
+		  (let ((name (get-module-name rm)) (found-patches nil))
+		    (dolist (patch patches)
+		      (if (string= name (getf patch :input-name))
+			  (push patch found-patches)))
+		    found-patches))
+
 		:get-module-input-patch
 		(lambda (module input-socket)
 		  (let* ((name (get-module-name module))
@@ -554,10 +554,10 @@
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((module-count 0) (patch-count 0))
     ;; Added modules + INPUT + OUTPUT
-    (dolist (rm (funcall (getf rack :rack-modules)))
+    (dolist (module (funcall (getf rack :modules)))
       (setf module-count (+ module-count 1))
-      (setf patch-count (+ patch-count (length (funcall (getf rack :get-rack-module-input-patches) rm))))
-      (let ((module (get-rack-module-module rm)))
+      (setf patch-count (+ patch-count (length (funcall (getf rack :get-module-input-patches) module))))
+      (let ((module module))
 	(if (getf module :is-rack)
 	    (let ((info (get-rack-info module)))
 	      (setf module-count (+ module-count (getf info :module-count)))
