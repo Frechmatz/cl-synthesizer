@@ -149,8 +149,7 @@
 		:outputs (lambda() output-sockets)
 		:inputs (lambda() input-sockets)
 		:add-module (lambda (module module-name)
-				   (push (list :module module :name module-name) modules)
-				   )
+				   (push (list :module module :name module-name) modules))
 		:add-hook (lambda (hook) (push hook hooks))
 		:shutdown (lambda()
 			    (if (not has-shut-down)
@@ -171,14 +170,7 @@
 				    :input-name input-name
 				    :input-socket input-socket)
 				   patches))
-		:patches (lambda() patches)
-		:get-module-input-patches
-		(lambda (rm)
-		  (let ((name (get-module-name rm)) (found-patches nil))
-		    (dolist (patch patches)
-		      (if (string= name (getf patch :input-name))
-			  (push patch found-patches)))
-		    found-patches)))))
+		:patches (lambda() patches))))
 	  ;;
 	  ;; Add bridge modules
 	  ;;
