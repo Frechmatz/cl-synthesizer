@@ -12,7 +12,6 @@
    :add-patch
    :add-hook
    :get-module
-   :get-patch
    :play-rack
    :find-module))
 
