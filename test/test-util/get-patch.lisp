@@ -2,25 +2,22 @@
 
 
 (defun get-module-input-patch(rack module input-socket)
-  (let* ((name (funcall (getf rack :get-module-name) module))
-	 ;; list of (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
+  (let* ((name (cl-synthesizer:get-module-name rack module))
 	 (patch (find-if
 		 (lambda (p)
 		   (and (string= name (getf p :input-name))
 			(eq input-socket (getf p :input-socket))))
-		 (funcall (getf rack :patches)))))
+		 (cl-synthesizer:get-patches rack))))
 	 patch))
 
 (defun get-module-output-patch (rack module output-socket)
-  (let* ((name (funcall (getf rack :get-module-name) module))
-	 ;; list of (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
+  (let* ((name (cl-synthesizer:get-module-name rack module))
 	 (patch (find-if
 		 (lambda (p)
 		   (and (string= name (getf p :output-name))
 			(eq output-socket (getf p :output-socket))))
-		 (funcall (getf rack :patches)))))
+		 (cl-synthesizer:get-patches rack ))))
     patch))
-
 
 (defun get-patch (rack module-name socket-type socket)
   "Returns the destination module and input/output socket, to which a given
@@ -49,7 +46,7 @@
       (cl-synthesizer:signal-invalid-arguments-error
        :format-control "get-patch: socket must be one of :input-socket or :output-socket"
        :format-arguments nil))
-  (let ((rm (funcall (getf rack :get-module-by-name) module-name)))
+  (let ((rm (cl-synthesizer:get-module rack module-name)))
     (if (not rm)
 	(values nil nil nil)
 	(if (eq :input-socket socket-type)
@@ -58,12 +55,12 @@
 		  (values nil nil nil)
 		  (values
 		   (getf patch :output-name)
-		   (funcall (getf rack :get-module-by-name) (getf patch :output-name))
+		   (cl-synthesizer:get-module rack (getf patch :output-name))
 		   (getf patch :output-socket))))
 	    (let ((patch (get-module-output-patch rack rm socket)))
 	      (if (not patch)
 		  (values nil nil nil)
 		  (values
 		   (getf patch :input-name)
-		   (funcall (getf rack :get-module-by-name) (getf patch :input-name))
+		   (cl-synthesizer:get-module rack (getf patch :input-name))
 		   (getf patch :input-socket))))))))

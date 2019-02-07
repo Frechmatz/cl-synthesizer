@@ -57,7 +57,8 @@
 				     (:file "expect-error")
 				     (:file "zero-crossing-trigger")
 				     (:file "frequency-counter")
-				     (:file "is-approximately")))
+				     (:file "is-approximately")
+				     (:file "get-patch")))
 	       (:module "test/core"
 			:serial t
 			:components ((:file "test-waveform")))
