@@ -11,7 +11,7 @@ A Modular Audio Synthesizer library implemented in Common Lisp.
     (in-package :cl-synthesizer-rack-example-1)
     
     (defun make-voice (name environment &key lfo-frequency vco-frequency)
-      "Creates a module which generates a frequency modulated saw signal."
+      "Frequency modulated saw"
       (declare (ignore name))
       (let ((voice
     	 (cl-synthesizer:make-rack
@@ -19,45 +19,36 @@ A Modular Audio Synthesizer library implemented in Common Lisp.
     	  ;; Expose audio output socket
     	  :output-sockets '(:audio))))
         
-        ;; Add LFO
         (cl-synthesizer:add-module
          voice "LFO"
          #'cl-synthesizer-modules-vco:make-module
          :base-frequency lfo-frequency :v-peak 0.1 :f-max 500.0 :cv-max 5.0)
     
-        ;; Add VCO
         (cl-synthesizer:add-module
          voice "VCO"
          #'cl-synthesizer-modules-vco:make-module
          :base-frequency vco-frequency :f-max 5000.0 :v-peak 5.0 :cv-max 5.0)
     
-        ;; Patch LFO with VCO
         (cl-synthesizer:add-patch voice "LFO" :sine "VCO" :cv-lin)
-    
-        ;; Patch VCO with audio output of module
-        ;; OUTPUT is a virtual module that represents the output sockets of the rack.
         (cl-synthesizer:add-patch voice "VCO" :saw "OUTPUT" :audio)
         
         voice))
       
     (defun example ()
-      "Two frequency modulated saw signals on left and right channel."
       (let ((rack (cl-synthesizer:make-rack
     	       :environment (cl-synthesizer:make-environment)
-    	       ;; Expose left and right channel line-out sockets
+    	       ;; Expose line-out sockets
     	       :output-sockets '(:left :right))))
     
-        ;; Add saw-signal generators
         (cl-synthesizer:add-module
          rack "VOICE-1" #'make-voice :lfo-frequency 1.0 :vco-frequency 440.0)
         (cl-synthesizer:add-module
          rack "VOICE-2" #'make-voice :lfo-frequency 2.0 :vco-frequency 442.0)
     
-        ;; Patch generators with left/right outputs
         (cl-synthesizer:add-patch rack "VOICE-1" :audio "OUTPUT" :left)
         (cl-synthesizer:add-patch rack "VOICE-2" :audio "OUTPUT" :right)
     
-        ;; Write outputs to a Wave-File
+        ;; Generate a Wave-File
         (cl-synthesizer-monitor:add-monitor
          rack
          #'cl-synthesizer-monitor-wave-handler:make-handler
@@ -97,7 +88,7 @@ MIDI and Audio support for MacOS:
     (ql:quickload "cl-synthesizer-macos-device")
     
 
-Installs the devices **cl-synthesizer-device-midi:midi-device** and **cl-synthesizer-device-speaker:speaker-cl-out123**.
+Loads the devices **cl-synthesizer-device-midi:midi-device** and **cl-synthesizer-device-speaker:speaker-cl-out123**.
 
 API Reference
 -------------
@@ -139,17 +130,23 @@ Creates an environment. The environment defines properties such as the sample ra
 
 **cl-synthesizer:make-rack** &key environment (input-sockets nil) (output-sockets nil)
 
-Creates a rack. A rack is a module container and also a module, which means that racks can be added to other racks. The function has the following arguments:
+Creates a rack. A rack is a module container as well as a module. Racks can be added to other racks. The function has the following arguments:
 
 *   :environment The synthesizer environment.
-*   :input-sockets The input sockets to be exposed by the rack. The inputs can be accessed for patching of inner modules of the rack via the virtual module "INPUT".
-*   :output-sockets The output sockets to be exposed by the rack. The outputs can be accessed for patching of inner modules of the rack via the virtual module "OUTPUT".
+*   :input-sockets The input sockets to be exposed by the rack. The inputs can be patched with other modules via the bridge module "INPUT".
+*   :output-sockets The output sockets to be exposed by the rack. The outputs can be patched with other modules via the bridge module "OUTPUT".
 
-The update function of the rack calls the update function of all modules that have been added to the rack. If the rack has already been shut down it immediately returns **nil**. Othwerwise it returns **t**.
+The update function calls the update function of all modules. If the rack has already been shut down the function immediately returns **nil**. Othwerwise it returns **t**.
 
-The shutdown function shuts the rack down by calling the shutdown handlers of all modules and hooks of the rack. If the rack has already been shut down the function does not call any handlers.
+The shutdown function calls the shutdown handlers of all modules and hooks. If the rack has already been shut down the function immediately returns.
 
 See also: add-module
+
+* * *
+
+**cl-synthesizer:is-rack** module
+
+Returns **t** if the given module represents a rack.
 
 * * *
 
@@ -169,35 +166,97 @@ Adds a module to a rack. The function has the following arguments:
     
     *   :inputs A function with no arguments that returns a list of keywords that represent the input sockets exposed by the module.
     *   :outputs A function with no arguments that returns a list of keywords that represent the output sockets exposed by the module.
-    *   :update A function that is called with the values of the modules input sockets in order to update the state of the module (the state of its output sockets). All input parameters are passed as a single argument which consists of a property list or nil if the module does not expose any inputs. To avoid excessive consing this list is allocated on instantiation of the module and then used for all update calls of the module.
+    *   :update A function that is called with the values of the modules input sockets in order to update the state of the module (the state of its output sockets). All input parameters are passed as a single argument which consists of a property list or nil if the module does not expose any inputs. To avoid excessive consing this list is allocated during compilation of the rack and then used for all update calls of the module.
     *   :get-output A function that is called in order to get the value of a specific output socket. The function is called with a keyword that identifies the output socket whose state is to be returned. The function must not modify the value of the given or any other output socket.
     *   :shutdown An optional function with no arguments that is called when the rack is shutting down.
-    *   :get-state An optional function with which an internal state of a module can be exposed, for example a VCO may expose its frequency. The function has one argument that consists of a keyword identifying the requested state, for example :frequency.
+    *   :get-state An optional function that can be used to expose internal states of the module, for example a VCO may expose its frequency. The function has one argument that consists of a keyword identifying the requested state, for example :frequency.
     
     A module must not add or remove input/output sockets after it has been instantiated.
     
 *   &rest args Arbitrary additional arguments to be passed to the module instantiation function. These arguments typically consist of keyword parameters.
 
+Returns the added module.
+
 * * *
 
-**cl-synthesizer:add-patch** rack source-rm-name source-output-socket destination-rm-name destination-input-socket
+**cl-synthesizer:add-patch** rack output-module-name output-socket input-module-name input-socket
 
 Adds a patch to the rack. A patch is an unidirectional connection between an output socket of a source module and an input socket of a destination module. The rack supports cycles which means that an output socket of a module can be patched with one of its inputs (typically via multiple hops through other modules). The function has the following arguments:
 
 *   rack The rack.
-*   source-rm-name Name of the source module.
-*   source-output-socket A keyword representing one of the output sockets of the source module.
-*   destination-rm-name Name of the destination module.
-*   destination-input-socket A keyword representing one of the input sockets of the destination module.
+*   output-module-name Name of the output (source) module.
+*   output-socket A keyword representing one of the output sockets of the output module.
+*   input-module-name Name of the input (destination) module.
+*   input-socket A keyword representing one of the input sockets of the input module.
 
 The rack signals an assembly-error in the following cases:
 
-*   A module with the given source name does not exist.
-*   A module with the given destination name does not exist.
-*   The given source-output-socket is already connected with a module
-*   The given source-output-socket is not exposed by the source module.
-*   The given destination-input-socket is already connected with a module.
-*   The given destination-input-socket is not exposed by the destination module.
+*   A module with the given output name does not exist.
+*   A module with the given input name does not exist.
+*   The given output-socket is already connected with a module.
+*   The given output-socket is not exposed by the output module.
+*   The given input-socket is already connected with a module.
+*   The given input-socket is not exposed by the input module.
+
+* * *
+
+**cl-synthesizer:get-module** rack name
+
+Get a module of a rack. The function has the following arguments:
+
+*   rack The rack.
+*   name The name of the module.
+
+Returns the module or nil.
+
+* * *
+
+**cl-synthesizer:get-module-name** rack module
+
+Get the name of a module. The function has the following arguments:
+
+*   rack The rack.
+*   module The module.
+
+Returns the name or nil if the module does not belong to the rack
+
+* * *
+
+**cl-synthesizer:find-module** rack module-path
+
+Get a module of a rack. The function has the following arguments:
+
+*   rack The root rack.
+*   module-path The path of the module within the rack (through multiple nested racks).  
+    Example 1: "VCO"  
+    Example 2: '("VOICE-1" "VCO")
+
+Returns nil or a values object consisting of the rack of the module, the module name and the module itself.
+
+* * *
+
+**cl-synthesizer:get-patches** rack
+
+Get all patches of a rack. The function has the following arguments:
+
+*   rack The rack.
+
+Returns a list of property lists with the following keys:
+
+*   :output-name Name of the output module.
+*   :output-socket Output socket.
+*   :input-name Name of the input module.
+*   :input-socket Input socket.
+
+* * *
+
+**cl-synthesizer:get-modules** rack
+
+Get all modules of a rack. The function has the following arguments:
+
+*   rack The rack.
+
+Returns a list of module names
 
 * * *
 
@@ -221,49 +280,6 @@ See also: cl-synthesizer-device-speaker:speaker-cl-out123, cl-synthesizer-device
 **cl-synthesizer:get-environment** rack
 
 Returns the environment of the rack.
-
-* * *
-
-**cl-synthesizer:get-module** rack name
-
-Get a module of a rack. The function has the following arguments:
-
-*   rack The rack.
-*   name The name of the module
-
-Returns the module (represented as a property list) or nil if a module with the given name has not been added to the rack.
-
-* * *
-
-**cl-synthesizer:get-patch** rack module-name socket-type socket
-
-Returns the destination module and input/output socket, to which a given source module and one if its input/output sockets is connected. The function has the following arguments:
-
-*   rack The rack.
-*   module-name Name of the source module.
-*   socket-type :input-socket if the patch of an input socket is required or :output-socket for the patch of an output socket of the source module.
-*   socket A keyword identifying an input or output socket of the source module.
-
-The function returns returns a values object with the following entries:
-
-*   name Name of the destination module.
-*   module The destination module represented as a property list.
-*   socket A keyword that identifies the input or output socket of the destination module. If the socket type of the source module is :input-socket then this keyword represents an output socket of the destination module. Otherwise it represents an input socket.
-
-If the module does not exist, the module does not expose the given socket, or if the socket is not patched, all entries of the returned values object are nil.
-
-* * *
-
-**cl-synthesizer:find-module** rack module-path
-
-Get a module of a rack. The function has the following arguments:
-
-*   rack The root rack.
-*   module-path The path of the module within the rack (through multiple nested racks).  
-    Example 1: "VCO"  
-    Example 2: '("VOICE-1" "VCO")
-
-Returns nil or a values object consisting of the rack of the module, the module name and the module itself.
 
 * * *
 
@@ -1268,8 +1284,8 @@ Adds a monitor to a rack. A monitor is a high-level Rack hook that collects modu
     *   additional-handler-args Any additional keyword parameters as passed to the monitor function. These parameters can be used to initialize handler specific properties such as a filename.
     
     The function must return a values object with the following entries:
-    *   module A property list that represents a module. See also cl-synthesizer:add-module.
-    *   An ordered list of input keys of the module, where the first key represents the first entry of the socket mappings (e.g. column-1) and so on.
+    *   module A property list that represents a subset of a module. At least :update must be implemented. See also cl-synthesizer:add-module.
+    *   An ordered list of input sockets of the module, where the first entry represents the first entry of the socket mappings (e.g. column-1) and so on. This list is in place because we do not want to depend on the actual input sockets exposed by the module. It is up to the monitor-handler to know about specifica of modules, for example that the csv-file-writer module uses input socket :column-1 to represent the first column.
 *   socket-mappings Declares the input/outputs whose values are to be monitored. Each entry has the following format:
     *   module-path Path of the module from which the value of a certain input/output socket or state is to be retrieved, for example "ADSR" or '("VOICE-1" "ADSR"). See also cl-synthesizer:find-module.
     *   socket-type One of the following keywords:
@@ -1429,4 +1445,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2019-01-18 22:24:51
+Generated 2019-02-07 20:13:30
