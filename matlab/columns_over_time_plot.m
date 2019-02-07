@@ -1,6 +1,6 @@
 % Plots all columns (y) over time (x)
 % Input is a CSV file with n columns and a header row
-content = importdata('/Users/olli/waves/adsr-example-3.csv');
+content = importdata('/Users/olli/cl-synthesizer-examples/adsr-example-3.csv');
 sampleRate = 44100;
 % Create X-Axis
 ticks = 0:1:size(content.data)-1;
