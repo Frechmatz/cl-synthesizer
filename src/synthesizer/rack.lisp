@@ -32,7 +32,7 @@
        :format-arguments nil))
 
   (let ((has-shut-down nil)
-	(input-module nil) (inputs nil) (output-module nil) (outputs nil)
+	(inputs nil) (outputs nil)
 	(modules nil) ;; list of (:module module :name name)
 	(hooks nil)
 	(patches nil) ;; list of (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
@@ -175,25 +175,23 @@
 	  ;;
 	  ;; Add bridge modules
 	  ;;
-	  (setf input-module
-		(add-module rack "INPUT"
-			    (lambda(name environment)
-			      (declare (ignore name environment))
-			      (list
-			       :inputs (lambda() nil)
-			       :outputs (lambda() input-sockets)
-			       :update (lambda (args) (declare (ignore args)) nil)
-			       :get-output (lambda(socket) (getf inputs socket))))))
+	  (add-module rack "INPUT"
+		      (lambda(name environment)
+			(declare (ignore name environment))
+			(list
+			 :inputs (lambda() nil)
+			 :outputs (lambda() input-sockets)
+			 :update (lambda (args) (declare (ignore args)) nil)
+			 :get-output (lambda(socket) (getf inputs socket)))))
 	  
-	  (setf output-module
-		(add-module rack "OUTPUT"
-			    (lambda(name environment)
-			      (declare (ignore name environment))
-			      (list
-			       :inputs (lambda() output-sockets)
-			       :outputs (lambda() nil)
-			       :update (lambda (args) (setf outputs args))
-			       :get-output (lambda(socket) (getf outputs socket))))))
+	  (add-module rack "OUTPUT"
+		      (lambda(name environment)
+			(declare (ignore name environment))
+			(list
+			 :inputs (lambda() output-sockets)
+			 :outputs (lambda() nil)
+			 :update (lambda (args) (setf outputs args))
+			 :get-output (lambda(socket) (getf outputs socket)))))
 
 	  rack)))))
 
