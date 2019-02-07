@@ -6,23 +6,23 @@
 (in-package :cl-synthesizer-monitor)
 
 (defun get-module-input-patch(rack module input-socket)
-  (let* ((name (funcall (getf rack :get-module-name) module))
+  (let* ((name (cl-synthesizer:get-module-name rack module))
 	 ;; list of (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
 	 (patch (find-if
 		 (lambda (p)
 		   (and (string= name (getf p :input-name))
 			(eq input-socket (getf p :input-socket))))
-		 (funcall (getf rack :patches)))))
+		 (cl-synthesizer:get-patches rack))))
 	 patch))
 
 (defun get-module-output-patch (rack module output-socket)
-  (let* ((name (funcall (getf rack :get-module-name) module))
+  (let* ((name (cl-synthesizer:get-module-name rack module))
 	 ;; list of (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
 	 (patch (find-if
 		 (lambda (p)
 		   (and (string= name (getf p :output-name))
 			(eq output-socket (getf p :output-socket))))
-		 (funcall (getf rack :patches)))))
+		 (cl-synthesizer:get-patches rack))))
     patch))
 
 

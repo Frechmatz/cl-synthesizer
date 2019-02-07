@@ -7,24 +7,22 @@
 ;;
 
 (defun make-rack (&key environment (input-sockets nil) (output-sockets nil))
-  "Creates a rack. A rack is a module container and also a module, which means that racks 
-   can be added to other racks. The function has the following arguments:
+  "Creates a rack. A rack is a module container as well as a module. Racks can
+   be added to other racks. The function has the following arguments:
     <ul>
 	<li>:environment The synthesizer environment.</li>
         <li>:input-sockets The input sockets to be exposed by the rack. The inputs
-        can be accessed for patching of inner modules of the rack via the virtual 
-        module \"INPUT\".</li>
+        can be patched with other modules via the bridge module \"INPUT\".</li>
         <li>:output-sockets The output sockets to be exposed by the rack. The outputs
-        can be accessed for patching of inner modules of the rack via the virtual 
-        module \"OUTPUT\".</li>
+        can be patched with other modules via the bridge module \"OUTPUT\".</li>
     </ul>
     <p>    
-    The update function of the rack calls the update function of all modules that have
-    been added to the rack. If the rack has already been shut down it immediately returns <b>nil</b>.
+    The update function calls the update function of all modules. If the 
+    rack has already been shut down the function immediately returns <b>nil</b>.
     Othwerwise it returns <b>t</b>.
     </p><p>
-    The shutdown function shuts the rack down by calling the shutdown handlers of all modules 
-    and hooks of the rack. If the rack has already been shut down the function does not call any handlers.
+    The shutdown function calls the shutdown handlers of all modules and hooks. If the rack has 
+    already been shut down the function immediately returns.
     </p>
     <p>See also: add-module</p>"
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
@@ -34,7 +32,7 @@
        :format-arguments nil))
 
   (let ((has-shut-down nil)
-	(input-rm nil) (inputs nil) (output-rm nil) (outputs nil)
+	(input-module nil) (inputs nil) (output-module nil) (outputs nil)
 	(modules nil) ;; list of (:module module :name name)
 	(hooks nil)
 	(patches nil) ;; list of (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
@@ -142,15 +140,17 @@
 				(funcall compiled-rack args)
 				t)))
 		:get-output (lambda (socket) (getf outputs socket))
-		;; TODO Consider if we should expose this function
-		:modules (lambda() (mapcar (lambda (m) (getf m :module)) modules))
+		:modules (lambda() (mapcar (lambda (m) (getf m :name)) modules))
 		:get-module-name (lambda (module) (get-module-name module))
 		:get-module-by-name (lambda(name) (get-module-by-name name))
 		:outputs (lambda() output-sockets)
 		:inputs (lambda() input-sockets)
 		:add-module (lambda (module module-name)
-				   (push (list :module module :name module-name) modules))
-		:add-hook (lambda (hook) (push hook hooks))
+			      (setf compiled-rack nil)
+			      (push (list :module module :name module-name) modules))
+		:add-hook (lambda (hook)
+			    (setf compiled-rack nil)
+			    (push hook hooks))
 		:shutdown (lambda()
 			    (if (not has-shut-down)
 				(progn
@@ -164,6 +164,7 @@
 		:environment environment
 		:is-rack t
 		:add-patch (lambda (&key output-name output-socket input-name input-socket)
+			     (setf compiled-rack nil)
 			     (push (list
 				    :output-name output-name
 				    :output-socket output-socket
@@ -174,7 +175,7 @@
 	  ;;
 	  ;; Add bridge modules
 	  ;;
-	  (setf input-rm
+	  (setf input-module
 		(add-module rack "INPUT"
 			    (lambda(name environment)
 			      (declare (ignore name environment))
@@ -184,7 +185,7 @@
 			       :update (lambda (args) (declare (ignore args)) nil)
 			       :get-output (lambda(socket) (getf inputs socket))))))
 	  
-	  (setf output-rm
+	  (setf output-module
 		(add-module rack "OUTPUT"
 			    (lambda(name environment)
 			      (declare (ignore name environment))
@@ -228,7 +229,7 @@
                     in order to update the state of the module (the state of its output sockets).
 		    All input parameters are passed as a single argument which consists of a property list or
                     nil if the module does not expose any inputs. To avoid excessive consing this
-                   list is allocated on instantiation of the module and then used for all update calls
+                   list is allocated during compilation of the rack and then used for all update calls
                    of the module.</li>
 		<li>:get-output A function that is called in order to get the value of a specific
 		    output socket. The function is called with a keyword that identifies the output socket
@@ -236,8 +237,8 @@
 		    of the given or any other output socket.</li>
 		<li>:shutdown An optional function with no arguments that is called when the rack
 		    is shutting down.</li>
-                <li>:get-state An optional function with which an internal state of a module can
-                    be exposed, for example a VCO may expose its frequency. The function has one 
+                <li>:get-state An optional function that can be used to expose internal states 
+                    of the module, for example a VCO may expose its frequency. The function has one 
                     argument that consists of a keyword identifying the requested state, for 
                     example :frequency.</li>
 	    </ul>
@@ -247,7 +248,8 @@
 	</li>
 	<li>&rest args Arbitrary additional arguments to be passed to the module instantiation function.
 	    These arguments typically consist of keyword parameters.</li>
-    </ul>"
+    </ul>
+    Returns the added module."
   (if (funcall (getf rack :get-module-by-name) module-name)
       (signal-assembly-error
        :format-control "A module with name ~a has already been added to the rack"
@@ -272,14 +274,22 @@
    Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>."
   (funcall (getf rack :add-hook) hook))
 
+(defun get-module-name (rack module)
+  "Get the name of a module. The function has the following arguments:
+    <ul>
+	<li>rack The rack.</li>
+	<li>module The module.</li>
+    </ul>
+   Returns the name or nil if the module does not belong to the rack"
+  (funcall (getf rack :get-module-name) module))
+
 (defun get-module (rack name)
   "Get a module of a rack. The function has the following arguments:
     <ul>
       <li>rack The rack.</li>
-      <li>name The name of the module</li>
+      <li>name The name of the module.</li>
     </ul>
-   Returns the module (represented as a property list) or nil if a module
-   with the given name has not been added to the rack."
+   Returns the module or nil."
   (funcall (getf rack :get-module-by-name) name))
 
 (defun find-module (rack module-path)
@@ -305,75 +315,102 @@
 		  (values rack (first module-path) module)))
 	    (values nil nil nil)))))
 
-(defun add-patch (rack source-rm-name source-output-socket destination-rm-name destination-input-socket)
+(defun add-patch (rack output-module-name output-socket input-module-name input-socket)
   "Adds a patch to the rack. A patch is an unidirectional connection between an output socket
     of a source module and an input socket of a destination module. The rack supports cycles 
     which means that an output socket of a module can be patched with one of its inputs (typically via
     multiple hops through other modules). The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
-	<li>source-rm-name Name of the source module.</li>
-	<li>source-output-socket A keyword representing one of the output sockets of the
-	    source module.</li>
-	<li>destination-rm-name Name of the destination module.</li>
-	<li>destination-input-socket A keyword representing one of the input sockets of the
-	    destination module.</li>
+	<li>output-module-name Name of the output (source) module.</li>
+	<li>output-socket A keyword representing one of the output sockets of the
+	    output module.</li>
+	<li>input-module-name Name of the input (destination) module.</li>
+	<li>input-socket A keyword representing one of the input sockets of the
+	    input module.</li>
     </ul>
     The rack signals an assembly-error in the following cases:
     <ul>
-	<li>A module with the given source name does not exist.</li>
-	<li>A module with the given destination name does not exist.</li>
-	<li>The given source-output-socket is already connected with a module</li>
-	<li>The given source-output-socket is not exposed by the source module.</li>
-	<li>The given destination-input-socket is already connected with a module.</li>
-	<li>The given destination-input-socket is not exposed by the destination module.</li>
+	<li>A module with the given output name does not exist.</li>
+	<li>A module with the given input name does not exist.</li>
+	<li>The given output-socket is already connected with a module.</li>
+	<li>The given output-socket is not exposed by the output module.</li>
+	<li>The given input-socket is already connected with a module.</li>
+	<li>The given input-socket is not exposed by the input module.</li>
     </ul>"
-  (let ((source-rm (funcall (getf rack :get-module-by-name) source-rm-name))
-	(destination-rm (funcall (getf rack :get-module-by-name) destination-rm-name))
+  (let ((source-module (funcall (getf rack :get-module-by-name) output-module-name))
+	(destination-module (funcall (getf rack :get-module-by-name) input-module-name))
 	(patches (funcall (getf rack :patches))))
-    (if (not source-rm)
+    (if (not source-module)
 	(signal-assembly-error
-	 :format-control "Cannot find source module ~a"
-	 :format-arguments (list source-rm-name)))
-    (if (not destination-rm)
+	 :format-control "Cannot find output module ~a"
+	 :format-arguments (list output-module-name)))
+    (if (not destination-module)
 	(signal-assembly-error
-	 :format-control "Cannot find destination module ~a"
-	 :format-arguments (list destination-rm-name)))
-    (if (not (find source-output-socket (funcall (getf source-rm :outputs))))
+	 :format-control "Cannot find input module ~a"
+	 :format-arguments (list input-module-name)))
+    (if (not (find output-socket (funcall (getf source-module :outputs))))
 	(signal-assembly-error
-	 :format-control "Module ~a does not have output socket ~a"
-	 :format-arguments (list source-rm-name source-output-socket)))
-    (if (not (find destination-input-socket (funcall (getf destination-rm :inputs))))
+	 :format-control "Module ~a does not expose output socket ~a"
+	 :format-arguments (list output-module-name output-socket)))
+    (if (not (find input-socket (funcall (getf destination-module :inputs))))
 	(signal-assembly-error
-	 :format-control "Module ~a does not have input socket ~a"
-	 :format-arguments (list destination-rm-name destination-input-socket)))
+	 :format-control "Module ~a does not expose input socket ~a"
+	 :format-arguments (list input-module-name input-socket)))
     (let ((p (find-if
 	      (lambda (p)
-		(and (string= destination-rm-name (getf p :input-name))
-		     (eq destination-input-socket (getf p :input-socket))))
+		(and (string= input-module-name (getf p :input-name))
+		     (eq input-socket (getf p :input-socket))))
 	      patches)))
       (if p (signal-assembly-error
 	   :format-control "Input socket ~a of module ~a is already connected to output socket ~a of module ~a"
 	   :format-arguments (list
-			      destination-input-socket
-			      destination-rm-name
+			      input-socket
+			      input-module-name
 			      (getf p :output-name)
 			      (getf p :output-socket)))))
     (let ((p (find-if
 	      (lambda (p)
-		(and (string= source-rm-name (getf p :output-name))
-		     (eq source-output-socket (getf p :output-socket))))
+		(and (string= output-module-name (getf p :output-name))
+		     (eq output-socket (getf p :output-socket))))
 	      patches)))
       (if p (signal-assembly-error
 	     :format-control "Output socket ~a of module ~a is already connected to input socket ~a of module ~a"
 	     :format-arguments (list
-				source-output-socket
-				source-rm-name
+				output-socket
+				output-module-name
 				(getf p :input-name)
 				(getf p :input-socket)))))
     (funcall (getf rack :add-patch)
-	     :output-name source-rm-name
-	     :output-socket source-output-socket
-	     :input-name destination-rm-name
-	     :input-socket destination-input-socket)))
+	     :output-name output-module-name
+	     :output-socket output-socket
+	     :input-name input-module-name
+	     :input-socket input-socket)))
+
+(defun get-patches (rack)
+  "Get all patches of a rack. The function has the following arguments:
+    <ul>
+	<li>rack The rack.</li>
+    </ul>
+   Returns a list of property lists with the following keys:
+   <ul>
+     <li>:output-name Name of the output module.</li>
+     <li>:output-socket Output socket. </li>
+     <li>:input-name Name of the input module. </li>
+     <li>:input-socket Input socket.</li>
+   </ul>"
+  (funcall (getf rack :patches)))
+
+(defun get-modules (rack)
+  "Get all modules of a rack. The function has the following arguments:
+    <ul>
+	<li>rack The rack.</li>
+    </ul>
+   Returns a list of module names"
+  (funcall (getf rack :modules)))
+
+(defun is-rack (module)
+  "Returns <b>t</b> if the given module represents a rack."
+  (getf module :is-rack))
+
 

@@ -12,6 +12,10 @@
    :add-patch
    :add-hook
    :get-module
+   :get-patches
+   :get-modules
    :play-rack
-   :find-module))
+   :is-rack
+   :find-module
+   :get-module-name))
 
