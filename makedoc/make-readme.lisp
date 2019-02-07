@@ -47,13 +47,16 @@
 		   (make-function-string 'cl-synthesizer:make-environment :append-separator nil)
 		   "<h3 id=\"rack\">Rack</h3>"
 		   (make-function-string 'cl-synthesizer:make-rack)
+		   (make-function-string 'cl-synthesizer:is-rack)
 		   (make-function-string 'cl-synthesizer:add-module)
 		   (make-function-string 'cl-synthesizer:add-patch)
+		   (make-function-string 'cl-synthesizer:get-module)
+		   (make-function-string 'cl-synthesizer:get-module-name)
+		   (make-function-string 'cl-synthesizer:find-module)
+		   (make-function-string 'cl-synthesizer:get-patches)
+		   (make-function-string 'cl-synthesizer:get-modules)
 		   (make-function-string 'cl-synthesizer:play-rack)
 		   (make-function-string 'cl-synthesizer:get-environment)
-		   (make-function-string 'cl-synthesizer:get-module)
-		   (make-function-string 'cl-synthesizer:get-patch)
-		   (make-function-string 'cl-synthesizer:find-module)
 		   (make-function-string 'cl-synthesizer:add-hook :append-separator nil)
 		   "<h3 id=\"modules\">Modules</h3>"
 		   "<h4 id=\"vco\">VCO</h4>"
