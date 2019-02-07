@@ -16,18 +16,20 @@
 ;;
 
 (defun get-rack-info (rack)
-  (let ((module-count 0) (patch-count (length (funcall (getf rack :patches)))))
-    ;; Added modules + INPUT + OUTPUT
-    (dolist (module (funcall (getf rack :modules)))
-      (setf module-count (+ module-count 1))
-      (let ((module module))
-	(if (getf module :is-rack)
-	    (let ((info (get-rack-info module)))
-	      (setf module-count (+ module-count (getf info :module-count)))
-	      (setf patch-count (+ patch-count (getf info :patch-count)))))))
-    (list
-     :module-count module-count
-     :patch-count patch-count)))
+  (let ((module-count 0) (patch-count (length (cl-synthesizer:get-patches rack))))
+    (let ((modules (mapcar (lambda(name) (cl-synthesizer:get-module rack name))
+			   (cl-synthesizer:get-modules rack))))
+      ;; Added modules + INPUT + OUTPUT
+      (dolist (module modules)
+	(setf module-count (+ module-count 1))
+	(let ((module module))
+	  (if (cl-synthesizer:is-rack module)
+	      (let ((info (get-rack-info module)))
+		(setf module-count (+ module-count (getf info :module-count)))
+		(setf patch-count (+ patch-count (getf info :patch-count)))))))
+      (list
+       :module-count module-count
+       :patch-count patch-count))))
 
 (defun profile-statistic (fn settings)
   "Run job with statistical SBCL profiler"
@@ -220,7 +222,7 @@
    :name "Rack-Core"
    :max-samples 500
    :profile-time t
-   :profile-statistics nil
+   :profile-statistics t
    :init '(:duration-seconds 60)
    :jobs '((:client-id :rack-core :init nil))))
 
