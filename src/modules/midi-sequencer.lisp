@@ -24,7 +24,8 @@
     The module has no inputs.
     The module has one output socket :midi-events."
   (declare (ignore name))
-  (let ((lookup-hash (make-hash-table :test #'eq))
+  ;; :test #'eq -> never ever use eq here.  
+  (let ((lookup-hash (make-hash-table))
 	(ticks-per-milli-second (/ (getf environment :sample-rate) 1000))
 	(cur-tick -1)
 	(cur-midi-events nil))
