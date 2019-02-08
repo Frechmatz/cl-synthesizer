@@ -163,14 +163,13 @@
 ;; Removes a note.
 ;; Returns voice index and current note.
 (defun remove-note (cur-voice-manager note)
-  (with-slots (voices) cur-voice-manager
-    (let ((found-voice (voice-manager-find-voice-by-note cur-voice-manager note)))
-      (with-voice found-voice index voice
-	(if (not voice)
-	    (values nil nil)
-	    (values
-	     index
-	     (voice-remove-note voice note)))))))
+  (let ((found-voice (voice-manager-find-voice-by-note cur-voice-manager note)))
+    (with-voice found-voice index voice
+      (if (not voice)
+	  (values nil nil)
+	  (values
+	   index
+	   (voice-remove-note voice note))))))
 
 ;; Returns t if the given voice-index is assigned to at least one note
 (defun has-note (cur-voice-manager voice-index)
