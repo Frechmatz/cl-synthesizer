@@ -74,6 +74,7 @@
 				     (:file "test-trigger")
 				     (:file "test-midi-cc-interface")
 				     (:file "test-midi-interface")
+				     (:file "test-midi-sequencer")
 				     (:file "test-mixer")
 				     (:file "test-ramp")
 				     (:file "test-sustain")

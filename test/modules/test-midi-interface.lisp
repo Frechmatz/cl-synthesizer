@@ -314,8 +314,8 @@
 						       (:GATE-2 5.0)))))))
 	       (run-test-case-midi-ifc test)))
 
-;; based on sustain-example-1
-(define-test test-midi-interface-abcl ()
+
+(define-test test-midi-interface-update-1 ()
 	     (let ((rack (cl-synthesizer:make-rack
 			  :environment (cl-synthesizer:make-environment))))
 	       ;; Use MIDI sequencer for generation of Gate signals
@@ -343,15 +343,66 @@
 	       (cl-synthesizer:add-patch rack "MIDI-SEQUENCER" :midi-events "MIDI-IFC" :midi-events)
 	       (let ((midi-ifc (cl-synthesizer:get-module rack "MIDI-IFC")))
 		 ;; initial gate must not be nil
-		 ;; passes under ABCL
 		 (assert-true (funcall (getf midi-ifc :get-output) :gate-1))
-		 ;; does not pass under ABCL
 		 (let ((count (cl-synthesizer-test::output-change-counter
 			       :sample-rate 44100
 			       :duration-seconds 4
 			       :update-fn (lambda () (funcall (getf rack :update) nil))
 			       :get-output-fn (lambda ()
 						(funcall (getf midi-ifc :get-output) :gate-1)))))
-		   (format t "~%Count: ~a~%" count)
 		   (assert-true (< 0.0 count))))))
 
+(define-test test-midi-interface-update-2 ()
+	     (let ((rack (cl-synthesizer:make-rack
+			  :environment (cl-synthesizer:make-environment))))
+	       ;; Use MIDI sequencer for generation of Gate signals
+	       (cl-synthesizer:add-module
+		rack "MIDI-SEQUENCER"
+		#'cl-synthesizer-modules-midi-sequencer:make-module :events
+		(list 
+		 (list :timestamp-milli-seconds 300
+		       :midi-events (list
+				     (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+		 (list :timestamp-milli-seconds 700
+		       :midi-events (list
+				     (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))))
+
+	       (cl-synthesizer:add-module
+		rack "MIDI-IFC"
+		#'cl-synthesizer-modules-midi-interface:make-module :voice-count 1)
+
+	       (cl-synthesizer:add-patch rack "MIDI-SEQUENCER" :midi-events "MIDI-IFC" :midi-events)
+	       (let ((midi-ifc (cl-synthesizer:get-module rack "MIDI-IFC")))
+		 ;; initial gate must not be nil
+		 (assert-true (funcall (getf midi-ifc :get-output) :gate-1))
+		 (let ((count (cl-synthesizer-test::output-change-counter
+			       :sample-rate 44100
+			       :duration-seconds 4
+			       :update-fn (lambda () (funcall (getf rack :update) nil))
+			       :get-output-fn (lambda ()
+						(funcall (getf midi-ifc :get-output) :gate-1)))))
+		   (assert-true (< 0.0 count))))))
+
+(define-test test-midi-interface-update-3 ()
+	     (let ((rack (cl-synthesizer:make-rack
+			  :environment (cl-synthesizer:make-environment))))
+	       ;; Use MIDI sequencer for generation of Gate signals
+	       (cl-synthesizer:add-module
+		rack "MIDI-SEQUENCER"
+		#'cl-synthesizer-modules-midi-sequencer:make-module :events
+		(list 
+		 (list :timestamp-milli-seconds 300
+		       :midi-events (list
+				     (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+		 (list :timestamp-milli-seconds 700
+		       :midi-events (list
+				     (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))))
+	       (let ((midi-sequencer (cl-synthesizer:get-module rack "MIDI-SEQUENCER"))
+		     (event-count 0))
+		 (dotimes (i 44100)
+		   (funcall (getf rack :update) nil)
+		   (if (funcall (getf midi-sequencer :get-output) :midi-event)
+		       (setf event-count (+ 1 event-count))))
+		 (assert-equal 2 event-count))))
+
+		 
