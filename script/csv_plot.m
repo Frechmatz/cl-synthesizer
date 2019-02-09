@@ -1,4 +1,5 @@
-% Plots all columns (y) over time (x)
+% Matlab Script
+% Plots all columns (y) of a csv file over time (x)
 % Input is a CSV file with n columns and a header row
 content = importdata('/Users/olli/cl-synthesizer-examples/adsr-example-3.csv');
 sampleRate = 44100;
