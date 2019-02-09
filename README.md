@@ -58,12 +58,8 @@ A Modular Audio Synthesizer library implemented in Common Lisp.
         
         rack))
     
-    (defparameter *attach-audio* nil)
     (defun run-example ()
-      (cl-synthesizer:play-rack
-       (example) 5 
-       :attach-audio *attach-audio*
-       :audio-output-sockets '(:left :right)))
+      (cl-synthesizer:play-rack (example) :duration-seconds 5))
       
     ;;(run-example)
 
@@ -78,17 +74,6 @@ Installation
     
 
 The cl-wave repository is a fork of the wave file reader/writer library implemented by [Ryan King](https://github.com/RyanTKing/cl-wave) where a dependency has been replaced with code kindly provided by Ryan.
-
-MIDI and Audio support for MacOS:
-
-    
-    cd ~/quicklisp/local-projects
-    git clone https://github.com/byulparan/CoreMIDI.git
-    ln -s cl-synthesizer cl-synthesizer-macos-device
-    (ql:quickload "cl-synthesizer-macos-device")
-    
-
-Loads the devices **cl-synthesizer-device-midi:midi-device** and **cl-synthesizer-device-speaker:speaker-cl-out123**.
 
 API Reference
 -------------
@@ -260,20 +245,12 @@ Returns a list of module names
 
 * * *
 
-**cl-synthesizer:play-rack** rack duration-seconds &key (attach-audio nil) (audio-output-sockets nil) (attach-midi nil) (midi-input-socket nil)
+**cl-synthesizer:play-rack** rack &key duration-seconds
 
 A utility function that "plays" the rack by consecutively calling its update function for a given number of "ticks". The function has the following arguments:
 
 *   rack The rack.
-*   duration-seconds Duration in seconds of how long to play the rack. If for example the duration is 2 seconds and the sample rate of the rack as declared by its environment is 44100, then the update function of the rack will be called 88200 times.
-*   :attach-audio If t then the audio device as declared by the variable \*audio-device-settings\* is instantiated and attached to the given outputs of the rack.
-*   :audio-output-sockets A list of keywords that declare the output sockets of the rack providing the audio signal.
-*   :attach-midi If t then the MIDI device as declared by the variable \*midi-device-settings\* is instantiated and attached to the rack.
-*   :midi-input-socket A keyword that declares the input socket of the rack to which the MIDI input is to be routed.
-
-The current implementation of the play-rack function assumes that an audio device is blocking.
-
-See also: cl-synthesizer-device-speaker:speaker-cl-out123, cl-synthesizer-device-midi:midi-device
+*   :duration-seconds Duration in seconds of how long to play the rack. If for example the duration is 2 seconds and the sample rate of the rack as declared by its environment is 44100, then the update function of the rack will be called 88200 times.
 
 * * *
 
@@ -357,7 +334,7 @@ The module exposes the following states via the get-state function:
     
     (defun run-example ()
       (let ((rack (example)))
-        (cl-synthesizer:play-rack rack 60)))
+        (cl-synthesizer:play-rack rack :duration-seconds 60)))
     
     ;; (run-example)
 
@@ -436,7 +413,7 @@ The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.
     
     (defun run-example ()
       (let ((rack (example)))
-        (cl-synthesizer:play-rack rack 120)))
+        (cl-synthesizer:play-rack rack :duration-seconds 120)))
     
     ;; (run-example)
 
@@ -515,7 +492,7 @@ The module has the following outputs:
     
     (defun run-example ()
       (let ((rack (example)))
-        (cl-synthesizer:play-rack rack 3)))
+        (cl-synthesizer:play-rack rack :duration-seconds 3)))
     
     ;; (run-example)
 
@@ -565,7 +542,7 @@ The module has the following outputs:
     
     (defun run-example ()
       (let ((rack (example)))
-        (cl-synthesizer:play-rack rack 10)))
+        (cl-synthesizer:play-rack rack :duration-seconds 10)))
     
     ;; (run-example)
 
@@ -607,48 +584,9 @@ The module has the following outputs:
 *   :gate-1 ... :gate-n
 *   :cv-1 ... :cv-n
 
-**Example:**
+For an example see **midi-sequencer**
 
-    (defpackage :cl-synthesizer-modules-midi-interface-example-1
-      (:use :cl))
-    
-    (in-package :cl-synthesizer-modules-midi-interface-example-1)
-    
-    (defparameter *attach-midi* t)
-    (defparameter *attach-audio* t)
-    
-    (defun example ()
-      "Very simple midi-interface example that does not care about the gate signal."
-      (let ((rack (cl-synthesizer:make-rack
-    	       :environment (cl-synthesizer:make-environment)
-    	       :input-sockets '(:midi-events)
-    	       :output-sockets '(:line-out))))
-    
-        (cl-synthesizer:add-module
-         rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:make-module
-         :voice-count 1)
-    
-        (cl-synthesizer:add-module
-         rack "VCO"
-         #'cl-synthesizer-modules-vco:make-module
-         :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
-         :cv-max 5.0
-         :f-max 13000.0
-         :v-peak 5.0)
-        
-        (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-IFC" :midi-events)
-        (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv-exp)
-        (cl-synthesizer:add-patch rack "VCO" :saw "OUTPUT" :line-out)
-        rack))
-    
-    (defun run-example ()
-      (let ((rack (example)))
-        (time (cl-synthesizer::play-rack
-    	   rack 10 
-    	   :attach-audio t :audio-output-sockets '(:line-out) 
-    	   :attach-midi t :midi-input-socket :midi-events))))
-    
-    ;; (run-example)
+* * *
 
 #### MIDI CC Interface
 
@@ -682,85 +620,40 @@ The module has the following outputs:
 
 **Example:**
 
-    (defpackage :cl-synthesizer-modules-midi-cc-interface-example-2
+    (defpackage :cl-synthesizer-modules-midi-cc-interface-example-1
       (:use :cl))
     
-    (in-package :cl-synthesizer-modules-midi-cc-interface-example-2)
-    
-    (defparameter *attach-midi* t)
-    (defparameter *attach-speaker* t)
+    (in-package :cl-synthesizer-modules-midi-cc-interface-example-1)
     
     (defun example ()
-      "Modulate frequency via two CC controllers"
-      (let* ((rack (cl-synthesizer:make-rack
-    		:environment (cl-synthesizer:make-environment)
-    		:input-sockets '(:midi-events)
-    		:output-sockets '(:line-out)))
-    	 (lsb-controller-number
-    	  (funcall
-    	   (getf cl-synthesizer-vendor:*arturia-minilab-mk2* :get-controller-number) :encoder-1))
-    	 (msb-controller-number
-    	  (funcall
-    	   (getf cl-synthesizer-vendor:*arturia-minilab-mk2* :get-controller-number) :encoder-9))
-    	 (vco-f-max 5000.0)
-    	 (vco-cv-max 5.0)
-    	 (1Hz (/ vco-cv-max vco-f-max)))
-        
+      "MIDI CC-Interface Example"
+      (let ((rack (cl-synthesizer:make-rack
+    	       :environment (cl-synthesizer:make-environment)
+    	       :input-sockets '(:midi-events))))
+    
         (cl-synthesizer:add-module
          rack "MIDI-CC-IFC" #'cl-synthesizer-modules-midi-cc-interface:make-module
-         :controller-numbers (list msb-controller-number lsb-controller-number)
-         :initial-output 0.0
-         :min-output (* -1.0 vco-cv-max)
-         :max-output vco-cv-max
-         :channel nil
+         :controller-numbers '(112)
+         :initial-output 2.5
+         :min-output 0.0
+         :max-output 5.0
          :transform-handler
          (lambda (cur-output controller-number control-value)
-           (let ((offs 
-    	      (cond
-    		((= 61 control-value) (* -1.0 1Hz))
-    		((= 62 control-value) (* -2.0 1Hz))
-    		((= 63 control-value) (* -3.0 1Hz))
-    		((= 65 control-value) (* 1.0 1Hz))
-    		((= 66 control-value) (* 2.0 1Hz))
-    		((= 67 control-value) (* 3.0 1Hz))
-    		(t 0))))
-    	 (if (= controller-number msb-controller-number)
-    	     (setf offs (* 10.0 offs))) 
-    	 (+ cur-output offs))))
+           (declare (ignore controller-number))
+           (cond
+    	 ((= control-value 61)
+    	  (+ cur-output -0.5))
+    	 ((= control-value 67)
+    	  (+ cur-output 0.5))
+    	 (t cur-output)))
+         :channel nil)
         
-        (cl-synthesizer:add-module
-         rack "VCO"
-         #'cl-synthesizer-modules-vco:make-module
-         :base-frequency 440.0
-         :cv-max vco-cv-max
-         :f-max vco-f-max
-         :v-peak 5.0)
-    
         (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-CC-IFC" :midi-events)
-        (cl-synthesizer:add-patch rack "MIDI-CC-IFC" :output "VCO" :cv-lin)
-        (cl-synthesizer:add-patch rack "VCO" :sine "OUTPUT" :line-out)
     
-        (cl-synthesizer-monitor:add-monitor
-         rack
-         #'cl-synthesizer-monitor-csv-handler:make-handler
-         '(("VCO" :state :frequency :name "Frequency" :format "~,4F")
-           ("VCO" :output-socket :sine :name "Sine" :format "~,4F"))
-        :filename "cl-synthesizer-examples/midi-cc-interface-example-2.csv")
-    
-        (cl-synthesizer-monitor:add-monitor
-         rack
-         #'cl-synthesizer-monitor-wave-handler:make-handler
-         '(("VCO" :output-socket :sine))
-        :filename "cl-synthesizer-examples/midi-cc-interface-example-2.wav")
-        
         rack))
     
     (defun run-example ()
-      (let ((rack (example)))
-        (time (cl-synthesizer::play-rack
-    	   rack 5 
-    	   :attach-audio t :audio-output-sockets '(:line-out) 
-    	   :attach-midi t :midi-input-socket :midi-events))))
+      (cl-synthesizer::play-rack (example) :duration-seconds 5))
     
     ;; (run-example)
 
@@ -784,8 +677,6 @@ The module has no inputs. The module has one output socket :midi-events.
       (:use :cl))
     
     (in-package :cl-synthesizer-modules-midi-sequencer-example-1)
-    
-    (defparameter *attach-audio* nil)
     
     (defun example ()
       "Midi-Sequencer example"
@@ -858,9 +749,7 @@ The module has no inputs. The module has one output socket :midi-events.
     
     (defun run-example ()
       (let ((rack (example)))
-        (cl-synthesizer::play-rack
-         rack 5 
-         :attach-audio *attach-audio* :audio-output-sockets '(:line-out))))
+        (cl-synthesizer::play-rack rack :duration-seconds 5)))
     
     ;; (run-example)
 
@@ -901,7 +790,7 @@ The module has no inputs. The module has one output socket according to the :out
         rack))
     
     (defun run-example ()
-      (cl-synthesizer:play-rack (example) 1))
+      (cl-synthesizer:play-rack (example) :duration-seconds 1))
     
     ;; (run-example)
 
@@ -1031,7 +920,8 @@ The module has the following outputs:
         rack))
     
     (defun run-example ()
-      (let ((rack (example))) (cl-synthesizer:play-rack rack 2)))
+      (let ((rack (example)))
+        (cl-synthesizer:play-rack rack :duration-seconds 2)))
     
     ;; (run-example)
 
@@ -1118,7 +1008,7 @@ This module has been inspired by [dhemery](https://github.com/dhemery/DHE-Module
         rack))
     
     (defun run-example ()
-      (let ((rack (example))) (cl-synthesizer:play-rack rack 5)))
+      (let ((rack (example))) (cl-synthesizer:play-rack rack :duration-seconds 5)))
     
     ;; (run-example)
 
@@ -1221,7 +1111,7 @@ This module has been inspired by [dhemery](https://github.com/dhemery/DHE-Module
         rack))
     
     (defun run-example ()
-      (let ((rack (example))) (cl-synthesizer:play-rack rack 3)))
+      (let ((rack (example))) (cl-synthesizer:play-rack rack :duration-seconds 3)))
     
     ;; (run-example)
 
@@ -1335,7 +1225,7 @@ Adds a monitor to a rack. A monitor is a high-level Rack hook that collects modu
         rack))
     
     (defun run-example ()
-      (cl-synthesizer:play-rack (example) 1))
+      (cl-synthesizer:play-rack (example) :duration-seconds 1))
     
     ;; (run-example)
 
@@ -1445,4 +1335,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2019-02-07 20:13:30
+Generated 2019-02-09 18:01:33
