@@ -4,7 +4,7 @@
 (in-package :cl-synthesizer-modules-vco-example-1)
 
 (defun example ()
-  "Write all wave forms into a 4-Channel wave file"
+  "Write all wave forms into a Wave and a Csv file"
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module
      rack
@@ -20,14 +20,23 @@
        ("VCO" :output-socket :saw)
        ("VCO" :output-socket :square))
      :filename "cl-synthesizer-examples/vco-example-1.wav")
+
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-csv-handler:make-handler
+     '(("VCO" :output-socket :sine :format "~,4F" :name "Sine")
+       ("VCO" :output-socket :triangle :format "~,4F" :name "Triangle")
+       ("VCO" :output-socket :saw :format "~,4F" :name "Saw")
+       ("VCO" :output-socket :square :format "~,4F" :name "Square"))
+     :filename "cl-synthesizer-examples/vco-example-1.csv"
+     :add-header t
+     :column-separator ",")
     
     rack))
 
 (defun run-example ()
   (let ((rack (example)))
-    (cl-synthesizer:play-rack rack :duration-seconds 60)))
+    (cl-synthesizer:play-rack rack :duration-seconds 1)))
 
 ;; (run-example)
-
-
 
