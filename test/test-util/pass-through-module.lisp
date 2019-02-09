@@ -2,9 +2,13 @@
 
 (defun pass-through-module (name environment)
   "Module that passes through inputs (:cv-1 :cv-2) to outputs (:out-1 :out-2)"
-  (declare (ignore environment name))
+  (declare (ignore environment))
   (let ((out-1 0) (out-2 0))
     (list
+     :get-state (lambda(state)
+		  (if (eq state :module-name)
+		      name
+		      (error (format nil "Unknown state ~a requested frm module pass-through-module" state))))
      :inputs (lambda () (list :cv-1 :cv-2))
      :outputs (lambda () (list :out-1 :out-2))
      :get-output (lambda (output)

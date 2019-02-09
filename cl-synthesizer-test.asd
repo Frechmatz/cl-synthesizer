@@ -46,6 +46,10 @@
 				     (:file "mixer")
 				     (:file "ramp")
 				     (:file "sustain")))
+	       (:module "src/monitor"
+			:serial t
+			:components ((:file "packages")
+				     (:file "monitor")))
 	       (:module "test"
 			:serial t
 			:components ((:file "packages")))
@@ -80,6 +84,9 @@
 				     (:file "test-sustain")
 				     (:file "test-vca")
 				     (:file "test-vco")))
+	       (:module "test/monitor"
+			:serial t
+			:components ((:file "test-monitor")))
 	       (:module "test/synthesizer"
 			:serial t
 			:components ((:file "test-assembly")

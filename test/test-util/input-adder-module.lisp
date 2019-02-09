@@ -2,9 +2,13 @@
 
 (defun input-adder-module (name environment)
   "Module that adds its inputs (:in-1 :in-2) and exposes the sum via output :out."
-  (declare (ignore environment name))
+  (declare (ignore environment))
   (let ((out 0))
     (list
+     :get-state (lambda(state)
+		  (if (eq state :module-name)
+		      name
+		      (error (format nil "Unknown state ~a requested frm module input-adder-module" state))))
      :inputs (lambda () (list :in-1 :in-2))
      :outputs (lambda () (list :out))
      :get-output (lambda (output)
