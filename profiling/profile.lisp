@@ -31,14 +31,15 @@
        :module-count module-count
        :patch-count patch-count))))
 
-(defun profile-statistic (fn settings)
-  "Run job with statistical SBCL profiler"
-  (sb-sprof:with-profiling
+(defun profile-statistical (fn settings)
+  "Run job with statistical profiler (if any provided by lisp implementation"
+#+:sbcl (sb-sprof:with-profiling
       (:max-samples (getf settings :max-samples)
 		    :report :flat
 		    :loop t
 		    :show-progress t)
-    (funcall fn))
+	  (funcall fn))
+#-:sbcl (format t "~%WARN: Statistical profiling not supported by lisp implementation~%")
   nil)
 
 (defun profile-time (fn settings)
@@ -185,8 +186,8 @@
 	(let ((lambdalist (concatenate 'list (getf profiling-plan :init) (getf job :init))))
 	  (if (getf profiling-plan :profile-time)
 	      (run-profiler client lambdalist profiler-settings "TIME" #'profile-time))
-	  (if (getf profiling-plan :profile-statistics)
-	      (run-profiler client lambdalist profiler-settings "STATISTICS" #'profile-statistic))))))
+	  (if (getf profiling-plan :profile-statistical)
+	      (run-profiler client lambdalist profiler-settings "STATISTICAL" #'profile-statistical))))))
   (format t "~%###################~%Plan '~a' has completed~%################### ~%" (getf profiling-plan :name))
   "Profiling has completed")
 
@@ -200,7 +201,7 @@
    :name "Phase Generator and Waveform Converters"
    :max-samples 500
    :profile-time t
-   :profile-statistics nil
+   :profile-statistical nil
    :init '(:duration-seconds 3600)
    :jobs '((:client-id :phase-sine-converter :init nil)
 	   (:client-id :phase-square-converter :init nil)
@@ -213,7 +214,7 @@
    :name "VCO"
    :max-samples 500
    :profile-time t
-   :profile-statistics nil
+   :profile-statistical nil
    :init '(:duration-seconds 60 :vco-count 100)
    :jobs '((:client-id :vco :init nil))))
 
@@ -222,16 +223,17 @@
    :name "Rack-Core"
    :max-samples 500
    :profile-time t
-   :profile-statistics t
-   :init '(:duration-seconds 60)
-   :jobs '((:client-id :rack-core :init nil))))
+   :profile-statistical t
+   :init nil
+   :jobs '((:client-id :rack-core :init (:duration-seconds 60))
+	   (:client-id :rack-core :init (:duration-seconds 600)))))
 
 (defparameter *profiling-plan-vco-overhead*
   (list
    :name "Measure overhead of 100 VCO Modules against corresponding Core-Calls"
    :max-samples 500
    :profile-time t
-   :profile-statistics nil
+   :profile-statistical nil
    :init nil
    :jobs '((:client-id :vco :init (:duration-seconds 60 :vco-count 100))
 	   (:client-id :phase-sine-converter :init (:duration-seconds 6000))
@@ -245,7 +247,7 @@
    :name "Monitor"
    :max-samples 500
    :profile-time t
-   :profile-statistics nil
+   :profile-statistical nil
    :init '(:duration-seconds 120)
    :jobs '((:client-id :monitor :init nil))))
 
@@ -254,9 +256,27 @@
    :name "Play-Rack"
    :max-samples 500
    :profile-time t
-   :profile-statistics nil
+   :profile-statistical nil
    :init '(:duration-seconds 600 :attach-input-device t :attach-output-device t)
    :jobs '((:client-id :play-rack :init nil))))
+
+
+(defparameter *profiling-plan-all*
+  (list
+   :name "Profile all clients"
+   :max-samples 500
+   :profile-time t
+   :profile-statistical nil
+   :init nil
+   :jobs '((:client-id :phase-sine-converter :init (:duration-seconds 3600))
+	   (:client-id :phase-square-converter :init (:duration-seconds 3600))
+	   (:client-id :phase-triangle-converter :init (:duration-seconds 3600))
+	   (:client-id :phase-saw-converter :init (:duration-seconds 3600))
+	   (:client-id :phase-generator :init (:duration-seconds 3600))
+	   (:client-id :rack-core :init (:duration-seconds 60))
+	   (:client-id :vco :init (:duration-seconds 60 :vco-count 100))
+	   (:client-id :monitor :init (:duration-seconds 120))
+	   (:client-id :play-rack :init (:duration-seconds 600 :attach-input-device t :attach-output-device t)))))
 
 ;; (run-plan *profiling-plan-vco-core*)
 ;; (run-plan *profiling-plan-vco*)
@@ -264,3 +284,4 @@
 ;; (run-plan *profiling-plan-vco-overhead*)
 ;; (run-plan *profiling-plan-monitor*)
 ;; (run-plan *profiling-plan-play-rack*)
+;; (run-plan *profiling-plan-all*)
