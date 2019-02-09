@@ -26,7 +26,7 @@
      #'cl-synthesizer-monitor-csv-handler:make-handler
      '(("LFO" :output-socket :triangle :name "LFO-Triangle"  :format "~,4F")
        ("VCO" :state :frequency :name "VCO-Frequency" :format "~,4F")
-       ("VCO" :state :phi :name "VCO-Phase" :format "~,10F")
+       ("VCO" :state :phase :name "VCO-Phase" :format "~,10F")
        ("VCO" :output-socket :triangle :name "VCO-Triangle"  :format "~,4F"))
     :filename "cl-synthesizer-examples/vco-example-4.csv")
 

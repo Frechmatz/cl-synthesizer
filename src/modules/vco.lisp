@@ -42,7 +42,7 @@
           <li>:frequency The current frequency of the module.</li>
           <li>:linear-frequency The current linear frequency part of the module.</li>
           <li>:exponential-frequency The current exponential frequency part of the module.</li>
-          <li>:phi The current phase in radians (0..2PI).</li>
+          <li>:phase The current phase in radians (0..2PI).</li>
        </ul>
     </p>"
   (declare (type single-float base-frequency f-max v-peak cv-max phase-offset duty-cycle))
@@ -141,7 +141,7 @@
 		       cur-lin-frequency)
 		      ((eq key :exponential-frequency)
 		       cur-exp-frequency)
-		      ((eq key :phi)
+		      ((eq key :phase)
 		       cur-phi)
 		      (t nil)))
        ))))
