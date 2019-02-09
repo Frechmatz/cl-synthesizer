@@ -148,6 +148,19 @@
 		   nil
 		   "Calling monitor for ~a seconds (Modules: ~a Patches: ~a)"
 		   duration-seconds (getf info :module-count) (getf info :patch-count)))))))
+   (list
+    :id :midi-sequencer :name "Midi-Sequencer"
+    :setup (lambda(&key duration-seconds)
+	     (let ((rack (cl-synthesizer-profiling-midi-sequencer::make-test-rack)))
+	       (let ((info (get-rack-info rack)))
+		 (values 
+		  (lambda ()
+		    (cl-synthesizer:play-rack rack :duration-seconds duration-seconds))
+		  (format
+		   nil
+		   "Calling midi-sequencer for ~a seconds (Modules: ~a Patches: ~a)"
+		   duration-seconds (getf info :module-count) (getf info :patch-count)))))))
+   
 
    )
    )
@@ -164,7 +177,7 @@
     (dolist (job (getf profiling-plan :jobs))
       (let ((client (find-if (lambda (c) (eq (getf job :client-id) (getf c :id))) *clients*)))
 	(if (not client)
-	    (error (format nil "Client not found: ~a" (getf job :id))))
+	    (error (format nil "Client not found: ~a" (getf job :client-id))))
 
 	(let ((lambdalist (concatenate 'list (getf profiling-plan :init) (getf job :init))))
 	  (if (getf profiling-plan :profile-time)
@@ -206,7 +219,7 @@
    :name "Rack-Core"
    :max-samples 500
    :profile-time t
-   :profile-statistical t
+   :profile-statistical nil
    :init nil
    :jobs '((:client-id :rack-core :init (:duration-seconds 60))
 	   (:client-id :rack-core :init (:duration-seconds 600)))))
@@ -234,6 +247,15 @@
    :init '(:duration-seconds 120)
    :jobs '((:client-id :monitor :init nil))))
 
+(defparameter *profiling-plan-midi-sequencer*
+  (list
+   :name "Midi-Sequencer"
+   :max-samples 500
+   :profile-time t
+   :profile-statistical nil
+   :init '(:duration-seconds 3600)
+   :jobs '((:client-id :midi-sequencer :init nil))))
+
 (defparameter *profiling-plan-all*
   (list
    :name "Profile all clients"
@@ -256,3 +278,4 @@
 ;; (run-plan *profiling-plan-vco-overhead*)
 ;; (run-plan *profiling-plan-monitor*)
 ;; (run-plan *profiling-plan-all*)
+;; (run-plan *profiling-plan-midi-sequencer*)

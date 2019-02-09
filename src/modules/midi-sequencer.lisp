@@ -19,26 +19,50 @@
                 timestamp of the synthesizer is 0.</li>
 		<li>:midi-events List of Midi events to be fired.</li>
 	    </ul>
+            The events must be ordered by timestamp and there must be no duplicate timestamps. 
 	</li>
     </ul>
     The module has no inputs.
     The module has one output socket :midi-events."
-  (declare (ignore name))
-  ;; :test #'eq -> never ever use eq here.  
-  (let ((lookup-hash (make-hash-table))
-	(ticks-per-milli-second (/ (getf environment :sample-rate) 1000))
+  (let ((ticks-per-milli-second (/ (getf environment :sample-rate) 1000))
+	(event-array (make-array (length events)))
+	(timestamp-array (make-array (length events) :element-type 'number))
 	(cur-tick -1)
-	(cur-midi-events nil))
-    (dolist (evt events)
-      (let ((tick (floor (* ticks-per-milli-second (getf evt :timestamp-milli-seconds)))))
-	(setf (gethash tick lookup-hash) (getf evt :midi-events))))
+	(cur-midi-events nil)
+	(cur-index 0))
+    (flet ((get-event-timestamp (evt)
+	     (floor (* ticks-per-milli-second (getf evt :timestamp-milli-seconds)))))
+      (let ((i 0) (occupied-time-slots nil) (cur-timestamp -1))
+	(dolist (evt events)
+	  (let ((timestamp (get-event-timestamp evt)))
+	    (if (< timestamp cur-timestamp)
+		(cl-synthesizer:signal-invalid-arguments-error
+		 :format-control "Events must be ordered by timestamp: ~a"
+		 :format-arguments (list name)))
+	    (if (find-if (lambda (item) (= item timestamp)) occupied-time-slots)
+		(cl-synthesizer:signal-invalid-arguments-error
+		 :format-control "Timestamps not unique: ~a"
+		 :format-arguments (list name)))
+	    (setf cur-timestamp timestamp)
+	    (push timestamp occupied-time-slots)
+	    (setf (aref event-array i) (getf evt :midi-events))
+	    (setf (aref timestamp-array i) timestamp)
+	    (setf i (+ i 1))))))
     (list
      :inputs (lambda () '())
      :outputs (lambda () '(:midi-events))
      :update (lambda(input-args)
 	       (declare (ignore input-args))
 	       (setf cur-tick (+ 1 cur-tick))
-	       (setf cur-midi-events (gethash cur-tick lookup-hash)))
+	       (if (<= (length timestamp-array) cur-index)
+		   (setf cur-midi-events nil)
+		   (progn
+		     (let ((cursor-timestamp (elt timestamp-array cur-index)))
+		       (if (<= cursor-timestamp cur-tick)
+			   (progn
+			     (setf cur-midi-events (elt event-array cur-index))
+			     (setf cur-index (+ 1 cur-index)))
+			   (setf cur-midi-events nil))))))
      :get-output (lambda (output)
 		   (declare (ignore output))
 		   cur-midi-events))))

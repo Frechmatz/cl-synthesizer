@@ -43,4 +43,40 @@
 		       (setf event-count (+ 1 event-count))))
 		 (assert-equal 2 event-count))))
 
- 
+;; timestamp defined twice
+(define-test test-midi-sequencer-3 ()
+	     (let ((rack (cl-synthesizer:make-rack
+			  :environment (cl-synthesizer:make-environment))))
+	       (cl-synthesizer-test::expect-invalid-arguments-error
+		 (cl-synthesizer:add-module
+		  rack "MIDI-SEQUENCER"
+		  #'cl-synthesizer-modules-midi-sequencer:make-module :events
+		  (list 
+		   (list :timestamp-milli-seconds 3
+			 :midi-events (list
+				       (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+		   (list :timestamp-milli-seconds 4
+			 :midi-events (list
+				       (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
+		   (list :timestamp-milli-seconds 3
+			 :midi-events (list
+				       (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
+		   )))))
+
+;; Not sorted by timestamp
+(define-test test-midi-sequencer-4 ()
+	     (let ((rack (cl-synthesizer:make-rack
+			  :environment (cl-synthesizer:make-environment))))
+	       (cl-synthesizer-test::expect-invalid-arguments-error
+		 (cl-synthesizer:add-module
+		  rack "MIDI-SEQUENCER"
+		  #'cl-synthesizer-modules-midi-sequencer:make-module :events
+		  (list 
+		   (list :timestamp-milli-seconds 3
+			 :midi-events (list
+				       (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+		   (list :timestamp-milli-seconds 2
+			 :midi-events (list
+				       (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
+		   )))))
+
