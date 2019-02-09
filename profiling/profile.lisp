@@ -270,7 +270,8 @@
 	   (:client-id :phase-generator :init (:duration-seconds 3600))
 	   (:client-id :rack-core :init (:duration-seconds 60))
 	   (:client-id :vco :init (:duration-seconds 60 :vco-count 100))
-	   (:client-id :monitor :init (:duration-seconds 120)))))
+	   (:client-id :monitor :init (:duration-seconds 120))
+	   (:client-id :midi-sequencer :init (:duration-seconds 3600)))))
 
 ;; (run-plan *profiling-plan-vco-core*)
 ;; (run-plan *profiling-plan-vco*)
