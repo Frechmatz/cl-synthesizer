@@ -9,10 +9,10 @@
   :long-description
   "All examples of cl-synthesizer. 
    ************************************************************************
-   For now, examples must also be added to src/cl-synthesizer-examples.lisp
+   For now, examples must also be added to script/cl-synthesizer-examples.lisp
    ************************************************************************
    The purpose of this system is to load all examples in order to execute 
-   them via cl-synthesizer-examples::run-examples."
+   them via script/run-examples"
   :depends-on (:cl-synthesizer)
   :components ((:module "src/synthesizer/rack"
 			:serial t
@@ -26,8 +26,7 @@
 			:components ((:file "example-1")
 				     (:file "example-2")
 				     (:file "example-3")
-				     (:file "phase-plot")
-				     (:file "sweep-plot")))
+				     (:file "example-4")))
 	       (:module "src/modules/midi-interface"
 			:serial t
 			:components ((:file "example-1")))
@@ -64,7 +63,7 @@
 			:components ((:file "example-1")
 				     (:file "example-2")
 				     (:file "example-3")))
-	       (:module "src"
+	       (:module "script"
 			:serial t
 			;; Holds registry of examples and the execution function
 			:components ((:file "cl-synthesizer-examples")))))

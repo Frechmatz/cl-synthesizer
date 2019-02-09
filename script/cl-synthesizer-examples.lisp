@@ -10,6 +10,7 @@
 ;;
 ;; For now all examples must be added manually to *examples*
 ;;
+;;
 
 (defpackage :cl-synthesizer-examples
   (:use :cl))
@@ -24,6 +25,7 @@
    (list :name "cl-synthesizer-modules-vco-example-1" :fn #'cl-synthesizer-modules-vco-example-1::run-example)
    (list :name "cl-synthesizer-modules-vco-example-2" :fn #'cl-synthesizer-modules-vco-example-2::run-example)
    (list :name "cl-synthesizer-modules-vco-example-3" :fn #'cl-synthesizer-modules-vco-example-3::run-example)
+   (list :name "cl-synthesizer-modules-vco-example-4" :fn #'cl-synthesizer-modules-vco-example-4::run-example)
    ;; Example is not executable because it requires Audio/MIDI devices
    ;;(list :name "cl-synthesizer-modules-midi-interface-example-1" :fn #'cl-synthesizer-modules-midi-interface-example-1::run-example)
    (list :name "cl-synthesizer-modules-midi-cc-interface-example-1" :fn #'cl-synthesizer-modules-midi-cc-interface-example-1::run-example)
@@ -32,7 +34,7 @@
    (list :name "cl-synthesizer-modules-midi-sequencer-example-1" :fn #'cl-synthesizer-modules-midi-sequencer-example-1::run-example)
    (list :name "cl-synthesizer-modules-multiple-example-1" :fn #'cl-synthesizer-modules-multiple-example-1::run-example)
    (list :name "cl-synthesizer-modules-fixed-output-example-1" :fn #'cl-synthesizer-modules-fixed-output-example-1::run-example)
-   ;; Example is not executable because it is a stub
+   ;; Example is not executable because it is more or less a copy/paste example
    ;;(list :name "cl-synthesizer-modules-mixer-example-1" :fn #'cl-synthesizer-modules-mixer-example-1::run-example)
    (list :name "cl-synthesizer-modules-ramp-example-1" :fn #'cl-synthesizer-modules-ramp-example-1::run-example)
    (list :name "cl-synthesizer-modules-sustain-example-1" :fn #'cl-synthesizer-modules-sustain-example-1::run-example)
