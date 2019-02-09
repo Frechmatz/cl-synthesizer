@@ -72,11 +72,10 @@
 		   (make-function-string 'cl-synthesizer-modules-multiple:make-module :append-separator nil)
 		   (example-code "src/modules/multiple/example-1.lisp")
 		   "<h4 id=\"midi-interface\">MIDI Interface</h4>"
-		   (make-function-string 'cl-synthesizer-modules-midi-interface:make-module :append-separator nil)
-		   (example-code "src/modules/midi-interface/example-1.lisp")
+		   (make-function-string 'cl-synthesizer-modules-midi-interface:make-module :append-separator t)
 		   "<h4 id=\"midi-cc-interface\">MIDI CC Interface</h4>"
 		   (make-function-string 'cl-synthesizer-modules-midi-cc-interface:make-module :append-separator nil)
-		   (example-code "src/modules/midi-cc-interface/example-2.lisp")
+		   (example-code "src/modules/midi-cc-interface/example-1.lisp")
 		   "<h4 id=\"midi-sequencer\">MIDI Sequencer</h4>"
 		   (make-function-string 'cl-synthesizer-modules-midi-sequencer:make-module :append-separator nil)
 		   (example-code "src/modules/midi-sequencer/example-1.lisp")

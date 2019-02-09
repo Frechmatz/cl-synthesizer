@@ -25,15 +25,10 @@
 			:serial t
 			:components ((:file "example-1")
 				     (:file "example-2")
-				     (:file "example-3")
 				     (:file "example-4")))
-	       (:module "src/modules/midi-interface"
-			:serial t
-			:components ((:file "example-1")))
 	       (:module "src/modules/midi-cc-interface"
 			:serial t
-			:components ((:file "example-1")
-				     (:file "example-2")))
+			:components ((:file "example-1")))
 	       (:module "src/modules/midi-sequencer"
 			:serial t
 			:components ((:file "example-1")))

@@ -3,8 +3,6 @@
 
 (in-package :cl-synthesizer-modules-midi-sequencer-example-1)
 
-(defparameter *attach-audio* nil)
-
 (defun example ()
   "Midi-Sequencer example"
   (let ((rack (cl-synthesizer:make-rack
@@ -76,9 +74,7 @@
 
 (defun run-example ()
   (let ((rack (example)))
-    (cl-synthesizer::play-rack
-     rack 5 
-     :attach-audio *attach-audio* :audio-output-sockets '(:line-out))))
+    (cl-synthesizer::play-rack rack :duration-seconds 5)))
 
 ;; (run-example)
 

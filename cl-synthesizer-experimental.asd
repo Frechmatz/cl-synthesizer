@@ -1,4 +1,4 @@
-(defsystem :cl-synthesizer-profiling
+(defsystem :cl-synthesizer-experimental
   :serial t
   :version "0.0.1"
   :licence "MIT"
@@ -8,13 +8,8 @@
   :description "An audio synthesizer"
   :long-description "An audio synthesizer"
   :depends-on (:cl-synthesizer)
-  :components ((:module "profiling"
+  :components ((:module "experimental"
 			:serial t
 			:components ((:file "packages")
-				     (:file "profile-rack")
-				     (:file "profile-vco")
-				     (:file "profile-phase-generator")
-				     (:file "profile-phase-waveform-converter")
-				     (:file "profile-monitor")
-				     (:file "profile")))))
+				     (:file "play-rack")))))
 

@@ -85,7 +85,7 @@
 
 #|
 (let ((rack (keyboard)))
-  (time (cl-synthesizer::play-rack rack 15 
+  (time (cl-synthesizer-experimental::play-rack rack 15 
       :attach-audio t :audio-output-sockets '(:line-out-1) 
       :attach-midi t :midi-input-socket :midi-events)))
 |#

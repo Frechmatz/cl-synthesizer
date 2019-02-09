@@ -1,4 +1,4 @@
-(in-package :cl-synthesizer)
+(in-package :cl-synthesizer-experimental)
 
 (defvar *audio-device-settings*
   (list
@@ -102,7 +102,7 @@
 	   (lambda () (funcall (getf device :shutdown))))))))
 	
 
-(defun play-rack (rack duration-seconds &key (attach-audio nil) (audio-output-sockets nil)
+(defun play-rack (rack &key duration-seconds  (attach-audio nil) (audio-output-sockets nil)
 					    (attach-midi nil) (midi-input-socket nil))
   "A utility function that \"plays\" the rack by consecutively calling its update function
     for a given number of \"ticks\". The function has the following arguments:

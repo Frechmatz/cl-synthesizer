@@ -1,10 +1,7 @@
-(defpackage :cl-synthesizer-modules-midi-cc-interface-example-2
+(defpackage :cl-synthesizer-experimental-example-2
   (:use :cl))
 
-(in-package :cl-synthesizer-modules-midi-cc-interface-example-2)
-
-(defparameter *attach-midi* t)
-(defparameter *attach-speaker* t)
+(in-package :cl-synthesizer-experimental-example-2)
 
 (defun example ()
   "Modulate frequency via two CC controllers"
@@ -56,27 +53,15 @@
     (cl-synthesizer:add-patch rack "MIDI-CC-IFC" :output "VCO" :cv-lin)
     (cl-synthesizer:add-patch rack "VCO" :sine "OUTPUT" :line-out)
 
-    (cl-synthesizer-monitor:add-monitor
-     rack
-     #'cl-synthesizer-monitor-csv-handler:make-handler
-     '(("VCO" :state :frequency :name "Frequency" :format "~,4F")
-       ("VCO" :output-socket :sine :name "Sine" :format "~,4F"))
-    :filename "cl-synthesizer-examples/midi-cc-interface-example-2.csv")
-
-    (cl-synthesizer-monitor:add-monitor
-     rack
-     #'cl-synthesizer-monitor-wave-handler:make-handler
-     '(("VCO" :output-socket :sine))
-    :filename "cl-synthesizer-examples/midi-cc-interface-example-2.wav")
-    
     rack))
 
 (defun run-example ()
-  (let ((rack (example)))
-    (time (cl-synthesizer::play-rack
-	   rack 5 
-	   :attach-audio t :audio-output-sockets '(:line-out) 
-	   :attach-midi t :midi-input-socket :midi-events))))
+  (cl-synthesizer-experimental::play-rack
+   (example)
+   :duration-seconds 10
+   :attach-audio t
+   :audio-output-sockets '(:line-out) 
+   :attach-midi t :midi-input-socket :midi-events))
+
 
 ;; (run-example)
-

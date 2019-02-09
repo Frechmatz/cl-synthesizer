@@ -19,8 +19,7 @@
 				     (:file "assembly-error")
 				     (:file "invalid-arguments-error")
 				     (:file "environment")
-				     (:file "rack")
-				     (:file "play-rack")))
+				     (:file "rack")))
 	       (:module "src/core"
 			:serial t
 			:components ((:file "packages")

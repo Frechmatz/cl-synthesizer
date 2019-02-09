@@ -24,13 +24,10 @@
    (list :name "cl-synthesizer-modules-vca-example-2" :fn #'cl-synthesizer-modules-vca-example-2::run-example)
    (list :name "cl-synthesizer-modules-vco-example-1" :fn #'cl-synthesizer-modules-vco-example-1::run-example)
    (list :name "cl-synthesizer-modules-vco-example-2" :fn #'cl-synthesizer-modules-vco-example-2::run-example)
-   (list :name "cl-synthesizer-modules-vco-example-3" :fn #'cl-synthesizer-modules-vco-example-3::run-example)
    (list :name "cl-synthesizer-modules-vco-example-4" :fn #'cl-synthesizer-modules-vco-example-4::run-example)
    ;; Example is not executable because it requires Audio/MIDI devices
    ;;(list :name "cl-synthesizer-modules-midi-interface-example-1" :fn #'cl-synthesizer-modules-midi-interface-example-1::run-example)
    (list :name "cl-synthesizer-modules-midi-cc-interface-example-1" :fn #'cl-synthesizer-modules-midi-cc-interface-example-1::run-example)
-   ;; Example is not executable because it requires Audio/MIDI devices
-   ;;(list :name "cl-synthesizer-modules-midi-cc-interface-example-2" :fn #'cl-synthesizer-modules-midi-cc-interface-example-2::run-example)
    (list :name "cl-synthesizer-modules-midi-sequencer-example-1" :fn #'cl-synthesizer-modules-midi-sequencer-example-1::run-example)
    (list :name "cl-synthesizer-modules-multiple-example-1" :fn #'cl-synthesizer-modules-multiple-example-1::run-example)
    (list :name "cl-synthesizer-modules-fixed-output-example-1" :fn #'cl-synthesizer-modules-fixed-output-example-1::run-example)

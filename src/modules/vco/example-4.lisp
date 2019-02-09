@@ -34,9 +34,7 @@
 
 (defun run-example ()
   (let ((rack (example)))
-    (cl-synthesizer::play-rack
-     rack
-     4)))
+    (cl-synthesizer::play-rack rack :duration-seconds 4)))
 
 ;; (run-example)
 

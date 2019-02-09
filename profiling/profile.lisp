@@ -48,15 +48,6 @@
   (time (funcall fn))
   nil)
 
-(defun simple-play-rack (rack &key duration-seconds (rack-input nil))
-  "Simple play function without the overhead of cl-synthesizer::play-rack"
-  (let* ((update-fn (getf rack :update))
-	(environment (getf rack :environment))
-	(ticks (* duration-seconds (floor (getf environment :sample-rate)))))
-    (dotimes (i ticks)
-      (funcall update-fn rack-input))
-    (format t "~%Play-Rack: Executed ~a ticks. Duration ~a seconds~%" ticks duration-seconds)))
-
 (defun run-profiler (client client-lambdalist profiler-settings profiler-name profiler-fn)
   (let ((job-name (getf client :name)))
     (multiple-value-bind (fn description)
@@ -80,7 +71,7 @@
 		 (let ((info (get-rack-info rack)))
 		   (values 
 		    (lambda ()
-		      (simple-play-rack
+		      (cl-synthesizer:play-rack
 		       rack
 		       :duration-seconds duration-seconds))
 		    (format
@@ -140,7 +131,7 @@
 		 (let ((info (get-rack-info rack)))
 		   (values 
 		    (lambda ()
-		      (simple-play-rack rack :duration-seconds duration-seconds))
+		      (cl-synthesizer:play-rack rack :duration-seconds duration-seconds))
 		    (format
 		     nil
 		     "Updating ~a VCOs for ~a seconds (Modules: ~a Patches: ~a)"
@@ -152,21 +143,13 @@
 	       (let ((info (get-rack-info rack)))
 		 (values 
 		  (lambda ()
-		    (simple-play-rack rack :duration-seconds duration-seconds))
+		    (cl-synthesizer:play-rack rack :duration-seconds duration-seconds))
 		  (format
 		   nil
 		   "Calling monitor for ~a seconds (Modules: ~a Patches: ~a)"
 		   duration-seconds (getf info :module-count) (getf info :patch-count)))))))
-   (list
-    :id :play-rack :name "Play-Rack"
-    :setup (lambda(&key duration-seconds attach-input-device attach-output-device)
-	     (values 
-	      (cl-synthesizer-profiling-play-rack::prepare
-	       :duration-seconds duration-seconds
-	       :attach-input-device attach-input-device
-	       :attach-output-device attach-output-device
-	       )
-	      (format nil "Running cl-synthesizer::play-rack for ~a seconds" duration-seconds)))))
+
+   )
    )
 
 ;;
@@ -251,16 +234,6 @@
    :init '(:duration-seconds 120)
    :jobs '((:client-id :monitor :init nil))))
 
-(defparameter *profiling-plan-play-rack*
-  (list
-   :name "Play-Rack"
-   :max-samples 500
-   :profile-time t
-   :profile-statistical nil
-   :init '(:duration-seconds 600 :attach-input-device t :attach-output-device t)
-   :jobs '((:client-id :play-rack :init nil))))
-
-
 (defparameter *profiling-plan-all*
   (list
    :name "Profile all clients"
@@ -275,13 +248,11 @@
 	   (:client-id :phase-generator :init (:duration-seconds 3600))
 	   (:client-id :rack-core :init (:duration-seconds 60))
 	   (:client-id :vco :init (:duration-seconds 60 :vco-count 100))
-	   (:client-id :monitor :init (:duration-seconds 120))
-	   (:client-id :play-rack :init (:duration-seconds 600 :attach-input-device t :attach-output-device t)))))
+	   (:client-id :monitor :init (:duration-seconds 120)))))
 
 ;; (run-plan *profiling-plan-vco-core*)
 ;; (run-plan *profiling-plan-vco*)
 ;; (run-plan *profiling-plan-rack-core*)
 ;; (run-plan *profiling-plan-vco-overhead*)
 ;; (run-plan *profiling-plan-monitor*)
-;; (run-plan *profiling-plan-play-rack*)
 ;; (run-plan *profiling-plan-all*)

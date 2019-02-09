@@ -1,7 +1,7 @@
-(defpackage :cl-synthesizer-rack-example-1
+(defpackage :cl-synthesizer-experimental-example-1
   (:use :cl))
 
-(in-package :cl-synthesizer-rack-example-1)
+(in-package :cl-synthesizer-experimental-example-1)
 
 (defun make-voice (name environment &key lfo-frequency vco-frequency)
   "Frequency modulated saw"
@@ -41,18 +41,14 @@
     (cl-synthesizer:add-patch rack "VOICE-1" :audio "OUTPUT" :left)
     (cl-synthesizer:add-patch rack "VOICE-2" :audio "OUTPUT" :right)
 
-    ;; Generate a Wave-File
-    (cl-synthesizer-monitor:add-monitor
-     rack
-     #'cl-synthesizer-monitor-wave-handler:make-handler
-     '(("OUTPUT" :input-socket :left)
-       ("OUTPUT" :input-socket :right))
-     :filename "rack-example-1.wav")
-    
     rack))
 
 (defun run-example ()
-  (cl-synthesizer:play-rack (example) :duration-seconds 5))
+  (cl-synthesizer-experimental:play-rack
+   (example)
+   :duration-seconds 5
+   :attach-audio t
+   :audio-output-sockets '(:left :right)))
   
 ;;(run-example)
 

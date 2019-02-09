@@ -88,7 +88,8 @@
     <ul>
 	<li>:gate-1 ... :gate-n</li>
 	<li>:cv-1 ... :cv-n</li>
-    </ul>"
+    </ul>
+    For an example see <b>midi-sequencer</b>"
   (declare (ignore environment))
   (let* ((outputs nil)
 	 (voice-states (make-array voice-count))

@@ -411,4 +411,19 @@
   "Returns <b>t</b> if the given module represents a rack."
   (getf module :is-rack))
 
+(defun play-rack (rack &key duration-seconds)
+  "A utility function that \"plays\" the rack by consecutively calling its update function
+    for a given number of \"ticks\". The function has the following arguments:
+    <ul>
+	<li>rack The rack.</li>
+	<li>:duration-seconds Duration in seconds of how long to play the rack. If for
+	    example the duration is 2 seconds and the sample rate of the rack as declared
+	    by its environment is 44100, then the update function of the rack will be called 88200 times.</li>
+    </ul>"
+  (let ((sample-rate (floor (getf (getf rack :environment) :sample-rate))) (update-fn (getf rack :update)))
+    (dotimes (i (* duration-seconds sample-rate))
+      (funcall update-fn nil)))
+  (funcall (getf rack :shutdown))
+  "DONE")
+
 

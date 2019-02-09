@@ -17,7 +17,7 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "macro-util")))
-	       (:module "src/device"
+	       (:module "experimental/device"
 			:serial t
 			:components ((:file "packages")
 				     (:file "speaker")
