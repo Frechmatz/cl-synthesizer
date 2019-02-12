@@ -58,11 +58,11 @@
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-csv-handler:make-handler
-     '(("MIDI-IFC" :output-socket :gate-1 :name "Gate" :format "~,5F")
-       ("SUSTAIN" :input-socket :trigger :name "Sustain Trigger In" :format "~,5F")
-       ("SUSTAIN" :input-socket :input :name "Sustain In" :format "~,5F")
-       ("SUSTAIN" :output-socket :output :name "Sustain Out" :format "~,5F")
-       ("SUSTAIN" :output-socket :done :name "Sustain Done Out" :format "~,5F"))
+     '(("MIDI-IFC" :output-socket :gate-1 :name "Gate")
+       ("SUSTAIN" :input-socket :trigger :name "Sustain Trigger In")
+       ("SUSTAIN" :input-socket :input :name "Sustain In")
+       ("SUSTAIN" :output-socket :output :name "Sustain Out")
+       ("SUSTAIN" :output-socket :done :name "Sustain Done Out"))
      :filename "cl-synthesizer-examples/sustain-example-1.csv")
     
     rack))

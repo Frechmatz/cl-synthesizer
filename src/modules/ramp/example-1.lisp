@@ -37,9 +37,9 @@
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-csv-handler:make-handler
-     '(("VCO" :output-socket :square :name "VCO Out" :format "~,5F")
-       ("ATTACK" :output-socket :output :name "Attack Out" :format "~,5F")
-       ("DECAY" :output-socket :output :name "Decay Out" :format "~,5F"))
+     '(("VCO" :output-socket :square :name "VCO Out")
+       ("ATTACK" :output-socket :output :name "Attack Out")
+       ("DECAY" :output-socket :output :name "Decay Out"))
      :filename "cl-synthesizer-examples/ramp-example-1.csv")
     
     rack))

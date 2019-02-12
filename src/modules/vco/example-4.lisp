@@ -24,10 +24,10 @@
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-csv-handler:make-handler
-     '(("LFO" :output-socket :triangle :name "LFO-Triangle"  :format "~,4F")
-       ("VCO" :state :frequency :name "VCO-Frequency" :format "~,4F")
-       ("VCO" :state :phase :name "VCO-Phase" :format "~,10F")
-       ("VCO" :output-socket :triangle :name "VCO-Triangle"  :format "~,4F"))
+     '(("LFO" :output-socket :triangle :name "LFO-Triangle")
+       ("VCO" :state :frequency :name "VCO-Frequency")
+       ("VCO" :state :phase :name "VCO-Phase")
+       ("VCO" :output-socket :triangle :name "VCO-Triangle"))
     :filename "cl-synthesizer-examples/vco-example-4.csv")
 
     rack))

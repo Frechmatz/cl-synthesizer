@@ -17,5 +17,6 @@
 				     (:file "profile-phase-waveform-converter")
 				     (:file "profile-monitor")
 				     (:file "profile-midi-sequencer")
+				     (:file "profile-csv-file-writer")
 				     (:file "profile")))))
 

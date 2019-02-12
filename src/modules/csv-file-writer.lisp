@@ -14,31 +14,33 @@
         with the following keys:
         <ul>
             <li>:name Name of the column.</li>
-            <li>:format The format control-string of the column. Default value is \"~a\"</li>
             <li>:default-value Default value to be used if current column value is nil.</li>
         </ul>
     </li>
     <li>:filename The relative path of the file to be written. The filename will be concatenated
         with the base path as defined by the :home-directory property of the environment.</li>
-    <li>:column-separator The column separator of the CSV file.</li>
-    <li>:add-header If t then the CSV file will start with column names.</li>
+    <li>:column-separator The column separator.</li>
+    <li>:add-header If t then a header consisting of the column-names will be written.</li>
   </ul>
   The module has the following inputs:
   <ul>
       <li>:column-1 ... :column-n Where n is the number of columns.</li>
   </ul>
+  <p>Due to performance/consing considerations all columns are written using the Lisp-Writer. 
+     If a value contains the column separator it will not be quoted. The file is opened on the first 
+     call of the update function and closed by the shutdown handler.
+  </p>
   The module has no outputs.
-  The actual csv-file is written by the :shutdown function of the module.
-  <p>See also cl-synthesizer-monitor:add-monitor which provides CSV-File-Writing
-     without having to add the module and the required patches to the rack.</p>"
-  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
+  <p>See also cl-synthesizer-monitor:add-monitor</p>"
+  (declare (optimize (debug 3) (speed 0) (space 0)))
   (if (<= (length columns) 0)
       (cl-synthesizer:signal-assembly-error
        :format-control "~a: Columns must not be empty."
        :format-arguments (list name)))
-  (let ((rows nil)
-	(column-keys nil)
-	(column-properties nil))
+  (let ((column-keys nil)
+	(column-properties nil)
+	(filename (merge-pathnames filename (getf environment :home-directory)))
+	(output-stream nil))
     ;; set up input keys and column property lookup table
     (let ((i 0))
       (flet ((make-column-properties (column index)
@@ -56,49 +58,58 @@
 	    (push (make-column-properties column i) column-properties)
 	    (push column-key column-properties)
 	    (setf i (+ i 1))))
-	;; Reverse to order in which columns will be processed
-	(setf column-keys (reverse column-keys))))
-    (list
-     :inputs (lambda () column-keys)
-     :outputs (lambda () '())
-     :get-output (lambda (output) (declare (ignore output)) nil)
-     :update (lambda (inputs)
-	       (push (copy-list inputs) rows))
-     :shutdown (lambda ()
-		 ;;(declare (optimize (debug 3) (speed 0) (space 0))) 
-		 (with-open-file (fh (merge-pathnames filename (getf environment :home-directory))
-		   :direction :output
-		   :if-exists :supersede
-		   :if-does-not-exist :create
-		   :external-format :utf-8)
-		   (if add-header
-		       (format fh "~a~%"
-			       (reduce
-				(lambda(buffer column-key)
-				  (let ((properties (getf column-properties column-key)))
-				    (concatenate
-				     'string
-				     buffer
-				     (if (= 0 (length buffer)) "" column-separator)
-				     (quote-str (format nil "~a" (getf properties :name)) column-separator))))
-			      column-keys
-			     :initial-value "")))
-		   (dolist (row (nreverse rows)) ;; This is inefficient :(
-		     (let* ((is-first t) ;; State for reduce callback. 
-			    (row-string
-			     (reduce
-			      (lambda(buffer column-key)
-				(let ((value (getf row column-key))
-				      (col-props (getf column-properties column-key)))
-				  (if (not value)
-				      (setf value (getf col-props :default-value)))
-				  (let ((b (concatenate
-					    'string
-					    buffer
-					    (if is-first "" column-separator)
-					    (quote-str (format nil (getf col-props :format) value) column-separator))))
-				    (setf is-first nil)
-				    b)))
-			      column-keys
-			     :initial-value "")))
-		       (format fh "~a~%" row-string))))))))
+	;; Reverse to order in which columns will be printed
+	(setf column-keys (reverse column-keys)))
+      (flet ((open-file ()
+	       (format t "~%Open file ~a~%" filename)
+	       (setf output-stream
+		     (open
+		      filename
+		      :direction :output
+		      :if-exists :supersede
+		      :if-does-not-exist :create
+			  :external-format :utf-8)))
+	     (close-file ()
+	       (if output-stream
+		   (progn
+		     (format t "~%Close file ~a~%" filename)
+		     (close output-stream)
+		     (setf output-stream nil))))
+	     (print-header ()
+	       (if add-header
+		   (format output-stream "~a~%"
+			   (reduce
+			    (lambda(buffer column-key)
+			      (let ((properties (getf column-properties column-key)))
+				(concatenate
+				 'string
+				 buffer
+				 (if (= 0 (length buffer)) "" column-separator)
+				 (quote-str (format nil "~a" (getf properties :name)) column-separator))))
+			    column-keys
+			    :initial-value ""))))
+	     (print-values (row)
+	       (let ((is-first t))
+		 (dolist (column-key column-keys)
+		   (let ((col-props (getf column-properties column-key))
+			 (value (getf row column-key)))
+		     (if (not is-first)
+			 (write-string column-separator output-stream))
+		     (setf is-first nil)
+		     (if (not value)
+			 (setf value (getf col-props :default-value)))
+		     (prin1 value output-stream)
+		     )))
+	       (write-line "" output-stream)))
+	(list
+	 :inputs (lambda () column-keys)
+	 :outputs (lambda () '())
+	 :get-output (lambda (output) (declare (ignore output)) nil)
+	 :update (lambda (inputs)
+		   (if (not output-stream)
+		       (progn
+			 (open-file)
+			 (print-header)))
+		   (print-values inputs))
+	 :shutdown (lambda ()
+		     (close-file)))))))

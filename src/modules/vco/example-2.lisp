@@ -27,7 +27,7 @@
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-csv-handler:make-handler
-     '(("VCO" :state :frequency :name "Frequency" :format "~,4F"))
+     '(("VCO" :state :frequency :name "Frequency"))
     :filename "cl-synthesizer-examples/vco-example-2.csv")
     
     rack))

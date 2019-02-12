@@ -24,10 +24,10 @@
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-csv-handler:make-handler
-     '(("VCO" :output-socket :sine :format "~,4F" :name "Sine")
-       ("VCO" :output-socket :triangle :format "~,4F" :name "Triangle")
-       ("VCO" :output-socket :saw :format "~,4F" :name "Saw")
-       ("VCO" :output-socket :square :format "~,4F" :name "Square"))
+     '(("VCO" :output-socket :sine :name "Sine")
+       ("VCO" :output-socket :triangle :name "Triangle")
+       ("VCO" :output-socket :saw :name "Saw")
+       ("VCO" :output-socket :square :name "Square"))
      :filename "cl-synthesizer-examples/vco-example-1.csv"
      :add-header t
      :column-separator ",")

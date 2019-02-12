@@ -160,10 +160,18 @@
 		   nil
 		   "Calling midi-sequencer for ~a seconds (Modules: ~a Patches: ~a)"
 		   duration-seconds (getf info :module-count) (getf info :patch-count)))))))
+   (list
+    :id :csv-writer :name "CSV-Writer"
+    :setup (lambda(&key duration-seconds)
+	     (let ((rack (cl-synthesizer-profiling-csv-file-writer::make-test-rack)))
+	       (values 
+		(lambda ()
+		  (cl-synthesizer:play-rack rack :duration-seconds duration-seconds))
+		(format
+		 nil
+		 "Updating CSV-Writer for ~a seconds" duration-seconds)))))
    
-
-   )
-   )
+   ))
 
 ;;
 ;; Profiling plan runner
@@ -256,6 +264,16 @@
    :init '(:duration-seconds 3600)
    :jobs '((:client-id :midi-sequencer :init nil))))
 
+(defparameter *profiling-plan-csv-writer*
+  (list
+   :name "CSV-Writer"
+   :max-samples 500
+   :profile-time t
+   :profile-statistical nil
+   :init nil
+   :jobs '((:client-id :csv-writer :init (:duration-seconds 60)))))
+
+
 (defparameter *profiling-plan-all*
   (list
    :name "Profile all clients"
@@ -271,7 +289,8 @@
 	   (:client-id :rack-core :init (:duration-seconds 60))
 	   (:client-id :vco :init (:duration-seconds 60 :vco-count 100))
 	   (:client-id :monitor :init (:duration-seconds 120))
-	   (:client-id :midi-sequencer :init (:duration-seconds 3600)))))
+	   (:client-id :midi-sequencer :init (:duration-seconds 3600))
+	   (:client-id :csv-writer :init (:duration-seconds 60)))))
 
 ;; (run-plan *profiling-plan-vco-core*)
 ;; (run-plan *profiling-plan-vco*)
@@ -280,3 +299,5 @@
 ;; (run-plan *profiling-plan-monitor*)
 ;; (run-plan *profiling-plan-all*)
 ;; (run-plan *profiling-plan-midi-sequencer*)
+;; (run-plan *profiling-plan-csv-writer*)
+
