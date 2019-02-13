@@ -45,10 +45,6 @@
     (let ((i 0))
       (flet ((make-column-properties (column index)
 	       (let ((c (copy-list column)))
-		 (if (not (getf c :format))
-		     (setf (getf c :format) "~a"))
-		 (if (not (getf c :default-value))
-		     (setf (getf c :default-value) ""))
 		 (if (not (getf c :name))
 		     (setf (getf c :name) (format nil "Column-~a" index)))
 		 c)))
@@ -58,7 +54,7 @@
 	    (push (make-column-properties column i) column-properties)
 	    (push column-key column-properties)
 	    (setf i (+ i 1))))
-	;; Reverse to order in which columns will be printed
+	;; Order in which columns will be printed
 	(setf column-keys (reverse column-keys)))
       (flet ((open-file ()
 	       (format t "~%Open file ~a~%" filename)
@@ -68,7 +64,7 @@
 		      :direction :output
 		      :if-exists :supersede
 		      :if-does-not-exist :create
-			  :external-format :utf-8)))
+		      :external-format :utf-8)))
 	     (close-file ()
 	       (if output-stream
 		   (progn
@@ -87,20 +83,7 @@
 				 (if (= 0 (length buffer)) "" column-separator)
 				 (quote-str (format nil "~a" (getf properties :name)) column-separator))))
 			    column-keys
-			    :initial-value ""))))
-	     (print-values (row)
-	       (let ((is-first t))
-		 (dolist (column-key column-keys)
-		   (let ((col-props (getf column-properties column-key))
-			 (value (getf row column-key)))
-		     (if (not is-first)
-			 (write-string column-separator output-stream))
-		     (setf is-first nil)
-		     (if (not value)
-			 (setf value (getf col-props :default-value)))
-		     (prin1 value output-stream)
-		     )))
-	       (write-line "" output-stream)))
+			    :initial-value "")))))
 	(list
 	 :inputs (lambda () column-keys)
 	 :outputs (lambda () '())
@@ -110,6 +93,15 @@
 		       (progn
 			 (open-file)
 			 (print-header)))
-		   (print-values inputs))
+		   (let ((is-first t))
+		     (dolist (column-key column-keys)
+		       (let ((value (getf inputs column-key)))
+			 (if (not is-first)
+			     (write-string column-separator output-stream))
+			 (setf is-first nil)
+			 (if (not value)
+			     (setf value (getf (getf column-properties column-key) :default-value)))
+			 (prin1 value output-stream))))
+		   (write-line "" output-stream))
 	 :shutdown (lambda ()
 		     (close-file)))))))
