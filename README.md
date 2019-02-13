@@ -303,7 +303,7 @@ The module exposes the following states via the get-state function:
 *   :frequency The current frequency of the module.
 *   :linear-frequency The current linear frequency part of the module.
 *   :exponential-frequency The current exponential frequency part of the module.
-*   :phi The current phase in radians (0..2PI).
+*   :phase The current phase in radians (0..2PI).
 
 **Example:**
 
@@ -313,7 +313,7 @@ The module exposes the following states via the get-state function:
     (in-package :cl-synthesizer-modules-vco-example-1)
     
     (defun example ()
-      "Write all wave forms into a 4-Channel wave file"
+      "Write all wave forms into a Wave and a Csv file"
       (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
         (cl-synthesizer:add-module
          rack
@@ -329,12 +329,23 @@ The module exposes the following states via the get-state function:
            ("VCO" :output-socket :saw)
            ("VCO" :output-socket :square))
          :filename "cl-synthesizer-examples/vco-example-1.wav")
+    
+        (cl-synthesizer-monitor:add-monitor
+         rack
+         #'cl-synthesizer-monitor-csv-handler:make-handler
+         '(("VCO" :output-socket :sine :name "Sine")
+           ("VCO" :output-socket :triangle :name "Triangle")
+           ("VCO" :output-socket :saw :name "Saw")
+           ("VCO" :output-socket :square :name "Square"))
+         :filename "cl-synthesizer-examples/vco-example-1.csv"
+         :add-header t
+         :column-separator ",")
         
         rack))
     
     (defun run-example ()
       (let ((rack (example)))
-        (cl-synthesizer:play-rack rack :duration-seconds 60)))
+        (cl-synthesizer:play-rack rack :duration-seconds 1)))
     
     ;; (run-example)
 
@@ -484,8 +495,8 @@ The module has the following outputs:
         (cl-synthesizer-monitor:add-monitor
          rack
          #'cl-synthesizer-monitor-csv-handler:make-handler
-         '(("ADSR" :input-socket :gate :name "ADSR Gate In" :format "~,5F")
-           ("ADSR" :output-socket :cv :name "ADSR Out" :format "~,5F"))
+         '(("ADSR" :input-socket :gate :name "ADSR Gate In")
+           ("ADSR" :output-socket :cv :name "ADSR Out"))
          :filename "cl-synthesizer-examples/adsr-example-1.csv")
         
         rack))
@@ -667,7 +678,7 @@ Creates a Midi-Sequencer module. The function has the following arguments:
 *   environment The synthesizer environment.
 *   :events A list of Midi events and their timestamps. Each entry consists of a property list with the following keys:
     *   :timestamp-milli-seconds Point of time when events are to be fired. The very first timestamp of the synthesizer is 0.
-    *   :midi-events List of Midi events to be fired.
+    *   :midi-events List of Midi events to be fired.The events must be ordered by timestamp and there must be no duplicate timestamps.
 
 The module has no inputs. The module has one output socket :midi-events.
 
@@ -1000,9 +1011,9 @@ This module has been inspired by [dhemery](https://github.com/dhemery/DHE-Module
         (cl-synthesizer-monitor:add-monitor
          rack
          #'cl-synthesizer-monitor-csv-handler:make-handler
-         '(("VCO" :output-socket :square :name "VCO Out" :format "~,5F")
-           ("ATTACK" :output-socket :output :name "Attack Out" :format "~,5F")
-           ("DECAY" :output-socket :output :name "Decay Out" :format "~,5F"))
+         '(("VCO" :output-socket :square :name "VCO Out")
+           ("ATTACK" :output-socket :output :name "Attack Out")
+           ("DECAY" :output-socket :output :name "Decay Out"))
          :filename "cl-synthesizer-examples/ramp-example-1.csv")
         
         rack))
@@ -1101,11 +1112,11 @@ This module has been inspired by [dhemery](https://github.com/dhemery/DHE-Module
         (cl-synthesizer-monitor:add-monitor
          rack
          #'cl-synthesizer-monitor-csv-handler:make-handler
-         '(("MIDI-IFC" :output-socket :gate-1 :name "Gate" :format "~,5F")
-           ("SUSTAIN" :input-socket :trigger :name "Sustain Trigger In" :format "~,5F")
-           ("SUSTAIN" :input-socket :input :name "Sustain In" :format "~,5F")
-           ("SUSTAIN" :output-socket :output :name "Sustain Out" :format "~,5F")
-           ("SUSTAIN" :output-socket :done :name "Sustain Done Out" :format "~,5F"))
+         '(("MIDI-IFC" :output-socket :gate-1 :name "Gate")
+           ("SUSTAIN" :input-socket :trigger :name "Sustain Trigger In")
+           ("SUSTAIN" :input-socket :input :name "Sustain In")
+           ("SUSTAIN" :output-socket :output :name "Sustain Out")
+           ("SUSTAIN" :output-socket :done :name "Sustain Done Out"))
          :filename "cl-synthesizer-examples/sustain-example-1.csv")
         
         rack))
@@ -1145,19 +1156,20 @@ Creates a CSV File Writer module. The function has the following arguments:
 *   environment The synthesizer environment.
 *   :columns A list of column definitions. Each colum definition consists of a property list with the following keys:
     *   :name Name of the column.
-    *   :format The format control-string of the column. Default value is "~a"
     *   :default-value Default value to be used if current column value is nil.
 *   :filename The relative path of the file to be written. The filename will be concatenated with the base path as defined by the :home-directory property of the environment.
-*   :column-separator The column separator of the CSV file.
-*   :add-header If t then the CSV file will start with column names.
+*   :column-separator The column separator.
+*   :add-header If t then a header consisting of the column-names will be written.
 
 The module has the following inputs:
 
 *   :column-1 ... :column-n Where n is the number of columns.
 
-The module has no outputs. The actual csv-file is written by the :shutdown function of the module.
+Due to performance/consing considerations all columns are written using the Lisp-Writer. If a value contains the column separator it will not be quoted. The file is opened on the first call of the update function and closed by the shutdown handler.
 
-See also cl-synthesizer-monitor:add-monitor which provides CSV-File-Writing without having to add the module and the required patches to the rack.
+The module has no outputs.
+
+See also cl-synthesizer-monitor:add-monitor
 
 ### Monitor
 
@@ -1194,38 +1206,36 @@ Adds a monitor to a rack. A monitor is a high-level Rack hook that collects modu
     (in-package :cl-synthesizer-monitor-example-1)
     
     (defun example ()
-      "Write all wave forms into a Wave and into a CSV file"
+      "Monitor example"
       (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+        
         (cl-synthesizer:add-module
          rack
          "VCO"
          #'cl-synthesizer-modules-vco:make-module
          :base-frequency 10.0 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
     
-        (cl-synthesizer-monitor:add-monitor
-         rack
-         #'cl-synthesizer-monitor-wave-handler:make-handler
-         '(("VCO" :output-socket :sine)
-           ("VCO" :output-socket :square)
-           ("VCO" :output-socket :triangle)
-           ("VCO" :output-socket :saw))
-         :filename "cl-synthesizer-examples/monitor-example-1.wav")
-    
-        (cl-synthesizer-monitor:add-monitor
-         rack
-         #'cl-synthesizer-monitor-csv-handler:make-handler
-         '(("VCO" :output-socket :sine :format "~,4F" :name "Sine")
-           ("VCO" :output-socket :square :format "~,4F" :name "Square")
-           ("VCO" :output-socket :triangle :format "~,4F" :name "Triangle")
-           ("VCO" :output-socket :saw :format "~,4F" :name "Saw"))
-         :filename "cl-synthesizer-examples/monitor-example-1.csv"
-         :add-header t
-         :column-separator ",")
+        (flet ((instantiate-handler (name environment inputs)
+    	     (declare (ignore name environment inputs))
+    	     (values 
+    	      (list
+    	       :update (lambda (input-args)
+    			 (format t "~%Sine: ~a" (getf input-args :sine))
+    			 (format t "~%Phase: ~a" (getf input-args :phase))))
+    	       '(:sine :phase))))
+          
+          (cl-synthesizer-monitor:add-monitor
+           rack
+           #'instantiate-handler
+           '(("VCO" :output-socket :sine)
+    	 ("VCO" :state :phase))))
         
-        rack))
+      rack))
     
     (defun run-example ()
-      (cl-synthesizer:play-rack (example) :duration-seconds 1))
+      (let ((rack (example)))
+        (funcall (getf rack :update) nil)
+        (funcall (getf rack :update) nil)))
     
     ;; (run-example)
 
@@ -1335,4 +1345,4 @@ This condition is signalled in cases where the assembly of a rack fails, because
 
 * * *
 
-Generated 2019-02-09 18:01:33
+Generated 2019-02-13 19:06:21
