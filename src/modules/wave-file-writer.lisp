@@ -1,5 +1,105 @@
 (in-package :cl-synthesizer-modules-wave-file-writer)
 
+
+;;
+;; Helper functions for RIFF/Binary writing
+;; Copied from Ryan Kings cl-wave library https://github.com/RyanTKing/cl-wave
+;;
+(defun write-sint (stream sint bytes)
+  "Writes a signed integer to the stream with the specified number of bytes."
+  (when (< sint 0) (incf sint (expt 2 (* bytes 8))))
+  (loop for n below (* bytes 8) by 8 do (write-byte (ldb (byte 8 n) sint) stream)))
+
+(defun write-uint (stream uint bytes)
+  "Writes an unsigned integer to the stream with the specified number of bytes."
+  (loop for n below (* bytes 8) by 8 do (write-byte (ldb (byte 8 n) uint) stream)))
+
+(defun write-tag (stream tag)
+  "Writes a 4-character ASCII tag to the stream."
+  (loop for ch across tag do (write-byte (char-code ch) stream)))
+
+
+;;
+;; Streaming Wave-File-Writer
+;;
+
+(defun make-writer (&key filename channel-count sample-rate (sample-width-bytes 2))
+  "Creates a streaming Wave-File output writer. Returns a property list with the following
+   keys:
+   <ul>
+      <li>:open-file A function that opens the file.</li>
+      <li>:close-file A function that closes the file.</li>
+      <li>:write-sample A function that writes a sample. A sample is a signed 16 Bit integer (−32.768 ... 32.767).</li>
+   </ul>"
+  (let ((sample-count 0) (file-output-stream) (sample-width-bits (* sample-width-bytes 8)))
+    (labels ((open-file ()
+	       (format t "~%Open file ~a~%" filename)
+	       (setf file-output-stream
+		     (open
+		      filename
+		      :element-type 'unsigned-byte
+		      :direction :io
+		      :if-exists :supersede
+		      :if-does-not-exist :create)))
+	     (close-file ()
+	       (if file-output-stream
+		   (progn
+		     (format t "~%Close file ~a~%" filename)
+		     (close file-output-stream)
+		     (setf file-output-stream nil))))
+	     (get-fmt-chunk-size (number-of-samples)
+	       (declare (ignore number-of-samples))
+	       16)
+	     (get-data-chunk-size (number-of-samples)
+	       (* number-of-samples sample-width-bytes))
+	     (get-riff-chunk-size (number-of-samples)
+	       (+ 4 (get-data-chunk-size number-of-samples) (get-fmt-chunk-size number-of-samples)))
+	     (write-riff-chunk (number-of-samples)
+	       (let ((riff-size (get-riff-chunk-size number-of-samples)))
+		 (write-tag file-output-stream "RIFF")
+		 (write-uint file-output-stream riff-size 4)
+		 (write-tag file-output-stream "WAVE")))
+	     (write-format-chunk (number-of-samples)
+	       (let ((compression-code 1) ;; PCM
+		     ;; TODO Should byte rate depend on sample-rate?
+		     ;; https://de.wikipedia.org/wiki/RIFF_WAVE
+		     (byte-rate 88200))
+		 (write-tag file-output-stream "fmt ")
+		 (write-uint file-output-stream (get-fmt-chunk-size number-of-samples) 4)
+		 (write-uint file-output-stream compression-code 2)
+		 (write-uint file-output-stream channel-count 2)
+		 (write-uint file-output-stream sample-rate 4)
+		 (write-uint file-output-stream byte-rate 4)
+		 (write-uint file-output-stream sample-width-bytes 2)
+		 (write-uint file-output-stream sample-width-bits 2)))
+	     (write-data-chunk (number-of-samples)
+	       (let ((data-size (get-data-chunk-size number-of-samples)))
+		 (write-tag file-output-stream "data")
+		 (write-uint file-output-stream data-size 4))))
+      (list
+       :open-file (lambda()
+	 (open-file)
+	 ;; Write preliminary chunks
+	 (write-riff-chunk 0)
+	 (write-format-chunk 0)
+	 (write-data-chunk 0))
+       :write-sample
+       (lambda (sample)
+	 (setf sample-count (+ 1 sample-count))
+	 (write-sint file-output-stream sample sample-width-bytes))
+       :close-file
+       (lambda ()
+	 (if (< 0 sample-count)
+	     (progn
+	       ;; Update chunks
+	       (file-position file-output-stream :start)
+	       (write-riff-chunk sample-count)
+	       (write-format-chunk sample-count)
+	       (write-data-chunk sample-count)))
+	 (close-file))))))
+
+
+;; TODO Clipping is fishy, should be −32.768 .. 32.767
 (defun wave-writer-float-to-int16 (value)
   (cond
     ((> value 1.0)
@@ -36,7 +136,6 @@
 	  are written in order :channel-1 ... :channel-n</li>
   </ul>
   The module has no outputs.
-  The actual wave-file is written by the :shutdown function of the module.
   <p>See also cl-synthesizer-monitor:add-monitor which provides Wave-File-Writing
      without having to add the module and the required patches to the rack.</p>"
   (if (<= channel-count 0)
@@ -44,24 +143,25 @@
        :format-control "~a: channel-count must be greater than 0: ~a"
        :format-arguments (list name channel-count)))
   (let ((inputs (cl-synthesizer-macro-util:make-keyword-list "channel" channel-count))
-	(samples nil))
+	(opened-wave-writer nil)
+	(wave-writer (make-writer
+		      :filename (merge-pathnames filename (getf environment :home-directory))
+		      :channel-count channel-count
+		      :sample-rate (floor (getf environment :sample-rate)))))
     ;; inputs are now (:CHANNEL-1 ... :CHANNEL-n)
     (list
      :inputs (lambda () inputs)
      :outputs (lambda () '())
      :get-output (lambda (output) (declare (ignore output)) nil)
      :update (lambda (args)
+	       (if (not opened-wave-writer)
+		   (progn
+		     (setf opened-wave-writer t)
+		     (funcall (getf wave-writer :open-file))))
 	       (dolist (input inputs)
 		 (let ((value (getf args input)))
 		   (if (not value)
 		       (setf value 0.0))
-		   (push (input-to-wave value v-peak) samples))))
+		   (funcall (getf wave-writer :write-sample) (input-to-wave value v-peak)))))
      :shutdown (lambda ()
-		 (let ((wave (cl-wave:open-wave
-			      (merge-pathnames filename (getf environment :home-directory))
-			      :direction :output)))
-		   (cl-wave:set-num-channels wave channel-count)
-		   (cl-wave:set-sample-rate wave (floor (getf environment :sample-rate)))
-		   (cl-wave:set-frames wave (nreverse samples))
-		   (cl-wave:close-wave wave)
-		   (setf samples nil))))))
+		 (funcall (getf wave-writer :close-file))))))

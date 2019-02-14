@@ -7,8 +7,7 @@
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "An audio synthesizer"
   :long-description "An audio synthesizer"
-  :depends-on (:alexandria
-	       :cl-wave)
+  :depends-on (:alexandria)
   :components ((:module "src/util"
 			:serial t
 			:components ((:file "packages")

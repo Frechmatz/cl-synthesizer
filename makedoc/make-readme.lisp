@@ -123,6 +123,7 @@
 		   "<h3 id=\"conditions\">Conditions</h3>"
 		   (make-condition-string 'cl-synthesizer:assembly-error :append-separator nil)
 		   ;;(documentation 'cl-synthesizer:assembly-error 'type)
+		   (read-text-file "makedoc/acknowledge.html")
 		   "<hr/><p><small>Generated " (current-date) "</small></p>"
 		   "</body></html>"
 		   )))

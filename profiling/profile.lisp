@@ -170,6 +170,19 @@
 		(format
 		 nil
 		 "Updating CSV-Writer for ~a seconds" duration-seconds)))))
+   (list
+    :id :wave-writer :name "Wave-Writer"
+    :setup (lambda(&key duration-seconds sample-rate filename)
+	     (let ((rack (cl-synthesizer-profiling-wave-file-writer::make-test-rack
+			  :sample-rate sample-rate
+			  :filename filename)))
+	       (values 
+		(lambda ()
+		  (cl-synthesizer:play-rack rack :duration-seconds duration-seconds))
+		(format
+		 nil
+		 "Updating Wave-Writer for ~a seconds with sample-rate ~a into file ~a"
+		 duration-seconds sample-rate filename)))))
    
    ))
 
@@ -273,6 +286,21 @@
    :init nil
    :jobs '((:client-id :csv-writer :init (:duration-seconds 60)))))
 
+(defparameter *profiling-plan-wave-writer*
+  (list
+   :name "Wave-Writer"
+   :max-samples 500
+   :profile-time t
+   :profile-statistical nil
+   :init nil
+   :jobs '(
+	   (:client-id :wave-writer :init
+	    (:duration-seconds 30 :sample-rate 44100.0 :filename "cl-synthesizer-examples/wave-profiling-44100.wav"))
+	   (:client-id :wave-writer :init
+	    (:duration-seconds 30 :sample-rate 96000.0 :filename "cl-synthesizer-examples/wave-profiling-96000.wav"))
+
+	   )))
+
 
 (defparameter *profiling-plan-all*
   (list
@@ -290,7 +318,8 @@
 	   (:client-id :vco :init (:duration-seconds 60 :vco-count 100))
 	   (:client-id :monitor :init (:duration-seconds 120))
 	   (:client-id :midi-sequencer :init (:duration-seconds 3600))
-	   (:client-id :csv-writer :init (:duration-seconds 60)))))
+	   (:client-id :csv-writer :init (:duration-seconds 60))
+	   (:client-id :wave-writer :init (:duration-seconds 60)))))
 
 ;; (run-plan *profiling-plan-vco-core*)
 ;; (run-plan *profiling-plan-vco*)
@@ -300,4 +329,5 @@
 ;; (run-plan *profiling-plan-all*)
 ;; (run-plan *profiling-plan-midi-sequencer*)
 ;; (run-plan *profiling-plan-csv-writer*)
+;; (run-plan *profiling-plan-wave-writer*)
 
