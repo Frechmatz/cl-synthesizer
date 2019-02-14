@@ -68,12 +68,9 @@ Installation
 
     
     cd ~/quicklisp/local-projects
-    git clone https://github.com/Frechmatz/cl-wave.git
     git clone https://github.com/Frechmatz/cl-synthesizer.git
     (ql:quickload "cl-synthesizer")
     
-
-The cl-wave repository is a fork of the wave file reader/writer library implemented by [Ryan King](https://github.com/RyanTKing/cl-wave) where a dependency has been replaced with code kindly provided by Ryan.
 
 API Reference
 -------------
@@ -1142,7 +1139,7 @@ The module has the following inputs:
 
 *   :channel-1 ... :channel-n The sample values of the generated frames are written in order :channel-1 ... :channel-n
 
-The module has no outputs. The actual wave-file is written by the :shutdown function of the module.
+The module has no outputs.
 
 See also cl-synthesizer-monitor:add-monitor which provides Wave-File-Writing without having to add the module and the required patches to the rack.
 
@@ -1343,6 +1340,11 @@ Returns the frequency of a given note number. Note number 69 results in a freque
 
 This condition is signalled in cases where the assembly of a rack fails, because for example a module name is not unique, a patch is added for a non-existing module, a patch is added to an already patched socket and so on.
 
+Acknowledgements
+----------------
+
+The Wave-Writer module uses code taken from Ryan Kings [cl-wave](https://github.com/RyanTKing/cl-wave) library.
+
 * * *
 
-Generated 2019-02-13 19:06:21
+Generated 2019-02-14 23:32:58
