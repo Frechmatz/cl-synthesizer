@@ -7,9 +7,7 @@
 
 (in-package :cl-synthesizer-core)
 
-(alexandria:define-constant +SHORT-PI+ (coerce PI 'single-float)
-  :documentation "")
-
+(defconstant +SHORT-PI+ (coerce PI 'single-float))
 
 (declaim (inline phase-sine-converter))
 (defun phase-sine-converter (phi &key (phase-offset 0.0))
@@ -18,8 +16,9 @@
   (declare (type single-float phi phase-offset))
   (sin (+ phi phase-offset)))
 
-(alexandria:define-constant +SAW-OFFSET+ (coerce PI 'single-float)
-  :documentation "Phase offset of saw-converter to align with amplitude of sine")
+;; Phase offset of saw-converter to align with amplitude of sine
+(defconstant +SAW-OFFSET+ (coerce PI 'single-float))
+
 (declaim (inline phase-saw-converter))
 (defun phase-saw-converter (phi &key (phase-offset 0.0))
   "phi -- The phase in radiant. 0...POSITIVE-INFINITY
@@ -37,8 +36,9 @@
   (let ((y (if (< (mod (+ phi phase-offset) (* 2.0 +SHORT-PI+)) (* 2.0 +SHORT-PI+ duty-cycle)) 1.0 -1.0)))
     y))
 
-(alexandria:define-constant +TRIANGLE-OFFSET+ (coerce (* 0.75 2.0 +SHORT-PI+) 'single-float)
-  :documentation "Phase offset of triangle-converter to align with amplitude of sine")
+;; Phase offset of triangle-converter to align with amplitude of sine
+(defconstant +TRIANGLE-OFFSET+ (coerce (* 0.75 2.0 +SHORT-PI+) 'single-float))
+
 (declaim (inline phase-triangle-converter))
 (defun phase-triangle-converter (phi &key (phase-offset 0.0))
   "phi -- The phase in radiant. 0...POSITIVE-INFINITY
