@@ -295,11 +295,11 @@
    :init nil
    :jobs '(
 	   (:client-id :wave-writer :init
-	    (:duration-seconds 30 :sample-rate 44100.0 :filename "cl-synthesizer-examples/wave-profiling-44100.wav"))
+	    (:duration-seconds 30 :sample-rate 44100.0
+	     :filename "cl-synthesizer-examples/wave-profiling-44100.wav"))
 	   (:client-id :wave-writer :init
-	    (:duration-seconds 30 :sample-rate 96000.0 :filename "cl-synthesizer-examples/wave-profiling-96000.wav"))
-
-	   )))
+	    (:duration-seconds 30 :sample-rate 96000.0
+	     :filename "cl-synthesizer-examples/wave-profiling-96000.wav")))))
 
 
 (defparameter *profiling-plan-all*
@@ -319,7 +319,9 @@
 	   (:client-id :monitor :init (:duration-seconds 120))
 	   (:client-id :midi-sequencer :init (:duration-seconds 3600))
 	   (:client-id :csv-writer :init (:duration-seconds 60))
-	   (:client-id :wave-writer :init (:duration-seconds 60)))))
+	   (:client-id :wave-writer :init (:duration-seconds 60
+					   :sample-rate 44100.0
+					   :filename "cl-synthesizer-examples/wave-profiling.wav")))))
 
 ;; (run-plan *profiling-plan-vco-core*)
 ;; (run-plan *profiling-plan-vco*)
