@@ -333,10 +333,10 @@
    :init nil
    :jobs '(
 	   (:client-id :wave-writer :init
-	    (:duration-seconds 30 :sample-rate 44100.0
+	    (:duration-seconds 30 :sample-rate 44100
 	     :filename "cl-synthesizer-examples/wave-profiling-44100.wav"))
 	   (:client-id :wave-writer :init
-	    (:duration-seconds 30 :sample-rate 96000.0
+	    (:duration-seconds 30 :sample-rate 96000
 	     :filename "cl-synthesizer-examples/wave-profiling-96000.wav")))))
 
 (defparameter *profiling-plan-midi-interface*
@@ -385,7 +385,7 @@
 	   (:client-id :midi-sequencer :init (:duration-seconds 3600))
 	   (:client-id :csv-writer :init (:duration-seconds 60))
 	   (:client-id :wave-writer :init (:duration-seconds 60
-					   :sample-rate 44100.0
+					   :sample-rate 44100
 					   :filename "cl-synthesizer-examples/wave-profiling.wav"))
 	   (:client-id :midi-interface :init (:duration-seconds 60))
 	   (:client-id :adsr :init (:duration-seconds 60))
