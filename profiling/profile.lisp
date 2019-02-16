@@ -206,6 +206,20 @@
 		       :duration-seconds duration-seconds))
 		(format nil "Updating ADSR for ~a seconds" duration-seconds)
 		))))
+   (list
+    :id :mixer :name "Mixer"
+    :setup (lambda(&key duration-seconds channel-count)
+	     (let ((rack (cl-synthesizer-profiling-mixer::make-test-rack :channel-count channel-count)))
+	       (let ((info (get-rack-info rack)))
+		 (values 
+		  (lambda ()
+		    (cl-synthesizer:play-rack
+		     rack
+		     :duration-seconds duration-seconds))
+		  (format nil "Updating Mixer with ~a channels for ~a seconds (Modules: ~a Patches: ~a)"
+			  channel-count duration-seconds
+			  (getf info :module-count) (getf info :patch-count)))
+		))))
 
    
    ))
@@ -343,6 +357,15 @@
    :init nil
    :jobs '((:client-id :adsr :init (:duration-seconds 60)))))
 
+(defparameter *profiling-plan-mixer*
+  (list
+   :name "Mixer"
+   :max-samples 500
+   :profile-time t
+   :profile-statistical nil
+   :init nil
+   :jobs '((:client-id :mixer :init (:duration-seconds 60 :channel-count 32)))))
+
 
 (defparameter *profiling-plan-all*
   (list
@@ -366,6 +389,7 @@
 					   :filename "cl-synthesizer-examples/wave-profiling.wav"))
 	   (:client-id :midi-interface :init (:duration-seconds 60))
 	   (:client-id :adsr :init (:duration-seconds 60))
+	   (:client-id :mixer :init (:duration-seconds 60 :channel-count 32))
 	   )))
 
 ;; (run-plan *profiling-plan-vco-core*)
@@ -379,4 +403,5 @@
 ;; (run-plan *profiling-plan-wave-writer*)
 ;; (run-plan *profiling-plan-midi-interface*)
 ;; (run-plan *profiling-plan-adsr*)
+;; (run-plan *profiling-plan-mixer*)
 

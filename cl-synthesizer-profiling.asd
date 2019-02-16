@@ -21,5 +21,6 @@
 				     (:file "profile-wave-file-writer")
 				     (:file "profile-midi-interface")
 				     (:file "profile-adsr")
+				     (:file "profile-mixer")
 				     (:file "profile")))))
 
