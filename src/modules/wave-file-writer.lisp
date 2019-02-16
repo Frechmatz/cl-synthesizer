@@ -23,7 +23,7 @@
 ;; Streaming Wave-File-Writer
 ;;
 
-(defun make-writer (&key filename channel-count sample-rate (sample-width-bytes 2))
+(defun make-writer (&key filename channel-count sample-rate (sample-width :16Bit))
   "Creates a streaming Wave-File output writer. Returns a property list with the following
    keys:
    <ul>
@@ -31,86 +31,128 @@
       <li>:close-file A function that closes the file.</li>
       <li>:write-sample A function that writes a sample. A sample is a signed 16 Bit integer (−32.768 ... 32.767).</li>
    </ul>"
-  (let ((sample-count 0) (file-output-stream) (sample-width-bits (* sample-width-bytes 8)))
-    (labels ((open-file ()
-	       (format t "~%Open file ~a~%" filename)
-	       (setf file-output-stream
-		     (open
-		      filename
-		      :element-type 'unsigned-byte
-		      :direction :io
-		      :if-exists :supersede
-		      :if-does-not-exist :create)))
-	     (close-file ()
-	       (if file-output-stream
-		   (progn
-		     (format t "~%Close file ~a~%" filename)
-		     (close file-output-stream)
-		     (setf file-output-stream nil))))
-	     (get-fmt-chunk-size (number-of-samples)
-	       (declare (ignore number-of-samples))
-	       16)
-	     (get-data-chunk-size (number-of-samples)
-	       (* number-of-samples sample-width-bytes))
-	     (get-riff-chunk-size (number-of-samples)
-	       (+ 4 (get-data-chunk-size number-of-samples) (get-fmt-chunk-size number-of-samples)))
-	     (write-riff-chunk (number-of-samples)
-	       (let ((riff-size (get-riff-chunk-size number-of-samples)))
-		 (write-tag file-output-stream "RIFF")
-		 (write-uint file-output-stream riff-size 4)
-		 (write-tag file-output-stream "WAVE")))
-	     (write-format-chunk (number-of-samples)
-	       (let ((compression-code 1) ;; PCM
-		     ;; TODO Should byte rate depend on sample-rate?
-		     ;; https://de.wikipedia.org/wiki/RIFF_WAVE
-		     (byte-rate 88200))
-		 (write-tag file-output-stream "fmt ")
-		 (write-uint file-output-stream (get-fmt-chunk-size number-of-samples) 4)
-		 (write-uint file-output-stream compression-code 2)
-		 (write-uint file-output-stream channel-count 2)
-		 (write-uint file-output-stream sample-rate 4)
-		 (write-uint file-output-stream byte-rate 4)
-		 (write-uint file-output-stream sample-width-bytes 2)
-		 (write-uint file-output-stream sample-width-bits 2)))
-	     (write-data-chunk (number-of-samples)
-	       (let ((data-size (get-data-chunk-size number-of-samples)))
-		 (write-tag file-output-stream "data")
-		 (write-uint file-output-stream data-size 4))))
-      (list
-       :open-file (lambda()
-	 (open-file)
-	 ;; Write preliminary chunks
-	 (write-riff-chunk 0)
-	 (write-format-chunk 0)
-	 (write-data-chunk 0))
-       :write-sample
-       (lambda (sample)
-	 (setf sample-count (+ 1 sample-count))
-	 (write-sint file-output-stream sample sample-width-bytes))
-       :close-file
-       (lambda ()
-	 (if (< 0 sample-count)
-	     (progn
-	       ;; Update chunks
-	       (file-position file-output-stream :start)
-	       (write-riff-chunk sample-count)
-	       (write-format-chunk sample-count)
-	       (write-data-chunk sample-count)))
-	 (close-file))))))
+  (let ((sample-width-mapping
+	 (list
+	  ;; 8 Bit does not work yet due to unsigned representation
+	  ;; https://en.wikipedia.org/wiki/WAV
+	  ;; https://stackoverflow.com/questions/44415863/what-is-the-byte-format-of-an-8-bit-monaural-wav-file
+	  ;; http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/Samples.html
+	  #|
+	  :8Bit
+	  (list
+	   :sample-width-bytes 1
+	   :convert (lambda (value)
+		      (set value (+ 1.0 value))
+		      (cond
+			((> value 1.0)
+			 255)
+			((< value -1.0)
+			 0)
+			(t
+			 (round (* 256 value))))))
+	  |#
+	  :16Bit
+	  (list
+	   :sample-width-bytes 2
+	   :convert (lambda (value)
+		      (cond
+			((> value 1.0)
+			 32767)
+			((< value -1.0)
+			 -32768)
+			(t
+			 (round (* 32767 value))))))
+	  :24Bit
+	  (list
+	   :sample-width-bytes 3
+	   :convert (lambda (value)
+		      (cond
+			((> value 1.0)
+			 8388607)
+			((< value -1.0)
+			 -8388608)
+			(t
+			 (round (* 8388607 value)))))))))
+    (let* ((sample-count 0)
+	   (file-output-stream)
+	   (sample-mapping (getf sample-width-mapping sample-width))
+	   (sample-width-bytes (getf sample-mapping :sample-width-bytes))
+	   (convert-sample (getf sample-mapping :convert)))
+      (labels ((open-file ()
+		 (format t "~%Open file ~a~%" filename)
+		 (setf file-output-stream
+		       (open
+			filename
+			:element-type 'unsigned-byte
+			:direction :io
+			:if-exists :supersede
+			:if-does-not-exist :create)))
+	       (close-file ()
+		 (if file-output-stream
+		     (progn
+		       (format t "~%Close file ~a~%" filename)
+		       (close file-output-stream)
+		       (setf file-output-stream nil))))
+	       (write-sample (value)
+		 (write-sint
+		  file-output-stream
+		  (funcall convert-sample value)
+		  sample-width-bytes))
+	       (get-fmt-chunk-size (number-of-samples)
+		 (declare (ignore number-of-samples))
+		 16)
+	       (get-data-chunk-size (number-of-samples)
+		 (* number-of-samples sample-width-bytes))
+	       (get-riff-chunk-size (number-of-samples)
+		 (+ 4 (get-data-chunk-size number-of-samples) (get-fmt-chunk-size number-of-samples)))
+	       (write-riff-chunk (number-of-samples)
+		 (let ((riff-size (get-riff-chunk-size number-of-samples)))
+		   (write-tag file-output-stream "RIFF")
+		   (write-uint file-output-stream riff-size 4)
+		   (write-tag file-output-stream "WAVE")))
+	       (write-format-chunk (number-of-samples)
+		 (let ((compression-code 1) ;; PCM
+		       ;; TODO Should byte rate depend on sample-rate?
+		       ;; https://de.wikipedia.org/wiki/RIFF_WAVE
+		       (byte-rate 88200))
+		   (write-tag file-output-stream "fmt ")
+		   (write-uint file-output-stream (get-fmt-chunk-size number-of-samples) 4)
+		   (write-uint file-output-stream compression-code 2)
+		   (write-uint file-output-stream channel-count 2)
+		   (write-uint file-output-stream sample-rate 4)
+		   (write-uint file-output-stream byte-rate 4)
+		   (write-uint file-output-stream sample-width-bytes 2)
+		   (write-uint file-output-stream (* sample-width-bytes 8) 2)))
+	       (write-data-chunk (number-of-samples)
+		 (let ((data-size (get-data-chunk-size number-of-samples)))
+		   (write-tag file-output-stream "data")
+		   (write-uint file-output-stream data-size 4))))
+	(list
+	 :open-file (lambda()
+		      (open-file)
+		      ;; Write preliminary chunks
+		      (write-riff-chunk 0)
+		      (write-format-chunk 0)
+		      (write-data-chunk 0))
+	 :write-sample
+	 (lambda (sample)
+	   (setf sample-count (+ 1 sample-count))
+	   (write-sample sample))
+	 :close-file
+	 (lambda ()
+	   (if (< 0 sample-count)
+	       (progn
+		 ;; Update chunks
+		 (file-position file-output-stream :start)
+		 (write-riff-chunk sample-count)
+		 (write-format-chunk sample-count)
+		 (write-data-chunk sample-count)))
+	   (close-file)))))))
 
-(defun wave-writer-float-to-int16 (value)
-  (cond
-    ((> value 1.0)
-     32767)
-    ((< value -1.0)
-     -32768)
-    (t
-     (round (* 32767 value)))))
 
 (defun input-to-wave (f v-peak)
-  (wave-writer-float-to-int16
-   ;; convert to -1.0 ... +1.0
-   (/ f v-peak)))
+  ;; convert to -1.0 ... +1.0
+  (/ f v-peak))
 
 (defun make-module (name environment &key channel-count filename (v-peak 5.0))
   "Creates a Wave File Writer module. Writes files in \"Waveform Audio File\" (\"WAV\") format.
@@ -145,6 +187,7 @@
 	(wave-writer (make-writer
 		      :filename (merge-pathnames filename (getf environment :home-directory))
 		      :channel-count channel-count
+		      :sample-width :16Bit
 		      :sample-rate (floor (getf environment :sample-rate)))))
     ;; inputs are now (:CHANNEL-1 ... :CHANNEL-n)
     (list
