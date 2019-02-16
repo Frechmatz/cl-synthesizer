@@ -98,16 +98,14 @@
 	       (write-data-chunk sample-count)))
 	 (close-file))))))
 
-
-;; TODO Clipping is fishy, should be −32.768 .. 32.767
 (defun wave-writer-float-to-int16 (value)
   (cond
     ((> value 1.0)
-     32000)
+     32767)
     ((< value -1.0)
-     -32000)
+     -32768)
     (t
-     (round (* 32000 value)))))
+     (round (* 32767 value)))))
 
 (defun input-to-wave (f v-peak)
   (wave-writer-float-to-int16
