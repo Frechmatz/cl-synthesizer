@@ -19,5 +19,6 @@
 				     (:file "profile-midi-sequencer")
 				     (:file "profile-csv-file-writer")
 				     (:file "profile-wave-file-writer")
+				     (:file "profile-midi-interface")
 				     (:file "profile")))))
 

@@ -183,6 +183,17 @@
 		 nil
 		 "Updating Wave-Writer for ~a seconds with sample-rate ~a into file ~a"
 		 duration-seconds sample-rate filename)))))
+
+   (list
+    :id :midi-interface :name "MIDI-Interface"
+    :setup (lambda(&key duration-seconds)
+	     (let ((update-fn (cl-synthesizer-profiling-midi-interface::init)))
+	       (values 
+		(lambda ()
+		  (funcall update-fn :duration-seconds duration-seconds))
+		(format
+		 nil
+		 "Updating MIDI-Interface for ~a seconds" duration-seconds)))))
    
    ))
 
@@ -301,6 +312,15 @@
 	    (:duration-seconds 30 :sample-rate 96000.0
 	     :filename "cl-synthesizer-examples/wave-profiling-96000.wav")))))
 
+(defparameter *profiling-plan-midi-interface*
+  (list
+   :name "MIDI-Interface"
+   :max-samples 500
+   :profile-time t
+   :profile-statistical nil
+   :init nil
+   :jobs '((:client-id :midi-interface :init (:duration-seconds 60)))))
+
 
 (defparameter *profiling-plan-all*
   (list
@@ -321,7 +341,9 @@
 	   (:client-id :csv-writer :init (:duration-seconds 60))
 	   (:client-id :wave-writer :init (:duration-seconds 60
 					   :sample-rate 44100.0
-					   :filename "cl-synthesizer-examples/wave-profiling.wav")))))
+					   :filename "cl-synthesizer-examples/wave-profiling.wav"))
+	   (:client-id :midi-interface :init (:duration-seconds 60))
+	   )))
 
 ;; (run-plan *profiling-plan-vco-core*)
 ;; (run-plan *profiling-plan-vco*)
@@ -332,4 +354,5 @@
 ;; (run-plan *profiling-plan-midi-sequencer*)
 ;; (run-plan *profiling-plan-csv-writer*)
 ;; (run-plan *profiling-plan-wave-writer*)
+;; (run-plan *profiling-plan-midi-interface*)
 
