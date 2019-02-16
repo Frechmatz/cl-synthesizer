@@ -194,6 +194,19 @@
 		(format
 		 nil
 		 "Updating MIDI-Interface for ~a seconds" duration-seconds)))))
+
+   (list
+    :id :adsr :name "ADSR"
+    :setup (lambda(&key duration-seconds)
+	     (let ((rack (cl-synthesizer-profiling-adsr::make-test-rack)))
+	       (values 
+		(lambda ()
+		  (cl-synthesizer:play-rack
+		       rack
+		       :duration-seconds duration-seconds))
+		(format nil "Updating ADSR for ~a seconds" duration-seconds)
+		))))
+
    
    ))
 
@@ -321,6 +334,15 @@
    :init nil
    :jobs '((:client-id :midi-interface :init (:duration-seconds 60)))))
 
+(defparameter *profiling-plan-adsr*
+  (list
+   :name "ADSR"
+   :max-samples 500
+   :profile-time t
+   :profile-statistical nil
+   :init nil
+   :jobs '((:client-id :adsr :init (:duration-seconds 60)))))
+
 
 (defparameter *profiling-plan-all*
   (list
@@ -343,6 +365,7 @@
 					   :sample-rate 44100.0
 					   :filename "cl-synthesizer-examples/wave-profiling.wav"))
 	   (:client-id :midi-interface :init (:duration-seconds 60))
+	   (:client-id :adsr :init (:duration-seconds 60))
 	   )))
 
 ;; (run-plan *profiling-plan-vco-core*)
@@ -355,4 +378,5 @@
 ;; (run-plan *profiling-plan-csv-writer*)
 ;; (run-plan *profiling-plan-wave-writer*)
 ;; (run-plan *profiling-plan-midi-interface*)
+;; (run-plan *profiling-plan-adsr*)
 
