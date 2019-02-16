@@ -12,7 +12,7 @@
   *tick*)
 
 (defclass voice ()
-  ((notes :initform nil) ;; list of note numbers
+  ((notes :initform nil) ;; nil, a note or a list of notes. A note may be of any type
    (tick :initform 0)))
 
 (defmethod initialize-instance :after ((v voice) &rest args)
@@ -20,32 +20,65 @@
   (setf (slot-value v 'tick) (next-tick)))
 
 (defun voice-is-note (cur-voice note)
-  (find-if
-   (lambda (i) (equal i note))
-   (slot-value cur-voice 'notes)))
+  (with-slots (notes) cur-voice
+    (cond
+      ((not notes)
+       nil)
+      ((not (listp notes))
+       (equal note notes))
+      (t 
+       (find-if
+	(lambda (i) (equal i note))
+	notes)))))
 
 (defun voice-get-current-note (cur-voice)
-   (first (slot-value cur-voice 'notes)))
+  (with-slots (notes) cur-voice
+    (cond
+      ((not notes)
+       nil)
+      ((not (listp notes))
+       notes)
+      (t
+       (first notes)))))
 
 ;; Removes a note from the stack. Returns the current note or nil
 (defun voice-remove-note (cur-voice note)
   (setf (slot-value cur-voice 'tick) (next-tick))
-  (setf (slot-value cur-voice 'notes)
-	(remove-if
-	 (lambda (i) (equal i note))
-	 (slot-value cur-voice 'notes)))
+  (with-slots (notes) cur-voice
+    (cond
+      ((not notes)
+       nil)
+      ((not (listp notes))
+       (setf notes nil))
+      (t
+       (setf notes
+	     (remove-if
+	      (lambda (i) (equal i note))
+	      notes)))))
   ;; return top note-number
   (voice-get-current-note cur-voice))
 
 ;; Pushes a note. Returns the current note.
 (defun voice-push-note (cur-voice note)
   (setf (slot-value cur-voice 'tick) (next-tick))
-  (if (voice-is-note cur-voice note)
-      ;; if note exists, move it to top
-      (voice-remove-note cur-voice note))
-  (progn
-    (push note (slot-value cur-voice 'notes))
-    (voice-get-current-note cur-voice)))
+  (with-slots (notes) cur-voice
+    (cond
+      ((not notes)
+       (setf notes note))
+      ((not (listp notes))
+       (if (voice-is-note cur-voice note)
+	   nil ;; Nothing to to
+	   (progn
+	     ;; Switch over to stack representation
+	     (setf notes (list notes))
+	     ;; and push
+	     (push note notes))))
+      (t
+       (if (voice-is-note cur-voice note)
+	   ;; if note exists, delete it (we want to move it to top)
+	   (voice-remove-note cur-voice note))
+       (push note notes))))
+  (voice-get-current-note cur-voice))
 
 (defun voice-get-tick (cur-voice)
   (slot-value cur-voice 'tick))
