@@ -19,6 +19,57 @@
   (loop for ch across tag do (write-byte (char-code ch) stream)))
 
 
+(defmacro clip-value (value)
+  `(cond
+    ((> ,value 1.0)
+     1.0)
+    ((< ,value -1.0)
+     -1.0)
+    (t ,value)))
+
+;;
+;; Regarding final clipping (after round) see also
+;; https://stackoverflow.com/questions/54548304/subtlety-in-converting-doubles-to-a-sound-byte-output
+;; We want to allow both +1.0 and -1.0 is input values
+;;
+
+(defun value-to-8bit-unsigned (value)
+  "value: -1.0 ... 1.0"
+  (setf value (clip-value value))
+  (setf value (round (* 128 value)))
+  (setf value (+ 128 value))
+  (cond
+    ((< 255 value)
+     255)
+    ((< value 0)
+     0)
+    (t
+     value)))
+
+(defun value-to-16bit-signed (value)
+  "value: -1.0 ... 1.0"
+  (setf value (clip-value value))
+  (setf value (round (* 32768 value)))
+  (cond
+    ((< 32767 value)
+     32767)
+    ((< value -32768)
+     -32768)
+    (t
+     value)))
+
+(defun value-to-24bit-signed (value)
+  "value: -1.0 ... 1.0"
+  (setf value (clip-value value))
+  (setf value (round (* 8388608 value)))
+  (cond
+    ((< 8388607 value)
+     8388607)
+    ((< value -8388608)
+     -8388608)
+    (t
+     value)))
+
 ;;
 ;; Streaming Wave-File-Writer
 ;;
@@ -33,46 +84,21 @@
    </ul>"
   (let ((sample-width-mapping
 	 (list
-	  ;; 8 Bit does not work yet due to unsigned representation
-	  ;; https://en.wikipedia.org/wiki/WAV
-	  ;; https://stackoverflow.com/questions/44415863/what-is-the-byte-format-of-an-8-bit-monaural-wav-file
-	  ;; http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/Samples.html
-	  #|
 	  :8Bit
 	  (list
 	   :sample-width-bytes 1
-	   :convert (lambda (value)
-		      (set value (+ 1.0 value))
-		      (cond
-			((> value 1.0)
-			 255)
-			((< value -1.0)
-			 0)
-			(t
-			 (round (* 256 value))))))
-	  |#
+	   ;; Unsigned representation for 8 bit waves
+	   ;; https://en.wikipedia.org/wiki/WAV
+	   ;; https://stackoverflow.com/questions/44415863/what-is-the-byte-format-of-an-8-bit-monaural-wav-file
+	   :convert #'value-to-8bit-unsigned)
 	  :16Bit
 	  (list
 	   :sample-width-bytes 2
-	   :convert (lambda (value)
-		      (cond
-			((> value 1.0)
-			 32767)
-			((< value -1.0)
-			 -32768)
-			(t
-			 (round (* 32767 value))))))
+	   :convert #'value-to-16bit-signed)
 	  :24Bit
 	  (list
 	   :sample-width-bytes 3
-	   :convert (lambda (value)
-		      (cond
-			((> value 1.0)
-			 8388607)
-			((< value -1.0)
-			 -8388608)
-			(t
-			 (round (* 8388607 value)))))))))
+	   :convert #'value-to-24bit-signed))))
     (let* ((sample-count 0)
 	   (file-output-stream)
 	   (sample-mapping (getf sample-width-mapping sample-width))
@@ -136,6 +162,7 @@
 		      (write-data-chunk 0))
 	 :write-sample
 	 (lambda (sample)
+	   "sample: -1.0 ... 1.0"
 	   (setf sample-count (+ 1 sample-count))
 	   (write-sample sample))
 	 :close-file
@@ -154,7 +181,7 @@
   ;; convert to -1.0 ... +1.0
   (/ f v-peak))
 
-(defun make-module (name environment &key channel-count filename (v-peak 5.0))
+(defun make-module (name environment &key channel-count filename (v-peak 5.0) (sample-width :16bit))
   "Creates a Wave File Writer module. Writes files in \"Waveform Audio File\" (\"WAV\") format.
     The function has the following arguments:
   <ul>
@@ -169,6 +196,7 @@
         of 5.0 / 20.0 -> 0.25 and an incoming voltage of -5.0 results in a sample 
         value of -0.25. The default value is 5.0. Incoming voltages will be clipped 
         according to v-peak.</li>
+    <li>:sample-width Resolution of samples. One of :8Bit, :16Bit, :24Bit</li> 
   </ul>
   The module has the following inputs:
   <ul>
@@ -187,7 +215,7 @@
 	(wave-writer (make-writer
 		      :filename (merge-pathnames filename (getf environment :home-directory))
 		      :channel-count channel-count
-		      :sample-width :16Bit
+		      :sample-width sample-width
 		      :sample-rate (floor (getf environment :sample-rate)))))
     ;; inputs are now (:CHANNEL-1 ... :CHANNEL-n)
     (list
