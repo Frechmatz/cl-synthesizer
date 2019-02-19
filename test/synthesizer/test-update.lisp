@@ -29,7 +29,10 @@
 		 (assert-equal 2 (funcall (getf multiplier :get-output) :out))
 		 (funcall (getf rack :update) nil)
 		 (assert-equal 2 (funcall (getf counter :get-output) :out))
-		 (assert-equal 4 (funcall (getf multiplier :get-output) :out)))))
+		 (assert-equal 4 (funcall (getf multiplier :get-output) :out))
+		 (funcall (getf rack :shutdown))
+		 (assert-true (funcall (getf counter :get-state) :shutdown-called))
+		 )))
 
 (defun create-test-rack-adder ()
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
