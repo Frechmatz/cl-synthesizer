@@ -138,9 +138,8 @@
 		   (write-tag file-output-stream "WAVE")))
 	       (write-format-chunk (number-of-samples)
 		 (let ((compression-code 1) ;; PCM
-		       ;; TODO Should byte rate depend on sample-rate?
 		       ;; https://de.wikipedia.org/wiki/RIFF_WAVE
-		       (byte-rate 88200))
+		       (byte-rate (* sample-rate channel-count sample-width-bytes)))
 		   (write-tag file-output-stream "fmt ")
 		   (write-uint file-output-stream (get-fmt-chunk-size number-of-samples) 4)
 		   (write-uint file-output-stream compression-code 2)
