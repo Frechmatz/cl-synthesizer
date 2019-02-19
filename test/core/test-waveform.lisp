@@ -50,11 +50,11 @@
   (let ((trigger (funcall #'cl-synthesizer-test::zero-crossing-trigger))
 	(phase-generator (cl-synthesizer-core:phase-generator 1000.0))
 	(trigger-count 0))
-    (dotimes (i 7250)
-		 (if (funcall trigger (cl-synthesizer-core:phase-square-converter (funcall phase-generator 1.0) :duty-cycle 0.26))
+    (dotimes (i 10000)
+		 (if (funcall trigger (cl-synthesizer-core:phase-square-converter (funcall phase-generator 1.0) :duty-cycle 0.25))
 		     (setf trigger-count (+ trigger-count 1))))
-    ;; 14 zero-crossings
-    (assert-equal 14 trigger-count)))
+    ;; 20 zero-crossings
+    (assert-equal 20 trigger-count)))
 
 (define-test test-waveform-square-3 ()
   "Test the square transfer function by counting the zero-crossings of the signal and setting a duty-cycle of 100%"
