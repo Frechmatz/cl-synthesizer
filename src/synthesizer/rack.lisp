@@ -156,7 +156,7 @@
 				(progn
 				  (setf has-shut-down t)
 				  (dolist (module modules)
-				    (let ((f (getf module :shutdown)))
+				    (let ((f (getf (getf module :module) :shutdown)))
 				      (if f (funcall f))))
 				  (dolist (m hooks)
 				    (let ((h (getf m :shutdown)))
