@@ -49,7 +49,18 @@
 		      (find-if
 		       (lambda (m) (string= name (getf m :name)))
 		       modules)))
-		 (if module (getf module :module) nil))))
+		 (if module (getf module :module) nil)))
+	     (add-module (module-name module)
+	       (setf compiled-rack nil)
+	       (push (list :module module :name module-name) modules))
+	     (add-patch (output-name output-socket input-name input-socket)
+			     (setf compiled-rack nil)
+			     (push (list
+				    :output-name output-name
+				    :output-socket output-socket
+				    :input-name input-name
+				    :input-socket input-socket)
+				   patches)))
       (flet ((compile-rack ()
 	       (flet ((get-module-input-patches (module)
 			"returns sparse list of (input-socket output-module output-socket)"
@@ -145,9 +156,18 @@
 		:get-module-by-name (lambda(name) (get-module-by-name name))
 		:outputs (lambda() output-sockets)
 		:inputs (lambda() input-sockets)
-		:add-module (lambda (module module-name)
-			      (setf compiled-rack nil)
-			      (push (list :module module :name module-name) modules))
+		:add-module (lambda (module-name module-fn &rest args)
+			      (if (get-module-by-name module-name)
+				  (signal-assembly-error
+				   :format-control "A module with name ~a has already been added to the rack"
+				   :format-arguments (list module-name)))
+			      (let ((module (apply module-fn `(,module-name ,environment ,@args))))
+				(dolist (property '(:inputs :outputs :update :get-output))
+				  (if (not (functionp (getf module property)))
+				      (signal-assembly-error
+				       :format-control "Invalid module ~a: Property ~a must be a function but is ~a"
+				       :format-arguments (list module-name property (getf module property)))))
+				(add-module module-name module)))
 		:add-hook (lambda (hook)
 			    (setf compiled-rack nil)
 			    (push hook hooks))
@@ -163,35 +183,70 @@
 				      (if h (funcall h)))))))
 		:environment environment
 		:is-rack t
-		:add-patch (lambda (&key output-name output-socket input-name input-socket)
-			     (setf compiled-rack nil)
-			     (push (list
-				    :output-name output-name
-				    :output-socket output-socket
-				    :input-name input-name
-				    :input-socket input-socket)
-				   patches))
+		;;:add-patch (lambda (&key output-name output-socket input-name input-socket)
+		;;(add-patch output-name output-socket input-name input-socket))
+		:add-patch (lambda (output-name output-socket input-name input-socket)
+				(let ((source-module (get-module-by-name output-name))
+				      (destination-module (get-module-by-name input-name)))
+				  (if (not source-module)
+				      (signal-assembly-error
+				       :format-control "Cannot find output module ~a"
+				       :format-arguments (list output-name)))
+				  (if (not destination-module)
+				      (signal-assembly-error
+				       :format-control "Cannot find input module ~a"
+				       :format-arguments (list input-name)))
+				  (if (not (find output-socket (funcall (getf source-module :outputs))))
+				      (signal-assembly-error
+				       :format-control "Module ~a does not expose output socket ~a"
+				       :format-arguments (list output-name output-socket)))
+				  (if (not (find input-socket (funcall (getf destination-module :inputs))))
+				      (signal-assembly-error
+				       :format-control "Module ~a does not expose input socket ~a"
+				       :format-arguments (list input-name input-socket)))
+				  (let ((p (find-if
+					    (lambda (p)
+					      (and (string= input-name (getf p :input-name))
+						   (eq input-socket (getf p :input-socket))))
+					    patches)))
+				    (if p (signal-assembly-error
+					   :format-control
+					   "Input socket ~a of module ~a is already connected to output socket ~a of module ~a"
+					   :format-arguments (list
+							      input-socket
+							      input-name
+							      (getf p :output-name)
+							      (getf p :output-socket)))))
+				  (let ((p (find-if
+					    (lambda (p)
+					      (and (string= output-name (getf p :output-name))
+						   (eq output-socket (getf p :output-socket))))
+					    patches)))
+				    (if p (signal-assembly-error
+					   :format-control
+					   "Output socket ~a of module ~a is already connected to input socket ~a of module ~a"
+					   :format-arguments (list
+							      output-socket
+							      output-name
+							      (getf p :input-name)
+							      (getf p :input-socket)))))
+				  (add-patch output-name output-socket input-name input-socket)))
 		:patches (lambda() patches))))
-	  ;;
 	  ;; Add bridge modules
 	  ;;
-	  (add-module rack "INPUT"
-		      (lambda(name environment)
-			(declare (ignore name environment))
-			(list
-			 :inputs (lambda() nil)
-			 :outputs (lambda() input-sockets)
-			 :update (lambda (args) (declare (ignore args)) nil)
-			 :get-output (lambda(socket) (getf inputs socket)))))
+	  (add-module "INPUT"
+		      (list
+		       :inputs (lambda() nil)
+		       :outputs (lambda() input-sockets)
+		       :update (lambda (args) (declare (ignore args)) nil)
+		       :get-output (lambda(socket) (getf inputs socket))))
 	  
-	  (add-module rack "OUTPUT"
-		      (lambda(name environment)
-			(declare (ignore name environment))
-			(list
-			 :inputs (lambda() output-sockets)
-			 :outputs (lambda() nil)
-			 :update (lambda (args) (setf outputs args))
-			 :get-output (lambda(socket) (getf outputs socket)))))
+	  (add-module "OUTPUT"
+		      (list
+		       :inputs (lambda() output-sockets)
+		       :outputs (lambda() nil)
+		       :update (lambda (args) (setf outputs args))
+		       :get-output (lambda(socket) (getf outputs socket))))
 
 	  rack)))))
 
@@ -248,20 +303,8 @@
 	    These arguments typically consist of keyword parameters.</li>
     </ul>
     Returns the added module."
-  (if (funcall (getf rack :get-module-by-name) module-name)
-      (signal-assembly-error
-       :format-control "A module with name ~a has already been added to the rack"
-       :format-arguments (list module-name)))
-  (let ((environment (getf rack :environment)))
-    (let ((module (apply module-fn `(,module-name ,environment ,@args))))
-      (dolist (property '(:inputs :outputs :update :get-output))
-	(if (not (functionp (getf module property)))
-	    (signal-assembly-error
-	     :format-control "Invalid module ~a: Property ~a must be a function but is ~a"
-	     :format-arguments (list module-name property (getf module property)))))
-      (funcall (getf rack :add-module) module module-name)
-      module)))
-
+  (apply (getf rack :add-module) module-name module-fn args))
+  
 (defun add-hook (rack hook)
   "Adds a hook to the rack. A hook is called each time after the rack has updated its state.
    A hook consists a property list with the following keys:
@@ -336,54 +379,7 @@
 	<li>The given input-socket is already connected with a module.</li>
 	<li>The given input-socket is not exposed by the input module.</li>
     </ul>"
-  (let ((source-module (funcall (getf rack :get-module-by-name) output-module-name))
-	(destination-module (funcall (getf rack :get-module-by-name) input-module-name))
-	(patches (funcall (getf rack :patches))))
-    (if (not source-module)
-	(signal-assembly-error
-	 :format-control "Cannot find output module ~a"
-	 :format-arguments (list output-module-name)))
-    (if (not destination-module)
-	(signal-assembly-error
-	 :format-control "Cannot find input module ~a"
-	 :format-arguments (list input-module-name)))
-    (if (not (find output-socket (funcall (getf source-module :outputs))))
-	(signal-assembly-error
-	 :format-control "Module ~a does not expose output socket ~a"
-	 :format-arguments (list output-module-name output-socket)))
-    (if (not (find input-socket (funcall (getf destination-module :inputs))))
-	(signal-assembly-error
-	 :format-control "Module ~a does not expose input socket ~a"
-	 :format-arguments (list input-module-name input-socket)))
-    (let ((p (find-if
-	      (lambda (p)
-		(and (string= input-module-name (getf p :input-name))
-		     (eq input-socket (getf p :input-socket))))
-	      patches)))
-      (if p (signal-assembly-error
-	   :format-control "Input socket ~a of module ~a is already connected to output socket ~a of module ~a"
-	   :format-arguments (list
-			      input-socket
-			      input-module-name
-			      (getf p :output-name)
-			      (getf p :output-socket)))))
-    (let ((p (find-if
-	      (lambda (p)
-		(and (string= output-module-name (getf p :output-name))
-		     (eq output-socket (getf p :output-socket))))
-	      patches)))
-      (if p (signal-assembly-error
-	     :format-control "Output socket ~a of module ~a is already connected to input socket ~a of module ~a"
-	     :format-arguments (list
-				output-socket
-				output-module-name
-				(getf p :input-name)
-				(getf p :input-socket)))))
-    (funcall (getf rack :add-patch)
-	     :output-name output-module-name
-	     :output-socket output-socket
-	     :input-name input-module-name
-	     :input-socket input-socket)))
+  (funcall (getf rack :add-patch) output-module-name output-socket input-module-name input-socket))
 
 (defun get-patches (rack)
   "Get all patches of a rack. The function has the following arguments:
