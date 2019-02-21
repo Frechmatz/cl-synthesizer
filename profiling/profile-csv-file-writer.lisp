@@ -3,7 +3,7 @@
 
 (in-package :cl-synthesizer-profiling-csv-file-writer)
 
-(defun make-test-rack ()
+(defun make-test-rack (&key filename)
   (let ((rack (cl-synthesizer:make-rack
 	       :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module rack "VCO"
@@ -20,7 +20,8 @@
        ("VCO" :output-socket :sine :name "Sine 2")
        ("VCO" :output-socket :sine :name "Sine 3")
        ("VCO" :output-socket :sine :name "Sine 4"))
-     :filename "cl-synthesizer-examples/csv-profiling.csv"
+     ;;:filename "cl-synthesizer-examples/csv-profiling.csv"
+     :filename filename
      :add-header t
      :column-separator ",")
 

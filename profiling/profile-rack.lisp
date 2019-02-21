@@ -8,16 +8,22 @@
 
 (in-package :cl-synthesizer-profiling-rack)
 
-(defun make-test-module (name environment )
+(defun make-test-module (name environment &key input-count output-count)
   "A test module with n inputs and outputs."
   (declare (ignore name environment))
-  (list
-   :inputs (lambda () '(:input-1 :input-2 :input-3 :input-4))
-   :outputs (lambda () '(:output-1 :output-2 :output-3 :output-4))
-   :get-output (lambda (output) (declare (ignore output)) 1.0)
-   :update (lambda (input-args)
-	     (declare (ignore input-args))
-	     nil)))
+  (let ((input-sockets (cl-synthesizer-macro-util:make-keyword-list "input" input-count))
+	(output-sockets (cl-synthesizer-macro-util:make-keyword-list "output" output-count)))
+    (list
+     :inputs (lambda () input-sockets)
+     :outputs (lambda () output-sockets)
+     :get-output (lambda (output) (declare (ignore output)) 1.0)
+     :update (lambda (input-args)
+	       (declare (ignore input-args))
+	       nil))))
+
+;;
+;; Profiling client: Nested rack
+;;
 
 (defun patch-module-module (rack m1 m2)
   (cl-synthesizer:add-patch rack m1 :output-1 m2 :input-1)
@@ -46,10 +52,10 @@
 	       :input-sockets '(:input-1 :input-2 :input-3 :input-4)
 	       :output-sockets '(:output-1 :output-2 :output-3 :output-4))))
     
-    (cl-synthesizer:add-module rack "MODULE-1" #'make-test-module)
-    (cl-synthesizer:add-module rack "MODULE-2" #'make-test-module)
-    (cl-synthesizer:add-module rack "MODULE-3" #'make-test-module)
-    (cl-synthesizer:add-module rack "MODULE-4" #'make-test-module)
+    (cl-synthesizer:add-module rack "MODULE-1" #'make-test-module :input-count 4 :output-count 4)
+    (cl-synthesizer:add-module rack "MODULE-2" #'make-test-module :input-count 4 :output-count 4)
+    (cl-synthesizer:add-module rack "MODULE-3" #'make-test-module :input-count 4 :output-count 4)
+    (cl-synthesizer:add-module rack "MODULE-4" #'make-test-module :input-count 4 :output-count 4)
 
     (patch-input-module rack "MODULE-1")
     (patch-module-module rack "MODULE-1" "MODULE-2")
@@ -59,7 +65,7 @@
     
     rack))
 
-(defun make-test-rack (&key main-module-count)
+(defun make-test-rack-nested (&key main-module-count)
   "Main rack consisting of n complex modules."
   (let ((rack (cl-synthesizer:make-rack
 	       :environment (cl-synthesizer:make-environment))))
@@ -68,3 +74,21 @@
 
     rack))
 
+;;
+;; Profiling client: Flat rack 
+;;
+
+
+(defun make-test-rack-flat (&key module-count input-socket-count output-socket-count)
+  "Rack consisting of simple modules without patches."
+  (let ((rack (cl-synthesizer:make-rack
+	       :environment (cl-synthesizer:make-environment))))
+    (dotimes (i module-count)
+      (cl-synthesizer:add-module rack
+				 (format nil "MODULE-~a" i)
+				 #'make-test-module
+				 :input-count input-socket-count
+				 :output-count output-socket-count
+				 ))
+
+    rack))

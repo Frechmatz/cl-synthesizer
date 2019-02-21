@@ -31,31 +31,6 @@
        :module-count module-count
        :patch-count patch-count))))
 
-(defun profile-statistical (fn settings)
-  "Run job with statistical profiler (if any provided by lisp implementation"
-#+:sbcl (sb-sprof:with-profiling
-      (:max-samples (getf settings :max-samples)
-		    :report :flat
-		    :loop t
-		    :show-progress t)
-	  (funcall fn))
-#-:sbcl (format t "~%WARN: Statistical profiling not supported by lisp implementation~%")
-  nil)
-
-(defun profile-time (fn settings)
-  "Run job with time macro"
-  (declare (ignore settings))
-  (time (funcall fn))
-  nil)
-
-(defun run-profiler (client client-lambdalist profiler-settings profiler-name profiler-fn)
-  (let ((job-name (getf client :name)))
-    (multiple-value-bind (fn description)
-	(apply (getf client :setup) client-lambdalist)
-      (format t "~%Running client '~a' with profiler ~a...~%==> ~a~%" job-name profiler-name description)
-      (funcall profiler-fn fn profiler-settings)
-      (format t "~%Client '~a' with profiler ~a has completed~%" job-name profiler-name))))
-
 ;;
 ;; Client repository (The code to be profiled)
 ;;
@@ -63,10 +38,10 @@
 (defparameter *clients*
   (list
    (list
-    :id :rack-core :name "Rack Core"
+    :id :rack-core-nested :name "Rack Core: Nested and patched modules"
     :setup (lambda(&key duration-seconds)
 	     (let ((main-module-count 4) (sub-module-count 4) (module-io-socket-count 4))
-	       (let ((rack (cl-synthesizer-profiling-rack::make-test-rack
+	       (let ((rack (cl-synthesizer-profiling-rack::make-test-rack-nested
 			    :main-module-count main-module-count)))
 		 (let ((info (get-rack-info rack)))
 		   (values 
@@ -81,6 +56,24 @@
 		     (getf info :module-count) (getf info :patch-count))
 		    ))))))
    (list
+    :id :rack-core-flat :name "Rack Core: Flat modules without patches"
+    :setup (lambda(&key duration-seconds module-count input-socket-count output-socket-count)
+	       (let ((rack (cl-synthesizer-profiling-rack::make-test-rack-flat
+			    :module-count module-count :input-socket-count input-socket-count
+			    :output-socket-count output-socket-count)))
+		 (let ((info (get-rack-info rack)))
+		   (values 
+		    (lambda ()
+		      (cl-synthesizer:play-rack
+		       rack
+		       :duration-seconds duration-seconds))
+		    (format
+		     nil
+		     "Updating ~a dummy modules for ~a seconds (Modules: ~a Input sockets: ~a Output sockets: ~a Patches: ~a)"
+		     module-count duration-seconds (getf info :module-count) input-socket-count output-socket-count
+		     (getf info :patch-count))
+		    )))))
+  (list
     :id :phase-generator :name "Phase Generator"
     :setup (lambda(&key duration-seconds)
 	     (values 
@@ -96,7 +89,7 @@
 		(lambda()
 		  (cl-synthesizer-profiling-waveform-converter::run-sine
 		   :duration-seconds duration-seconds :phi phi))
-		(format nil "Converting phase ~,2F to sine for ~a seconds" phi duration-seconds)))))
+		(format nil "Converting phase ~,2F to sine waveform for ~a seconds" phi duration-seconds)))))
    (list
     :id :phase-square-converter :name "Phase-Square Converter"
     :setup (lambda(&key duration-seconds)
@@ -105,7 +98,7 @@
 		(lambda()
 		  (cl-synthesizer-profiling-waveform-converter::run-square
 		   :duration-seconds duration-seconds :phi phi))
-		(format nil "Converting phase ~,2F to square for ~a seconds" phi duration-seconds)))))
+		(format nil "Converting phase ~,2F to square waveform for ~a seconds" phi duration-seconds)))))
    (list
     :id :phase-triangle-converter :name "Phase-Triangle Converter"
     :setup (lambda(&key duration-seconds)
@@ -114,7 +107,7 @@
 		(lambda()
 		  (cl-synthesizer-profiling-waveform-converter::run-triangle
 		   :duration-seconds duration-seconds :phi phi))
-		(format nil "Converting phase ~,2F to triangle for ~a seconds" phi duration-seconds)))))
+		(format nil "Converting phase ~,2F to triangle waveform for ~a seconds" phi duration-seconds)))))
    (list
     :id :phase-saw-converter :name "Phase-Saw Converter"
     :setup (lambda(&key duration-seconds)
@@ -123,7 +116,7 @@
 		(lambda()
 		  (cl-synthesizer-profiling-waveform-converter::run-saw
 		   :duration-seconds duration-seconds :phi phi))
-		(format nil "Converting phase ~,2F to saw for ~a seconds" phi duration-seconds)))))
+		(format nil "Converting phase ~,2F to saw waveform for ~a seconds" phi duration-seconds)))))
    (list
     :id :vco :name "VCO"
     :setup (lambda(&key duration-seconds vco-count)
@@ -162,14 +155,15 @@
 		   duration-seconds (getf info :module-count) (getf info :patch-count)))))))
    (list
     :id :csv-writer :name "CSV-Writer"
-    :setup (lambda(&key duration-seconds)
-	     (let ((rack (cl-synthesizer-profiling-csv-file-writer::make-test-rack)))
+    :setup (lambda(&key duration-seconds filename)
+	     (let ((rack (cl-synthesizer-profiling-csv-file-writer::make-test-rack
+			  :filename filename)))
 	       (values 
 		(lambda ()
 		  (cl-synthesizer:play-rack rack :duration-seconds duration-seconds))
 		(format
 		 nil
-		 "Updating CSV-Writer for ~a seconds" duration-seconds)))))
+		 "Updating CSV-Writer for ~a seconds into file ~a" duration-seconds filename)))))
    (list
     :id :wave-writer :name "Wave-Writer"
     :setup (lambda(&key duration-seconds sample-rate filename)
@@ -221,29 +215,83 @@
 			  (getf info :module-count) (getf info :patch-count)))
 		))))
 
-   
    ))
 
 ;;
 ;; Profiling plan runner
 ;;
 
-(defun run-plan (profiling-plan)
-  (format t "~%###################~%Running plan '~a'~%###################~%" (getf profiling-plan :name))
-  (let ((profiler-settings
-	 (list
-	  :max-samples (getf profiling-plan :max-samples))))
-    (dolist (job (getf profiling-plan :jobs))
-      (let ((client (find-if (lambda (c) (eq (getf job :client-id) (getf c :id))) *clients*)))
-	(if (not client)
-	    (error (format nil "Client not found: ~a" (getf job :client-id))))
+(defvar *report* nil)
 
-	(let ((lambdalist (concatenate 'list (getf profiling-plan :init) (getf job :init))))
-	  (if (getf profiling-plan :profile-time)
-	      (run-profiler client lambdalist profiler-settings "TIME" #'profile-time))
-	  (if (getf profiling-plan :profile-statistical)
-	      (run-profiler client lambdalist profiler-settings "STATISTICAL" #'profile-statistical))))))
-  (format t "~%###################~%Plan '~a' has completed~%################### ~%" (getf profiling-plan :name))
+(defun profile-statistical (fn settings)
+  "Run job with statistical profiler (if any provided by lisp implementation"
+#+:sbcl (sb-sprof:with-profiling
+      (:max-samples (getf settings :max-samples)
+		    :report :flat
+		    :loop t
+		    :show-progress t)
+	  (funcall fn))
+#-:sbcl (format t "~%WARN: Statistical profiling not supported by lisp implementation~%")
+  nil)
+
+(defun profile-time (fn settings)
+  "Run job with time macro"
+  (declare (ignore settings))
+  (let ((start (get-internal-real-time)))
+    (time (funcall fn))
+    (let ((end (get-internal-real-time)))
+      (push (list :elapsed-time (/ (- end start) INTERNAL-TIME-UNITS-PER-SECOND)) *report*)))
+  nil)
+
+(defun print-report (profiling-plan-name)
+  (format t "Report: '~a':~%Elapsed time,Job" profiling-plan-name)
+  (let ((cur-report nil))
+    (flet ((flush-report ()
+	     (if cur-report
+		 (progn
+		   (format t "~%~a ~a" (getf cur-report :elapsed-time) (getf cur-report :name))
+		   (setf cur-report nil)
+		   ))))
+      (dolist (report-entry (reverse *report*))
+	(cond 
+	  ((eq :start (first report-entry))
+	   (flush-report)
+	   (setf (getf cur-report :name) (second report-entry)))
+	  ((eq :elapsed-time (first report-entry))
+	   (setf (getf cur-report :elapsed-time) (format nil "~,2Fs" (second report-entry))))
+	  (t
+	   (format t "~%Unsupported report entry: ~a~%" report-entry))
+	  ))
+      (flush-report)))
+      (format t "~%"))
+  
+(defun run-profiler (client client-lambdalist profiler-settings profiler-name profiler-fn)
+  (let ((job-name (getf client :name)))
+    (multiple-value-bind (fn description)
+	(apply (getf client :setup) client-lambdalist)
+      (format t "~%Running client '~a' with profiler ~a...~%==> ~a~%" job-name profiler-name description)
+      (push (list :start description) *report*)
+      (funcall profiler-fn fn profiler-settings)
+      (format t "~%Client '~a' with profiler ~a has completed~%" job-name profiler-name))))
+
+(defun run-plan (profiling-plan)
+  (format t "~%Running plan '~a'~%" (getf profiling-plan :name))
+  (let ((*report* nil))
+    (let ((profiler-settings
+	   (list
+	    :max-samples (getf profiling-plan :max-samples))))
+      (dolist (job (getf profiling-plan :jobs))
+	(let ((client (find-if (lambda (c) (eq (getf job :client-id) (getf c :id))) *clients*)))
+	  (if (not client)
+	      (error (format nil "Client not found: ~a" (getf job :client-id))))
+
+	  (let ((lambdalist (concatenate 'list (getf profiling-plan :init) (getf job :init))))
+	    (if (getf profiling-plan :profile-time)
+		(run-profiler client lambdalist profiler-settings "TIME" #'profile-time))
+	    (if (getf profiling-plan :profile-statistical)
+		(run-profiler client lambdalist profiler-settings "STATISTICAL" #'profile-statistical))))))
+    (print-report (getf profiling-plan :name))
+    (format t "~%Plan '~a' has completed~%" (getf profiling-plan :name)))
   "Profiling has completed")
 
 ;;
@@ -280,17 +328,23 @@
    :profile-time t
    :profile-statistical nil
    :init nil
-   :jobs '((:client-id :rack-core :init (:duration-seconds 60))
-	   (:client-id :rack-core :init (:duration-seconds 600)))))
+   :jobs '((:client-id :rack-core-nested
+	    :init (:duration-seconds 60))
+	   (:client-id :rack-core-flat
+	    :init (:duration-seconds 60 :module-count 100 :input-socket-count 3 :output-socket-count 4)))))
 
 (defparameter *profiling-plan-vco-overhead*
   (list
-   :name "Measure overhead of 100 VCO Modules against corresponding Core-Calls"
+   :name "Measure overhead of 100 VCO Modules against 100 dummy modules and core calls"
    :max-samples 500
    :profile-time t
    :profile-statistical nil
    :init nil
-   :jobs '((:client-id :vco :init (:duration-seconds 60 :vco-count 100))
+   :jobs '((:client-id :vco
+	    :init (:duration-seconds 60 :vco-count 100))
+	   ;; A VCO has 2 input and 4 output sockets
+	   (:client-id :rack-core-flat
+	    :init (:duration-seconds 60 :module-count 100 :input-socket-count 2 :output-socket-count 4))
 	   (:client-id :phase-sine-converter :init (:duration-seconds 6000))
 	   (:client-id :phase-square-converter :init (:duration-seconds 6000))
 	   (:client-id :phase-triangle-converter :init (:duration-seconds 6000))
@@ -322,7 +376,8 @@
    :profile-time t
    :profile-statistical nil
    :init nil
-   :jobs '((:client-id :csv-writer :init (:duration-seconds 60)))))
+   :jobs '((:client-id :csv-writer :init
+	    (:duration-seconds 60 :filename "cl-synthesizer-examples/csv-profiling.csv")))))
 
 (defparameter *profiling-plan-wave-writer*
   (list
@@ -379,14 +434,22 @@
 	   (:client-id :phase-triangle-converter :init (:duration-seconds 3600))
 	   (:client-id :phase-saw-converter :init (:duration-seconds 3600))
 	   (:client-id :phase-generator :init (:duration-seconds 3600))
-	   (:client-id :rack-core :init (:duration-seconds 60))
+	   (:client-id :rack-core-nested :init (:duration-seconds 60))
+	   (:client-id :rack-core-flat :init
+	    (:duration-seconds 60
+	     :module-count 100
+	     :input-socket-count 3
+	     :output-socket-count 4))
 	   (:client-id :vco :init (:duration-seconds 60 :vco-count 100))
 	   (:client-id :monitor :init (:duration-seconds 120))
 	   (:client-id :midi-sequencer :init (:duration-seconds 3600))
-	   (:client-id :csv-writer :init (:duration-seconds 60))
-	   (:client-id :wave-writer :init (:duration-seconds 60
-					   :sample-rate 44100
-					   :filename "cl-synthesizer-examples/wave-profiling.wav"))
+	   (:client-id :csv-writer :init
+	    (:duration-seconds 60
+	     :filename "cl-synthesizer-examples/csv-profiling.csv"))
+	   (:client-id :wave-writer :init
+	    (:duration-seconds 60
+	     :sample-rate 44100
+	     :filename "cl-synthesizer-examples/wave-profiling.wav"))
 	   (:client-id :midi-interface :init (:duration-seconds 60))
 	   (:client-id :adsr :init (:duration-seconds 60))
 	   (:client-id :mixer :init (:duration-seconds 60 :channel-count 32))
