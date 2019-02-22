@@ -155,15 +155,17 @@
 		   duration-seconds (getf info :module-count) (getf info :patch-count)))))))
    (list
     :id :csv-writer :name "CSV-Writer"
-    :setup (lambda(&key duration-seconds filename)
+    :setup (lambda(&key duration-seconds sample-rate filename)
 	     (let ((rack (cl-synthesizer-profiling-csv-file-writer::make-test-rack
+			  :sample-rate sample-rate
 			  :filename filename)))
 	       (values 
 		(lambda ()
 		  (cl-synthesizer:play-rack rack :duration-seconds duration-seconds))
 		(format
 		 nil
-		 "Updating CSV-Writer for ~a seconds into file ~a" duration-seconds filename)))))
+		 "Updating CSV-Writer for ~a seconds with sample-rate ~a into file ~a"
+		 duration-seconds sample-rate filename)))))
    (list
     :id :wave-writer :name "Wave-Writer"
     :setup (lambda(&key duration-seconds sample-rate filename)
@@ -377,7 +379,10 @@
    :profile-statistical nil
    :init nil
    :jobs '((:client-id :csv-writer :init
-	    (:duration-seconds 60 :filename "cl-synthesizer-examples/csv-profiling.csv")))))
+	    (:duration-seconds 60
+	     :filename "cl-synthesizer-examples/csv-profiling.csv"
+	     :sample-rate 44100
+	     )))))
 
 (defparameter *profiling-plan-wave-writer*
   (list
@@ -445,6 +450,7 @@
 	   (:client-id :midi-sequencer :init (:duration-seconds 3600))
 	   (:client-id :csv-writer :init
 	    (:duration-seconds 60
+	     :sample-rate 44100
 	     :filename "cl-synthesizer-examples/csv-profiling.csv"))
 	   (:client-id :wave-writer :init
 	    (:duration-seconds 60

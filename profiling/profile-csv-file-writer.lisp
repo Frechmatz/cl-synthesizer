@@ -3,9 +3,9 @@
 
 (in-package :cl-synthesizer-profiling-csv-file-writer)
 
-(defun make-test-rack (&key filename)
+(defun make-test-rack (&key filename sample-rate)
   (let ((rack (cl-synthesizer:make-rack
-	       :environment (cl-synthesizer:make-environment))))
+	       :environment (cl-synthesizer:make-environment :sample-rate sample-rate))))
     (cl-synthesizer:add-module rack "VCO"
 			       #'cl-synthesizer-modules-vco:make-module
 			       :base-frequency 5000.0
