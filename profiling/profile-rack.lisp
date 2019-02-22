@@ -8,40 +8,52 @@
 
 (in-package :cl-synthesizer-profiling-rack)
 
-(defun make-test-module (name environment &key input-count output-count)
-  "A test module with n inputs and outputs."
-  (declare (ignore name environment))
-  (let ((input-sockets (cl-synthesizer-macro-util:make-keyword-list "input" input-count))
-	(output-sockets (cl-synthesizer-macro-util:make-keyword-list "output" output-count)))
-    (list
-     :inputs (lambda () input-sockets)
-     :outputs (lambda () output-sockets)
-     :get-output (lambda (output) (declare (ignore output)) 1.0)
-     :update (lambda (input-args)
-	       (declare (ignore input-args))
-	       nil))))
+(defmacro make-simple-module-ctor (input-count output-count)
+  "Generates a module instantiation function
+   TODO: :update function should access / do something with its inputs
+   TODO: :get-output function should do a switch over the socket"
+  `(let ((input-sockets (cl-synthesizer-macro-util:make-keyword-list "input" ,input-count))
+	 (output-sockets (cl-synthesizer-macro-util:make-keyword-list "output" ,output-count)))
+     (lambda (name environment)
+       (declare (ignore name environment))
+       (list
+	:inputs (lambda () input-sockets)
+	:outputs (lambda () output-sockets)
+	:get-output (lambda (output) (declare (ignore output)) 1.0)
+	:update (lambda (input-args)
+		  (declare (ignore input-args))
+		  nil)))))
+
+(defun patch (rack source-module-name destination-module-name socket-count)
+  "Patches the outputs of a source module with the inputs of a destination module"
+  (dotimes (i socket-count)
+    (cl-synthesizer:add-patch rack
+			      source-module-name
+			      (cl-synthesizer-macro-util:make-keyword "output" i)
+			      destination-module-name
+			      (cl-synthesizer-macro-util:make-keyword "input" i))))
+
+(defun patch-input (rack target-module-name socket-count)
+  "Patches the inputs of the INPUT bridge module with the inputs of another module"
+  (dotimes (i socket-count)
+    (cl-synthesizer:add-patch rack
+			      "INPUT"
+			      (cl-synthesizer-macro-util:make-keyword "input" i)
+			      target-module-name
+			      (cl-synthesizer-macro-util:make-keyword "input" i))))
+
+(defun patch-output (rack source-module-name socket-count)
+  "Patches the outputs of a module with the OUTPUT bridge module"
+  (dotimes (i socket-count)
+    (cl-synthesizer:add-patch rack
+			      source-module-name
+			      (cl-synthesizer-macro-util:make-keyword "output" i)
+			      "OUTPUT"
+			      (cl-synthesizer-macro-util:make-keyword "output" i))))
 
 ;;
 ;; Profiling client: Nested rack
 ;;
-
-(defun patch-module-module (rack m1 m2)
-  (cl-synthesizer:add-patch rack m1 :output-1 m2 :input-1)
-  (cl-synthesizer:add-patch rack m1 :output-2 m2 :input-2)
-  (cl-synthesizer:add-patch rack m1 :output-3 m2 :input-3)
-  (cl-synthesizer:add-patch rack m1 :output-4 m2 :input-4))
-
-(defun patch-input-module (rack m)
-  (cl-synthesizer:add-patch rack "INPUT" :input-1 m :input-1)
-  (cl-synthesizer:add-patch rack "INPUT" :input-2 m :input-2)
-  (cl-synthesizer:add-patch rack "INPUT" :input-3 m :input-3)
-  (cl-synthesizer:add-patch rack "INPUT" :input-4 m :input-4))
-
-(defun patch-output-module (rack m)
-  (cl-synthesizer:add-patch rack m :output-1 "OUTPUT" :output-1)
-  (cl-synthesizer:add-patch rack m :output-2 "OUTPUT" :output-2)
-  (cl-synthesizer:add-patch rack m :output-3 "OUTPUT" :output-3)
-  (cl-synthesizer:add-patch rack m :output-4 "OUTPUT" :output-4))
 
 (defun make-complex-module (name environment)
   "A module implemented as a rack that contains 4 test modules that are patched with each other
@@ -50,18 +62,17 @@
   (let ((rack (cl-synthesizer:make-rack
 	       :environment environment
 	       :input-sockets '(:input-1 :input-2 :input-3 :input-4)
-	       :output-sockets '(:output-1 :output-2 :output-3 :output-4))))
-    
-    (cl-synthesizer:add-module rack "MODULE-1" #'make-test-module :input-count 4 :output-count 4)
-    (cl-synthesizer:add-module rack "MODULE-2" #'make-test-module :input-count 4 :output-count 4)
-    (cl-synthesizer:add-module rack "MODULE-3" #'make-test-module :input-count 4 :output-count 4)
-    (cl-synthesizer:add-module rack "MODULE-4" #'make-test-module :input-count 4 :output-count 4)
+	       :output-sockets '(:output-1 :output-2 :output-3 :output-4)))
+	(simple-module-ctor (make-simple-module-ctor 4 4)))
 
-    (patch-input-module rack "MODULE-1")
-    (patch-module-module rack "MODULE-1" "MODULE-2")
-    (patch-module-module rack "MODULE-2" "MODULE-3")
-    (patch-module-module rack "MODULE-3" "MODULE-4")
-    (patch-output-module rack "MODULE-4")
+    (dotimes (i 4)
+      (cl-synthesizer:add-module rack (format nil "MODULE-~a" (+ 1 i)) simple-module-ctor))
+    
+    (patch-input rack "MODULE-1" 4)
+    (patch rack "MODULE-1" "MODULE-2" 4)
+    (patch rack "MODULE-2" "MODULE-3" 4)
+    (patch rack "MODULE-3" "MODULE-4" 4)
+    (patch-output rack "MODULE-4" 4)
     
     rack))
 
@@ -81,14 +92,12 @@
 
 (defun make-test-rack-flat (&key module-count input-socket-count output-socket-count)
   "Rack consisting of simple modules without patches."
-  (let ((rack (cl-synthesizer:make-rack
-	       :environment (cl-synthesizer:make-environment))))
-    (dotimes (i module-count)
-      (cl-synthesizer:add-module rack
-				 (format nil "MODULE-~a" i)
-				 #'make-test-module
-				 :input-count input-socket-count
-				 :output-count output-socket-count
-				 ))
+  (let ((module-ctor (make-simple-module-ctor input-socket-count output-socket-count)))
+    (let ((rack (cl-synthesizer:make-rack
+		 :environment (cl-synthesizer:make-environment))))
+      (dotimes (i module-count)
+	(cl-synthesizer:add-module rack
+				   (format nil "MODULE-~a" i)
+				   module-ctor))
 
-    rack))
+      rack)))
