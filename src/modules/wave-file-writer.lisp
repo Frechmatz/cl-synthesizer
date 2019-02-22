@@ -5,6 +5,7 @@
 ;; Helper functions for RIFF/Binary writing
 ;; Copied from Ryan Kings cl-wave library https://github.com/RyanTKing/cl-wave
 ;;
+
 (defun write-sint (stream sint bytes)
   "Writes a signed integer to the stream with the specified number of bytes."
   (when (< sint 0) (incf sint (expt 2 (* bytes 8))))
@@ -18,6 +19,9 @@
   "Writes a 4-character ASCII tag to the stream."
   (loop for ch across tag do (write-byte (char-code ch) stream)))
 
+;;
+;;
+;;
 
 (defmacro clip-value (value)
   `(cond
@@ -30,7 +34,7 @@
 ;;
 ;; Regarding final clipping (after round) see also
 ;; https://stackoverflow.com/questions/54548304/subtlety-in-converting-doubles-to-a-sound-byte-output
-;; We want to allow both +1.0 and -1.0 is input values
+;; We want to allow both +1.0 and -1.0 as input values
 ;;
 
 (defun value-to-8bit-unsigned (value)
@@ -80,7 +84,7 @@
    <ul>
       <li>:open-file A function that opens the file.</li>
       <li>:close-file A function that closes the file.</li>
-      <li>:write-sample A function that writes a sample. A sample is a signed 16 Bit integer (−32.768 ... 32.767).</li>
+      <li>:write-sample A function that writes a sample. -1.0 <= sample <= 1.0.</li>
    </ul>"
   (let ((sample-width-mapping
 	 (list
@@ -166,13 +170,11 @@
 	   (write-sample sample))
 	 :close-file
 	 (lambda ()
-	   (if (< 0 sample-count)
-	       (progn
-		 ;; Update chunks
-		 (file-position file-output-stream :start)
-		 (write-riff-chunk sample-count)
-		 (write-format-chunk sample-count)
-		 (write-data-chunk sample-count)))
+	   ;; Update chunks
+	   (file-position file-output-stream :start)
+	   (write-riff-chunk sample-count)
+	   (write-format-chunk sample-count)
+	   (write-data-chunk sample-count)
 	   (close-file)))))))
 
 
