@@ -38,11 +38,11 @@
 (defparameter *clients*
   (list
    (list
-    :id :rack-core-nested :name "Rack Core: Nested and patched modules"
-    :setup (lambda(&key duration-seconds)
-	     (let ((main-module-count 4) (sub-module-count 4) (module-io-socket-count 4))
-	       (let ((rack (cl-synthesizer-profiling-rack::make-test-rack-nested
-			    :main-module-count main-module-count)))
+    :id :rack-core-tree :name "Rack Core: A tree of patched modules"
+    :setup (lambda(&key duration-seconds root-module-count)
+	     (let ((sub-module-count 4) (module-io-socket-count 4))
+	       (let ((rack (cl-synthesizer-profiling-rack::make-test-rack-tree
+			    :root-module-count root-module-count)))
 		 (let ((info (get-rack-info rack)))
 		   (values 
 		    (lambda ()
@@ -51,29 +51,46 @@
 		       :duration-seconds duration-seconds))
 		    (format
 		     nil
-		     "Updating ~a main-modules, ~a sub-modules and ~a i/o sockets for ~a seconds (Modules: ~a Patches: ~a)"
-		     main-module-count sub-module-count module-io-socket-count duration-seconds
-		     (getf info :module-count) (getf info :patch-count))
+		     "Updating a tree of ~a root modules and ~a sub modules for ~a seconds (Modules: ~a Sockets: ~a Patches: ~a)"
+		     root-module-count sub-module-count duration-seconds
+		     (getf info :module-count) module-io-socket-count (getf info :patch-count))
 		    ))))))
    (list
-    :id :rack-core-flat :name "Rack Core: Flat modules without patches"
+    :id :rack-core-cloud :name "Rack Core: A cloud of modules without any patches"
     :setup (lambda(&key duration-seconds module-count input-socket-count output-socket-count)
-	       (let ((rack (cl-synthesizer-profiling-rack::make-test-rack-flat
-			    :module-count module-count :input-socket-count input-socket-count
-			    :output-socket-count output-socket-count)))
-		 (let ((info (get-rack-info rack)))
-		   (values 
-		    (lambda ()
-		      (cl-synthesizer:play-rack
-		       rack
-		       :duration-seconds duration-seconds))
-		    (format
-		     nil
-		     "Updating ~a dummy modules for ~a seconds (Modules: ~a Input sockets: ~a Output sockets: ~a Patches: ~a)"
-		     module-count duration-seconds (getf info :module-count) input-socket-count output-socket-count
-		     (getf info :patch-count))
-		    )))))
-  (list
+	     (let ((rack (cl-synthesizer-profiling-rack::make-test-rack-cloud
+			  :module-count module-count :input-socket-count input-socket-count
+			  :output-socket-count output-socket-count)))
+	       (let ((info (get-rack-info rack)))
+		 (values 
+		  (lambda ()
+		    (cl-synthesizer:play-rack
+		     rack
+		     :duration-seconds duration-seconds))
+		  (format
+		   nil
+		   "Updating a cloud of ~a modules for ~a seconds (Modules: ~a Input sockets: ~a Output sockets: ~a Patches: ~a)"
+		   module-count duration-seconds (getf info :module-count) input-socket-count output-socket-count
+		   (getf info :patch-count))
+		  )))))
+   (list
+    :id :rack-core-chain :name "Rack Core: A chain of modules"
+    :setup (lambda(&key duration-seconds module-count socket-count)
+	     (let ((rack (cl-synthesizer-profiling-rack::make-test-rack-chain
+			  :module-count module-count :socket-count socket-count)))
+	       (let ((info (get-rack-info rack)))
+		 (values 
+		  (lambda ()
+		    (cl-synthesizer:play-rack
+		     rack
+		     :duration-seconds duration-seconds))
+		  (format
+		   nil
+		   "Updating a chain of ~a modules for ~a seconds (Modules: ~a Sockets: ~a Patches: ~a)"
+		   module-count duration-seconds (getf info :module-count) socket-count
+		   (getf info :patch-count))
+		  )))))
+   (list
     :id :phase-generator :name "Phase Generator"
     :setup (lambda(&key duration-seconds)
 	     (values 
@@ -246,7 +263,7 @@
   nil)
 
 (defun print-report (profiling-plan-name)
-  (format t "Report: '~a':~%Elapsed time,Job" profiling-plan-name)
+  (format t "Report: '~a':~%Elapsed time, Job" profiling-plan-name)
   (let ((cur-report nil))
     (flet ((flush-report ()
 	     (if cur-report
@@ -330,14 +347,16 @@
    :profile-time t
    :profile-statistical nil
    :init nil
-   :jobs '((:client-id :rack-core-nested
-	    :init (:duration-seconds 60))
-	   (:client-id :rack-core-flat
-	    :init (:duration-seconds 60 :module-count 100 :input-socket-count 3 :output-socket-count 4)))))
+   :jobs '((:client-id :rack-core-tree
+	    :init (:duration-seconds 60 :root-module-count 25))
+	   (:client-id :rack-core-cloud
+	    :init (:duration-seconds 60 :module-count 100 :input-socket-count 4 :output-socket-count 4))
+	   (:client-id :rack-core-chain
+	    :init (:duration-seconds 60 :module-count 100 :socket-count 4)))))
 
 (defparameter *profiling-plan-vco-overhead*
   (list
-   :name "Measure overhead of 100 VCO Modules against 100 dummy modules and core calls"
+   :name "Measure overhead of 100 VCO Modules against 100 modules and core calls"
    :max-samples 500
    :profile-time t
    :profile-statistical nil
@@ -345,7 +364,7 @@
    :jobs '((:client-id :vco
 	    :init (:duration-seconds 60 :vco-count 100))
 	   ;; A VCO has 2 input and 4 output sockets
-	   (:client-id :rack-core-flat
+	   (:client-id :rack-core-cloud
 	    :init (:duration-seconds 60 :module-count 100 :input-socket-count 2 :output-socket-count 4))
 	   (:client-id :phase-sine-converter :init (:duration-seconds 6000))
 	   (:client-id :phase-square-converter :init (:duration-seconds 6000))
@@ -439,12 +458,16 @@
 	   (:client-id :phase-triangle-converter :init (:duration-seconds 3600))
 	   (:client-id :phase-saw-converter :init (:duration-seconds 3600))
 	   (:client-id :phase-generator :init (:duration-seconds 3600))
-	   (:client-id :rack-core-nested :init (:duration-seconds 60))
-	   (:client-id :rack-core-flat :init
+	   (:client-id :rack-core-tree :init (:duration-seconds 60 :root-module-count 25))
+	   (:client-id :rack-core-cloud :init
 	    (:duration-seconds 60
 	     :module-count 100
 	     :input-socket-count 3
 	     :output-socket-count 4))
+	   (:client-id :rack-core-chain :init
+	    (:duration-seconds 60
+	     :module-count 100
+	     :socket-count 4))
 	   (:client-id :vco :init (:duration-seconds 60 :vco-count 100))
 	   (:client-id :monitor :init (:duration-seconds 120))
 	   (:client-id :midi-sequencer :init (:duration-seconds 3600))
