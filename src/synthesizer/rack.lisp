@@ -228,8 +228,8 @@
 					   :format-arguments (list
 							      output-socket
 							      output-name
-							      (getf p :input-name)
-							      (getf p :input-socket)))))
+							      (getf p :input-socket)
+							      (getf p :input-name)))))
 				  (add-patch output-name output-socket input-name input-socket)))
 		:patches (lambda() patches))))
 	  ;; Add bridge modules
