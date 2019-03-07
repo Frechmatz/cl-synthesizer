@@ -6,8 +6,8 @@
     (cl-synthesizer:add-module rack "Multiplier" #'cl-synthesizer-test::multiplier-module)
     ;; plus 2 default modules of the rack
     (assert-eq 4 (length (cl-synthesizer:get-modules rack)))
-    (let ((found-module-1 (funcall (getf rack :get-module-by-name) "Counter"))
-	  (found-module-2 (funcall (getf rack :get-module-by-name) "Multiplier")))
+    (let ((found-module-1 (cl-synthesizer:get-module rack "Counter"))
+	  (found-module-2 (cl-synthesizer:get-module rack "Multiplier")))
       (assert-true found-module-1)
       (assert-true found-module-2)
       (assert-equal "Counter" (cl-synthesizer:get-module-name rack  found-module-1))
@@ -16,8 +16,8 @@
 
 (define-test test-rack-update-1 ()
 	     (let ((rack (create-test-rack-simple)))
-	       (let ((counter (funcall (getf rack :get-module-by-name) "Counter"))
-		     (multiplier (funcall (getf rack :get-module-by-name) "Multiplier")))
+	       (let ((counter (cl-synthesizer:get-module rack "Counter"))
+		     (multiplier (cl-synthesizer:get-module rack "Multiplier")))
 		 (cl-synthesizer:add-patch
 		  rack
 		  "Counter" :out
@@ -41,9 +41,9 @@
     (cl-synthesizer:add-module rack "Adder" #'cl-synthesizer-test::input-adder-module)
     ;; plus 2 default modules of the rack
     (assert-eq 5 (length (cl-synthesizer:get-modules rack)))
-    (let ((found-module-1 (funcall (getf rack :get-module-by-name) "Counter 1"))
-	  (found-module-2 (funcall (getf rack :get-module-by-name) "Counter 2"))
-	  (found-module-3 (funcall (getf rack :get-module-by-name) "Adder")))
+    (let ((found-module-1 (cl-synthesizer:get-module rack "Counter 1"))
+	  (found-module-2 (cl-synthesizer:get-module rack "Counter 2"))
+	  (found-module-3 (cl-synthesizer:get-module rack "Adder")))
       (assert-true found-module-1)
       (assert-true found-module-2)
       (assert-true found-module-3)
@@ -54,9 +54,9 @@
 
 (define-test test-rack-update-adder ()
 	     (let ((rack (create-test-rack-adder)))
-	       (let ((counter-1 (funcall (getf rack :get-module-by-name) "Counter 1"))
-		     (counter-2 (funcall (getf rack :get-module-by-name) "Counter 2"))
-		     (adder (funcall (getf rack :get-module-by-name) "Adder")))
+	       (let ((counter-1 (cl-synthesizer:get-module rack "Counter 1"))
+		     (counter-2 (cl-synthesizer:get-module rack "Counter 2"))
+		     (adder (cl-synthesizer:get-module rack "Adder")))
 		 (cl-synthesizer:add-patch
 		  rack
 		  "Counter 1" :out
@@ -84,8 +84,8 @@
     (cl-synthesizer:add-module rack "Adder" #'cl-synthesizer-test::input-adder-module)
     ;; plus 2 default modules of the rack
     (assert-eq 4 (length (cl-synthesizer:get-modules rack)))
-    (let ((found-module-1 (funcall (getf rack :get-module-by-name) "Counter"))
-	  (found-module-2 (funcall (getf rack :get-module-by-name) "Adder")))
+    (let ((found-module-1 (cl-synthesizer:get-module rack "Counter"))
+	  (found-module-2 (cl-synthesizer:get-module rack "Adder")))
       (assert-true found-module-1)
       (assert-true found-module-2)
       (assert-equal "Counter" (cl-synthesizer:get-module-name rack  found-module-1))
@@ -94,8 +94,8 @@
 
 (define-test test-rack-update-recursive ()
 	     (let ((rack (create-test-rack-recursive)))
-	       (let ((counter (funcall (getf rack :get-module-by-name) "Counter"))
-		     (adder (funcall (getf rack :get-module-by-name) "Adder")))
+	       (let ((counter (cl-synthesizer:get-module rack "Counter"))
+		     (adder (cl-synthesizer:get-module rack "Adder")))
 		 (cl-synthesizer:add-patch
 		  rack
 		  "Counter" :out

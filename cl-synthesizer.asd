@@ -17,6 +17,7 @@
 				     (:file "assembly-error")
 				     (:file "invalid-arguments-error")
 				     (:file "environment")
+				     (:file "rack-compiler") 
 				     (:file "rack")))
 	       (:module "src/core"
 			:serial t

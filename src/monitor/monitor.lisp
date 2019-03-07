@@ -53,7 +53,7 @@
       (cl-synthesizer:signal-invalid-arguments-error
        :format-control "get-patch: socket must be one of :input-socket or :output-socket"
        :format-arguments nil))
-  (let ((rm (funcall (getf rack :get-module-by-name) module-name)))
+  (let ((rm (cl-synthesizer:get-module rack module-name)))
     (if (not rm)
 	(values nil nil nil)
 	(if (eq :input-socket socket-type)
@@ -62,14 +62,14 @@
 		  (values nil nil nil)
 		  (values
 		   (getf patch :output-name)
-		   (funcall (getf rack :get-module-by-name) (getf patch :output-name))
+		   (cl-synthesizer:get-module rack (getf patch :output-name))
 		   (getf patch :output-socket))))
 	    (let ((patch (get-module-output-patch rack rm socket)))
 	      (if (not patch)
 		  (values nil nil nil)
 		  (values
 		   (getf patch :input-name)
-		   (funcall (getf rack :get-module-by-name) (getf patch :input-name))
+		   (cl-synthesizer:get-module rack (getf patch :input-name))
 		   (getf patch :input-socket))))))))
 
 (defun add-monitor (rack monitor-handler socket-mappings &rest additional-handler-args)

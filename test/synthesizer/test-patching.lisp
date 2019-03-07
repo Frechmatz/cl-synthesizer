@@ -7,8 +7,8 @@
     (cl-synthesizer:add-module rack "Module 2" #'cl-synthesizer-test::pass-through-module)
     ;; plus 2 default modules of the rack
     (assert-eq 4 (length (cl-synthesizer:get-modules rack)))
-    (let ((found-module-1 (funcall (getf rack :get-module-by-name) "Module 1"))
-	  (found-module-2 (funcall (getf rack :get-module-by-name) "Module 2")))
+    (let ((found-module-1 (cl-synthesizer:get-module rack "Module 1"))
+	  (found-module-2 (cl-synthesizer:get-module rack "Module 2")))
       (assert-true found-module-1)
       (assert-true found-module-2)
       (assert-equal "Module 1" (cl-synthesizer:get-module-name rack found-module-1))
@@ -17,8 +17,8 @@
 
 (define-test test-simple-patch ()
 	     (let ((rack (create-test-rack)))
-	       (let ((rm-1 (funcall (getf rack :get-module-by-name) "Module 1"))
-		     (rm-2 (funcall (getf rack :get-module-by-name) "Module 2")))
+	       (let ((rm-1 (cl-synthesizer:get-module rack "Module 1"))
+		     (rm-2 (cl-synthesizer:get-module rack "Module 2")))
 		 (cl-synthesizer:add-patch
 		  rack
 		  "Module 1" :out-1
@@ -38,12 +38,12 @@
 	       (multiple-value-bind (module-name module socket)
 		   (cl-synthesizer-test::get-patch rack "Module 2" :input-socket :cv-1)
 		 (assert-equal "Module 1" module-name)
-		 (assert-eq (funcall (getf rack :get-module-by-name) "Module 1") module)
+		 (assert-eq (cl-synthesizer:get-module rack "Module 1") module)
 		 (assert-equal :out-1 socket))
 	       (multiple-value-bind (module-name module socket)
 	           (cl-synthesizer-test::get-patch rack "Module 1" :output-socket :out-1)
 	         (assert-equal "Module 2" module-name)
-	         (assert-eq (funcall (getf rack :get-module-by-name) "Module 2") module)
+	         (assert-eq (cl-synthesizer:get-module rack "Module 2") module)
 	         (assert-equal :cv-1 socket))
 	       (multiple-value-bind (module-name module socket)
 	           (cl-synthesizer-test::get-patch rack "Module XX" :input-socket :cv-1)
@@ -61,8 +61,8 @@
 
 (define-test test-connect-sockets-twice-patch ()
 	     (let ((rack (create-test-rack)))
-	       (let ((rm-1 (funcall (getf rack :get-module-by-name) "Module 1"))
-		     (rm-2 (funcall (getf rack :get-module-by-name) "Module 2")))
+	       (let ((rm-1 (cl-synthesizer:get-module rack "Module 1"))
+		     (rm-2 (cl-synthesizer:get-module rack "Module 2")))
 		 (cl-synthesizer:add-patch
 		  rack
 		  "Module 1" :out-1

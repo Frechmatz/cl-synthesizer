@@ -19,3 +19,8 @@
    :find-module
    :get-module-name))
 
+(defpackage :cl-synthesizer-rack-compiler
+  (:use :cl)
+  (:export
+   :compile-rack))
+
