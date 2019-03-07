@@ -151,7 +151,7 @@
 				(funcall compiled-rack args)
 				t)))
 		:get-output (lambda (socket) (getf outputs socket))
-		:modules (lambda() (mapcar (lambda (m) (getf m :name)) modules))
+		:modules (lambda() modules)
 		:get-module-name (lambda (module) (get-module-name module))
 		:get-module-by-name (lambda(name) (get-module-by-name name))
 		:outputs (lambda() output-sockets)
@@ -400,7 +400,12 @@
     <ul>
 	<li>rack The rack.</li>
     </ul>
-   Returns a list of module names"
+    Returns a list of modules where each module consists of a property list with
+    the following keys:
+    <ul>
+       <li>:module The module</li>
+       <li>:name Name of the module</li>
+    </ul>"
   (funcall (getf rack :modules)))
 
 (defun is-rack (module)

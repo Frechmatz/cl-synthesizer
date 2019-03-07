@@ -17,7 +17,7 @@
 
 (defun get-rack-info (rack)
   (let ((module-count 0) (patch-count (length (cl-synthesizer:get-patches rack))))
-    (let ((modules (mapcar (lambda(name) (cl-synthesizer:get-module rack name))
+    (let ((modules (mapcar (lambda(entry) (getf entry :module))
 			   (cl-synthesizer:get-modules rack))))
       ;; Added modules + INPUT + OUTPUT
       (dolist (module modules)
