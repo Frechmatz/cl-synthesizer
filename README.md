@@ -101,7 +101,7 @@ API Reference
 
 ### Environment
 
-**cl-synthesizer:make-environment** &key (sample-rate 44100.0) (home-directory nil)
+**cl-synthesizer:make-environment** &key (sample-rate 44100) (home-directory nil)
 
 Creates an environment. The environment defines properties such as the sample rate of the rack. An enviroment is a property list with the following keys:
 
@@ -238,7 +238,10 @@ Get all modules of a rack. The function has the following arguments:
 
 *   rack The rack.
 
-Returns a list of module names
+Returns a list of modules where each module consists of a property list with the following keys:
+
+*   :module The module
+*   :name Name of the module
 
 * * *
 
@@ -1125,7 +1128,7 @@ This module has been inspired by [dhemery](https://github.com/dhemery/DHE-Module
 
 #### Wave File Writer
 
-**cl-synthesizer-modules-wave-file-writer:make-module** name environment &key channel-count filename (v-peak 5.0)
+**cl-synthesizer-modules-wave-file-writer:make-module** name environment &key channel-count filename (v-peak 5.0) (sample-width :16bit)
 
 Creates a Wave File Writer module. Writes files in "Waveform Audio File" ("WAV") format. The function has the following arguments:
 
@@ -1134,6 +1137,7 @@ Creates a Wave File Writer module. Writes files in "Waveform Audio File" ("WAV")
 *   :channel-count Number of channels.
 *   :filename The relative path of the file to be written. The filename will be concatenated with the base path as defined by the :home-directory property of the environment.
 *   :v-peak Optional peak voltage. The inputs of the module will be scaled to v-peak. If for example v-peak is set to 20.0 an incoming voltage of 5.0 results in a sample value (which is written into the wave file) of 5.0 / 20.0 -> 0.25 and an incoming voltage of -5.0 results in a sample value of -0.25. The default value is 5.0. Incoming voltages will be clipped according to v-peak.
+*   :sample-width Resolution of samples. One of :8Bit, :16Bit, :24Bit
 
 The module has the following inputs:
 
@@ -1347,4 +1351,4 @@ The Wave-Writer module uses code taken from Ryan Kings [cl-wave](https://github.
 
 * * *
 
-Generated 2019-02-14 23:32:58
+Generated 2019-03-07 21:57:02
