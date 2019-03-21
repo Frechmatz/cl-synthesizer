@@ -235,8 +235,25 @@
 		  (format nil "Updating Mixer with ~a channels for ~a seconds (Modules: ~a Patches: ~a)"
 			  channel-count duration-seconds
 			  (getf info :module-count) (getf info :patch-count)))
-		))))
-
+		 ))))
+   (list
+    :id :keyboard :name "Keyboard"
+    :setup (lambda(&key duration-seconds voice-count)
+	     (let ((rack (cl-synthesizer-profiling-keyboard::make-test-rack
+			  :duration-seconds duration-seconds
+			  :voice-count voice-count)))
+	       (let ((info (get-rack-info rack)))
+		 (values 
+		  (lambda ()
+		    (cl-synthesizer:play-rack
+		     rack
+		     :duration-seconds duration-seconds))
+		  (format
+		   nil
+		   "Updating Keyboard with ~a voices for ~a seconds (Modules: ~a Patches: ~a)"
+		   voice-count
+		   duration-seconds
+		   (getf info :module-count) (getf info :patch-count)))))))
    ))
 
 ;;
@@ -448,6 +465,15 @@
    :init nil
    :jobs '((:client-id :mixer :init (:duration-seconds 60 :channel-count 32)))))
 
+(defparameter *profiling-plan-keyboard*
+  (list
+   :name "Keyboard"
+   :max-samples 500
+   :profile-time t
+   :profile-statistical nil
+   :init nil
+   :jobs '((:client-id :keyboard :init (:duration-seconds 60 :voice-count 50)))))
+
 
 (defparameter *profiling-plan-all*
   (list
@@ -485,6 +511,7 @@
 	   (:client-id :midi-interface :init (:duration-seconds 60))
 	   (:client-id :adsr :init (:duration-seconds 60))
 	   (:client-id :mixer :init (:duration-seconds 60 :channel-count 32))
+	   (:client-id :keyboard :init (:duration-seconds 10 :voice-count 50))
 	   )))
 
 ;; (run-plan *profiling-plan-vco-core*)
@@ -499,4 +526,5 @@
 ;; (run-plan *profiling-plan-midi-interface*)
 ;; (run-plan *profiling-plan-adsr*)
 ;; (run-plan *profiling-plan-mixer*)
+;; (run-plan *profiling-plan-keyboard*)
 
