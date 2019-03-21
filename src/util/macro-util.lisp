@@ -14,12 +14,6 @@
 (defun make-keyword (name num)
   (make-symbol-impl name num "KEYWORD"))
 
-(defun make-let-list (name count)
-  (let ((l nil))
-    (dotimes (i count)
-      (push (list (make-package-symbol name i) nil) l))
-    l))
-
 (defun make-param-list (name count)
   (let ((l nil))
     (dotimes (i count)
