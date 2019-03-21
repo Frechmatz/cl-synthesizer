@@ -212,13 +212,16 @@
     :id :adsr :name "ADSR"
     :setup (lambda(&key duration-seconds)
 	     (let ((rack (cl-synthesizer-profiling-adsr::make-test-rack)))
-	       (values 
-		(lambda ()
-		  (cl-synthesizer:play-rack
-		       rack
-		       :duration-seconds duration-seconds))
-		(format nil "Updating ADSR for ~a seconds" duration-seconds)
-		))))
+	       (let ((info (get-rack-info rack)))
+		 (values 
+		  (lambda ()
+		    (cl-synthesizer:play-rack
+		     rack
+		     :duration-seconds duration-seconds))
+		  (format
+		   nil
+		   "Updating ADSR for ~a seconds (Modules: ~a Patches: ~a)" duration-seconds
+		   (getf info :module-count) (getf info :patch-count)))))))
    (list
     :id :mixer :name "Mixer"
     :setup (lambda(&key duration-seconds channel-count)
