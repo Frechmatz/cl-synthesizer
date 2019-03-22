@@ -1,0 +1,238 @@
+MacBook Pro Late 2013, Dual-Core i5, 2.4GHz, MacOS Mojave, SBCL
+---------------------------------------------------------------
+
+Running plan 'Profile all clients'
+
+Running client 'Phase-Sine Converter' with profiler TIME...
+==> Converting phase 10.00 to sine waveform for 3600 seconds
+Evaluation took:
+  3.791 seconds of real time
+  3.771123 seconds of total run time (3.751927 user, 0.019196 system)
+  99.47% CPU
+  9,098,888,976 processor cycles
+  65,344 bytes consed
+  
+
+Client 'Phase-Sine Converter' with profiler TIME has completed
+
+Running client 'Phase-Square Converter' with profiler TIME...
+==> Converting phase 10.00 to square waveform for 3600 seconds
+Evaluation took:
+  3.485 seconds of real time
+  3.472370 seconds of total run time (3.460352 user, 0.012018 system)
+  99.63% CPU
+  8,363,087,694 processor cycles
+  0 bytes consed
+  
+
+Client 'Phase-Square Converter' with profiler TIME has completed
+
+Running client 'Phase-Triangle Converter' with profiler TIME...
+==> Converting phase 10.00 to triangle waveform for 3600 seconds
+Evaluation took:
+  2.992 seconds of real time
+  2.983175 seconds of total run time (2.973117 user, 0.010058 system)
+  99.70% CPU
+  7,179,558,282 processor cycles
+  0 bytes consed
+  
+
+Client 'Phase-Triangle Converter' with profiler TIME has completed
+
+Running client 'Phase-Saw Converter' with profiler TIME...
+==> Converting phase 10.00 to saw waveform for 3600 seconds
+Evaluation took:
+  5.355 seconds of real time
+  5.336714 seconds of total run time (5.319619 user, 0.017095 system)
+  99.66% CPU
+  12,851,318,997 processor cycles
+  31,648 bytes consed
+  
+
+Client 'Phase-Saw Converter' with profiler TIME has completed
+
+Running client 'Phase Generator' with profiler TIME...
+==> Updating phase generator for 3600 seconds
+Evaluation took:
+  7.108 seconds of real time
+  7.073413 seconds of total run time (7.046763 user, 0.026650 system)
+  99.51% CPU
+  17,058,345,072 processor cycles
+  32,624 bytes consed
+  
+
+Client 'Phase Generator' with profiler TIME has completed
+
+Running client 'Rack Core: A tree of patched modules' with profiler TIME...
+==> Updating a tree of 25 root modules and 4 sub modules for 60 seconds (Modules: 177 Sockets: 4 Patches: 500)
+Evaluation took:
+  72.602 seconds of real time
+  72.199545 seconds of total run time (71.913005 user, 0.286540 system)
+  99.45% CPU
+  174,237,370,233 processor cycles
+  233,424 bytes consed
+  
+
+Client 'Rack Core: A tree of patched modules' with profiler TIME has completed
+
+Running client 'Rack Core: A cloud of modules without any patches' with profiler TIME...
+==> Updating a cloud of 100 modules for 60 seconds (Modules: 102 Input sockets: 3 Output sockets: 4 Patches: 0)
+Evaluation took:
+  30.971 seconds of real time
+  30.878047 seconds of total run time (30.782554 user, 0.095493 system)
+  99.70% CPU
+  74,327,757,657 processor cycles
+  98,304 bytes consed
+  
+
+Client 'Rack Core: A cloud of modules without any patches' with profiler TIME has completed
+
+Running client 'Rack Core: A chain of modules' with profiler TIME...
+==> Updating a chain of 100 modules for 60 seconds (Modules: 102 Sockets: 4 Patches: 404)
+Evaluation took:
+  59.374 seconds of real time
+  59.006071 seconds of total run time (58.697672 user, 0.308399 system)
+  99.38% CPU
+  142,493,468,184 processor cycles
+  163,824 bytes consed
+  
+
+Client 'Rack Core: A chain of modules' with profiler TIME has completed
+
+Running client 'VCO' with profiler TIME...
+==> Updating 100 VCOs for 60 seconds (Modules: 102 Patches: 0)
+Evaluation took:
+  57.746 seconds of real time
+  57.512684 seconds of total run time (57.315319 user, 0.197365 system)
+  99.60% CPU
+  138,584,540,667 processor cycles
+  97,904 bytes consed
+  
+
+Client 'VCO' with profiler TIME has completed
+
+Running client 'Monitor' with profiler TIME...
+==> Calling monitor for 120 seconds (Modules: 3 Patches: 1)
+Evaluation took:
+  0.772 seconds of real time
+  0.770468 seconds of total run time (0.767843 user, 0.002625 system)
+  99.74% CPU
+  1,853,517,453 processor cycles
+  0 bytes consed
+  
+
+Client 'Monitor' with profiler TIME has completed
+
+Running client 'Midi-Sequencer' with profiler TIME...
+==> Calling midi-sequencer for 3600 seconds (Modules: 3 Patches: 0)
+Evaluation took:
+  8.207 seconds of real time
+  8.088217 seconds of total run time (8.035486 user, 0.052731 system)
+  98.55% CPU
+  19,695,085,143 processor cycles
+  0 bytes consed
+  
+
+Client 'Midi-Sequencer' with profiler TIME has completed
+
+Running client 'CSV-Writer' with profiler TIME...
+==> Updating CSV-Writer for 60 seconds with sample-rate 44100 into file cl-synthesizer-examples/csv-profiling.csv
+
+Open file /Users/olli/cl-synthesizer-examples/csv-profiling.csv
+
+Close file /Users/olli/cl-synthesizer-examples/csv-profiling.csv
+Evaluation took:
+  9.170 seconds of real time
+  8.938477 seconds of total run time (8.669519 user, 0.268958 system)
+  97.47% CPU
+  22,007,629,020 processor cycles
+  32,624 bytes consed
+  
+
+Client 'CSV-Writer' with profiler TIME has completed
+
+Running client 'Wave-Writer' with profiler TIME...
+==> Updating Wave-Writer for 60 seconds with sample-rate 44100 into file cl-synthesizer-examples/wave-profiling.wav
+
+Open file /Users/olli/cl-synthesizer-examples/wave-profiling.wav
+
+Close file /Users/olli/cl-synthesizer-examples/wave-profiling.wav
+Evaluation took:
+  3.133 seconds of real time
+  3.074012 seconds of total run time (3.009711 user, 0.064301 system)
+  98.12% CPU
+  7,518,050,523 processor cycles
+  31,792 bytes consed
+  
+
+Client 'Wave-Writer' with profiler TIME has completed
+
+Running client 'MIDI-Interface' with profiler TIME...
+==> Updating MIDI-Interface for 60 seconds
+Evaluation took:
+  8.761 seconds of real time
+  8.644925 seconds of total run time (8.614213 user, 0.030712 system)
+  98.68% CPU
+  21,026,472,678 processor cycles
+  0 bytes consed
+  
+
+Client 'MIDI-Interface' with profiler TIME has completed
+
+Running client 'ADSR' with profiler TIME...
+==> Updating ADSR for 60 seconds (Modules: 13 Patches: 21)
+Evaluation took:
+  3.767 seconds of real time
+  3.722167 seconds of total run time (3.708041 user, 0.014126 system)
+  98.81% CPU
+  9,041,012,853 processor cycles
+  0 bytes consed
+  
+
+Client 'ADSR' with profiler TIME has completed
+
+Running client 'Mixer' with profiler TIME...
+==> Updating Mixer with 32 channels for 60 seconds (Modules: 71 Patches: 131)
+Evaluation took:
+  69.424 seconds of real time
+  69.195511 seconds of total run time (68.966543 user, 0.228968 system)
+  99.67% CPU
+  166,612,781,247 processor cycles
+  98,288 bytes consed
+  
+
+Client 'Mixer' with profiler TIME has completed
+
+Running client 'Keyboard' with profiler TIME...
+==> Updating Keyboard with 50 voices for 10 seconds (Modules: 809 Patches: 1604)
+Evaluation took:
+  75.426 seconds of real time
+  75.161594 seconds of total run time (74.899263 user, 0.262331 system)
+  99.65% CPU
+  181,016,349,987 processor cycles
+  851,712 bytes consed
+  
+
+Client 'Keyboard' with profiler TIME has completed
+Report: 'Profile all clients':
+Elapsed time, Job
+3.79s Converting phase 10.00 to sine waveform for 3600 seconds
+3.48s Converting phase 10.00 to square waveform for 3600 seconds
+2.99s Converting phase 10.00 to triangle waveform for 3600 seconds
+5.36s Converting phase 10.00 to saw waveform for 3600 seconds
+7.11s Updating phase generator for 3600 seconds
+72.60s Updating a tree of 25 root modules and 4 sub modules for 60 seconds (Modules: 177 Sockets: 4 Patches: 500)
+30.97s Updating a cloud of 100 modules for 60 seconds (Modules: 102 Input sockets: 3 Output sockets: 4 Patches: 0)
+59.37s Updating a chain of 100 modules for 60 seconds (Modules: 102 Sockets: 4 Patches: 404)
+57.75s Updating 100 VCOs for 60 seconds (Modules: 102 Patches: 0)
+0.77s Calling monitor for 120 seconds (Modules: 3 Patches: 1)
+8.21s Calling midi-sequencer for 3600 seconds (Modules: 3 Patches: 0)
+9.17s Updating CSV-Writer for 60 seconds with sample-rate 44100 into file cl-synthesizer-examples/csv-profiling.csv
+3.13s Updating Wave-Writer for 60 seconds with sample-rate 44100 into file cl-synthesizer-examples/wave-profiling.wav
+8.76s Updating MIDI-Interface for 60 seconds
+3.77s Updating ADSR for 60 seconds (Modules: 13 Patches: 21)
+69.42s Updating Mixer with 32 channels for 60 seconds (Modules: 71 Patches: 131)
+75.43s Updating Keyboard with 50 voices for 10 seconds (Modules: 809 Patches: 1604)
+
+Plan 'Profile all clients' has completed
+
