@@ -276,11 +276,26 @@
 				 :format-control "A module with name ~a has already been added to the rack"
 				 :format-arguments (list module-name)))
 			    (let ((module (apply module-fn `(,module-name ,environment ,@args))))
-			      (dolist (property '(:inputs :outputs :update :get-output))
-				(if (not (functionp (getf module property)))
-				    (signal-assembly-error
-				     :format-control "Invalid module ~a: Property ~a must be a function but is ~a"
-				     :format-arguments (list module-name property (getf module property)))))
+			      
+			      (if (not (getf module :v2))
+				  (progn
+				    (dolist (property '(:inputs :outputs :update :get-output))
+				      (if (not (functionp (getf module property)))
+					  (signal-assembly-error
+					   :format-control "Invalid module ~a: Property ~a must be a function but is ~a"
+					   :format-arguments (list module-name property (getf module property))))))
+				  (progn
+				    (dolist (property '(:inputs :outputs :update))
+				      (if (not (functionp (getf module property)))
+					  (signal-assembly-error
+					   :format-control "Invalid V2 module ~a: Property ~a must be a function but is ~a"
+					   :format-arguments (list module-name property (getf module property))))))
+
+				    )
+
+
+
+			      
 			      (add-module module-name module)))
 	      :add-hook (lambda (hook)
 			  (setf compiled-rack nil)

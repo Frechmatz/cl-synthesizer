@@ -25,7 +25,7 @@
   (if (not (getf module :v2))
       (funcall (getf module :inputs))
       (let ((sockets nil))
-	(cl-synthesizer-macro-util:with-property-list (getf module :inputs) socket fn
+	(cl-synthesizer-macro-util:with-property-list (funcall (getf module :inputs)) socket fn
 	  (declare (ignore fn))
 	  (push socket sockets))
 	sockets)))
@@ -73,7 +73,7 @@
       (let ((l (getf module :get-output)))
 	(lambda() (funcall l output-socket)))
       (let ((l (getf (funcall (getf module :outputs)) output-socket)))
-	(lambda() l))))
+	(lambda() (funcall l)))))
 
 (defun compile-module-v2 (rack module)
   (let ((input-setters nil)
@@ -117,11 +117,11 @@
 		(output-module (second binding))
 		(output-socket (third binding)))
 	    (if output-module
-		(let ((get-output-fn (getf output-module :get-output)))
+		(let ((get-output-fn (make-get-output-lambda output-module output-socket)))
 		  (push (lambda()
 			  ;; Get output value from input module
 			  (setf (getf input-args cur-input-socket)
-				(funcall get-output-fn output-socket)))
+				(funcall get-output-fn)))
 			input-getters))
 		(push (lambda()
 			(setf (getf input-args cur-input-socket) nil))

@@ -29,7 +29,7 @@
   (if (not (getf module :v2))
       (funcall (getf module :inputs))
       (let ((sockets nil))
-	(cl-synthesizer-macro-util:with-property-list (getf module :inputs) socket fn
+	(cl-synthesizer-macro-util:with-property-list (funcall (getf module :inputs)) socket fn
 	  (declare (ignore fn))
 	  (push socket sockets))
 	sockets)))
@@ -39,7 +39,7 @@
   (if (not (getf module :v2))
       (funcall (getf module :outputs))
       (let ((sockets nil))
-	(cl-synthesizer-macro-util:with-property-list (getf module :outputs) socket fn
+	(cl-synthesizer-macro-util:with-property-list (funcall (getf module :outputs)) socket fn
 	  (declare (ignore fn))
 	  (push socket sockets))
 	sockets)))
