@@ -157,25 +157,23 @@
 		   (write-tag file-output-stream "data")
 		   (write-uint file-output-stream data-size 4))))
 	(list
-	 :open-file (lambda()
+	 :open-file (lambda ()
 		      (open-file)
 		      ;; Write preliminary chunks
 		      (write-riff-chunk 0)
 		      (write-format-chunk 0)
 		      (write-data-chunk 0))
-	 :write-sample
-	 (lambda (sample)
-	   "sample: -1.0 ... 1.0"
-	   (setf sample-count (+ 1 sample-count))
-	   (write-sample sample))
-	 :close-file
-	 (lambda ()
-	   ;; Update chunks
-	   (file-position file-output-stream :start)
-	   (write-riff-chunk sample-count)
-	   (write-format-chunk sample-count)
-	   (write-data-chunk sample-count)
-	   (close-file)))))))
+	 :write-sample (lambda (sample)
+			 "sample: -1.0 ... 1.0"
+			 (setf sample-count (+ 1 sample-count))
+			 (write-sample sample))
+	 :close-file (lambda ()
+		       ;; Update chunks
+		       (file-position file-output-stream :start)
+		       (write-riff-chunk sample-count)
+		       (write-format-chunk sample-count)
+		       (write-data-chunk sample-count)
+		       (close-file)))))))
 
 
 (defun input-to-wave (f v-peak)
