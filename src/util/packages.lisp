@@ -3,4 +3,6 @@
   (:export
    :make-package-symbol
    :make-keyword
-   :make-keyword-list))
+   :make-keyword-list
+   :with-property-list
+   ))

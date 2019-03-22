@@ -16,10 +16,10 @@
    :play-mode play-mode))
 
 (defun test-midi-interface-get-output (ifc output)
-  (funcall (getf ifc :get-output) output))
+  (get-module-output ifc output))
 
 (defun test-midi-interface-update (ifc events)
-  (funcall (getf ifc :update) (list :midi-events events)))
+  (update-module ifc (list :midi-events events)))
 
 (defun run-test-case-midi-ifc (test-case)
   (let ((ifc (test-midi-interface-make-midi-interface
@@ -343,13 +343,13 @@
 	       (cl-synthesizer:add-patch rack "MIDI-SEQUENCER" :midi-events "MIDI-IFC" :midi-events)
 	       (let ((midi-ifc (cl-synthesizer:get-module rack "MIDI-IFC")))
 		 ;; initial gate must not be nil
-		 (assert-true (funcall (getf midi-ifc :get-output) :gate-1))
+		 (assert-true (get-module-output midi-ifc :gate-1))
 		 (let ((count (cl-synthesizer-test::output-change-counter
 			       :sample-rate 44100
 			       :duration-seconds 4
-			       :update-fn (lambda () (funcall (getf rack :update) nil))
+			       :update-fn (lambda () (update-module rack nil))
 			       :get-output-fn (lambda ()
-						(funcall (getf midi-ifc :get-output) :gate-1)))))
+						(get-module-output midi-ifc :gate-1)))))
 		   (assert-true (< 0.0 count))))))
 
 (define-test test-midi-interface-update-2 ()
@@ -374,13 +374,13 @@
 	       (cl-synthesizer:add-patch rack "MIDI-SEQUENCER" :midi-events "MIDI-IFC" :midi-events)
 	       (let ((midi-ifc (cl-synthesizer:get-module rack "MIDI-IFC")))
 		 ;; initial gate must not be nil
-		 (assert-true (funcall (getf midi-ifc :get-output) :gate-1))
+		 (assert-true (get-module-output midi-ifc :gate-1))
 		 (let ((count (cl-synthesizer-test::output-change-counter
 			       :sample-rate 44100
 			       :duration-seconds 4
-			       :update-fn (lambda () (funcall (getf rack :update) nil))
+			       :update-fn (lambda () (update-module rack nil))
 			       :get-output-fn (lambda ()
-						(funcall (getf midi-ifc :get-output) :gate-1)))))
+						(get-module-output midi-ifc :gate-1)))))
 		   (assert-true (< 0.0 count))))))
 
 (define-test test-midi-interface-update-3 ()
@@ -400,8 +400,8 @@
 	       (let ((midi-sequencer (cl-synthesizer:get-module rack "MIDI-SEQUENCER"))
 		     (event-count 0))
 		 (dotimes (i 44100)
-		   (funcall (getf rack :update) nil)
-		   (if (funcall (getf midi-sequencer :get-output) :midi-event)
+		   (update-module rack nil)
+		   (if (get-module-output midi-sequencer :midi-event)
 		       (setf event-count (+ 1 event-count))))
 		 (assert-equal 2 event-count))))
 

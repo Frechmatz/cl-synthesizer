@@ -14,12 +14,12 @@
   (dolist (test-case test-cases)
     ;; fill in missing input arguments with nil
     (let ((update-args nil))
-      (dolist (key (funcall (getf module :inputs)))
+      (dolist (key (get-module-input-sockets module))
 	(push (getf (getf test-case :update) key) update-args)
 	(push key update-args))
-      (funcall (getf module :update) update-args)
+      (update-module module update-args)
       (dolist (expected (getf test-case :expected-outputs))
-	(let ((value (funcall (getf module :get-output) (first expected))))
+	(let ((value (get-module-output module (first expected))))
 	  (assert-equal (second expected) value))))))
 
 
@@ -149,8 +149,8 @@
 		     module
 		     `((:update (:trigger 0.0 :input 10.0 :pass-through 0.0)
 			      :expected-outputs nil))))
-		  (assert-true (is-approximately 10.0 (funcall (getf module :get-output) :output) 0.001))
-		  (assert-equal 0.0 (funcall (getf module :get-output) :busy))))
+		  (assert-true (is-approximately 10.0 (get-module-output module :output) 0.001))
+		  (assert-equal 0.0 (get-module-output module :busy))))
 
 
 (define-test test-ramp-climb-gate ()

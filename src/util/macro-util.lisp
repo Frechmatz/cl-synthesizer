@@ -27,3 +27,13 @@
     (dotimes (i count)
       (push (make-keyword name i) l))
     (nreverse l)))
+
+(defmacro with-property-list (plist key value &body body)
+  (let ((tuple-index (gensym)))
+    `(if (< 0 (length ,plist))
+	 (progn
+	   (if (not (= 0 (mod (length ,plist) 2)))
+	       (error (format nil "with-property-list: Property list must contain an even number of elements: ~a" ,plist)))
+	   (dotimes (,tuple-index (/ (length ,plist) 2))
+	     (let ((,key (nth (* 2 ,tuple-index) ,plist)) (,value (nth (+ 1 (* 2 ,tuple-index)) ,plist)))
+	       ,@body))))))

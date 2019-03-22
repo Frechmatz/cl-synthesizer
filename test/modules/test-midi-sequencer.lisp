@@ -16,8 +16,8 @@
 	       (let ((midi-sequencer (cl-synthesizer:get-module rack "MIDI-SEQUENCER"))
 		     (event-count 0))
 		 (dotimes (i 44100)
-		   (funcall (getf rack :update) nil)
-		   (if (funcall (getf midi-sequencer :get-output) :midi-event)
+		   (update-module rack nil)
+		   (if (get-module-output midi-sequencer :midi-event)
 		       (setf event-count (+ 1 event-count))))
 		 (assert-equal 2 event-count))))
 
@@ -38,8 +38,8 @@
 	       (let ((midi-sequencer (cl-synthesizer:get-module rack "MIDI-SEQUENCER"))
 		     (event-count 0))
 		 (dotimes (i 44100)
-		   (funcall (getf rack :update) nil)
-		   (if (funcall (getf midi-sequencer :get-output) :midi-event)
+		   (update-module rack nil)
+		   (if (get-module-output midi-sequencer :midi-event)
 		       (setf event-count (+ 1 event-count))))
 		 (assert-equal 2 event-count))))
 

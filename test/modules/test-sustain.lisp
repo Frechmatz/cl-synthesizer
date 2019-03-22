@@ -7,12 +7,12 @@
   (dolist (test-case test-cases)
     ;; fill in missing input arguments with nil
     (let ((update-args nil))
-      (dolist (key (funcall (getf module :inputs)))
+      (dolist (key (get-module-input-sockets module))
 	(push (getf (getf test-case :update) key) update-args)
 	(push key update-args))
-      (funcall (getf module :update) update-args)
+      (update-module module update-args)
       (dolist (expected (getf test-case :expected-outputs))
-	(let ((value (funcall (getf module :get-output) (first expected))))
+	(let ((value (get-module-output module (first expected))))
 	  (assert-equal (second expected) value))))))
 
 

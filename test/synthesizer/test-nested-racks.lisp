@@ -26,5 +26,5 @@
     (cl-synthesizer:add-patch rack "RACK-2" :out "RACK-3" :in)
     (cl-synthesizer:add-patch rack "RACK-3" :out "OUTPUT" :out)
 
-    (funcall (getf rack :update) (list :in 5))
-    (assert-equal 40 (funcall (getf rack :get-output) :out))))
+    (update-module rack (list :in 5))
+    (assert-equal 40 (get-module-output rack :out))))

@@ -26,7 +26,7 @@
 		    '(("Multiplier" :output-socket :out)
 		      ("Multiplier" :input-socket :in)
 		      ("Counter" :state :module-name))))
-		 (funcall (getf rack :update) nil)
+		 (update-module rack nil)
 		 (assert-equal "Counter" handler-module-name)
 		 (assert-equal 1 handler-in)
 		 (assert-equal 2 handler-out)
