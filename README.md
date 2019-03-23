@@ -1347,8 +1347,9 @@ This condition is signalled in cases where the assembly of a rack fails, because
 Acknowledgements
 ----------------
 
-The Wave-Writer module uses code taken from Ryan Kings [cl-wave](https://github.com/RyanTKing/cl-wave) library.
+*   The Wave-Writer module uses code taken from Ryan Kings [cl-wave](https://github.com/RyanTKing/cl-wave) library.
+*   Envelope generation has been inspired by [dhemery](https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes)
 
 * * *
 
-Generated 2019-03-07 21:57:02
+Generated 2019-03-23 00:56:43
