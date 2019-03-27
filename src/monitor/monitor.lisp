@@ -72,6 +72,14 @@
 		   (cl-synthesizer:get-module rack (getf patch :input-name))
 		   (getf patch :input-socket))))))))
 
+(defun make-get-output-lambda (module output-socket)
+  (if (not (getf module :v2))
+      (let ((l (getf module :get-output)))
+	(lambda() (funcall l output-socket)))
+      (let ((l (getf (funcall (getf module :outputs)) output-socket)))
+	(lambda() (funcall l)))))
+
+
 (defun add-monitor (rack monitor-handler socket-mappings &rest additional-handler-args)
    "Adds a monitor to a rack. A monitor is a high-level Rack hook that
     collects module states (values of input/output sockets) and passes them
@@ -159,8 +167,7 @@
 		    (cl-synthesizer:signal-assembly-error
 		     :format-control "Monitor: Module ~a does not expose output socket ~a"
 		     :format-arguments (list module-path socket-key)))
-		(let ((get-output-fn (getf module :get-output)))
-		  (setf input-fetcher (lambda() (funcall get-output-fn socket-key)))))
+		  (setf input-fetcher (make-get-output-lambda module socket-key)))
 	       ((eq :input-socket socket-type)
 		(if (not (find socket-key (funcall (getf module :inputs))))
 		    (cl-synthesizer:signal-assembly-error
@@ -173,7 +180,9 @@
 		       :format-control "Monitor: Input socket exposed by module but it is not patched: ~a ~a ~a"
 		       :format-arguments (list module-name socket-type socket-key)))
 		  (setf input-fetcher
-			(lambda () (funcall (getf source-module :get-output) source-socket)))))
+			;;(lambda () (funcall (getf source-module :get-output) source-socket))
+			(make-get-output-lambda source-module source-socket)
+			)))
 	       ((eq :state socket-type)
 		(let ((get-state-fn (if (getf module :get-state)
 					 (getf module :get-state)
