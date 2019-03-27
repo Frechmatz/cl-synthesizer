@@ -21,14 +21,24 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "~a: input-count must be greater than 0: ~a"
        :format-arguments (list name input-count)))
-  (let ((cur-output nil) (inputs (cl-synthesizer-macro-util:make-keyword-list "input" input-count)))
-    (list
-     :inputs (lambda () inputs)
-     :outputs (lambda () '(:output))
-     :get-output (lambda (output) (declare (ignore output)) cur-output)
-     :update (lambda (inputs)
-	       (setf cur-output 0)
-	       (dolist (i inputs)
-		 (if (numberp i)
-		     (setf cur-output (+ cur-output i))))))))
+  (let ((cur-output nil) (input-sockets (cl-synthesizer-macro-util:make-keyword-list "input" input-count)))
+    (let ((input-values (make-array (length input-sockets) :initial-element nil))
+	  (inputs nil)
+	  (outputs (list :output (lambda() cur-output))))
+      (let ((index 0))
+	(dolist (input-socket input-sockets)
+	  (let ((cur-index index))
+	    (push (lambda(value) (setf (elt input-values cur-index) value)) inputs) 
+	    (push input-socket inputs))
+	  (setf index (+ 1 index))))
+      (list
+       :v2 t
+       :inputs (lambda () inputs)
+       :outputs (lambda () outputs)
+       :update (lambda ()
+		 (setf cur-output 0)
+		 (dotimes (index (length input-values))
+		   (let ((v (elt input-values index)))
+		     (if (numberp v)
+			 (setf cur-output (+ cur-output v))))))))))
 

@@ -60,15 +60,15 @@
 	     ((and min-output (> min-output v)) min-output)
 	     ((and max-output (< max-output v)) max-output)
 	     (t v))))
-    (let ((cur-output (clip initial-output)))
+    (let* ((cur-output (clip initial-output)) (input-midi-events nil)
+	   (inputs (list :midi-events (lambda(value) (setf input-midi-events value))))
+	   (outputs (list :output (lambda() cur-output))))
       (list
-       :inputs (lambda () '(:midi-events))
-       :outputs (lambda () '(:output))
-       :get-output (lambda (output)
-		     (declare (ignore output))
-		     cur-output)
-       :update (lambda (input-args)
-		 (dolist (midi-event (getf input-args :midi-events))
+       :v2 t
+       :inputs (lambda () inputs)
+       :outputs (lambda () outputs)
+       :update (lambda ()
+		 (dolist (midi-event input-midi-events)
 		   (if (and midi-event
 			    (cl-synthesizer-midi-event:control-change-eventp midi-event)
 			    (find (cl-synthesizer-midi-event:get-controller-number midi-event) controller-numbers)
