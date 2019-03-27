@@ -64,6 +64,7 @@
        :format-arguments (list name duty-cycle)))
 
   (let* ((sample-rate (getf environment :sample-rate))
+	 (input-cv-exp nil) (input-cv-lin nil)
 	 (cur-frequency 0.0)
 	 (cur-lin-frequency 0.0)
 	 (cur-exp-frequency 0.0)
@@ -94,45 +95,44 @@
 	     (setf cur-lin-frequency (funcall lin-converter cv-lin))
 	     (setf cur-exp-frequency (funcall exp-converter cv-exp))
 	     (+ cur-lin-frequency cur-exp-frequency)))
-      (list
-       :inputs (lambda () '(:cv-exp :cv-lin))
-       :outputs (lambda () '(:sine :triangle :saw :square))
-       :get-output (lambda (output)
-		     (cond
-		       ((eq output :sine) cur-sine-output)
-		       ((eq output :triangle) cur-triangle-output)
-		       ((eq output :saw) cur-saw-output)
-		       ((eq output :square) cur-square-output)
-		       (t (error (format nil "Unknown input ~a requested from ~a" output name)))))
-       :update (lambda (input-args)
-		 (declare (inline
-			   cl-synthesizer-core:phase-sine-converter
-			   cl-synthesizer-core:phase-saw-converter
-			   cl-synthesizer-core:phase-square-converter
-			   cl-synthesizer-core:phase-triangle-converter))
-		 (let ((cv-exp (getf input-args :cv-exp))
-		       (cv-lin (getf input-args :cv-lin)))
-		 (if (not cv-exp)
-		     (setf cv-exp 0.0))
-		 (if (not cv-lin)
-		     (setf cv-lin 0.0))
-		 (let* ((f (clip-frequency (get-frequency cv-exp cv-lin)))
-			(phi (funcall phase-generator f)))
-		   (setf cur-frequency f)
-		   (setf cur-phi phi)
-		   (setf cur-sine-output
-			 (* v-peak (cl-synthesizer-core:phase-sine-converter
-				    phi :phase-offset phase-offset)))
-		   (setf cur-triangle-output
-			 (* v-peak (cl-synthesizer-core:phase-triangle-converter
-				    phi :phase-offset phase-offset)))
-		   (setf cur-saw-output
-			 (* v-peak (cl-synthesizer-core:phase-saw-converter
-				    phi :phase-offset phase-offset)))
-		   (setf cur-square-output
-			 (* v-peak (cl-synthesizer-core:phase-square-converter
-				    phi :duty-cycle duty-cycle :phase-offset phase-offset)))
-		   )))
+      (let ((inputs (list
+		     :cv-exp (lambda(value) (setf input-cv-exp value))
+		     :cv-lin (lambda(value) (setf input-cv-lin value))))
+	    (outputs (list
+		      :sine (lambda() cur-sine-output)
+		      :triangle (lambda() cur-triangle-output)
+		      :saw (lambda() cur-saw-output)
+		      :square (lambda() cur-square-output))))
+	(list
+	 :v2 t
+	 :inputs (lambda () inputs)
+	 :outputs (lambda () outputs)
+	 :update (lambda ()
+		   (declare (inline
+			     cl-synthesizer-core:phase-sine-converter
+			     cl-synthesizer-core:phase-saw-converter
+			     cl-synthesizer-core:phase-square-converter
+			     cl-synthesizer-core:phase-triangle-converter))
+		   (if (not input-cv-exp)
+		       (setf input-cv-exp 0.0))
+		   (if (not input-cv-lin)
+		       (setf input-cv-lin 0.0))
+		   (let* ((f (clip-frequency (get-frequency input-cv-exp input-cv-lin)))
+			  (phi (funcall phase-generator f)))
+		     (setf cur-frequency f)
+		     (setf cur-phi phi)
+		     (setf cur-sine-output
+			   (* v-peak (cl-synthesizer-core:phase-sine-converter
+				      phi :phase-offset phase-offset)))
+		     (setf cur-triangle-output
+			   (* v-peak (cl-synthesizer-core:phase-triangle-converter
+				      phi :phase-offset phase-offset)))
+		     (setf cur-saw-output
+			   (* v-peak (cl-synthesizer-core:phase-saw-converter
+				      phi :phase-offset phase-offset)))
+		     (setf cur-square-output
+			   (* v-peak (cl-synthesizer-core:phase-square-converter
+				      phi :duty-cycle duty-cycle :phase-offset phase-offset)))))
        :get-state (lambda (key)
 		    (cond
 		      ((eq key :frequency)
@@ -144,5 +144,5 @@
 		      ((eq key :phase)
 		       cur-phi)
 		      (t nil)))
-       ))))
+       )))))
   

@@ -30,54 +30,52 @@
 	    chaining of ramp and sustain modules.</li>
     </ul>
     This module has been inspired by <a href=\"https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes\">dhemery</a>"
-  (declare (ignore environment))
+  (declare (ignore name environment))
   (declare (optimize (debug 3) (speed 0) (space 0)))
-  (let* ((output 0.0) (busy 0.0) (done 0.0) (passthrough-gate nil))
+  (let* ((output 0.0) (busy 0.0) (done 0.0) (passthrough-gate nil)
+	 (input-trigger nil) (input-input nil) (input-pass-through nil) (input-gate nil))
+    (let ((inputs (list
+		   :trigger (lambda(value) (setf input-trigger value))
+		   :input (lambda(value) (setf input-input value))
+		   :pass-through (lambda(value) (setf input-pass-through value))
+		   :gate (lambda(value) (setf input-gate value))))
+	  (outputs (list
+		    :output (lambda() output)
+		    :busy (lambda() busy)
+		    :done (lambda() done)
+		    :gate (lambda() passthrough-gate))))
     (list
-     :inputs (lambda () '(:trigger :input :pass-through :gate))
-     :outputs (lambda () '(:output :busy :done :gate))
-     :get-output (lambda (output-socket)
-		   (cond
-		     ((eq :output output-socket)
-		      output)
-		     ((eq :busy output-socket)
-		      busy)
-		     ((eq :done output-socket)
-		      done)
-		     ((eq :gate output-socket)
-		      passthrough-gate)
-		     (t
-		      (error (format nil "Output socket ~a not supported by module ~a" output-socket name)))))
-     :update (lambda (input-args
-		      ;;&key trigger input pass-through gate
-			  )
-	       (let ((trigger (getf input-args :trigger))
-		     (input (getf input-args :input))
-		     (pass-through (getf input-args :pass-through))
-		     (gate (getf input-args :gate)))
+     :v2 t
+     :inputs (lambda () inputs)
+     :outputs (lambda () outputs)
+     :update (lambda ()
+	       ;;(let ((trigger (getf input-args :trigger))
+	;;	     (input (getf input-args :input))
+	;;	     (pass-through (getf input-args :pass-through))
+	;;	     (gate (getf input-args :gate)))
 		 ;;(declare (optimize (debug 3) (speed 0) (space 0)))
 	       (setf done 0.0)
-	       (setf passthrough-gate gate)
-	       (if (not gate)
-		   (setf gate 0.0))
-	       (if (not input)
-		   (setf input 0.0))
-	       (if (not trigger)
-		   (setf trigger 0.0))
-	       (if (not pass-through)
-		   (setf pass-through 0.0))
-	       (if (> pass-through 0.0)
+	       (setf passthrough-gate input-gate)
+	       (if (not input-gate)
+		   (setf input-gate 0.0))
+	       (if (not input-input)
+		   (setf input-input 0.0))
+	       (if (not input-trigger)
+		   (setf input-trigger 0.0))
+	       (if (not input-pass-through)
+		   (setf input-pass-through 0.0))
+	       (if (> input-pass-through 0.0)
 		   (progn 
-		     (setf output input)
+		     (setf output input-input)
 		     (setf busy 5.0)) ;; busy with passing through the input
 		   (progn 
-		     (if (>= trigger trigger-threshold)
+		     (if (>= input-trigger trigger-threshold)
 			 (progn
 			   (setf busy 5.0)
-			   (setf output input)))
+			   (setf output input-input)))
 		     ;; Only continue when busy
 		     (if (> busy 0.0)
-			 (if (<= gate gate-threshold)
+			 (if (<= input-gate gate-threshold)
 			     (progn
 			       ;;(break)
 			       (setf done 5.0)

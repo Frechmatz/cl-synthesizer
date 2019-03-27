@@ -18,13 +18,11 @@
     The module has no inputs.
     The module has one output socket according to the :output-socket argument."
   (declare (ignore name environment))
-  (let ((outputs (list output-socket)))
+  (let ((outputs (list output-socket (lambda() value))))
     (list
+     :v2 t
      :inputs (lambda () nil)
      :outputs (lambda () outputs)
-     :get-output (lambda (output)
-		   (declare (ignore output))
-		   value)
-     :update (lambda (input-args) (declare (ignore input-args)) nil))))
+     :update (lambda () nil))))
 
 
