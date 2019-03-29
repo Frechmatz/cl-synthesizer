@@ -121,11 +121,11 @@
 		 (expect-assembly-error
 		   (cl-synthesizer:add-patch
 		    rack
-		    "Module 1" :output-3
+		    "Module 1" :output-99
 		    "Module 2" :input-1))
 		 (expect-assembly-error
 		   (cl-synthesizer:add-patch
 		    rack
 		    "Module 1" :output-1
-		    "Module 2" :input-3))))
+		    "Module 2" :input-99))))
 
