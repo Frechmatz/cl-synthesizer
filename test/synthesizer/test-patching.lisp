@@ -21,42 +21,42 @@
 		     (rm-2 (cl-synthesizer:get-module rack "Module 2")))
 		 (cl-synthesizer:add-patch
 		  rack
-		  "Module 1" :out-1
-		  "Module 2" :cv-1)
-		 (let ((input-patch (cl-synthesizer-test::get-module-input-patch rack rm-2 :cv-1)))
+		  "Module 1" :output-1
+		  "Module 2" :input-1)
+		 (let ((input-patch (cl-synthesizer-test::get-module-input-patch rack rm-2 :input-1)))
 		   (assert-true input-patch)
 		   (assert-equal "Module 1" (getf input-patch :output-name)))
-		 (let ((output-patch (cl-synthesizer-test::get-module-output-patch rack rm-1 :out-1)))
+		 (let ((output-patch (cl-synthesizer-test::get-module-output-patch rack rm-1 :output-1)))
 		   (assert-true output-patch)
 		   (assert-equal "Module 2" (getf output-patch :input-name)))
 
-		 (assert-false (cl-synthesizer-test::get-module-input-patch rack rm-2 :cv-2))
-		 (assert-false (cl-synthesizer-test::get-module-output-patch rack rm-1 :out-2))
-		 (assert-false (cl-synthesizer-test::get-module-input-patch rack rm-1 :cv-1))
-		 (assert-false (cl-synthesizer-test::get-module-input-patch rack rm-1 :cv-2)))
+		 (assert-false (cl-synthesizer-test::get-module-input-patch rack rm-2 :input-2))
+		 (assert-false (cl-synthesizer-test::get-module-output-patch rack rm-1 :output-2))
+		 (assert-false (cl-synthesizer-test::get-module-input-patch rack rm-1 :input-1))
+		 (assert-false (cl-synthesizer-test::get-module-input-patch rack rm-1 :input-2)))
 
 	       (multiple-value-bind (module-name module socket)
-		   (cl-synthesizer-test::get-patch rack "Module 2" :input-socket :cv-1)
+		   (cl-synthesizer-test::get-patch rack "Module 2" :input-socket :input-1)
 		 (assert-equal "Module 1" module-name)
 		 (assert-eq (cl-synthesizer:get-module rack "Module 1") module)
-		 (assert-equal :out-1 socket))
+		 (assert-equal :output-1 socket))
 	       (multiple-value-bind (module-name module socket)
-	           (cl-synthesizer-test::get-patch rack "Module 1" :output-socket :out-1)
+	           (cl-synthesizer-test::get-patch rack "Module 1" :output-socket :output-1)
 	         (assert-equal "Module 2" module-name)
 	         (assert-eq (cl-synthesizer:get-module rack "Module 2") module)
-	         (assert-equal :cv-1 socket))
+	         (assert-equal :input-1 socket))
 	       (multiple-value-bind (module-name module socket)
-	           (cl-synthesizer-test::get-patch rack "Module XX" :input-socket :cv-1)
+	           (cl-synthesizer-test::get-patch rack "Module XX" :input-socket :input-1)
 	         (assert-false module-name)
 	         (assert-false module)
 	         (assert-false socket))
 	       (multiple-value-bind (module-name module socket)
-		   (cl-synthesizer-test::get-patch rack "Module XX" :output-socket :cv-1)
+		   (cl-synthesizer-test::get-patch rack "Module XX" :output-socket :input-1)
 	       	 (assert-false module-name)
 	         (assert-false module)
 	         (assert-false socket))
 	       (expect-invalid-arguments-error
-		 (cl-synthesizer-test::get-patch rack "Module 1" :xx-socket :cv-1))
+		 (cl-synthesizer-test::get-patch rack "Module 1" :xx-socket :input-1))
 	       ))
 
 (define-test test-connect-sockets-twice-patch ()
@@ -65,67 +65,67 @@
 		     (rm-2 (cl-synthesizer:get-module rack "Module 2")))
 		 (cl-synthesizer:add-patch
 		  rack
-		  "Module 1" :out-1
-		  "Module 2" :cv-1)
-		 ;; connect out-1 of "Module 1" once more 
+		  "Module 1" :output-1
+		  "Module 2" :input-1)
+		 ;; connect output-1 of "Module 1" once more 
 		 (expect-assembly-error
 		   (cl-synthesizer:add-patch
 		    rack
-		    "Module 1" :out-1
-		    "Module 2" :cv-2))
+		    "Module 1" :output-1
+		    "Module 2" :input-2))
 		 ;; connect cv-1 of "Module 2" once more 
 		 (expect-assembly-error
 		   (cl-synthesizer:add-patch
 		    rack
-		    "Module 1" :out-2
-		    "Module 2" :cv-1))
-		 (let ((input-patch (cl-synthesizer-test::get-module-input-patch rack rm-2 :cv-1)))
+		    "Module 1" :output-2
+		    "Module 2" :input-1))
+		 (let ((input-patch (cl-synthesizer-test::get-module-input-patch rack rm-2 :input-1)))
 		   (assert-true input-patch)
 		   (assert-equal "Module 1" (getf input-patch :output-name)))
-		 (let ((output-patch (cl-synthesizer-test::get-module-output-patch rack rm-1 :out-1)))
+		 (let ((output-patch (cl-synthesizer-test::get-module-output-patch rack rm-1 :output-1)))
 		   (assert-true output-patch)
 		   (assert-equal "Module 2" (getf output-patch :input-name)))
-		 (assert-false (cl-synthesizer-test::get-module-input-patch rack rm-2 :cv-2))
-		 (assert-false (cl-synthesizer-test::get-module-output-patch rack rm-1 :out-2))
-		 (assert-false (cl-synthesizer-test::get-module-input-patch rack rm-1 :cv-1))
-		 (assert-false (cl-synthesizer-test::get-module-input-patch rack rm-1 :cv-2)))))
+		 (assert-false (cl-synthesizer-test::get-module-input-patch rack rm-2 :input-2))
+		 (assert-false (cl-synthesizer-test::get-module-output-patch rack rm-1 :output-2))
+		 (assert-false (cl-synthesizer-test::get-module-input-patch rack rm-1 :input-1))
+		 (assert-false (cl-synthesizer-test::get-module-input-patch rack rm-1 :input-2)))))
 
 (define-test test-short-circuit ()
 	     (let ((rack (create-test-rack)))
 	       (expect-assembly-error
 		 (cl-synthesizer:add-patch
 		  rack
-		  "Module 1" :out-1
-		  "Module 1" :out-2))
+		  "Module 1" :output-1
+		  "Module 1" :output-2))
 	       (expect-assembly-error
 		 (cl-synthesizer:add-patch
 		  rack
-		  "Module 1" :cv-1
-		  "Module 1" :cv-2))))
+		  "Module 1" :input-1
+		  "Module 1" :input-2))))
 
 (define-test test-unknown-module ()
 	     (let ((rack (create-test-rack)))
 	       (expect-assembly-error
 		 (cl-synthesizer:add-patch
 		  rack
-		  "Module 1" :out-1
-		  "Module 3" :cv-1))
+		  "Module 1" :output-1
+		  "Module 3" :input-1))
 	       (expect-assembly-error
 		 (cl-synthesizer:add-patch
 		  rack
-		  "Module 3" :out-1
-		  "Module 1" :cv-1))))
+		  "Module 3" :output-1
+		  "Module 1" :input-1))))
 
 (define-test test-unknown-socket ()
 	     (let ((rack (create-test-rack)))
 		 (expect-assembly-error
 		   (cl-synthesizer:add-patch
 		    rack
-		    "Module 1" :out-3
-		    "Module 2" :cv-1))
+		    "Module 1" :output-3
+		    "Module 2" :input-1))
 		 (expect-assembly-error
 		   (cl-synthesizer:add-patch
 		    rack
-		    "Module 1" :out-1
-		    "Module 2" :cv-3))))
+		    "Module 1" :output-1
+		    "Module 2" :input-3))))
 

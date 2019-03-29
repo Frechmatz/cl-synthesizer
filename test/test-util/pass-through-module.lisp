@@ -1,9 +1,9 @@
 (in-package :cl-synthesizer-test)
 
 (defun pass-through-module (name environment)
-  "Module that passes through inputs (:cv-1 :cv-2) to outputs (:out-1 :out-2)"
+  "Module that passes through inputs (:input-1 :input-2) to outputs (:output-1 :output-2)"
   (declare (ignore environment))
-  (let ((out-1 0) (out-2 0) (cv-1 nil) (cv-2 nil))
+  (let ((output-1 0) (output-2 0) (input-1 nil) (input-2 nil))
     (list
      :v2 t
      :get-state (lambda(state)
@@ -12,13 +12,13 @@
 		      (error (format nil "Unknown state ~a requested frm module pass-through-module" state))))
      :inputs (lambda ()
 	       (list
-		:cv-1 (lambda(value) (setf cv-1 value))
-		:cv-2 (lambda(value) (setf cv-2 value))))
+		:input-1 (lambda(value) (setf input-1 value))
+		:input-2 (lambda(value) (setf input-2 value))))
      :outputs (lambda ()
 		(list
-		 :out-1 (lambda() out-1)
-		 :out-2 (lambda() out-2)))
+		 :output-1 (lambda() output-1)
+		 :output-2 (lambda() output-2)))
      :update (lambda ()
-	       (setf out-1 cv-1)
-	       (setf out-2 cv-2)))))
+	       (setf output-1 input-1)
+	       (setf output-2 input-2)))))
 
