@@ -3,7 +3,7 @@
 (define-test test-wave-file-writer-1 ()
 	     (let ((recorded-samples nil)
 		   (open-file-called nil)
-		   (close-file-file-called nil))
+		   (close-file-called nil))
 	       (let ((cl-synthesizer-modules-wave-file-writer::*make-writer*
 		      (lambda (&rest args)
 			(declare (ignore args))
