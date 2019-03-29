@@ -45,7 +45,9 @@
 				     (:file "trigger")
 				     (:file "mixer")
 				     (:file "ramp")
-				     (:file "sustain")))
+				     (:file "sustain")
+				     (:file "wave-file-writer")
+				     (:file "csv-file-writer")))
 	       (:module "src/monitor"
 			:serial t
 			:components ((:file "packages")
@@ -84,7 +86,8 @@
 				     (:file "test-ramp")
 				     (:file "test-sustain")
 				     (:file "test-vca")
-				     (:file "test-vco")))
+				     (:file "test-vco")
+				     (:file "test-wave-file-writer")))
 	       (:module "test/monitor"
 			:serial t
 			:components ((:file "test-monitor")))
