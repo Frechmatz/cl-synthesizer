@@ -175,6 +175,11 @@
 		       (write-data-chunk sample-count)
 		       (close-file)))))))
 
+;;
+;; Factory function to be used by tests
+;;
+(defvar *make-writer* (lambda (&rest args)
+			(apply #'make-writer args)))
 
 (defun input-to-wave (f v-peak)
   ;; convert to -1.0 ... +1.0
@@ -211,7 +216,7 @@
        :format-arguments (list name channel-count)))
   (let ((inputs (cl-synthesizer-macro-util:make-keyword-list "channel" channel-count))
 	(opened-wave-writer nil)
-	(wave-writer (make-writer
+	(wave-writer (funcall *make-writer*
 		      :filename (merge-pathnames filename (getf environment :home-directory))
 		      :channel-count channel-count
 		      :sample-width sample-width
