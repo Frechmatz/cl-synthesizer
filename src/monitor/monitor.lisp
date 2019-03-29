@@ -217,8 +217,7 @@
        ;; Prepare input property list with which
        ;; the update function of the backend will be called.
        ;; (:INPUT-1 nil :INPUT-2 nil ...)
-       (let ((backend-update-fn (getf backend :update))
-	     (input-argument-list nil))
+       (let ((input-argument-list nil))
 	 (dolist (p input-fetchers)
 	   ;; Value
 	   (push nil input-argument-list)
