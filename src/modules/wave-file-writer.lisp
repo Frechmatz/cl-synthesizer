@@ -176,7 +176,7 @@
 		       (close-file)))))))
 
 ;;
-;; Factory function to be used by tests
+;; Factory function to be overridden by tests
 ;;
 (defvar *make-writer* (lambda (&rest args)
 			(apply #'make-writer args)))
