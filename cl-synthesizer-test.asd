@@ -87,7 +87,8 @@
 				     (:file "test-sustain")
 				     (:file "test-vca")
 				     (:file "test-vco")
-				     (:file "test-wave-file-writer")))
+				     (:file "test-wave-file-writer")
+				     (:file "test-csv-file-writer")))
 	       (:module "test/monitor"
 			:serial t
 			:components ((:file "test-monitor")))
