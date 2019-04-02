@@ -4,6 +4,31 @@
   (declare (ignore str-to-quote))
   str)
 
+(defun make-writer ()
+  (let ((output-stream nil) (output-filename))
+    (list
+     :open-stream (lambda (filename)
+		    (format t "~%Open file ~a~%" filename)
+		    (setf output-filename filename)
+		    (setf output-stream
+			  (open
+			   filename
+			   :direction :output
+			   :if-exists :supersede
+			   :if-does-not-exist :create
+			   :external-format :utf-8))
+		    output-stream)
+     :close-stream (lambda()
+		     (if output-stream
+			 (progn
+			   (format t "~%Close file ~a~%" output-filename)
+			   (close output-stream)
+			   (setf output-stream nil)))))))
+
+
+(defvar *make-writer* (lambda (&rest args)
+			(apply #'make-writer args)))
+
 (defun make-module (name environment &key columns filename (column-separator ",") (add-header t))
   "Creates a CSV File Writer module.
     The function has the following arguments:
@@ -40,7 +65,8 @@
   (let ((column-keys nil)
 	(column-properties nil)
 	(filename (merge-pathnames filename (getf environment :home-directory)))
-	(output-stream nil))
+	(output-stream nil)
+	(csv-writer (funcall *make-writer*)))
     ;; set up input keys and column property lookup table
     (let ((i 0))
       (flet ((make-column-properties (column index)
@@ -57,20 +83,9 @@
 	;; Order in which columns will be printed
 	(setf column-keys (reverse column-keys)))
       (flet ((open-file ()
-	       (format t "~%Open file ~a~%" filename)
-	       (setf output-stream
-		     (open
-		      filename
-		      :direction :output
-		      :if-exists :supersede
-		      :if-does-not-exist :create
-		      :external-format :utf-8)))
+	       (setf output-stream (funcall (getf csv-writer :open-stream) filename)))
 	     (close-file ()
-	       (if output-stream
-		   (progn
-		     (format t "~%Close file ~a~%" filename)
-		     (close output-stream)
-		     (setf output-stream nil))))
+	       (funcall (getf csv-writer :close-stream)))
 	     (print-header ()
 	       (if add-header
 		   (format output-stream "~a~%"
