@@ -25,7 +25,7 @@
     The module has no inputs.
     The module has one output socket :midi-events."
   (let ((ticks-per-milli-second (/ (getf environment :sample-rate) 1000))
-	(event-array (make-array (length events)))
+	(event-array (make-array (length events) :initial-element nil))
 	(timestamp-array (make-array (length events) :element-type 'number))
 	(cur-tick -1)
 	(cur-midi-events nil)

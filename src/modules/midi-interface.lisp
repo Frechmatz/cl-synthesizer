@@ -13,7 +13,7 @@
     +voice-state-gate+))
 
 (defun make-voice-state ()
-  (let ((voice-state (make-array (length +voice-states+))))
+  (let ((voice-state (make-array (length +voice-states+) :initial-element nil)))
     (setf (elt voice-state +voice-state-cv+) 0.0)
     (setf (elt voice-state +voice-state-gate+) 0.0)
     voice-state))

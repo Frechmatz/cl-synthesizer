@@ -215,7 +215,7 @@
        :format-control "~a: channel-count must be greater than 0: ~a"
        :format-arguments (list name channel-count)))
   (let ((input-sockets (cl-synthesizer-macro-util:make-keyword-list "channel" channel-count))
-	(input-values (make-array channel-count))
+	(input-values (make-array channel-count :initial-element nil))
 	(opened-wave-writer nil)
 	(wave-writer (funcall *make-writer*
 		      :filename (merge-pathnames filename (getf environment :home-directory))
