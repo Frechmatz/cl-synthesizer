@@ -135,6 +135,19 @@
 	  (funcall module-update-fn input-args)))))
 
 (defun compile-rack (rack)
+  "Compile a rack."
+  (let ((lambdas (mapcar (lambda (module) (compile-module rack module)) (get-module-trace rack))))
+    (lambda ()
+      ;; Update modules
+      (dolist (fn lambdas)
+	(funcall fn))
+      ;; Call hooks
+      (dolist (h (funcall (getf rack :hooks)))
+	(funcall (getf h :update))))))
+
+
+#|
+(defun compile-rack (rack)
   "Compile a rack. Returns a function to be called with the values of the input sockets of the rack."
   (let ((input-bridge-module-update-fn (getf (get-module-by-name rack "INPUT") :update))
 	(lambdas (mapcar (lambda (module) (compile-module rack module)) (get-module-trace rack))))
@@ -147,3 +160,7 @@
       ;; Call hooks
       (dolist (h (funcall (getf rack :hooks)))
 	(funcall (getf h :update))))))
+
+
+
+|#

@@ -32,7 +32,7 @@
 
 (defun run-example ()
   (let ((rack (example)))
-    (funcall (getf rack :update) nil)
-    (funcall (getf rack :update) nil)))
+    (funcall (getf rack :update))
+    (funcall (getf rack :update))))
 
 ;; (run-example)
