@@ -254,8 +254,7 @@
 			 :f-max 12000.0
 			 :cv-max 5.0
 			 :v-peak 5.0
-			 :duty-cycle 0.5
-			 )))
+			 :duty-cycle 0.5)))
 	       (update-module vco (list :cv-lin 0.5 :cv-exp 0.0))
 	       (print-vco-state vco)
 	       (assert-equality #'= 5.0 (get-module-output vco :square))

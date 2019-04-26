@@ -104,7 +104,6 @@
 		      :saw (lambda() cur-saw-output)
 		      :square (lambda() cur-square-output))))
 	(list
-	 :v2 t
 	 :inputs (lambda () inputs)
 	 :outputs (lambda () outputs)
 	 :update (lambda ()
@@ -143,6 +142,5 @@
 		       cur-exp-frequency)
 		      ((eq key :phase)
 		       cur-phi)
-		      (t nil)))
-       )))))
+		      (t nil))))))))
   

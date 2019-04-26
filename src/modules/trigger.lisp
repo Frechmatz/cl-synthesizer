@@ -25,11 +25,9 @@
     (let ((inputs (list :input (lambda(value) (setf input-input value))))
 	  (outputs (list :output (lambda() cur-output))))
     (list
-     :v2 t
      :inputs (lambda () inputs)
      :outputs (lambda () outputs)
      :update (lambda ()
-	       ;;(let ((input (getf input-args :input)))
 	       (if (not input-input)
 		   (setf input-input 0.0))
 	       (let ((may-fire (>= input-input trigger-threshold)))

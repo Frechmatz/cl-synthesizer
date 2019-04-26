@@ -5,7 +5,6 @@
   (declare (ignore environment))
   (let ((shutdown-called nil) (output-1 0) (output-2 0) (output-3 0) (input-1 nil) (input-2 nil) (input-3 nil))
     (list
-     :v2 t
      :get-state (lambda(state)
 		  (cond
 		    ((eq state :module-name)

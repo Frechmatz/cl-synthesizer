@@ -32,7 +32,6 @@
 	    (push input-socket inputs))
 	  (setf index (+ 1 index))))
       (list
-       :v2 t
        :inputs (lambda () inputs)
        :outputs (lambda () outputs)
        :update (lambda ()

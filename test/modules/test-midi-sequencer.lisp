@@ -60,8 +60,7 @@
 				       (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
 		   (list :timestamp-milli-seconds 3
 			 :midi-events (list
-				       (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
-		   )))))
+				       (cl-synthesizer-midi-event:make-note-off-event 1 69 100))))))))
 
 ;; Not sorted by timestamp
 (define-test test-midi-sequencer-4 ()
@@ -77,6 +76,5 @@
 				       (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
 		   (list :timestamp-milli-seconds 2
 			 :midi-events (list
-				       (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
-		   )))))
+				       (cl-synthesizer-midi-event:make-note-off-event 1 69 100))))))))
 

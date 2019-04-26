@@ -5,10 +5,22 @@
 
 (defun monitor-handler (name environment inputs &rest rest)
   (declare (ignore name environment inputs rest))
-  (values
-   (list
-    :update (lambda (args) (declare (ignore args))))
-   (list :input-1 :input-2)))
+  (let ((input-sockets
+	 (list
+	  :input-1 (lambda(value) (declare (ignore value)) nil)
+	  :input-2 (lambda(value) (declare (ignore value)) nil)
+	  :input-3 (lambda(value) (declare (ignore value)) nil)))
+	(output-sockets
+	 (list
+	       :input-1 (lambda() nil)
+	       :input-2 (lambda() nil)
+	       :input-3 (lambda() nil))))
+    (values
+     (list
+      :inputs (lambda() input-sockets)
+      :outputs (lambda() output-sockets)
+      :update (lambda () nil))
+   '(:input-1 :input-2 :input-3))))
 
 (defun make-test-rack ()
   (let ((rack (cl-synthesizer:make-rack

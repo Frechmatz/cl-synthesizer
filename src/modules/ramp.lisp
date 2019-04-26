@@ -69,16 +69,9 @@
 		    :done (lambda() done)
 		    :gate (lambda() passthrough-gate))))
     (list
-     :v2 t
      :inputs (lambda () inputs)
      :outputs (lambda () outputs)
      :update (lambda ()
-	       ;;(let ((trigger (getf input-args :trigger))
-	;;	     (input (getf input-args :input))
-	;;	     (pass-through (getf input-args :pass-through))
-	;;	     (gate (getf input-args :gate))
-	;;	     (cv-time (getf input-args :cv-time)))
-	       ;;(declare (optimize (debug 3) (speed 0) (space 0)))
 	       (setf done 0.0)
 	       (if input-cv-time
 		   (setf time-ms (funcall time-cv-to-time-ms input-cv-time)))

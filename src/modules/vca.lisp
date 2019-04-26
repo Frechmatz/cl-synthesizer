@@ -98,7 +98,6 @@
 		    :output-linear (lambda() cur-out-linear)
 		    :output-exponential (lambda() cur-out-exponential))))
     (list
-     :v2 t
      :inputs (lambda () inputs)
      :outputs (lambda () outputs)
      :update (lambda ()

@@ -65,10 +65,7 @@
 					     :outputs ((:CV-1 64000)
 						       (:GATE-1 5.0)
 						       (:CV-2 32000)
-						       (:GATE-2 5.0)))
-
-
-				    ))))
+						       (:GATE-2 5.0)))))))
 	       (run-test-case-midi-ifc test)))
 
 ;;

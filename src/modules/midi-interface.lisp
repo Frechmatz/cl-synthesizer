@@ -137,7 +137,6 @@
 		  (set-voice-state-gate voice-state cv-gate-off)
 		  (push voice-index pending-gate-on-voices))))))
       (list
-       :v2 t
        :inputs (lambda () inputs)
        :outputs (lambda () outputs)
        :update (lambda ()

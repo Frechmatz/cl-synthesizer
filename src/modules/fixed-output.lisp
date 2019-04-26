@@ -20,7 +20,6 @@
   (declare (ignore name environment))
   (let ((outputs (list output-socket (lambda() value))))
     (list
-     :v2 t
      :inputs (lambda () nil)
      :outputs (lambda () outputs)
      :update (lambda () nil))))

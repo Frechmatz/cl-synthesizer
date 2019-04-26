@@ -31,7 +31,6 @@
 	  (push getter outputs)
 	  (push output-socket outputs)))
       (list
-       :v2 t
        :inputs (lambda () inputs)
        :outputs (lambda () outputs)
        :update (lambda () (setf output-value cur-input))))))

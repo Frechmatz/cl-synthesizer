@@ -50,7 +50,6 @@
 	    (setf i (+ i 1))))))
     (let ((outputs (list :midi-events (lambda() cur-midi-events))))
       (list
-       :v2 t
        :inputs (lambda() nil)
        :outputs (lambda() outputs)
        :update (lambda()

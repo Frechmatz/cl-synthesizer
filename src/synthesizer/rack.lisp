@@ -3,11 +3,12 @@
 ;;
 ;; Bridge Modules
 ;;
-;; Bridge modules represent the inputs and outputs of a rack. 
-;; 
+;; The inputs and outputs of a rack are represented
+;; by bridge modules INPUT and OUTPUT
+;;
+
 
 (defun make-bridge-accessors (sockets)
-  (declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((values (make-array (length sockets) :initial-element nil))
 	(getters nil)
 	(setters nil)
@@ -24,22 +25,20 @@
     (values getters setters)))
 
 (defun make-input-bridge-module (input-sockets)
-  "Exposes outputs for patching. Exposes private input setters that are called by the rack." 
+  "Exposes public output getters for patching. Exposes private input setters that are called by the rack." 
   (multiple-value-bind (getters setters)
       (make-bridge-accessors input-sockets)
     (list
-     :v2 t
      :inputs-private (lambda() setters)
      :inputs (lambda() nil) ;; no inputs that can be accessed via patching
      :outputs (lambda() getters)
      :update (lambda() nil))))
 
 (defun make-output-bridge-module (output-sockets)
-  "Exposes inputs for patching. Exposes private output getters that are called by the rack."
+  "Exposes public input setters for patching. Exposes private output getters that are called by the rack."
   (multiple-value-bind (getters setters)
       (make-bridge-accessors output-sockets)
     (list
-     :v2 t
      :inputs (lambda() setters)
      :outputs-private (lambda() getters)
      :outputs (lambda() nil) ;; no outputs that can be accessed via patching
@@ -283,7 +282,6 @@
 		     patches)))
       (let ((rack
 	     (list
-	      :v2 t
 	      :modules (lambda() modules)
 	      ;; delegate to bridge module
 	      :outputs (getf output-bridge-module :outputs-private)
@@ -305,20 +303,11 @@
 				 :format-control "A module with name ~a has already been added to the rack"
 				 :format-arguments (list module-name)))
 			    (let ((module (apply module-fn `(,module-name ,environment ,@args))))
-			      
-			      (if (not (getf module :v2))
-				  (progn
-				    (dolist (property '(:inputs :outputs :update :get-output))
-				      (if (not (functionp (getf module property)))
-					  (signal-assembly-error
-					   :format-control "Invalid module ~a: Property ~a must be a function but is ~a"
-					   :format-arguments (list module-name property (getf module property))))))
-				  (progn
-				    (dolist (property '(:inputs :outputs :update))
-				      (if (not (functionp (getf module property)))
-					  (signal-assembly-error
-					   :format-control "Invalid V2 module ~a: Property ~a must be a function but is ~a"
-					   :format-arguments (list module-name property (getf module property)))))))
+			      (dolist (property '(:inputs :outputs :update))
+				(if (not (functionp (getf module property)))
+				    (signal-assembly-error
+				     :format-control "Invalid module ~a: Property ~a must be a function but is ~a"
+				     :format-arguments (list module-name property (getf module property)))))
 			      (add-module module-name module)))
 	      :add-hook (lambda (hook)
 			  (setf compiled-rack nil)

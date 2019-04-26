@@ -17,7 +17,6 @@
 
 
 (define-test test-sustain-gate-passthrough ()
-	     ""
 	     (let* ((module (cl-synthesizer-modules-sustain:make-module
 			     "Sustain"
 			     (cl-synthesizer:make-environment))))
@@ -31,7 +30,6 @@
 			   :expected-outputs ((:gate 5.0)))))))
 
 (define-test test-sustain-initial-output ()
-	     ""
 	     (let* ((module (cl-synthesizer-modules-sustain:make-module
 			     "Sustain"
 			     (cl-synthesizer:make-environment))))
@@ -51,7 +49,6 @@
 			   :expected-outputs ((:output 10.0)))))))
 
 (define-test test-sustain-gate-on ()
-	     ""
 	     (let* ((module
 		     (cl-synthesizer-modules-sustain:make-module
 		      "Sustain"
@@ -62,7 +59,6 @@
 			   :expected-outputs ((:output 10.0) (:busy 0.0) (:done 5.0)))))))
 
 (define-test test-sustain-gate-off ()
-	     ""
 	     (let* ((module
 		     (cl-synthesizer-modules-sustain:make-module
 		      "Sustain"
@@ -87,7 +83,6 @@
 			   :expected-outputs ((:output 10.0) (:busy 0.0) (:done 0.0)))))))
 
 (define-test test-sustain-hold-done ()
-	     ""
 	     (let* ((module (cl-synthesizer-modules-sustain:make-module
 			     "Sustain"
 			     (cl-synthesizer:make-environment))))

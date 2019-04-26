@@ -64,7 +64,6 @@
 	   (inputs (list :midi-events (lambda(value) (setf input-midi-events value))))
 	   (outputs (list :output (lambda() cur-output))))
       (list
-       :v2 t
        :inputs (lambda () inputs)
        :outputs (lambda () outputs)
        :update (lambda ()

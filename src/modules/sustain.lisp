@@ -31,7 +31,7 @@
     </ul>
     This module has been inspired by <a href=\"https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes\">dhemery</a>"
   (declare (ignore name environment))
-  (declare (optimize (debug 3) (speed 0) (space 0)))
+  ;; (declare (optimize (debug 3) (speed 0) (space 0)))
   (let* ((output 0.0) (busy 0.0) (done 0.0) (passthrough-gate nil)
 	 (input-trigger nil) (input-input nil) (input-pass-through nil) (input-gate nil))
     (let ((inputs (list
@@ -45,15 +45,9 @@
 		    :done (lambda() done)
 		    :gate (lambda() passthrough-gate))))
     (list
-     :v2 t
      :inputs (lambda () inputs)
      :outputs (lambda () outputs)
      :update (lambda ()
-	       ;;(let ((trigger (getf input-args :trigger))
-	;;	     (input (getf input-args :input))
-	;;	     (pass-through (getf input-args :pass-through))
-	;;	     (gate (getf input-args :gate)))
-		 ;;(declare (optimize (debug 3) (speed 0) (space 0)))
 	       (setf done 0.0)
 	       (setf passthrough-gate input-gate)
 	       (if (not input-gate)

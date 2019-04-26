@@ -14,8 +14,7 @@
 	     (let ((open-stream-called nil)
 		   (close-stream-called nil)
 		   (output-stream nil)
-		   (written-string nil)
-		   )
+		   (written-string nil))
 	       (let ((cl-synthesizer-modules-csv-file-writer::*make-writer*
 		      (lambda (&rest args)
 			(declare (ignore args))

@@ -30,7 +30,6 @@
        (lambda (name environment)
 	 (declare (ignore name environment))
 	 (list
-	  :v2 t
 	  :inputs (lambda () inputs)
 	  :outputs (lambda () outputs)
 	   ;; do nothing

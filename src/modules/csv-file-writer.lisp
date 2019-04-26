@@ -96,7 +96,6 @@
 			    column-properties
 			    :initial-value "")))))
 	(list
-	 :v2 t
 	 :inputs (lambda () inputs)
 	 :outputs (lambda () nil)
 	 :update (lambda ()
