@@ -145,19 +145,18 @@ Adds a module to a rack. The function has the following arguments:
     *   module-args Any additional arguments passed to add-module.
     
     The module instantiation function must return a property list with the following keys:
-    
-    *   :inputs A function with no arguments that returns a list of keywords that represent the input sockets exposed by the module.
-    *   :outputs A function with no arguments that returns a list of keywords that represent the output sockets exposed by the module.
-    *   :update A function that is called with the values of the modules input sockets in order to update the state of the module (the state of its output sockets). All input parameters are passed as a single argument which consists of a property list or nil if the module does not expose any inputs. To avoid excessive consing this list is allocated during compilation of the rack and then used for all update calls of the module.
-    *   :get-output A function that is called in order to get the value of a specific output socket. The function is called with a keyword that identifies the output socket whose state is to be returned. The function must not modify the value of the given or any other output socket.
+    *   :inputs A function with no arguments that returns a property list representing the input sockets and their corresponding setter functions that are exposed by the module.  
+        Example: `:inputs (lambda() (list :input-1 (lambda(value) (setf input-1 value))))`  
+        Modules are supposed to buffer this list as the inputs might be requested several times.
+    *   :outputs A function with no arguments that returns a property list representing the output sockets and their corresponding getter functions that exposed by the module.  
+        Example: `:outputs (lambda() (list :output-1 (lambda() output-1)))`  
+        Modules are supposed to buffer this list as the outputs might be requested several times.
+    *   :update A function with no arguments that updates the outputs according to the previously set inputs.
     *   :shutdown An optional function with no arguments that is called when the rack is shutting down.
     *   :get-state An optional function that can be used to expose internal states of the module, for example a VCO may expose its frequency. The function has one argument that consists of a keyword identifying the requested state, for example :frequency.
-    
-    A module must not add or remove input/output sockets after it has been instantiated.
-    
 *   &rest args Arbitrary additional arguments to be passed to the module instantiation function. These arguments typically consist of keyword parameters.
 
-Returns the added module.
+Returns the module.
 
 * * *
 
@@ -1176,7 +1175,7 @@ See also cl-synthesizer-monitor:add-monitor
 
 **cl-synthesizer-monitor:add-monitor** rack monitor-handler socket-mappings &rest additional-handler-args
 
-Adds a monitor to a rack. A monitor is a high-level Rack hook that collects module states (values of input/output sockets) and passes them to a monitor handler. A monitor handler can for example be a Wave-File-Writer. The function has the following arguments:
+Adds a monitor to a rack. A monitor is a high-level Rack hook that collects module states (values of input/output/state sockets) and passes them to a monitor handler. A monitor handler can for example be a Wave-File-Writer. The function has the following arguments:
 
 *   rack The rack.
 *   monitor-handler A function that instantiates the monitor handler. This function is called with the following arguments:
@@ -1187,15 +1186,15 @@ Adds a monitor to a rack. A monitor is a high-level Rack hook that collects modu
     *   additional-handler-args Any additional keyword parameters as passed to the monitor function. These parameters can be used to initialize handler specific properties such as a filename.
     
     The function must return a values object with the following entries:
-    *   module A property list that represents a subset of a module. At least :update must be implemented. See also cl-synthesizer:add-module.
-    *   An ordered list of input sockets of the module, where the first entry represents the first entry of the socket mappings (e.g. column-1) and so on. This list is in place because we do not want to depend on the actual input sockets exposed by the module. It is up to the monitor-handler to know about specifica of modules, for example that the csv-file-writer module uses input socket :column-1 to represent the first column.
-*   socket-mappings Declares the input/outputs whose values are to be monitored. Each entry has the following format:
+    *   module A property list that implements a module. See also cl-synthesizer:add-module.
+    *   An ordered list of input sockets of the module, where the first entry represents the first entry of the socket mappings (e.g. column-1) and so on. This list is in place because we cannot depend on the order of the input sockets exposed by the module. It is up to the monitor-handler to know about specifica of modules, for example that the csv-file-writer module uses input socket :column-1 to represent the first column.
+*   socket-mappings Declares the input/outputs/states whose values are to be monitored. Each entry has the following format:
     *   module-path Path of the module from which the value of a certain input/output socket or state is to be retrieved, for example "ADSR" or '("VOICE-1" "ADSR"). See also cl-synthesizer:find-module.
     *   socket-type One of the following keywords:
-        *   :input-socket Monitor the value of an input socket of the module.
-        *   :output-socket Monitor the value of an output socket of the module.
-        *   :state Monitor a state of the module (see get-state function).
-    *   socket A keyword that identifies one of the input/output sockets or states provided by the module, for example :cv
+        *   :input-socket The value of an input socket of the module.
+        *   :output-socket The value of an output socket of the module.
+        *   :state The value of an internal state of the module (see get-state function).
+    *   socket A keyword that identifies one of the input/output sockets or internal states provided by the module, for example :cv
     *   Any additional settings. Supported settings depend on the handler that is being used, for example a CSV writer may support a column formatting string.
 *   &rest additional-handler-args Optional keyword arguments to be passed to the handler instantiation function.
 
@@ -1218,12 +1217,19 @@ Adds a monitor to a rack. A monitor is a high-level Rack hook that collects modu
     
         (flet ((instantiate-handler (name environment inputs)
     	     (declare (ignore name environment inputs))
-    	     (values 
-    	      (list
-    	       :update (lambda (input-args)
-    			 (format t "~%Sine: ~a" (getf input-args :sine))
-    			 (format t "~%Phase: ~a" (getf input-args :phase))))
-    	       '(:sine :phase))))
+    	     (let ((input-sine nil) (input-phase nil))
+    	       (values 
+    		(list
+    		 :inputs (lambda()
+    			   (list
+    			    :sine (lambda(value) (setf input-sine value))
+    			    :phase (lambda(value) (setf input-phase value))))
+    		 :outputs (lambda()
+    			    (list
+    			     :sine (lambda() input-sine)
+    			     :phase (lambda() input-phase)))
+    		 :update (lambda () nil))
+    		'(:sine :phase)))))
           
           (cl-synthesizer-monitor:add-monitor
            rack
@@ -1231,12 +1237,12 @@ Adds a monitor to a rack. A monitor is a high-level Rack hook that collects modu
            '(("VCO" :output-socket :sine)
     	 ("VCO" :state :phase))))
         
-      rack))
+        rack))
     
     (defun run-example ()
       (let ((rack (example)))
-        (funcall (getf rack :update) nil)
-        (funcall (getf rack :update) nil)))
+        (funcall (getf rack :update))
+        (funcall (getf rack :update))))
     
     ;; (run-example)
 
@@ -1336,7 +1342,7 @@ Returns the velocity of a Note-On/Off MIDI event.
 
 **cl-synthesizer-midi:get-note-number-frequency** note-number
 
-Returns the frequency of a given note number. Note number 69 results in a frequency of 440Hz. This function implements a simple mapping and might be useful in some cases. For more details about the implementation refer to the source code.
+Returns the frequency of a given note number. Note number 69 results in a frequency of 440Hz. This function implements a mapping according to [midinote2freq](http://subsynth.sourceforge.net/midinote2freq.html)
 
 ### Conditions
 
@@ -1352,4 +1358,4 @@ Acknowledgements
 
 * * *
 
-Generated 2019-03-23 00:56:43
+Generated 2019-04-30 22:02:22
