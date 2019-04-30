@@ -104,8 +104,8 @@
 
 (defun add-monitor (rack monitor-handler socket-mappings &rest additional-handler-args)
    "Adds a monitor to a rack. A monitor is a high-level Rack hook that
-    collects module states (values of input/output sockets) and passes them
-    to a monitor handler. A monitor handler can for example be a
+    collects module states (values of input/output/state sockets) and 
+    passes them to a monitor handler. A monitor handler can for example be a
     Wave-File-Writer. The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
@@ -124,8 +124,7 @@
 	    </ul>
 	    The function must return a values object with the following entries:
 	    <ul>
-		<li>module A property list that represents a subset of a module. 
-                    At least :update must be implemented. See also cl-synthesizer:add-module.</li>
+		<li>module A property list that implements a module. See also cl-synthesizer:add-module.</li>
 		<li>An ordered list of input sockets of the module, where the first entry represents 
                    the first entry of the socket mappings (e.g. column-1) and so on. This list
                    is in place because we cannot depend on the order of the input sockets
@@ -134,7 +133,7 @@
                    uses input socket :column-1 to represent the first column.</li>
 	    </ul>
 	</li>
-	<li>socket-mappings Declares the input/outputs whose values are to be monitored.
+	<li>socket-mappings Declares the input/outputs/states whose values are to be monitored.
             Each entry has the following format:
 	    <ul>
 		<li>module-path Path of the module from which the value of
@@ -143,12 +142,12 @@
                     See also cl-synthesizer:find-module.</li>
 		<li>socket-type One of the following keywords: 
                     <ul>
-                        <li>:input-socket Monitor the value of an input socket of the module.</li>
-                        <li>:output-socket Monitor the value of an output socket of the module.</li>
-                        <li>:state Monitor a state of the module (see get-state function).</li>
+                        <li>:input-socket The value of an input socket of the module.</li>
+                        <li>:output-socket The value of an output socket of the module.</li>
+                        <li>:state The value of an internal state of the module (see get-state function).</li>
                     </ul>
                 </li>
-		<li>socket A keyword that identifies one of the input/output sockets or states
+		<li>socket A keyword that identifies one of the input/output sockets or internal states
 		    provided by the module, for example :cv</li>
                 <li>Any additional settings. Supported settings depend
                     on the handler that is being used, for example a CSV writer may
@@ -205,7 +204,7 @@
 	   (backend-inputs (funcall (getf backend :inputs)))
 	   (backend-update (getf backend :update))
 	   (socket-count (length socket-mappings)))
-       ;; Set up lambdas for updating the backend
+       ;; Set up lambdas for setting the inputs of the backend
        (dotimes (i socket-count)
 	 (let* ((backend-input-socket (nth i ordered-input-sockets))
 		(socket-mapping (nth i socket-mappings)))
@@ -214,11 +213,13 @@
 	     (setf (elt set-input-lambdas i)
 		   (lambda()
 		     (funcall input-setter (funcall input-fetcher)))))))
-       ;; Compile setting the inputs and updating the backend into one lambda
+       ;; Compile
        (let ((compiled-backend-update
 	      (lambda()
+		;; Set inputs
 		(dotimes (index socket-count)
 		  (funcall (elt set-input-lambdas index)))
+		;; Update
 		(funcall backend-update))))
 	 (cl-synthesizer:add-hook
 	  rack

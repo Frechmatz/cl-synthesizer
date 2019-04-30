@@ -18,8 +18,8 @@
 
 (defun get-note-number-frequency (note-number)
   "Returns the frequency of a given note number. Note number 69 results in a frequency of 440Hz.
-   This function implements a simple mapping and might be useful in some cases. For more
-   details about the implementation refer to the source code."
+   This function implements a mapping according to 
+   <a href=\"http://subsynth.sourceforge.net/midinote2freq.html\">midinote2freq</a>"
   (elt *TUNING-TABLE* note-number))
 
 ;; (get-note-number-frequency 69)

@@ -27,8 +27,7 @@
 			     :sine (lambda() input-sine)
 			     :phase (lambda() input-phase)))
 		 :update (lambda () nil))
-		'(:sine :phase)
-		))))
+		'(:sine :phase)))))
       
       (cl-synthesizer-monitor:add-monitor
        rack

@@ -93,20 +93,17 @@
 	    </ul>
 	    The module instantiation function must return a property list with the following keys:
 	    <ul>
-		<li>:inputs A function with no arguments that returns a list of keywords that represent the
-		    input sockets exposed by the module.</li>
-		<li>:outputs A function with no arguments that returns a list of keywords that represent the
-		    output sockets exposed by the module.</li>
-		<li>:update A function that is called with the values of the modules input sockets
-                    in order to update the state of the module (the state of its output sockets).
-		    All input parameters are passed as a single argument which consists of a property list or
-                    nil if the module does not expose any inputs. To avoid excessive consing this
-                   list is allocated during compilation of the rack and then used for all update calls
-                   of the module.</li>
-		<li>:get-output A function that is called in order to get the value of a specific
-		    output socket. The function is called with a keyword that identifies the output socket
-		    whose state is to be returned. The function must not modify the value
-		    of the given or any other output socket.</li>
+		<li>:inputs A function with no arguments that returns a property list representing the
+                    input sockets and their corresponding setter functions that are exposed by the module.</br>
+                    Example: <code>:inputs (lambda() (list :input-1 (lambda(value) (setf input-1 value))))</code>
+                    </br>Modules are supposed to buffer this list as the inputs might be requested several times.
+                </li>
+		<li>:outputs A function with no arguments that returns a property list representing 
+                    the  output sockets and their corresponding getter functions that exposed by the module.</br>
+                    Example: <code>:outputs (lambda() (list :output-1 (lambda() output-1)))</code>
+                    </br>Modules are supposed to buffer this list as the outputs might be requested several times.
+                </li>
+		<li>:update A function with no arguments that updates the outputs according to the previously set inputs.</li>
 		<li>:shutdown An optional function with no arguments that is called when the rack
 		    is shutting down.</li>
                 <li>:get-state An optional function that can be used to expose internal states 
@@ -114,14 +111,11 @@
                     argument that consists of a keyword identifying the requested state, for 
                     example :frequency.</li>
 	    </ul>
-            <p>
-	    A module must not add or remove input/output sockets after it has been instantiated.
-            </p>
 	</li>
 	<li>&rest args Arbitrary additional arguments to be passed to the module instantiation function.
 	    These arguments typically consist of keyword parameters.</li>
     </ul>
-    Returns the added module."
+    Returns the module."
   (apply (getf rack :add-module) module-name module-fn args))
   
 (defun add-hook (rack hook)
