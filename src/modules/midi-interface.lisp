@@ -13,7 +13,7 @@
     +voice-state-gate+))
 
 (defun make-voice-state ()
-  (let ((voice-state (make-array (length +voice-states+))))
+  (let ((voice-state (make-array (length +voice-states+) :initial-element nil)))
     (setf (elt voice-state +voice-state-cv+) 0.0)
     (setf (elt voice-state +voice-state-gate+) 0.0)
     voice-state))
@@ -90,28 +90,38 @@
 	<li>:cv-1 ... :cv-n</li>
     </ul>
     For an example see <b>midi-sequencer</b>"
-  (declare (ignore environment))
+  (declare (ignore name environment))
   (let* ((outputs nil)
+	 (inputs nil)
+	 (input-midi-events nil)
 	 (voice-states (make-array voice-count))
-	 (output-socket-lookup-table (make-hash-table :test #'eq))
 	 (pending-gate-on-voices nil)
 	 (voice-manager (make-instance
 			 'cl-synthesizer-midi-voice-manager:voice-manager
 			 :voice-count (if (eq play-mode :PLAY-MODE-POLY) voice-count 1))))
+
+    ;; Set up voice states
+    (dotimes (i voice-count)
+      (if (= i 0)
+	  (setf (elt voice-states 0) (make-voice-state))
+	  ;; in Unisono mode all voices share the same state object
+	  (if (eq play-mode :PLAY-MODE-UNISONO)
+	      (setf (elt voice-states i) (elt voice-states 0))
+	      (setf (elt voice-states i) (make-voice-state)))))
+
+    ;; Set up outputs
     (dotimes (i voice-count)
       (let ((cv-socket (cl-synthesizer-macro-util:make-keyword "CV" i))
 	    (gate-socket (cl-synthesizer-macro-util:make-keyword "GATE" i)))
-	(setf outputs (push cv-socket outputs))
-	(setf outputs (push gate-socket outputs))
-	;; in Unisono mode all voices share the same state object
-	(if (or (= 0 i) (not (eq play-mode :PLAY-MODE-UNISONO)))
-	    (setf (elt voice-states i) (make-voice-state))
-	    (setf (elt voice-states i) (elt voice-states 0)))
 	(let ((cur-i i)) ;; new context
-	  (setf (gethash cv-socket output-socket-lookup-table)
-		(lambda () (get-voice-state-cv (elt voice-states cur-i))))
-	  (setf (gethash gate-socket output-socket-lookup-table)
-		(lambda () (get-voice-state-gate (elt voice-states cur-i)))))))
+	  (push (lambda () (get-voice-state-cv (elt voice-states cur-i))) outputs)
+	  (push cv-socket outputs)
+	  (push (lambda () (get-voice-state-gate (elt voice-states cur-i))) outputs)
+	  (push gate-socket outputs))))
+
+    ;; Set up inputs
+    (setf inputs (list :midi-events (lambda(value) (setf input-midi-events value))))
+
     (flet ((activate-gate (voice-index)
 	     ;; set gate to on or if already on let it go down for one tick
 	     (let ((voice-state (elt voice-states voice-index)))
@@ -126,51 +136,46 @@
 		 (t
 		  (set-voice-state-gate voice-state cv-gate-off)
 		  (push voice-index pending-gate-on-voices))))))
-    (list
-     :inputs (lambda () '(:midi-events))
-     :outputs (lambda () outputs)
-     :get-output (lambda (output)
-		   (let ((handler (gethash output output-socket-lookup-table)))
-		     (if (not handler)
-			 (error (format nil "Unknown input ~a requested from ~a" output name)))
-		     (funcall handler)))
-     :update (lambda (input-args)
-	       ;; Set pending gates to on.
-	       (dolist (voice-index pending-gate-on-voices)
-		 (let ((voice-state (elt voice-states voice-index)))
-		   (if (cl-synthesizer-midi-voice-manager:has-note voice-manager voice-index)
-		       (set-voice-state-gate voice-state cv-gate-on))))
-	       (setf pending-gate-on-voices nil)
-	       ;; Update voices
-	       (dolist (midi-event (getf input-args :midi-events))
-		 (if (and midi-event
-			  (or (not channel)
-			      (= channel (cl-synthesizer-midi-event:get-channel midi-event))))
-		     (cond
-		       ;; Note on
-		       ((cl-synthesizer-midi-event:note-on-eventp midi-event)
-			(let ((voice-index
-			       (cl-synthesizer-midi-voice-manager:push-note
-				voice-manager
-				(cl-synthesizer-midi-event:get-note-number midi-event))))
-			  (let ((voice-state (elt voice-states voice-index)))
-			    (activate-gate voice-index)
-			    (set-voice-state-cv
-			     voice-state
-			     (funcall
-			      note-number-to-cv
-			      (cl-synthesizer-midi-event:get-note-number midi-event))))))
-		       ;; Note off
-		       ((cl-synthesizer-midi-event:note-off-eventp midi-event)
-			(multiple-value-bind (voice-index voice-note)
-			    (cl-synthesizer-midi-voice-manager:remove-note
-			     voice-manager
-			     (cl-synthesizer-midi-event:get-note-number midi-event))
-			  (if voice-index
-			      (let ((voice-state (elt voice-states voice-index)))
-				;; if no note left then set gate to off
-				(if (not voice-note)
-				    (set-voice-state-gate voice-state cv-gate-off)
-				    (set-voice-state-cv
-				     voice-state
-				     (funcall note-number-to-cv voice-note)))))))))))))))
+      (list
+       :inputs (lambda () inputs)
+       :outputs (lambda () outputs)
+       :update (lambda ()
+		 ;; Set pending gates to on.
+		 (dolist (voice-index pending-gate-on-voices)
+		   (let ((voice-state (elt voice-states voice-index)))
+		     (if (cl-synthesizer-midi-voice-manager:has-note voice-manager voice-index)
+			 (set-voice-state-gate voice-state cv-gate-on))))
+		 (setf pending-gate-on-voices nil)
+		 ;; Update voices
+		 (dolist (midi-event input-midi-events)
+		   (if (and midi-event
+			    (or (not channel)
+				(= channel (cl-synthesizer-midi-event:get-channel midi-event))))
+		       (cond
+			 ;; Note on
+			 ((cl-synthesizer-midi-event:note-on-eventp midi-event)
+			  (let ((voice-index
+				 (cl-synthesizer-midi-voice-manager:push-note
+				  voice-manager
+				  (cl-synthesizer-midi-event:get-note-number midi-event))))
+			    (let ((voice-state (elt voice-states voice-index)))
+			      (activate-gate voice-index)
+			      (set-voice-state-cv
+			       voice-state
+			       (funcall
+				note-number-to-cv
+				(cl-synthesizer-midi-event:get-note-number midi-event))))))
+			 ;; Note off
+			 ((cl-synthesizer-midi-event:note-off-eventp midi-event)
+			  (multiple-value-bind (voice-index voice-note)
+			      (cl-synthesizer-midi-voice-manager:remove-note
+			       voice-manager
+			       (cl-synthesizer-midi-event:get-note-number midi-event))
+			    (if voice-index
+				(let ((voice-state (elt voice-states voice-index)))
+				  ;; if no note left then set gate to off
+				  (if (not voice-note)
+				      (set-voice-state-gate voice-state cv-gate-off)
+				      (set-voice-state-cv
+				       voice-state
+				       (funcall note-number-to-cv voice-note)))))))))))))))

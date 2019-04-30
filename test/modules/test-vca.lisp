@@ -10,24 +10,21 @@
 	(assert (>= exp 0.99)))))
 
 (define-test test-vca-core-2 ()
-    (let* (
-	   (core (cl-synthesizer-modules-vca::vca-core))
+    (let* ((core (cl-synthesizer-modules-vca::vca-core))
 	   (core-lin (getf core :linear))
 	   (core-exp (getf core :exponential)))
       (assert-equal 0.0 (funcall core-lin 0.0))
       (assert-equal 0.0 (funcall core-exp 0.0))))
 
 (define-test test-vca-core-3 ()
-    (let* (
-	   (core (cl-synthesizer-modules-vca::vca-core))
+    (let* ((core (cl-synthesizer-modules-vca::vca-core))
 	   (core-lin (getf core :linear))
 	   (core-exp (getf core :exponential)))
       (expect-invalid-arguments-error
 	(funcall core-lin -1.0))))
 
 (define-test test-vca-core-4 ()
-    (let* (
-	   (core (cl-synthesizer-modules-vca::vca-core))
+    (let* ((core (cl-synthesizer-modules-vca::vca-core))
 	   (core-lin (getf core :linear))
 	   (core-exp (getf core :exponential)))
       (expect-invalid-arguments-error

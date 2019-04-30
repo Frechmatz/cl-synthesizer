@@ -14,14 +14,8 @@
 		    (t 
 		      (error (format nil "Unknown state ~a requested frm module update-counter-module" state)))))
      :inputs (lambda () nil)
-     :outputs (lambda () (list :out))
-     :get-output (lambda (output)
-		     (cond 
-		       ((eq :out output)
-			out)
-		       (t (error (format nil "Unknown output ~a requested from update-counter-module" output)))))
-     :update (lambda (input-args)
-	       (declare (ignore input-args))
+     :outputs (lambda () (list :out (lambda() out)))
+     :update (lambda ()
 	       (setf out (+ 1 out)))
      :shutdown (lambda()
 		 (setf shutdown-called t)))))

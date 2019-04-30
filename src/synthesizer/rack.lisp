@@ -1,26 +1,52 @@
 (in-package :cl-synthesizer)
 
 ;;
+;; Bridge Modules
+;;
+;; The inputs and outputs of a rack are represented
+;; by bridge modules INPUT and OUTPUT
+;;
+
+
+(defun make-bridge-accessors (sockets)
+  (let ((values (make-array (length sockets) :initial-element nil))
+	(getters nil)
+	(setters nil)
+	(index 0))
+    (dolist (socket sockets)
+      (let ((cur-index index))
+	;; setter plist
+	(push (lambda (value) (setf (elt values cur-index) value)) setters)
+	(push socket setters)
+	;; getter plist
+	(push (lambda () (elt values cur-index)) getters)
+	(push socket getters))
+      (setf index (+ 1 index)))
+    (values getters setters)))
+
+(defun make-input-bridge-module (input-sockets)
+  "Exposes public output getters for patching. Exposes private input setters that are called by the rack." 
+  (multiple-value-bind (getters setters)
+      (make-bridge-accessors input-sockets)
+    (list
+     :inputs-private (lambda() setters)
+     :inputs (lambda() nil) ;; no inputs that can be accessed via patching
+     :outputs (lambda() getters)
+     :update (lambda() nil))))
+
+(defun make-output-bridge-module (output-sockets)
+  "Exposes public input setters for patching. Exposes private output getters that are called by the rack."
+  (multiple-value-bind (getters setters)
+      (make-bridge-accessors output-sockets)
+    (list
+     :inputs (lambda() setters)
+     :outputs-private (lambda() getters)
+     :outputs (lambda() nil) ;; no outputs that can be accessed via patching
+     :update (lambda () nil))))
+
 ;;
 ;; Rack
 ;;
-;;
-
-(defun make-input-bridge-module (input-sockets)
-  (let ((inputs nil))
-    (list
-     :inputs (lambda() nil)
-     :outputs (lambda() input-sockets)
-     :update (lambda (args) (setf inputs args))
-     :get-output (lambda(socket) (getf inputs socket)))))
-
-(defun make-output-bridge-module (output-sockets)
-  (let ((outputs nil))
-    (list
-     :inputs (lambda() output-sockets)
-     :outputs (lambda() nil)
-     :update (lambda (args) (setf outputs args))
-     :get-output (lambda(socket) (getf outputs socket)))))
 
 (defun get-module-name (rack module)
   "Get the name of a module. The function has the following arguments:
@@ -67,20 +93,17 @@
 	    </ul>
 	    The module instantiation function must return a property list with the following keys:
 	    <ul>
-		<li>:inputs A function with no arguments that returns a list of keywords that represent the
-		    input sockets exposed by the module.</li>
-		<li>:outputs A function with no arguments that returns a list of keywords that represent the
-		    output sockets exposed by the module.</li>
-		<li>:update A function that is called with the values of the modules input sockets
-                    in order to update the state of the module (the state of its output sockets).
-		    All input parameters are passed as a single argument which consists of a property list or
-                    nil if the module does not expose any inputs. To avoid excessive consing this
-                   list is allocated during compilation of the rack and then used for all update calls
-                   of the module.</li>
-		<li>:get-output A function that is called in order to get the value of a specific
-		    output socket. The function is called with a keyword that identifies the output socket
-		    whose state is to be returned. The function must not modify the value
-		    of the given or any other output socket.</li>
+		<li>:inputs A function with no arguments that returns a property list representing the
+                    input sockets and their corresponding setter functions that are exposed by the module.</br>
+                    Example: <code>:inputs (lambda() (list :input-1 (lambda(value) (setf input-1 value))))</code>
+                    </br>Modules are supposed to buffer this list as the inputs might be requested several times.
+                </li>
+		<li>:outputs A function with no arguments that returns a property list representing 
+                    the  output sockets and their corresponding getter functions that exposed by the module.</br>
+                    Example: <code>:outputs (lambda() (list :output-1 (lambda() output-1)))</code>
+                    </br>Modules are supposed to buffer this list as the outputs might be requested several times.
+                </li>
+		<li>:update A function with no arguments that updates the outputs according to the previously set inputs.</li>
 		<li>:shutdown An optional function with no arguments that is called when the rack
 		    is shutting down.</li>
                 <li>:get-state An optional function that can be used to expose internal states 
@@ -88,14 +111,11 @@
                     argument that consists of a keyword identifying the requested state, for 
                     example :frequency.</li>
 	    </ul>
-            <p>
-	    A module must not add or remove input/output sockets after it has been instantiated.
-            </p>
 	</li>
 	<li>&rest args Arbitrary additional arguments to be passed to the module instantiation function.
 	    These arguments typically consist of keyword parameters.</li>
     </ul>
-    Returns the added module."
+    Returns the module."
   (apply (getf rack :add-module) module-name module-fn args))
   
 (defun add-hook (rack hook)
@@ -198,7 +218,7 @@
     </ul>"
   (let ((sample-rate (floor (getf (getf rack :environment) :sample-rate))) (update-fn (getf rack :update)))
     (dotimes (i (* duration-seconds sample-rate))
-      (funcall update-fn nil)))
+      (funcall update-fn)))
   (funcall (getf rack :shutdown))
   "DONE")
 
@@ -257,45 +277,31 @@
       (let ((rack
 	     (list
 	      :modules (lambda() modules)
-	      :outputs (lambda() output-sockets)
-	      :inputs (lambda() input-sockets)
+	      ;; delegate to bridge module
+	      :outputs (getf output-bridge-module :outputs-private)
+	      ;; delegate to bridge module
+	      :inputs (getf input-bridge-module :inputs-private)
 	      :patches (lambda() patches)
 	      :hooks (lambda () hooks)
-	      :update (lambda (args)
+	      :update (lambda ()
 			(if has-shut-down
 			    nil
 			    (progn
 			      (if (not compiled-rack)
 				  (setf compiled-rack (cl-synthesizer-rack-compiler:compile-rack this)))
-			      (funcall compiled-rack args)
+			      (funcall compiled-rack)
 			      t)))
-	      :get-output (getf output-bridge-module :get-output)
 	      :add-module (lambda (module-name module-fn &rest args)
 			    (if (get-module this module-name)
 				(signal-assembly-error
 				 :format-control "A module with name ~a has already been added to the rack"
 				 :format-arguments (list module-name)))
 			    (let ((module (apply module-fn `(,module-name ,environment ,@args))))
-			      
-			      (if (not (getf module :v2))
-				  (progn
-				    (dolist (property '(:inputs :outputs :update :get-output))
-				      (if (not (functionp (getf module property)))
-					  (signal-assembly-error
-					   :format-control "Invalid module ~a: Property ~a must be a function but is ~a"
-					   :format-arguments (list module-name property (getf module property))))))
-				  (progn
-				    (dolist (property '(:inputs :outputs :update))
-				      (if (not (functionp (getf module property)))
-					  (signal-assembly-error
-					   :format-control "Invalid V2 module ~a: Property ~a must be a function but is ~a"
-					   :format-arguments (list module-name property (getf module property))))))
-
-				    )
-
-
-
-			      
+			      (dolist (property '(:inputs :outputs :update))
+				(if (not (functionp (getf module property)))
+				    (signal-assembly-error
+				     :format-control "Invalid module ~a: Property ~a must be a function but is ~a"
+				     :format-arguments (list module-name property (getf module property)))))
 			      (add-module module-name module)))
 	      :add-hook (lambda (hook)
 			  (setf compiled-rack nil)

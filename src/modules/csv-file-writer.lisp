@@ -4,6 +4,31 @@
   (declare (ignore str-to-quote))
   str)
 
+(defun make-writer ()
+  (let ((output-stream nil) (output-filename))
+    (list
+     :open-stream (lambda (filename)
+		    (format t "~%Open file ~a~%" filename)
+		    (setf output-filename filename)
+		    (setf output-stream
+			  (open
+			   filename
+			   :direction :output
+			   :if-exists :supersede
+			   :if-does-not-exist :create
+			   :external-format :utf-8))
+		    output-stream)
+     :close-stream (lambda()
+		     (if output-stream
+			 (progn
+			   (format t "~%Close file ~a~%" output-filename)
+			   (close output-stream)
+			   (setf output-stream nil)))))))
+
+
+(defvar *make-writer* (lambda (&rest args)
+			(apply #'make-writer args)))
+
 (defun make-module (name environment &key columns filename (column-separator ",") (add-header t))
   "Creates a CSV File Writer module.
     The function has the following arguments:
@@ -32,76 +57,61 @@
   </p>
   The module has no outputs.
   <p>See also cl-synthesizer-monitor:add-monitor</p>"
-  (declare (optimize (debug 3) (speed 0) (space 0)))
   (if (<= (length columns) 0)
       (cl-synthesizer:signal-assembly-error
        :format-control "~a: Columns must not be empty."
        :format-arguments (list name)))
-  (let ((column-keys nil)
-	(column-properties nil)
+  (let ((column-keys (cl-synthesizer-macro-util:make-keyword-list "column" (length columns)))
+	(column-values (make-array (length columns) :initial-element nil))
+	(column-properties (make-array (length columns) :initial-element nil))
 	(filename (merge-pathnames filename (getf environment :home-directory)))
-	(output-stream nil))
-    ;; set up input keys and column property lookup table
-    (let ((i 0))
-      (flet ((make-column-properties (column index)
-	       (let ((c (copy-list column)))
-		 (if (not (getf c :name))
-		     (setf (getf c :name) (format nil "Column-~a" index)))
-		 c)))
-	(dolist (column columns)
-	  (let ((column-key (cl-synthesizer-macro-util:make-keyword "column" i)))
-	    (push column-key column-keys)
-	    (push (make-column-properties column i) column-properties)
-	    (push column-key column-properties)
-	    (setf i (+ i 1))))
-	;; Order in which columns will be printed
-	(setf column-keys (reverse column-keys)))
+	(output-stream nil)
+	(csv-writer (funcall *make-writer*)))
+    (flet ((make-column-properties (column index)
+	     (let ((c (copy-list column)))
+	       (if (not (getf c :name))
+		   (setf (getf c :name) (format nil "Column-~a" index)))
+	       c)))
+      (let ((inputs nil) (index 0))
+	(dolist (column-key column-keys)
+	  (let ((cur-index index))
+	    (setf (aref column-properties cur-index) (make-column-properties (nth cur-index columns) index))
+	    (push (lambda(value) (setf (aref column-values cur-index) value)) inputs)
+	    (push column-key inputs))
+	  (setf index (+ 1 index)))
       (flet ((open-file ()
-	       (format t "~%Open file ~a~%" filename)
-	       (setf output-stream
-		     (open
-		      filename
-		      :direction :output
-		      :if-exists :supersede
-		      :if-does-not-exist :create
-		      :external-format :utf-8)))
+	       (setf output-stream (funcall (getf csv-writer :open-stream) filename)))
 	     (close-file ()
-	       (if output-stream
-		   (progn
-		     (format t "~%Close file ~a~%" filename)
-		     (close output-stream)
-		     (setf output-stream nil))))
+	       (funcall (getf csv-writer :close-stream)))
 	     (print-header ()
 	       (if add-header
 		   (format output-stream "~a~%"
 			   (reduce
-			    (lambda(buffer column-key)
-			      (let ((properties (getf column-properties column-key)))
-				(concatenate
-				 'string
-				 buffer
-				 (if (= 0 (length buffer)) "" column-separator)
-				 (quote-str (format nil "~a" (getf properties :name)) column-separator))))
-			    column-keys
+			    (lambda(buffer column-properties)
+			      (concatenate
+			       'string
+			       buffer
+			       (if (= 0 (length buffer)) "" column-separator)
+			       (quote-str (format nil "~a" (getf column-properties :name)) column-separator)))
+			    column-properties
 			    :initial-value "")))))
 	(list
-	 :inputs (lambda () column-keys)
-	 :outputs (lambda () '())
-	 :get-output (lambda (output) (declare (ignore output)) nil)
-	 :update (lambda (inputs)
+	 :inputs (lambda () inputs)
+	 :outputs (lambda () nil)
+	 :update (lambda ()
 		   (if (not output-stream)
 		       (progn
 			 (open-file)
 			 (print-header)))
 		   (let ((is-first t))
-		     (dolist (column-key column-keys)
-		       (let ((value (getf inputs column-key)))
+		     (dotimes (index (length columns))
+		       (let ((value (aref column-values index)))
 			 (if (not is-first)
 			     (write-string column-separator output-stream))
 			 (setf is-first nil)
 			 (if (not value)
-			     (setf value (getf (getf column-properties column-key) :default-value)))
+			     (setf value (getf (aref column-properties index) :default-value)))
 			 (prin1 value output-stream))))
 		   (write-line "" output-stream))
 	 :shutdown (lambda ()
-		     (close-file)))))))
+		     (close-file))))))))

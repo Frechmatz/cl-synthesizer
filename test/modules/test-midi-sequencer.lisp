@@ -17,7 +17,7 @@
 		     (event-count 0))
 		 (dotimes (i 44100)
 		   (update-module rack nil)
-		   (if (get-module-output midi-sequencer :midi-event)
+		   (if (get-module-output midi-sequencer :midi-events)
 		       (setf event-count (+ 1 event-count))))
 		 (assert-equal 2 event-count))))
 
@@ -39,7 +39,7 @@
 		     (event-count 0))
 		 (dotimes (i 44100)
 		   (update-module rack nil)
-		   (if (get-module-output midi-sequencer :midi-event)
+		   (if (get-module-output midi-sequencer :midi-events)
 		       (setf event-count (+ 1 event-count))))
 		 (assert-equal 2 event-count))))
 
@@ -60,8 +60,7 @@
 				       (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
 		   (list :timestamp-milli-seconds 3
 			 :midi-events (list
-				       (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
-		   )))))
+				       (cl-synthesizer-midi-event:make-note-off-event 1 69 100))))))))
 
 ;; Not sorted by timestamp
 (define-test test-midi-sequencer-4 ()
@@ -77,6 +76,5 @@
 				       (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
 		   (list :timestamp-milli-seconds 2
 			 :midi-events (list
-				       (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
-		   )))))
+				       (cl-synthesizer-midi-event:make-note-off-event 1 69 100))))))))
 

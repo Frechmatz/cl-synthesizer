@@ -14,21 +14,26 @@
    TODO: :get-output function should do a switch over the socket"
   `(let ((input-sockets (cl-synthesizer-macro-util:make-keyword-list "input" ,input-count))
 	 (output-sockets (cl-synthesizer-macro-util:make-keyword-list "output" ,output-count))
-	 (output-values nil)
-	 (input-values nil))
-     ;; Set up list with dummy output values
-     (dolist (output-socket output-sockets)
-       (push 1.0 output-values)
-       (push output-socket output-values))
-     (lambda (name environment)
-       (declare (ignore name environment))
-       (list
-	:inputs (lambda () input-sockets)
-	:outputs (lambda () output-sockets)
-	:get-output (lambda (output-socket) (getf output-values output-socket))
-	:update (lambda (input-args)
-		  (dolist (input-socket input-sockets)
-		    (setf (getf input-values input-socket) (getf input-args input-socket))))))))
+	 (output-values (make-array ,output-count))
+	 (input-values (make-array ,input-count)))
+     (let ((inputs nil) (outputs nil))
+       (let ((index 0))
+	 (dolist (input-socket input-sockets)
+	   (let ((cur-index index))
+	     (push (lambda(value) (setf (aref input-values cur-index) value)) inputs)
+	     (push input-socket inputs))))
+       (let ((index 0))
+	 (dolist (output-socket output-sockets)
+	   (let ((cur-index index))
+	     (push (lambda() (aref output-values cur-index)) outputs)
+	     (push output-socket outputs))))
+       (lambda (name environment)
+	 (declare (ignore name environment))
+	 (list
+	  :inputs (lambda () inputs)
+	  :outputs (lambda () outputs)
+	   ;; do nothing
+	  :update (lambda () nil))))))
 
 (defun patch (rack source-module-name destination-module-name socket-count)
   "Patches the outputs of a source module with the inputs of a destination module"

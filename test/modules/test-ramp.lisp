@@ -24,7 +24,6 @@
 
 
 (define-test test-ramp-gate-passthrough ()
-	     ""
 	     (let* ((module (cl-synthesizer-modules-ramp:make-module
 			     "Ramp"
 			     (make-ramp-test-environment)
@@ -212,7 +211,6 @@
 		  (:update (:trigger 0.0 :input 10.0 :pass-through 0.0 :gate 5.0
 				     ;; Change time to 0.0 (abort ramp)
 				     :cv-time 0.0 )
-			   :expected-outputs ((:output ,(* 1 deltaTick)) (:busy 0.0) (:done 5.0)))
-		  ))))
+			   :expected-outputs ((:output ,(* 1 deltaTick)) (:busy 0.0) (:done 5.0)))))))
 
 

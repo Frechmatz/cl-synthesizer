@@ -25,7 +25,7 @@
     The module has no inputs.
     The module has one output socket :midi-events."
   (let ((ticks-per-milli-second (/ (getf environment :sample-rate) 1000))
-	(event-array (make-array (length events)))
+	(event-array (make-array (length events) :initial-element nil))
 	(timestamp-array (make-array (length events) :element-type 'number))
 	(cur-tick -1)
 	(cur-midi-events nil)
@@ -48,21 +48,18 @@
 	    (setf (aref event-array i) (getf evt :midi-events))
 	    (setf (aref timestamp-array i) timestamp)
 	    (setf i (+ i 1))))))
-    (list
-     :inputs (lambda () '())
-     :outputs (lambda () '(:midi-events))
-     :update (lambda(input-args)
-	       (declare (ignore input-args))
-	       (setf cur-tick (+ 1 cur-tick))
-	       (if (<= (length timestamp-array) cur-index)
-		   (setf cur-midi-events nil)
-		   (progn
-		     (let ((cursor-timestamp (elt timestamp-array cur-index)))
-		       (if (<= cursor-timestamp cur-tick)
-			   (progn
-			     (setf cur-midi-events (elt event-array cur-index))
-			     (setf cur-index (+ 1 cur-index)))
-			   (setf cur-midi-events nil))))))
-     :get-output (lambda (output)
-		   (declare (ignore output))
-		   cur-midi-events))))
+    (let ((outputs (list :midi-events (lambda() cur-midi-events))))
+      (list
+       :inputs (lambda() nil)
+       :outputs (lambda() outputs)
+       :update (lambda()
+		 (setf cur-tick (+ 1 cur-tick))
+		 (if (<= (length timestamp-array) cur-index)
+		     (setf cur-midi-events nil)
+		     (progn
+		       (let ((cursor-timestamp (elt timestamp-array cur-index)))
+			 (if (<= cursor-timestamp cur-tick)
+			     (progn
+			       (setf cur-midi-events (elt event-array cur-index))
+			       (setf cur-index (+ 1 cur-index)))
+			     (setf cur-midi-events nil))))))))))

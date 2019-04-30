@@ -21,18 +21,16 @@
         <li>:output The output voltage (zero or pulse-voltage).</li>
     </ul>"
   (declare (ignore name environment))
-  (let ((cur-output 0) (waiting nil))
+  (let ((cur-output 0) (waiting nil) (input-input nil))
+    (let ((inputs (list :input (lambda(value) (setf input-input value))))
+	  (outputs (list :output (lambda() cur-output))))
     (list
-     :inputs (lambda () '(:input))
-     :outputs (lambda () '(:output))
-     :get-output (lambda (output) (declare (ignore output)) cur-output)
-     :update (lambda (input-args
-		      ;;&key input
-			  )
-	       (let ((input (getf input-args :input)))
-	       (if (not input)
-		   (setf input 0.0))
-	       (let ((may-fire (>= input trigger-threshold)))
+     :inputs (lambda () inputs)
+     :outputs (lambda () outputs)
+     :update (lambda ()
+	       (if (not input-input)
+		   (setf input-input 0.0))
+	       (let ((may-fire (>= input-input trigger-threshold)))
 		 (cond
 		   ((and waiting may-fire)
 		    (setf cur-output 0))

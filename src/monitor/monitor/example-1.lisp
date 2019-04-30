@@ -15,12 +15,19 @@
 
     (flet ((instantiate-handler (name environment inputs)
 	     (declare (ignore name environment inputs))
-	     (values 
-	      (list
-	       :update (lambda (input-args)
-			 (format t "~%Sine: ~a" (getf input-args :sine))
-			 (format t "~%Phase: ~a" (getf input-args :phase))))
-	       '(:sine :phase))))
+	     (let ((input-sine nil) (input-phase nil))
+	       (values 
+		(list
+		 :inputs (lambda()
+			   (list
+			    :sine (lambda(value) (setf input-sine value))
+			    :phase (lambda(value) (setf input-phase value))))
+		 :outputs (lambda()
+			    (list
+			     :sine (lambda() input-sine)
+			     :phase (lambda() input-phase)))
+		 :update (lambda () nil))
+		'(:sine :phase)))))
       
       (cl-synthesizer-monitor:add-monitor
        rack
@@ -28,11 +35,11 @@
        '(("VCO" :output-socket :sine)
 	 ("VCO" :state :phase))))
     
-  rack))
+    rack))
 
 (defun run-example ()
   (let ((rack (example)))
-    (funcall (getf rack :update) nil)
-    (funcall (getf rack :update) nil)))
+    (funcall (getf rack :update))
+    (funcall (getf rack :update))))
 
 ;; (run-example)

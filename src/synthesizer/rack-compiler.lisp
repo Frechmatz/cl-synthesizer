@@ -1,8 +1,6 @@
 ;;
 ;; Rack compiler
 ;;
-;; does only depend on the functions exposed by the "rack" property list
-;;
 
 (in-package :cl-synthesizer-rack-compiler)
 
@@ -22,13 +20,11 @@
 
 (defun get-input-sockets (module)
   "TODO Inefficient implementation, but for now live with it"
-  (if (not (getf module :v2))
-      (funcall (getf module :inputs))
-      (let ((sockets nil))
-	(cl-synthesizer-macro-util:with-property-list (funcall (getf module :inputs)) socket fn
-	  (declare (ignore fn))
-	  (push socket sockets))
-	sockets)))
+  (let ((sockets nil))
+    (cl-synthesizer-macro-util:with-property-list (funcall (getf module :inputs)) socket fn
+      (declare (ignore fn))
+      (push socket sockets))
+    sockets))
 
 (defun get-module-input-patches (rack module)
   "Returns a sparse list of (input-socket output-module output-socket)"
@@ -69,13 +65,10 @@
       (nreverse module-trace))))
 
 (defun make-get-output-lambda (module output-socket)
-  (if (not (getf module :v2))
-      (let ((l (getf module :get-output)))
-	(lambda() (funcall l output-socket)))
-      (let ((l (getf (funcall (getf module :outputs)) output-socket)))
-	(lambda() (funcall l)))))
+  (let ((l (getf (funcall (getf module :outputs)) output-socket)))
+    (lambda() (funcall l))))
 
-(defun compile-module-v2 (rack module)
+(defun compile-module (rack module)
   (let ((input-setters nil)
 	(inputs (funcall (getf module :inputs)))
 	(module-update-fn (getf module :update)))
@@ -99,51 +92,15 @@
       ;; Update module
       (funcall module-update-fn))))
 
-(defun compile-module (rack module)
-  "Compile module"
-  (if (getf module :v2)
-      (compile-module-v2 rack module)
-      (let ((input-args nil) (input-getters nil)
-	    (module-update-fn (getf module :update)))
-	;; Prepare static input property list with which
-	;; the update function of the module will be called.
-	;; (:INPUT-1 nil :INPUT-2 nil ...)
-	(dolist (input-socket (funcall (getf module :inputs)))
-	  (push nil input-args)
-	  (push input-socket input-args))
-	;; Push getters for all inputs
-	(dolist (binding (get-module-input-patches rack module))
-	  (let ((cur-input-socket (first binding))
-		(output-module (second binding))
-		(output-socket (third binding)))
-	    (if output-module
-		(let ((get-output-fn (make-get-output-lambda output-module output-socket)))
-		  (push (lambda()
-			  ;; Get output value from input module
-			  (setf (getf input-args cur-input-socket)
-				(funcall get-output-fn)))
-			input-getters))
-		(push (lambda()
-			(setf (getf input-args cur-input-socket) nil))
-		      input-getters))))
-	;; The compiled update function
-	(lambda ()
-	  ;; Collect input values
-	  (dolist (fn input-getters)
-	    (funcall fn))
-	  ;; Update module
-	  (funcall module-update-fn input-args)))))
 
 (defun compile-rack (rack)
-  "Compile a rack. Returns a function to be called with the values of the input sockets of the rack."
-  (let ((input-bridge-module-update-fn (getf (get-module-by-name rack "INPUT") :update))
-	(lambdas (mapcar (lambda (module) (compile-module rack module)) (get-module-trace rack))))
-    (lambda (args)
-      ;; Update INPUT bridge module
-      (funcall input-bridge-module-update-fn args)
+  "Compile a rack."
+  (let ((lambdas (mapcar (lambda (module) (compile-module rack module)) (get-module-trace rack))))
+    (lambda ()
       ;; Update modules
       (dolist (fn lambdas)
 	(funcall fn))
       ;; Call hooks
       (dolist (h (funcall (getf rack :hooks)))
 	(funcall (getf h :update))))))
+

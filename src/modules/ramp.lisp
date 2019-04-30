@@ -54,60 +54,53 @@
   (let* ((output 0.0) (busy 0.0) (done 0.0) (elapsed-time-ms 0.0)
 	 (start 0.0) (passthrough-gate nil)
 	 (sample-rate (getf environment :sample-rate))
-	 (tick-delta-ms (/ 1 (/ sample-rate 1000.0))))
+	 (tick-delta-ms (/ 1 (/ sample-rate 1000.0)))
+	 (input-trigger nil) (input-input nil) (input-pass-through nil) (input-gate nil)
+	 (input-cv-time nil))
+    (let ((inputs (list
+		   :trigger (lambda(value) (setf input-trigger value))
+		   :input (lambda(value) (setf input-input value))
+		   :pass-through (lambda(value) (setf input-pass-through value))
+		   :gate (lambda(value) (setf input-gate value))
+		   :cv-time (lambda(value) (setf input-cv-time  value))))
+	  (outputs (list
+		    :output (lambda() output)
+		    :busy (lambda() busy)
+		    :done (lambda() done)
+		    :gate (lambda() passthrough-gate))))
     (list
-     :inputs (lambda () '(:trigger :input :pass-through :gate :cv-time))
-     :outputs (lambda () '(:output :busy :done :gate))
-     :get-output (lambda (output-socket)
-		   (cond
-		     ((eq :output output-socket)
-		      output)
-		     ((eq :busy output-socket)
-		      busy)
-		     ((eq :done output-socket)
-		      done)
-		     ((eq :gate output-socket)
-		      passthrough-gate)
-		     (t
-		      (error (format nil "Output socket ~a not supported by module ~a" output-socket name)))))
-     :update (lambda (input-args
-		      ;;&key trigger input pass-through gate cv-time
-			  )
-	       (let ((trigger (getf input-args :trigger))
-		     (input (getf input-args :input))
-		     (pass-through (getf input-args :pass-through))
-		     (gate (getf input-args :gate))
-		     (cv-time (getf input-args :cv-time)))
-	       ;;(declare (optimize (debug 3) (speed 0) (space 0)))
+     :inputs (lambda () inputs)
+     :outputs (lambda () outputs)
+     :update (lambda ()
 	       (setf done 0.0)
-	       (if cv-time
-		   (setf time-ms (funcall time-cv-to-time-ms cv-time)))
-	       (setf passthrough-gate gate)
-	       (if (not gate)
-		   (setf gate 0.0))
-	       (if (not input)
-		   (setf input 0.0))
-	       (if (not trigger)
-		   (setf trigger 0.0))
-	       (if (not pass-through)
-		   (setf pass-through 0.0))
-	       (if (> pass-through 0.0)
+	       (if input-cv-time
+		   (setf time-ms (funcall time-cv-to-time-ms input-cv-time)))
+	       (setf passthrough-gate input-gate)
+	       (if (not input-gate)
+		   (setf input-gate 0.0))
+	       (if (not input-input)
+		   (setf input-input 0.0))
+	       (if (not input-trigger)
+		   (setf input-trigger 0.0))
+	       (if (not input-pass-through)
+		   (setf input-pass-through 0.0))
+	       (if (> input-pass-through 0.0)
 		   (progn
-		     (setf output input)
+		     (setf output input-input)
 		     (setf busy 5.0)) ;; busy with passing through the input
 		   (progn 
-		     (if (>= trigger trigger-threshold)
+		     (if (>= input-trigger trigger-threshold)
 			 ;; Start ramp
 			 (progn
 			   (setf busy 5.0)
-			   (setf start input) ;; sample
-			   (setf output input)
+			   (setf start input-input) ;; sample
+			   (setf output input-input)
 			   (setf elapsed-time-ms 0.0)))
 		     ;; Only continue when busy
 		     (if (> busy 0.0)
 			 (if (or (<= time-ms 0.0)
-				 (and (eq gate-state :on) (<= gate gate-threshold))
-				 (and (eq gate-state :off) (> gate gate-threshold)))
+				 (and (eq gate-state :on) (<= input-gate gate-threshold))
+				 (and (eq gate-state :off) (> input-gate gate-threshold)))
 			     (progn
 			       (setf done 5.0)
 			       (setf busy 0.0))

@@ -65,10 +65,7 @@
 					     :outputs ((:CV-1 64000)
 						       (:GATE-1 5.0)
 						       (:CV-2 32000)
-						       (:GATE-2 5.0)))
-
-
-				    ))))
+						       (:GATE-2 5.0)))))))
 	       (run-test-case-midi-ifc test)))
 
 ;;
@@ -401,7 +398,7 @@
 		     (event-count 0))
 		 (dotimes (i 44100)
 		   (update-module rack nil)
-		   (if (get-module-output midi-sequencer :midi-event)
+		   (if (get-module-output midi-sequencer :midi-events)
 		       (setf event-count (+ 1 event-count))))
 		 (assert-equal 2 event-count))))
 
