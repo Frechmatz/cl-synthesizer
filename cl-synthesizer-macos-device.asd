@@ -7,7 +7,8 @@
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "MacOS specific device implementations for CL-Synthesizer"
   :long-description "MacOS specific device implementations for CL-Synthesizer"
-  :depends-on (:cl-out123
+  :depends-on (:cl-synthesizer
+	       :cl-out123
 	       :verbose
 	       :bordeaux-threads
 	       :coremidi

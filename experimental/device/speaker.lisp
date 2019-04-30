@@ -32,14 +32,17 @@
        :format-control "~a: channel-count must be greater than 0: ~a"
        :format-arguments (list name channel-count)))
   (let ((inputs nil)
+	(input-values (make-array channel-count :initial-element nil))
 	(out nil)
 	(buffer-pos 0)
 	(buffer (make-array
 		 (* channel-count buf-length-frames)
 		 :element-type 'single-float :adjustable nil)))
-    (dotimes (i channel-count)
-      (push (cl-synthesizer-macro-util:make-keyword "channel" i) inputs))
-    (setf inputs (reverse inputs))
+    (dotimes (index channel-count)
+      (let ((cur-index index))
+	(push (lambda(value) (setf (elt input-values cur-index) value)) inputs)
+	(push (cl-synthesizer-macro-util:make-keyword "channel" index) inputs)))
+    
     (flet ((init-out ()
 	     (if (not out)
 		 (progn
@@ -58,12 +61,11 @@
       (list
        :inputs (lambda() inputs)
        :outputs (lambda() nil)
-       :get-output (lambda(socket) (declare (ignore socket)) nil)
-       :update (lambda (args)
+       :update (lambda ()
 		 (init-out)
 		 (flush-buffer nil)
-		 (dolist (input inputs)
-		   (let ((value (getf args input)))
+		 (dotimes (index channel-count)
+		   (let ((value (elt input-values index)))
 		     (if (not value)
 			 (setf value 0.0))
 		     (setf (aref buffer buffer-pos)

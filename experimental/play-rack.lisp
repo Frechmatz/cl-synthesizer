@@ -37,70 +37,87 @@
 	    (error (format nil "Device instantiation failed. Symbol ~a::~a not found" symbol-name package-name)))))))
 
 (defun prepare-audio-output (rack environment attach-audio audio-output-sockets)
-  (flet ((make-audio-output-getter ()
-	   (let ((cur-channel 0)
-		 (get-output (getf rack :get-output))
-		 (audio-input-arguments nil) ;; Shared list for all audio updates
-		 (audio-input-lambdas nil))
-	     (dolist (socket audio-output-sockets)
-	       (let ((cur-socket socket))
-		 (if (not (find cur-socket (funcall (getf rack :outputs))))
-		     (cl-synthesizer:signal-assembly-error
-		      :format-control "Audio output socket ~a not exposed by rack"
-		      :format-arguments (list cur-socket)))
-		 (let ((device-socket (cl-synthesizer-macro-util:make-keyword "channel" cur-channel)))
-		   ;; Push updater function (modifies audio-input-arguments)
-		   (push (lambda ()
-			   (setf (getf audio-input-arguments device-socket)
-				 (funcall get-output cur-socket)))
-			 audio-input-lambdas)
-		   ;; Value
-		   (push nil audio-input-arguments)
-		   ;; Key
-		   (push device-socket audio-input-arguments)))
-	       (setf cur-channel (+ 1 cur-channel)))
-	     (lambda ()
-	       (dolist (fn audio-input-lambdas)
-		 (funcall fn))
-	       audio-input-arguments))))
-    (if (or (not attach-audio) (eq 0 (length audio-output-sockets)))
-	(values
-	 (lambda () nil)
-	 (lambda () nil))
-	(let ((device
-	       (make-device
-		"SPEAKER" environment
-		(list :channel-count (length audio-output-sockets))
-		*audio-device-settings*))
-	      (getter (make-audio-output-getter)))
+  "Returns a values object consisting of two lambdas:
+  - Fetch audio-outputs from rack, set inputs of speaker, update speaker
+  - Speaker shutdown function"
+  (if (or (not attach-audio) (eq 0 (length audio-output-sockets)))
+      (values (lambda() nil) (lambda() nil))
+      (let* ((speaker
+	     ;; Instantiate device
+	     (make-device
+	      "SPEAKER" environment
+	      (list :channel-count (length audio-output-sockets))
+	      *audio-device-settings*))
+	     (rack-outputs (funcall (getf rack :outputs)))
+	     (speaker-inputs (funcall (getf speaker :inputs)))
+	     (speaker-update-fn (getf speaker :update))
+	     (speaker-input-setters nil))
+	(dotimes (index (length audio-output-sockets))
+	  (let ((cur-audio-output-socket (nth index audio-output-sockets))
+		(cur-speaker-input-socket (cl-synthesizer-macro-util:make-keyword "channel" index)))
+	    (let ((output-getter (getf rack-outputs cur-audio-output-socket))
+		  (input-setter (getf speaker-inputs cur-speaker-input-socket)))
+	      
+	      (if (not output-getter)
+		  (cl-synthesizer:signal-assembly-error
+		   :format-control "Audio output socket ~a not exposed by rack"
+		   :format-arguments (list cur-audio-output-socket)))
+	      
+	      (if (not input-setter)
+		  (cl-synthesizer:signal-assembly-error
+		   :format-control "Internal error. Could not find setter for socket ~a"
+		   :format-arguments (list cur-speaker-input-socket)))
+	      
+	      (push (lambda () (funcall input-setter (funcall output-getter))) speaker-input-setters))))
+
+	;; Compile
+	(let ((speaker-update-lambda
+	       (lambda()
+		 ;; Set inputs of speaker
+		 (dolist (fn speaker-input-setters)
+		   (funcall fn))
+		 ;; Update speaker
+		 (funcall speaker-update-fn))))
 	  (values
-	   (lambda () (funcall (getf device :update) (funcall getter)))
-	   (lambda () (funcall (getf device :shutdown))))))))
+	   speaker-update-lambda
+	   (lambda () (funcall (getf speaker :shutdown))))))))
 
 (defun prepare-midi-input (rack environment attach-midi midi-input-socket)
-  (declare (ignore rack))
-  (flet ((make-midi-input-getter (device)
-	   (let ((midi-output nil) ;; Shared list for all device requests
-		 (update-device (getf device :update))
-		 (get-device-output (getf device :get-output)))
-	     ;; Value
-	     (push nil midi-output)
-	     ;; Key
-	     (push midi-input-socket midi-output)
-	     (lambda ()
-	       (funcall update-device) ;; update MIDI device
-	       (setf (getf midi-output midi-input-socket) (funcall get-device-output nil))
-	       midi-output))))
-    (if (or (not attach-midi) (not midi-input-socket))
-	(values
-	 (lambda () nil)
-	 (lambda () nil))
-	(let* ((device (make-device "MIDI" environment nil *midi-device-settings*))
-	       (getter (make-midi-input-getter device)))
-	  (values
-	   (lambda () (funcall getter))
-	   (lambda () (funcall (getf device :shutdown))))))))
+  "Returns a values object consisting of two lambdas:
+  - Update Midi-Device, fetch midi output, set midi-input of rack
+  - Midi shutdown function"
+  (if (or (not attach-midi) (not midi-input-socket))
+      (values
+       (lambda () nil)
+       (lambda () nil))
+      (let* ((midi-device
+	      ;; Instantiate device
+	      (make-device "MIDI" environment nil *midi-device-settings*))
+	     (midi-output-getter (getf (funcall (getf midi-device :outputs)) :midi-events))
+	     (midi-update-fn (getf midi-device :update))
+	     (rack-input-setter (getf (funcall (getf rack :inputs)) midi-input-socket)))
 	
+	(if (not rack-input-setter)
+	    (cl-synthesizer:signal-assembly-error
+	     :format-control "Midi input socket ~a not exposed by rack"
+	     :format-arguments (list midi-input-socket)))
+
+	(if (not midi-output-getter)
+	    (cl-synthesizer:signal-assembly-error
+	     :format-control "Internal error: Midi device does not expose output :midi-events"
+	     :format-arguments nil))
+
+	(let ((midi-update-lambda
+	       (lambda()
+		 ;; Update Midi device
+		 (funcall midi-update-fn)
+		 ;; Push Midi output into rack
+		 (funcall rack-input-setter (funcall midi-output-getter)))))
+	  
+	  (values
+	   midi-update-lambda
+	   (lambda () (funcall (getf midi-device :shutdown))))))))
+
 
 (defun play-rack (rack &key duration-seconds  (attach-audio nil) (audio-output-sockets nil)
 					    (attach-midi nil) (midi-input-socket nil))
@@ -122,13 +139,17 @@
     </ul>
     The current implementation of the play-rack function assumes that an audio device is blocking.
     <p>See also: cl-synthesizer-device-speaker:speaker-cl-out123, cl-synthesizer-device-midi:midi-device</p>"
-  (let ((environment (getf rack :environment)) (f (getf rack :update)))
+  (let ((environment (getf rack :environment)) (rack-update-fn (getf rack :update)))
     (multiple-value-bind (update-audio shutdown-audio)
 	(prepare-audio-output rack environment attach-audio audio-output-sockets)
-      (multiple-value-bind (get-midi-input shutdown-midi)
+      (multiple-value-bind (push-midi-input shutdown-midi)
 	  (prepare-midi-input rack environment attach-midi midi-input-socket)
 	(dotimes (i (* duration-seconds (floor (getf environment :sample-rate))))
-	  (funcall f (funcall get-midi-input))
+	  ;; Push events of Midi device into rack
+	  (funcall push-midi-input)
+	  ;; Update rack
+	  (funcall rack-update-fn)
+	  ;; Push audio outputs of rack into audio device
 	  (funcall update-audio))
 	(funcall (getf rack :shutdown))
 	(funcall shutdown-audio)
