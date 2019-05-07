@@ -7,10 +7,9 @@
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "An audio synthesizer"
   :long-description "An audio synthesizer"
-  :depends-on (:cl-synthesizer)
+  :depends-on (:cl-synthesizer :cl-readme)
   :components ((:module "makedoc"
 			:serial t
 			:components ((:file "packages")
-				     (:file "docutil")
 				     (:file "make-readme")))))
 
