@@ -6,13 +6,8 @@
   :maintainer "Oliver <frechmatz@gmx.de>"
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "An audio synthesizer"
-  :long-description
-  "All examples of cl-synthesizer. 
-   ************************************************************************
-   For now, examples must also be added to script/cl-synthesizer-examples.lisp
-   ************************************************************************
-   The purpose of this system is to load all examples in order to execute 
-   them via script/run-examples"
+  :long-description "All examples of cl-synthesizer. The purpose of this system is to load 
+   and run all examples. See also script/*-run-examples.sh scripts."
   :depends-on (:cl-synthesizer)
   :components ((:module "src/synthesizer/rack"
 			:serial t
