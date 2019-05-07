@@ -14,10 +14,10 @@ A Modular Audio Synthesizer library implemented in Common Lisp.
       "Frequency modulated saw"
       (declare (ignore name))
       (let ((voice
-    	 (cl-synthesizer:make-rack
-    	  :environment environment
-    	  ;; Expose audio output socket
-    	  :output-sockets '(:audio))))
+             (cl-synthesizer:make-rack
+              :environment environment
+              ;; Expose audio output socket
+              :output-sockets '(:audio))))
         
         (cl-synthesizer:add-module
          voice "LFO"
@@ -36,9 +36,9 @@ A Modular Audio Synthesizer library implemented in Common Lisp.
       
     (defun example ()
       (let ((rack (cl-synthesizer:make-rack
-    	       :environment (cl-synthesizer:make-environment)
-    	       ;; Expose line-out sockets
-    	       :output-sockets '(:left :right))))
+                   :environment (cl-synthesizer:make-environment)
+                   ;; Expose line-out sockets
+                   :output-sockets '(:left :right))))
     
         (cl-synthesizer:add-module
          rack "VOICE-1" #'make-voice :lfo-frequency 1.0 :vco-frequency 440.0)
@@ -68,6 +68,7 @@ Installation
 
     
     cd ~/quicklisp/local-projects
+    git clone https://github.com/Frechmatz/cl-wave-file-writer.git
     git clone https://github.com/Frechmatz/cl-synthesizer.git
     (ql:quickload "cl-synthesizer")
     
@@ -464,18 +465,18 @@ The module has the following outputs:
     (defun example ()
       "ADSR example"
       (let ((rack (cl-synthesizer:make-rack
-    	       :environment (cl-synthesizer:make-environment))))
+                   :environment (cl-synthesizer:make-environment))))
         
         (cl-synthesizer:add-module
          rack "MIDI-SEQUENCER"
          #'cl-synthesizer-modules-midi-sequencer:make-module :events
          (list 
           (list :timestamp-milli-seconds 0
-    	    :midi-events (list
-    			  (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+                :midi-events (list
+                              (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
           (list :timestamp-milli-seconds 1500
-    	    :midi-events (list
-    			  (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))))
+                :midi-events (list
+                              (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))))
     
         (cl-synthesizer:add-module
          rack "MIDI-IFC"
@@ -534,8 +535,8 @@ The module has the following outputs:
     (defun example ()
       "Multiple example"
       (let ((rack (cl-synthesizer:make-rack
-    	       :environment (cl-synthesizer:make-environment)
-    	       :output-sockets '(:line-out-1 :line-out-2))))
+                   :environment (cl-synthesizer:make-environment)
+                   :output-sockets '(:line-out-1 :line-out-2))))
         
         (cl-synthesizer:add-module
          rack "LFO"
@@ -543,7 +544,7 @@ The module has the following outputs:
          :base-frequency 1.0 :v-peak 1.0 :f-max 500.0 :cv-max 5.0)
         
         (cl-synthesizer:add-module rack "MULTIPLE"
-    			       #'cl-synthesizer-modules-multiple:make-module :output-count 5)
+                                   #'cl-synthesizer-modules-multiple:make-module :output-count 5)
         (cl-synthesizer:add-patch rack "LFO" :sine "MULTIPLE" :input)
         (cl-synthesizer:add-patch rack "MULTIPLE" :output-1 "OUTPUT" :line-out-1)
         (cl-synthesizer:add-patch rack "MULTIPLE" :output-2 "OUTPUT" :line-out-2)
@@ -638,8 +639,8 @@ The module has the following outputs:
     (defun example ()
       "MIDI CC-Interface Example"
       (let ((rack (cl-synthesizer:make-rack
-    	       :environment (cl-synthesizer:make-environment)
-    	       :input-sockets '(:midi-events))))
+                   :environment (cl-synthesizer:make-environment)
+                   :input-sockets '(:midi-events))))
     
         (cl-synthesizer:add-module
          rack "MIDI-CC-IFC" #'cl-synthesizer-modules-midi-cc-interface:make-module
@@ -651,11 +652,11 @@ The module has the following outputs:
          (lambda (cur-output controller-number control-value)
            (declare (ignore controller-number))
            (cond
-    	 ((= control-value 61)
-    	  (+ cur-output -0.5))
-    	 ((= control-value 67)
-    	  (+ cur-output 0.5))
-    	 (t cur-output)))
+             ((= control-value 61)
+              (+ cur-output -0.5))
+             ((= control-value 67)
+              (+ cur-output 0.5))
+             (t cur-output)))
          :channel nil)
         
         (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-CC-IFC" :midi-events)
@@ -691,8 +692,8 @@ The module has no inputs. The module has one output socket :midi-events.
     (defun example ()
       "Midi-Sequencer example"
       (let ((rack (cl-synthesizer:make-rack
-    	       :environment (cl-synthesizer:make-environment)
-    	       :output-sockets '(:line-out))))
+                   :environment (cl-synthesizer:make-environment)
+                   :output-sockets '(:line-out))))
     
         ;; Add sequencer
         (cl-synthesizer:add-module
@@ -701,17 +702,17 @@ The module has no inputs. The module has one output socket :midi-events.
          #'cl-synthesizer-modules-midi-sequencer:make-module :events
          (list 
           (list :timestamp-milli-seconds 0
-    	    :midi-events (list
-    			  (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+                :midi-events (list
+                              (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
           (list :timestamp-milli-seconds 1000
-    	    :midi-events (list
-    			  (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
+                :midi-events (list
+                              (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
           (list :timestamp-milli-seconds 2000
-    	    :midi-events (list
-    			  (cl-synthesizer-midi-event:make-note-on-event 1 75 100)))
+                :midi-events (list
+                              (cl-synthesizer-midi-event:make-note-on-event 1 75 100)))
           (list :timestamp-milli-seconds 2500
-    	    :midi-events (list
-    			  (cl-synthesizer-midi-event:make-note-off-event 1 75 100)))))
+                :midi-events (list
+                              (cl-synthesizer-midi-event:make-note-off-event 1 75 100)))))
     
         ;; Add MIDI Interface and connect it with the MIDI Sequencer
         (cl-synthesizer:add-module
@@ -786,8 +787,8 @@ The module has no inputs. The module has one output socket according to the :out
     (defun example ()
       "Fixed-Output example"
       (let ((rack (cl-synthesizer:make-rack
-    	       :environment (cl-synthesizer:make-environment)
-    	       :output-sockets '(:line-out))))
+                   :environment (cl-synthesizer:make-environment)
+                   :output-sockets '(:line-out))))
         
         (cl-synthesizer:add-module
          rack "FIXED-OUTPUT"
@@ -856,8 +857,8 @@ The module has the following outputs:
     (defun example ()
       "Mixer example."
       (let ((rack (cl-synthesizer:make-rack
-    	       :environment (cl-synthesizer:make-environment)
-    	       :output-sockets '(:line-out))))
+                   :environment (cl-synthesizer:make-environment)
+                   :output-sockets '(:line-out))))
     
         ;;
         ;; add modules...
@@ -979,7 +980,7 @@ This module has been inspired by [dhemery](https://github.com/dhemery/DHE-Module
     (defun example ()
       "Ramp example"
       (let ((rack (cl-synthesizer:make-rack
-    	       :environment (cl-synthesizer:make-environment))))
+                   :environment (cl-synthesizer:make-environment))))
         
         (cl-synthesizer:add-module
          rack "VCO"
@@ -1059,7 +1060,7 @@ This module has been inspired by [dhemery](https://github.com/dhemery/DHE-Module
     (defun example ()
       "Sustain example"
       (let ((rack (cl-synthesizer:make-rack
-    	       :environment (cl-synthesizer:make-environment))))
+                   :environment (cl-synthesizer:make-environment))))
         
         ;; Use MIDI sequencer for generation of Gate signals
         (cl-synthesizer:add-module
@@ -1067,17 +1068,17 @@ This module has been inspired by [dhemery](https://github.com/dhemery/DHE-Module
          #'cl-synthesizer-modules-midi-sequencer:make-module :events
          (list 
           (list :timestamp-milli-seconds 300
-    	    :midi-events (list
-    			  (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+                :midi-events (list
+                              (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
           (list :timestamp-milli-seconds 700
-    	    :midi-events (list
-    			  (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
+                :midi-events (list
+                              (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
           (list :timestamp-milli-seconds 1800
-    	    :midi-events (list
-    			  (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+                :midi-events (list
+                              (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
           (list :timestamp-milli-seconds 2100
-    	    :midi-events (list
-    			  (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))))
+                :midi-events (list
+                              (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))))
     
         (cl-synthesizer:add-module
          rack "MIDI-IFC"
@@ -1216,26 +1217,26 @@ Adds a monitor to a rack. A monitor is a high-level Rack hook that collects modu
          :base-frequency 10.0 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
     
         (flet ((instantiate-handler (name environment inputs)
-    	     (declare (ignore name environment inputs))
-    	     (let ((input-sine nil) (input-phase nil))
-    	       (values 
-    		(list
-    		 :inputs (lambda()
-    			   (list
-    			    :sine (lambda(value) (setf input-sine value))
-    			    :phase (lambda(value) (setf input-phase value))))
-    		 :outputs (lambda()
-    			    (list
-    			     :sine (lambda() input-sine)
-    			     :phase (lambda() input-phase)))
-    		 :update (lambda () nil))
-    		'(:sine :phase)))))
+                 (declare (ignore name environment inputs))
+                 (let ((input-sine nil) (input-phase nil))
+                   (values 
+                    (list
+                     :inputs (lambda()
+                               (list
+                                :sine (lambda(value) (setf input-sine value))
+                                :phase (lambda(value) (setf input-phase value))))
+                     :outputs (lambda()
+                                (list
+                                 :sine (lambda() input-sine)
+                                 :phase (lambda() input-phase)))
+                     :update (lambda () nil))
+                    '(:sine :phase)))))
           
           (cl-synthesizer-monitor:add-monitor
            rack
            #'instantiate-handler
            '(("VCO" :output-socket :sine)
-    	 ("VCO" :state :phase))))
+             ("VCO" :state :phase))))
         
         rack))
     
@@ -1353,9 +1354,8 @@ This condition is signalled in cases where the assembly of a rack fails, because
 Acknowledgements
 ----------------
 
-*   The Wave-Writer module uses code taken from Ryan Kings [cl-wave](https://github.com/RyanTKing/cl-wave) library.
 *   Envelope generation has been inspired by [dhemery](https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes)
 
 * * *
 
-Generated 2019-04-30 22:02:22
+Generated 2019-05-07 20:57:51
