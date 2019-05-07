@@ -7,7 +7,7 @@
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "An audio synthesizer"
   :long-description "An audio synthesizer"
-  :depends-on (:lisp-unit)
+  :depends-on (:lisp-unit :cl-wave-file-writer)
   :components ((:module "src/util"
 			:serial t
 			:components ((:file "packages")
