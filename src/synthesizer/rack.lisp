@@ -302,7 +302,8 @@
 				    (signal-assembly-error
 				     :format-control "Invalid module ~a: Property ~a must be a function but is ~a"
 				     :format-arguments (list module-name property (getf module property)))))
-			      (add-module module-name module)))
+			      (add-module module-name module)
+			      module))
 	      :add-hook (lambda (hook)
 			  (setf compiled-rack nil)
 			  (push hook hooks))
