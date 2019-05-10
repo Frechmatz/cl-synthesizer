@@ -115,3 +115,9 @@
 		 (update-module rack nil)
 		 (assert-equal 3 (get-module-output counter :out))
 		 (assert-equal 6 (get-module-output adder :out)))))
+
+(define-test test-rack-update-empty-rack ()
+  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+    (update-module rack nil)
+    (assert-true t)))
+
