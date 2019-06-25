@@ -128,7 +128,7 @@
 		   (cl-readme:read-text-file "makedoc/acknowledge.html")
 		   "<hr/><p><small>Generated " (cl-readme:current-date) "</small></p>"
 		   "</body></html>")))
-      (with-open-file (fh (cl-readme:make-path "makedoc/generated/readme.html")
+      (with-open-file (fh (cl-readme:make-path "docs/index.html")
 			  :direction :output
 			  :if-exists :supersede
 			  :if-does-not-exist :create
