@@ -217,7 +217,7 @@
 	    by its environment is 44100, then the update function of the rack will be called 88200 times.</li>
     </ul>"
   (let ((sample-rate (floor (getf (getf rack :environment) :sample-rate))) (update-fn (getf rack :update)))
-    (dotimes (i (* duration-seconds sample-rate))
+    (dotimes (i (floor (* duration-seconds sample-rate)))
       (funcall update-fn)))
   (funcall (getf rack :shutdown))
   "DONE")
