@@ -16,15 +16,27 @@
 	(cl-readme:*tab-width* 8))
     (let ((docstr (concatenate
 		   'string
-		   "<html><body>"
+		   "<html>"
+		   "<head>"
+		   "<link rel=\"stylesheet\" href=\"//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic\">"
+		   "<link rel=\"stylesheet\" href=\"//cdn.rawgit.com/necolas/normalize.css/master/normalize.css\">"
+		   "<link rel=\"stylesheet\" href=\"//cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css\">"
+		   "</head>"
+		   "<body>"
+		   "<section class=\"container\">"
 		   "<h1>Example patches for cl-synthesizer</h1>"
-		   "Work in progress."
+		   "<p>Work in progress...</p>"
+		   "</section>"
+		   "<section class=\"container\">"
 		   "<h2>Siren</h2>"
 		   "<p>"
 		   (audio "siren.wav")
 		   (cl-readme:example-code "patches/siren.lisp" :omit-header t)
 		   "</p>"
+		   "</section>"
+		   "<section class=\"container\">"
 		   "<hr/><p><small>Generated " (cl-readme:current-date) "</small></p>"
+		   "</section>"
 		   "</body></html>")))
       (with-open-file (fh (cl-readme:make-path "docs/patches.html")
 			  :direction :output

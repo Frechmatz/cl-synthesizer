@@ -1,4 +1,4 @@
-<html><body><h1>cl-synthesizer</h1>A Modular Audio Synthesizer library implemented in Common Lisp.<p><b>Example:</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-1
+<html><head><link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic"><link rel="stylesheet" href="//cdn.rawgit.com/necolas/normalize.css/master/normalize.css"><link rel="stylesheet" href="//cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css"></head><body><section class="container"><h1>cl-synthesizer</h1><p>A Modular Audio Synthesizer library implemented in Common Lisp.</p><p><b>Example:</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-1
   (:use :cl))
 
 (in-package :cl-synthesizer-rack-example-1)
@@ -54,19 +54,17 @@
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 5))
   
-;;(run-example)</code></pre></p><h2>Installation</h2><pre><code>
-cd ~/quicklisp/local-projects
+;;(run-example)</code></pre></p><h2>Installation</h2><pre><code>cd ~/quicklisp/local-projects
 git clone https://github.com/Frechmatz/cl-wave-file-writer.git
 git clone https://github.com/Frechmatz/cl-synthesizer.git
-(ql:quickload "cl-synthesizer")
-</code></pre><h2>API Reference</h2><ul><li><a href="#environment">Environment</a></li><li><a href="#rack">Rack</a></li><li><a href="#modules">Modules</a><ul><li><a href="#vco">VCO</a></li><li><a href="#vca">VCA</a></li><li><a href="#adsr">ADSR</a></li><li><a href="#multiple">Multiple</a></li><li><a href="#midi-interface">MIDI Interface</a></li><li><a href="#midi-cc-interface">MIDI CC Interface</a></li><li><a href="#midi-sequencer">MIDI Sequencer</a></li><li><a href="#fixed-output">Fixed Output</a></li><li><a href="#adder">Adder</a></li><li><a href="#mixer">Mixer</a></li><li><a href="#trigger">Trigger</a></li><li><a href="#ramp">Ramp</a></li><li><a href="#sustain">Sustain</a></li><li><a href="#wave-file-writer">Wave File Writer</a></li><li><a href="#csv-file-writer">CSV File Writer</a></li></ul></li><li><a href="#monitor">Monitor</a></li><li><a href="#midi">MIDI</a><ul><li><a href="#midi-event">MIDI Event</a></li><li><a href="#midi-utilities">MIDI Utilities</a></li></ul></li><li><a href="#conditions">Conditions</a></li></ul><h3 id="environment">Environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (home-directory nil) </p><p>Creates an environment. The environment defines properties such as
+(ql:quickload "cl-synthesizer")</code></pre></section><nav class="container"><h2>API Reference</h2><ul><li><a href="#environment">Environment</a></li><li><a href="#rack">Rack</a></li><li><a href="#modules">Modules</a><ul><li><a href="#vco">VCO</a></li><li><a href="#vca">VCA</a></li><li><a href="#adsr">ADSR</a></li><li><a href="#multiple">Multiple</a></li><li><a href="#midi-interface">MIDI Interface</a></li><li><a href="#midi-cc-interface">MIDI CC Interface</a></li><li><a href="#midi-sequencer">MIDI Sequencer</a></li><li><a href="#fixed-output">Fixed Output</a></li><li><a href="#adder">Adder</a></li><li><a href="#mixer">Mixer</a></li><li><a href="#trigger">Trigger</a></li><li><a href="#ramp">Ramp</a></li><li><a href="#sustain">Sustain</a></li><li><a href="#wave-file-writer">Wave File Writer</a></li><li><a href="#csv-file-writer">CSV File Writer</a></li></ul></li><li><a href="#monitor">Monitor</a></li><li><a href="#midi">MIDI</a><ul><li><a href="#midi-event">MIDI Event</a></li><li><a href="#midi-utilities">MIDI Utilities</a></li></ul></li><li><a href="#conditions">Conditions</a></li></ul></nav><section class="container"><h3 id="environment">Environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (home-directory nil) </p><p>Creates an environment. The environment defines properties such as
     the sample rate of the rack.
     An enviroment is a property list with the following keys:
     <ul>
 	<li>:sample-rate Sample rate of the synthesizer.</li>
 	<li>:home-directory The base output directory for wave files etc. Default value is the home directory
         of the current user.</li>
-    </ul></p><h3 id="rack">Rack</h3><p><b>cl-synthesizer:make-rack</b> &key environment (input-sockets nil) (output-sockets nil) </p><p>Creates a rack. A rack is a module container as well as a module. Racks can
+    </ul></p></section><section class="container"><h3 id="rack">Rack</h3><p><b>cl-synthesizer:make-rack</b> &key environment (input-sockets nil) (output-sockets nil) </p><p>Creates a rack. A rack is a module container as well as a module. Racks can
    be added to other racks. The function has the following arguments:
     <ul>
 	<li>:environment The synthesizer environment.</li>
@@ -189,7 +187,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
       <li>:update A function with no arguments that is called after the rack has updated its state.</li>
       <li>:shutdown A function with no arguments that is called when the rack is shutting down.</li>
    </ul>
-   Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>.</p><h3 id="modules">Modules</h3><h4 id="vco">VCO</h4><p><b>cl-synthesizer-modules-vco:make-module</b> name environment &key base-frequency f-max v-peak cv-max (duty-cycle 0.5) (phase-offset 0.0) </p><p>Creates a Voltage Controlled Oscillator module with 1V/Octave and linear frequency modulation
+   Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>.</p></section><section class="container"><h3 id="modules">Modules</h3><h4 id="vco">VCO</h4><p><b>cl-synthesizer-modules-vco:make-module</b> name environment &key base-frequency f-max v-peak cv-max (duty-cycle 0.5) (phase-offset 0.0) </p><p>Creates a Voltage Controlled Oscillator module with 1V/Octave and linear frequency modulation
    inputs. The oscillator has through-zero support, as on negative frequencies the
    phase will move backwards (in clockwise direction).
    The function has the following arguments:
@@ -1072,7 +1070,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
      call of the update function and closed by the shutdown handler.
   </p>
   The module has no outputs.
-  <p>See also cl-synthesizer-monitor:add-monitor</p></p><h3 id="monitor">Monitor</h3><p><b>cl-synthesizer-monitor:add-monitor</b> rack monitor-handler socket-mappings &rest additional-handler-args </p><p>Adds a monitor to a rack. A monitor is a high-level Rack hook that
+  <p>See also cl-synthesizer-monitor:add-monitor</p></p></section><section class="container"><h3 id="monitor">Monitor</h3><p><b>cl-synthesizer-monitor:add-monitor</b> rack monitor-handler socket-mappings &rest additional-handler-args </p><p>Adds a monitor to a rack. A monitor is a high-level Rack hook that
     collects module states (values of input/output/state sockets) and 
     passes them to a monitor handler. A monitor handler can for example be a
     Wave-File-Writer. The function has the following arguments:
@@ -1185,13 +1183,12 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 	<li>inputs The column input settings as provided by the Monitor component.</li>
 	<li>:filename A file path relative to the output directory as defined by the environment.</li>
     </ul>
-    <p>See also cl-synthesizer-modules:csv-file-writer.</p></p><h3 id="midi">MIDI</h3><h4 id="midi-event">MIDI Event</h4><p><b>cl-synthesizer-midi-event:make-control-change-event</b> channel controller-number value </p><p>Creates a MIDI control change event.</p><hr/><p><b>cl-synthesizer-midi-event:make-note-on-event</b> channel note-number velocity </p><p>Creates a MIDI Note-On event.</p><hr/><p><b>cl-synthesizer-midi-event:make-note-off-event</b> channel note-number velocity </p><p>Creates a MIDI Note-Off event.</p><hr/><p><b>cl-synthesizer-midi-event:control-change-eventp</b> event </p><p>Returns t if the given MIDI event is a Control-Change event.</p><hr/><p><b>cl-synthesizer-midi-event:note-on-eventp</b> event </p><p>Returns t if the given MIDI event is a Note-On event.</p><hr/><p><b>cl-synthesizer-midi-event:note-off-eventp</b> event </p><p>Returns t if the given MIDI event is a Note-Off event.</p><hr/><p><b>cl-synthesizer-midi-event:get-channel</b> event </p><p>Returns the MIDI channel number to which the event belongs.</p><hr/><p><b>cl-synthesizer-midi-event:get-controller-number</b> event </p><p>Returns the controller number of a Control-Change MIDI event.</p><hr/><p><b>cl-synthesizer-midi-event:get-controller-value</b> event </p><p>Returns the controller value of a Control-Change MIDI event.</p><hr/><p><b>cl-synthesizer-midi-event:get-note-number</b> event </p><p>Returns the note number of Note-On/Off MIDI event.</p><hr/><p><b>cl-synthesizer-midi-event:get-velocity</b> event </p><p>Returns the velocity of a Note-On/Off MIDI event.</p><h4 id="midi-utilities">MIDI Utilities</h4><p><b>cl-synthesizer-midi:get-note-number-frequency</b> note-number </p><p>Returns the frequency of a given note number. Note number 69 results in a frequency of 440Hz.
+    <p>See also cl-synthesizer-modules:csv-file-writer.</p></p></section><section class="container"><h3 id="midi">MIDI</h3><h4 id="midi-event">MIDI Event</h4><p><b>cl-synthesizer-midi-event:make-control-change-event</b> channel controller-number value </p><p>Creates a MIDI control change event.</p><hr/><p><b>cl-synthesizer-midi-event:make-note-on-event</b> channel note-number velocity </p><p>Creates a MIDI Note-On event.</p><hr/><p><b>cl-synthesizer-midi-event:make-note-off-event</b> channel note-number velocity </p><p>Creates a MIDI Note-Off event.</p><hr/><p><b>cl-synthesizer-midi-event:control-change-eventp</b> event </p><p>Returns t if the given MIDI event is a Control-Change event.</p><hr/><p><b>cl-synthesizer-midi-event:note-on-eventp</b> event </p><p>Returns t if the given MIDI event is a Note-On event.</p><hr/><p><b>cl-synthesizer-midi-event:note-off-eventp</b> event </p><p>Returns t if the given MIDI event is a Note-Off event.</p><hr/><p><b>cl-synthesizer-midi-event:get-channel</b> event </p><p>Returns the MIDI channel number to which the event belongs.</p><hr/><p><b>cl-synthesizer-midi-event:get-controller-number</b> event </p><p>Returns the controller number of a Control-Change MIDI event.</p><hr/><p><b>cl-synthesizer-midi-event:get-controller-value</b> event </p><p>Returns the controller value of a Control-Change MIDI event.</p><hr/><p><b>cl-synthesizer-midi-event:get-note-number</b> event </p><p>Returns the note number of Note-On/Off MIDI event.</p><hr/><p><b>cl-synthesizer-midi-event:get-velocity</b> event </p><p>Returns the velocity of a Note-On/Off MIDI event.</p><h4 id="midi-utilities">MIDI Utilities</h4><p><b>cl-synthesizer-midi:get-note-number-frequency</b> note-number </p><p>Returns the frequency of a given note number. Note number 69 results in a frequency of 440Hz.
    This function implements a mapping according to 
-   <a href="http://subsynth.sourceforge.net/midinote2freq.html">midinote2freq</a></p><h3 id="conditions">Conditions</h3><b>assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
+   <a href="http://subsynth.sourceforge.net/midinote2freq.html">midinote2freq</a></p></section><section class="container"><h3 id="conditions">Conditions</h3><b>assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
    because for example a module name is not unique, a patch is added for
    a non-existing module, a patch is added to an already patched socket
-   and so on.</p><h2>Acknowledgements</h2>
-
+   and so on.</p></section><section class="container"><h2>Acknowledgements</h2>
 <ul>
 <li>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></li>
-</ul><hr/><p><small>Generated 2019-06-25  19:15:16</small></p></body></html>
+</ul></section><footer class="container"><hr/><p><small>Generated 2019-06-27  23:10:18</small></p></footer></body></html>
