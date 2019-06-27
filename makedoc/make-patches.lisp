@@ -26,6 +26,7 @@
 		   "<section class=\"container\">"
 		   "<h1>Example patches for cl-synthesizer</h1>"
 		   "<p>Work in progress...</p>"
+		   "<p>Back to <a href=\"https://frechmatz.github.io/cl-synthesizer/\">project site.</a></p>"
 		   "</section>"
 		   "<section class=\"container\">"
 		   "<h2>Siren</h2>"
