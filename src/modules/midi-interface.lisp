@@ -27,7 +27,7 @@
 		       &key
 			 (voice-count 1)
 			 (channel nil)
-			 (note-number-to-cv (lambda (note-number) (the single-float (/ note-number 12.0))))
+			 (note-number-to-cv nil)
 			 (play-mode :PLAY-MODE-POLY)
 			 (cv-gate-on 5.0)
 			 (cv-gate-off 0.0)
@@ -45,10 +45,10 @@
 		    n = 1..voice-count.</li>
 	    </ul>
         </li>
-	<li>:channel Optional MIDI channel to which note events (not CC-Events) must belong. By default the
+	<li>:channel Optional MIDI channel to which note events must belong. By default the
 	    channel is ignored.</li>
 	<li>:note-number-to-cv An optional function that is called with a MIDI note number
-	    and returns a control-voltage.</li>
+	    and returns a control-voltage. The default implementation is cv = note-number / 12.0</li>
 	<li>:play-mode
 	    <ul>
 		<li>:play-mode-poly Polyphonic play mode. Incoming note events will be
@@ -91,6 +91,8 @@
     </ul>
     For an example see <b>midi-sequencer</b>"
   (declare (ignore name environment))
+  (if (not note-number-to-cv)
+      (setf note-number-to-cv (lambda (note-number) (the single-float (/ note-number 12.0)))))
   (let* ((outputs nil)
 	 (inputs nil)
 	 (input-midi-events nil)

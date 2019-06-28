@@ -69,6 +69,17 @@
 	       (run-test-case-midi-ifc test)))
 
 ;;
+;; Test default note to cv conversion
+;;
+
+(define-test test-midi-interface-default-note-to-cv ()
+	     (let ((ifc (cl-synthesizer-modules-midi-interface:make-module
+			 "MIDI-IFC"
+			 (cl-synthesizer:make-environment))))
+	       (test-midi-interface-update ifc (list (cl-synthesizer-midi-event:make-note-on-event 1 24 0)))
+	       (assert-equal 2.0 (test-midi-interface-get-output ifc :cv-1))))
+
+;;
 ;; unisono tests
 ;;
 (define-test test-midi-interface-unisono-1 ()
