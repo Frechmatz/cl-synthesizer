@@ -15,12 +15,6 @@
    :note-number-to-cv (lambda (n) (* 1000 n))
    :play-mode play-mode))
 
-(defun test-midi-interface-get-output (ifc output)
-  (get-module-output ifc output))
-
-(defun test-midi-interface-update (ifc events)
-  (update-module ifc (list :midi-events events)))
-
 (defun run-test-case-midi-ifc (test-case)
   (let ((ifc (test-midi-interface-make-midi-interface
 	      (getf test-case :voice-count)
@@ -29,9 +23,9 @@
 	      :channel (getf test-case :channel)
 	      )))
     (dolist (cur-test-case (getf test-case :test-cases))
-      (test-midi-interface-update ifc (getf cur-test-case :events))
+      (update-module ifc (list :midi-events (getf cur-test-case :events)))
       (dolist (cur-output (getf cur-test-case :outputs))
-	(assert-equal (float (second cur-output)) (float (test-midi-interface-get-output ifc (first cur-output))))))))
+	(assert-equal (float (second cur-output)) (float (get-module-output ifc (first cur-output))))))))
 
 (define-test test-midi-interface-1 ()
 	     (let ((test
@@ -76,8 +70,8 @@
 	     (let ((ifc (cl-synthesizer-modules-midi-interface:make-module
 			 "MIDI-IFC"
 			 (cl-synthesizer:make-environment))))
-	       (test-midi-interface-update ifc (list (cl-synthesizer-midi-event:make-note-on-event 1 24 0)))
-	       (assert-equal 2.0 (test-midi-interface-get-output ifc :cv-1))))
+	       (update-module ifc (list :midi-events (list (cl-synthesizer-midi-event:make-note-on-event 1 24 0))))
+	       (assert-equal 2.0 (get-module-output ifc :cv-1))))
 
 ;;
 ;; unisono tests
