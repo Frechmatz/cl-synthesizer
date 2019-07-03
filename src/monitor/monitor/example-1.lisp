@@ -11,35 +11,32 @@
      rack
      "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 10.0 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
+     :base-frequency 5.0 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
 
-    (flet ((instantiate-handler (name environment inputs)
-	     (declare (ignore name environment inputs))
-	     (let ((input-sine nil) (input-phase nil))
-	       (values 
-		(list
-		 :inputs (lambda()
-			   (list
-			    :sine (lambda(value) (setf input-sine value))
-			    :phase (lambda(value) (setf input-phase value))))
-		 :outputs (lambda()
-			    (list
-			     :sine (lambda() input-sine)
-			     :phase (lambda() input-phase)))
-		 :update (lambda () nil))
-		'(:sine :phase)))))
-      
-      (cl-synthesizer-monitor:add-monitor
-       rack
-       #'instantiate-handler
-       '(("VCO" :output-socket :sine)
-	 ("VCO" :state :phase))))
+    ;; Write the sine signal into a wave file
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-wave-handler:make-handler
+     '(("VCO" :output-socket :sine))
+     :filename "cl-synthesizer-examples/monitor-example-1.wav")
+
+    ;; Write all waveforms and the phase into a CSV file
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-csv-handler:make-handler
+     '(("VCO" :output-socket :sine :name "Sine")
+       ("VCO" :output-socket :triangle :name "Triangle")
+       ("VCO" :output-socket :saw :name "Saw")
+       ("VCO" :output-socket :square :name "Square")
+       ("VCO" :state :phase :name "Phase"))
+     :filename "cl-synthesizer-examples/monitor-example-1.csv"
+     :add-header t
+     :column-separator ",")
     
     rack))
 
 (defun run-example ()
   (let ((rack (example)))
-    (funcall (getf rack :update))
-    (funcall (getf rack :update))))
+    (cl-synthesizer:play-rack rack :duration-seconds 2)))
 
 ;; (run-example)
