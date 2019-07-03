@@ -462,7 +462,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds 10)))
 
-;; (run-example)</code></pre></p><h4 id="midi-interface">MIDI Interface</h4><p><b>cl-synthesizer-modules-midi-interface:make-module</b> name environment &key (voice-count 1) (channel nil) (note-number-to-cv (lambda (note-number) (the single-float (/ note-number 12.0)))) (play-mode :play-mode-poly) (cv-gate-on 5.0) (cv-gate-off 0.0) (force-gate-retrigger nil) </p><p>Creates a MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
+;; (run-example)</code></pre></p><h4 id="midi-interface">MIDI Interface</h4><p><b>cl-synthesizer-modules-midi-interface:make-module</b> name environment &key (voice-count 1) (channel nil) (note-number-to-cv nil) (play-mode :play-mode-poly) (cv-gate-on 5.0) (cv-gate-off 0.0) (force-gate-retrigger nil) </p><p>Creates a MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
     voice is represented by a control-voltage and a gate signal. The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
@@ -475,10 +475,10 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 		    n = 1..voice-count.</li>
 	    </ul>
         </li>
-	<li>:channel Optional MIDI channel to which note events (not CC-Events) must belong. By default the
+	<li>:channel Optional MIDI channel to which note events must belong. By default the
 	    channel is ignored.</li>
 	<li>:note-number-to-cv An optional function that is called with a MIDI note number
-	    and returns a control-voltage.</li>
+	    and returns a control-voltage. The default implementation is cv = note-number / 12.0</li>
 	<li>:play-mode
 	    <ul>
 		<li>:play-mode-poly Polyphonic play mode. Incoming note events will be
@@ -1136,36 +1136,33 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
      rack
      "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 10.0 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
+     :base-frequency 5.0 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
 
-    (flet ((instantiate-handler (name environment inputs)
-             (declare (ignore name environment inputs))
-             (let ((input-sine nil) (input-phase nil))
-               (values 
-                (list
-                 :inputs (lambda()
-                           (list
-                            :sine (lambda(value) (setf input-sine value))
-                            :phase (lambda(value) (setf input-phase value))))
-                 :outputs (lambda()
-                            (list
-                             :sine (lambda() input-sine)
-                             :phase (lambda() input-phase)))
-                 :update (lambda () nil))
-                '(:sine :phase)))))
-      
-      (cl-synthesizer-monitor:add-monitor
-       rack
-       #'instantiate-handler
-       '(("VCO" :output-socket :sine)
-         ("VCO" :state :phase))))
+    ;; Write the sine signal into a wave file
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-wave-handler:make-handler
+     '(("VCO" :output-socket :sine))
+     :filename "cl-synthesizer-examples/monitor-example-1.wav")
+
+    ;; Write all waveforms and the phase into a CSV file
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-csv-handler:make-handler
+     '(("VCO" :output-socket :sine :name "Sine")
+       ("VCO" :output-socket :triangle :name "Triangle")
+       ("VCO" :output-socket :saw :name "Saw")
+       ("VCO" :output-socket :square :name "Square")
+       ("VCO" :state :phase :name "Phase"))
+     :filename "cl-synthesizer-examples/monitor-example-1.csv"
+     :add-header t
+     :column-separator ",")
     
     rack))
 
 (defun run-example ()
   (let ((rack (example)))
-    (funcall (getf rack :update))
-    (funcall (getf rack :update))))
+    (cl-synthesizer:play-rack rack :duration-seconds 2)))
 
 ;; (run-example)</code></pre></p><p><b>cl-synthesizer-monitor-wave-handler:make-handler</b> name environment inputs &rest rest &key filename &allow-other-keys </p><p>Creates a monitor handler which writes its inputs into a Wave file.
     The function has the following arguments:
@@ -1191,4 +1188,4 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
    and so on.</p></section><section class="container"><h2>Acknowledgements</h2>
 <ul>
 <li>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></li>
-</ul></section><footer class="container"><hr/><p><small>Generated 2019-06-27  23:10:18</small></p></footer></body></html>
+</ul></section><footer class="container"><hr/><p><small>Generated 2019-07-03  19:56:55</small></p></footer></body></html>
