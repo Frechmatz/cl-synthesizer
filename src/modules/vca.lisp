@@ -61,8 +61,7 @@
     The module has the following inputs:
     <ul>
 	<li>:cv Amplification control voltage.</li>
-	<li>:input Input signal to be amplified. The amplitude of this voltage is
-	    unknown to the VCA. It can have any value.</li>
+	<li>:input Input signal to be amplified.</li>
 	<li>:gain An offset that is added to the amplification control voltage.</li>
     </ul>
     The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.0 <= v <= :cv-max.
