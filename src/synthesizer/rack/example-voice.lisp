@@ -1,7 +1,7 @@
-(defpackage :cl-synthesizer-rack-example-1
+(defpackage :cl-synthesizer-rack-example-voice
   (:use :cl))
 
-(in-package :cl-synthesizer-rack-example-1)
+(in-package :cl-synthesizer-rack-example-voice)
 
 (defun make-voice (name environment &key lfo-frequency vco-frequency)
   "Frequency modulated saw"
@@ -47,7 +47,7 @@
      #'cl-synthesizer-monitor-wave-handler:make-handler
      '(("OUTPUT" :input-socket :left)
        ("OUTPUT" :input-socket :right))
-     :filename "rack-example-1.wav")
+     :filename "rack-example-voice.wav")
     
     rack))
 

@@ -11,7 +11,8 @@
   :depends-on (:cl-synthesizer)
   :components ((:module "src/synthesizer/rack"
 			:serial t
-			:components ((:file "example-1")))
+			:components ((:file "example-sine")
+				     (:file "example-voice")))
 	       (:module "src/modules/vca"
 			:serial t
 			:components ((:file "example-1")

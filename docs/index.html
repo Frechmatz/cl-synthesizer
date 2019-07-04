@@ -1,7 +1,35 @@
-<html><head><link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic"><link rel="stylesheet" href="//cdn.rawgit.com/necolas/normalize.css/master/normalize.css"><link rel="stylesheet" href="//cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css"></head><body><section class="container"><h1>cl-synthesizer</h1><p>A Modular Audio Synthesizer library implemented in Common Lisp.</p><p><b>Example:</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-1
+<html><head><link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic"><link rel="stylesheet" href="//cdn.rawgit.com/necolas/normalize.css/master/normalize.css"><link rel="stylesheet" href="//cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css"></head><body><section class="container"><h1>cl-synthesizer</h1><p>A Modular Audio Synthesizer library implemented in Common Lisp.</p><p><b>A simple example:</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-sine
   (:use :cl))
 
-(in-package :cl-synthesizer-rack-example-1)
+(in-package :cl-synthesizer-rack-example-sine)
+
+(defun example ()
+  "Generate a sine wave file"
+  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+    
+    (cl-synthesizer:add-module
+     rack
+     "VCO"
+     #'cl-synthesizer-modules-vco:make-module
+     :base-frequency 440.0 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
+
+    ;; Generate a Wave-File
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-wave-handler:make-handler
+     '(("VCO" :output-socket :sine))
+     :filename "cl-synthesizer-examples/rack-example-sine.wav")
+
+    rack))
+
+(defun run-example ()
+  (let ((rack (example)))
+    (cl-synthesizer:play-rack rack :duration-seconds 5)))
+
+;; (run-example)</code></pre></p><p><b>A more complex example using nested racks to define voices:</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-voice
+  (:use :cl))
+
+(in-package :cl-synthesizer-rack-example-voice)
 
 (defun make-voice (name environment &amp;key lfo-frequency vco-frequency)
   "Frequency modulated saw"
@@ -47,7 +75,7 @@
      #'cl-synthesizer-monitor-wave-handler:make-handler
      '(("OUTPUT" :input-socket :left)
        ("OUTPUT" :input-socket :right))
-     :filename "rack-example-1.wav")
+     :filename "rack-example-voice.wav")
     
     rack))
 
@@ -1188,4 +1216,4 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
    and so on.</p></section><section class="container"><h2>Acknowledgements</h2>
 <ul>
 <li>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></li>
-</ul></section><footer class="container"><hr/><p><small>Generated 2019-07-03  19:56:55</small></p></footer></body></html>
+</ul></section><footer class="container"><hr/><p><small>Generated 2019-07-04  19:35:30</small></p></footer></body></html>
