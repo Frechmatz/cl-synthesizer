@@ -15,12 +15,12 @@
     (cl-synthesizer:add-module
      voice "LFO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency lfo-frequency :v-peak 0.1)
+     :base-frequency lfo-frequency :v-peak 5.0)
 
     (cl-synthesizer:add-module
      voice "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency vco-frequency :v-peak 5.0)
+     :base-frequency vco-frequency :v-peak 5.0 :cv-lin-hz-v 20.0)
 
     (cl-synthesizer:add-patch voice "LFO" :sine "VCO" :cv-lin)
     (cl-synthesizer:add-patch voice "VCO" :saw "OUTPUT" :audio)

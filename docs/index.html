@@ -43,12 +43,12 @@
     (cl-synthesizer:add-module
      voice "LFO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency lfo-frequency :v-peak 0.1)
+     :base-frequency lfo-frequency :v-peak 5.0)
 
     (cl-synthesizer:add-module
      voice "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency vco-frequency :v-peak 5.0)
+     :base-frequency vco-frequency :v-peak 5.0 :cv-lin-hz-v 20.0)
 
     (cl-synthesizer:add-patch voice "LFO" :sine "VCO" :cv-lin)
     (cl-synthesizer:add-patch voice "VCO" :saw "OUTPUT" :audio)
@@ -1208,4 +1208,4 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
    and so on.</p></section><section class="container"><h2>Acknowledgements</h2>
 <ul>
 <li>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></li>
-</ul></section><footer class="container"><hr/><p><small>Generated 2019-07-05  21:51:11</small></p></footer></body></html>
+</ul></section><footer class="container"><hr/><p><small>Generated 2019-07-05  22:33:56</small></p></footer></body></html>
