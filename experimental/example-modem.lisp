@@ -14,7 +14,7 @@
     (cl-synthesizer:add-module
      rack "MAIN-LFO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 0.1 :v-peak 5.0 :f-max 1000.0 :cv-max 5.0
+     :base-frequency 0.1 :v-peak 5.0
      :phase-offset (coerce (* 1.5 PI) 'single-float))
 
     (cl-synthesizer:add-module
@@ -37,20 +37,15 @@
 
     (cl-synthesizer:add-patch rack "GATE" :output-1 "ADSR" :gate)
     
-    ;; (cl-synthesizer:add-module
-    ;;  rack "LFO-1"
-    ;;  #'cl-synthesizer-modules-vco:make-module
-    ;;  :base-frequency 0.1 :v-peak 0.05 :f-max 1000.0 :cv-max 5.0)
-
     (cl-synthesizer:add-module
      rack "LFO-2"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 0.2 :f-max 5000.0 :v-peak 0.2 :cv-max 5.0)
+     :base-frequency 0.2 :v-peak 0.2 :cv-lin-hz-v 1.0)
 
     (cl-synthesizer:add-module
      rack "VCO-1"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 440.0 :f-max 12000.0 :v-peak 5.0 :cv-max 5.0)
+     :base-frequency 440.0 :v-peak 5.0 :cv-lin-hz-v 1.0)
     
     ;; (cl-synthesizer:add-patch rack "LFO-1" :saw "LFO-2" :cv-lin)
     (cl-synthesizer:add-patch rack "ADSR" :cv "LFO-2" :cv-lin)

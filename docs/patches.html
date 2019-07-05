@@ -1,4 +1,4 @@
-<html><head><link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic"><link rel="stylesheet" href="//cdn.rawgit.com/necolas/normalize.css/master/normalize.css"><link rel="stylesheet" href="//cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css"></head><body><section class="container"><h1>Example patches for cl-synthesizer</h1><p>Work in progress...</p><p>Back to <a href="https://frechmatz.github.io/cl-synthesizer/">project site.</a></p></section><section class="container"><h2>Siren</h2><p><audio controls="controls" preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3770659920" type="audio/wav"></audio><p><pre><code>(defpackage :cl-synthesizer-patches-siren
+<html><head><link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic"><link rel="stylesheet" href="//cdn.rawgit.com/necolas/normalize.css/master/normalize.css"><link rel="stylesheet" href="//cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css"></head><body><section class="container"><h1>Example patches for cl-synthesizer</h1><p>Work in progress...</p><p>Back to <a href="https://frechmatz.github.io/cl-synthesizer/">project site.</a></p></section><section class="container"><h2>Siren</h2><p><audio controls="controls" preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3771344644" type="audio/wav"></audio><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl))
 
 (in-package :cl-synthesizer-patches-siren)
@@ -14,12 +14,12 @@
     (cl-synthesizer:add-module
      voice "LFO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency lfo-frequency :v-peak 0.1 :f-max 500.0 :cv-max 5.0)
+     :base-frequency lfo-frequency :v-peak 5.0)
 
     (cl-synthesizer:add-module
      voice "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency vco-frequency :f-max 5000.0 :v-peak 5.0 :cv-max 5.0)
+     :base-frequency vco-frequency :v-peak 5.0 :cv-lin-hz-v 20.0)
 
     (cl-synthesizer:add-patch voice "LFO" :sine "VCO" :cv-lin)
     (cl-synthesizer:add-patch voice "VCO" :saw "OUTPUT" :audio)
@@ -53,4 +53,4 @@
    (example)
    :duration-seconds 1.8))
   
-;;(run-example)</code></pre></p></p></section><section class="container"><hr/><p><small>Generated 2019-06-27  23:32:00</small></p></section></body></html>
+;;(run-example)</code></pre></p></p></section><section class="container"><hr/><p><small>Generated 2019-07-05  21:44:04</small></p></section></body></html>

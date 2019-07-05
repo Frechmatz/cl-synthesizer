@@ -8,13 +8,11 @@
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module
      rack "LFO"
-     ;; 0.08 => +/- 80Hz (80 * (5/5000))
-     ;; VCO Frequency range = 360..520Hz
-     #'cl-synthesizer-modules-vco:make-module :v-peak 0.08 :cv-max 5.0 :base-frequency 4.0 :f-max 20.0)
+     #'cl-synthesizer-modules-vco:make-module :v-peak 5.0 :base-frequency 4.0)
 
     (cl-synthesizer:add-module
      rack "VCO"
-     #'cl-synthesizer-modules-vco:make-module :base-frequency 440.0 :cv-max 5.0 :v-peak 5.0 :f-max 5000.0)
+     #'cl-synthesizer-modules-vco:make-module :base-frequency 440.0 :v-peak 5.0 :cv-lin-hz-v 20.0)
 
     (cl-synthesizer:add-patch rack "LFO" :triangle "VCO" :cv-lin)
     

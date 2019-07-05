@@ -1,7 +1,12 @@
 (in-package :cl-synthesizer-modules-vco)
 
-(defun make-module (name environment &key base-frequency f-max v-peak cv-max
-				       (duty-cycle 0.5) (phase-offset 0.0))
+(defun make-module (name environment &key
+				       base-frequency
+				       v-peak
+				       (cv-lin-hz-v 0.0)
+				       (duty-cycle 0.5)
+				       (phase-offset 0.0)
+				       (f-max 12000.0))
   "Creates a Voltage Controlled Oscillator module with 1V/Octave and linear frequency modulation
    inputs. The oscillator has through-zero support, as on negative frequencies the
    phase will move backwards (in clockwise direction).
@@ -12,8 +17,7 @@
 	<li>:base-frequency The frequency emitted by the oscillator when all frequency control 
            voltages are 0.</li>
 	<li>:f-max The maximum frequency of the oscillator. f-max must be greater than 0.</li>
-	<li>:cv-max The absolute value of the frequency control peak voltage of the :cv-lin input which
-           represents the maximum frequency of the oscillator.</li>
+	<li>:cv-lin-hz-v Frequency/Volt setting for the linear frequency modulation input :cv-lin.</li>
 	<li>:v-peak Absolute value of the output peak voltage emitted by the oscillator.</li>
 	<li>:duty-cycle The duty cycle of the square wave. 0 <= duty-cycle <= 1.</li>
 	<li>:phase-offset A phase offset in radians.</li>
@@ -24,12 +28,12 @@
 	    control voltage of 1.0 results in a frequency of 880Hz and a control
 	    voltage of -1.0 results in a frequency of 220Hz.
 	</li>
-        <li>:cv-lin Bipolar linear frequency control voltage. Example: If the :f-max of the oscillator
-           is 12000Hz and :cv-max is 5.0V then a :cv-lin of 2.5V results in a frequency of 6000Hz and 
-           a :cv-lin of -2.5V results in a frequency of -6000Hz.</li>
+        <li>:cv-lin Bipolar linear frequency control voltage. Example: If the :cv-lin-hz-v setting
+           of the oscillator is 77Hz a :cv-lin input value of 2.0V results in a frequency of 154Hz and 
+           a :cv-lin input value of -2.0V results in a frequency of -154Hz.</li>
     </ul>
     The frequency of the oscillator is calculated by adding the frequencies resulting from the
-    :cv-lin and :cv-exp inputs. It is clipped according to the :f-max setting.
+    :cv-lin and :cv-exp inputs. The frequency is clipped according to the :f-max setting.
     The module has the following outputs:
     <ul>
 	<li>:sine A sine wave.</li>
@@ -40,12 +44,12 @@
     <p>The module exposes the following states via the get-state function:
        <ul>
           <li>:frequency The current frequency of the module.</li>
-          <li>:linear-frequency The current linear frequency part of the module.</li>
-          <li>:exponential-frequency The current exponential frequency part of the module.</li>
+          <li>:linear-frequency The current linear frequency portion of the module.</li>
+          <li>:exponential-frequency The current exponential frequency portion of the module.</li>
           <li>:phase The current phase in radians (0..2PI).</li>
        </ul>
     </p>"
-  (declare (type single-float base-frequency f-max v-peak cv-max phase-offset duty-cycle))
+  (declare (type single-float base-frequency f-max v-peak cv-lin-hz-v phase-offset duty-cycle))
   (if (> 0.0 f-max)
       (cl-synthesizer:signal-assembly-error
        :format-control "f-max of VCO ~a must be greater than 0: ~a"
@@ -75,12 +79,9 @@
 	 (cur-saw-output 1.0)
 	 (cur-square-output 1.0)
 	 (lin-converter
-	  (getf (cl-synthesizer-core:linear-converter
-		 :input-min 0.0
-		 :input-max cv-max
-		 :output-min 0.0
-		 :output-max f-max)
-		:get-y))
+	  (lambda (cv)
+	    (declare (type single-float cv))
+	    (* cv cv-lin-hz-v)))
 	 (exp-converter
 	  (lambda (cv)
 	    (declare (type single-float cv))

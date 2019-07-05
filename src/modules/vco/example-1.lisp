@@ -10,7 +10,7 @@
      rack
      "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 10.0 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
+     :base-frequency 10.0 :v-peak 5.0)
 
     (cl-synthesizer-monitor:add-monitor
      rack

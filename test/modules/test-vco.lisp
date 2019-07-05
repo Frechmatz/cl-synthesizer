@@ -12,8 +12,6 @@
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440.0
-			 :f-max 12000.0
-			 :cv-max 5.0
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
@@ -21,7 +19,7 @@
 				      (update-module vco (list :cv-lin 0.0 :cv-exp 0.0)))
 			 :get-output-fn (lambda ()
 					  (get-module-output vco :sine)))))
-		 (print-vco-state vco)
+		 ;;(print-vco-state vco)
 		 (assert-true (is-approximately 440.0 f 0.5)))))
 
 ;; Test that VCO emits base-frequency when cv inputs are 0.0 and base-frequency is initialized with negative frequency
@@ -30,14 +28,12 @@
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency -440.0
-			 :f-max 12000.0
-			 :cv-max 5.0
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda() (update-module vco (list :cv-lin 0.0 :cv-exp 0.0)))
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
-		 (print-vco-state vco)
+		 ;;(print-vco-state vco)
 		 (assert-true (is-approximately 440.0 f 0.5)))))
 
 
@@ -47,8 +43,6 @@
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440.0
-			 :cv-max 5.0
-			 :f-max 12000.0
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
@@ -63,8 +57,6 @@
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440.0
-			 :f-max 12000.0
-			 :cv-max 5.0
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
@@ -79,8 +71,6 @@
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440.0
-			 :f-max 12000.0
-			 :cv-max 5.0
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
@@ -95,8 +85,6 @@
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440.0
-			 :f-max 12000.0
-			 :cv-max 5.0
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
@@ -110,16 +98,14 @@
 	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
-			 :cv-max 5.0
-			 :f-max 12000.0
-			 :cv-max 5.0
+			 :cv-lin-hz-v 2400.0
 			 :base-frequency 0.0
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda() (update-module vco (list :cv-lin 2.5 :cv-exp 0.0)))
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
-		 (print-vco-state vco)
+		 ;;(print-vco-state vco)
 		 (assert-true (is-approximately 6000 f 0.5)))))
 
 ;; Add 6000Hz to 440Hz via linear CV input
@@ -127,15 +113,14 @@
 	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
-			 :cv-max 5.0
-			 :f-max 12000.0
+			 :cv-lin-hz-v 2400.0
 			 :base-frequency 440.0
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda() (update-module vco (list :cv-lin 2.5 :cv-exp 0.0)))
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
-		 (print-vco-state vco)
+		 ;;(print-vco-state vco)
 		 (assert-true (is-approximately 6440 f 0.5)))))
 
 ;; Test frequency clipping (exp input)
@@ -145,13 +130,12 @@
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440.0
 			 :f-max 12000.0
-			 :cv-max 5.0
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda() (update-module vco (list :cv-exp 20.0 :cv-lin 0.0)))
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
-		 (print-vco-state vco)
+		 ;;(print-vco-state vco)
 		 (assert-true (is-approximately 12000 f 0.5)))))
 
 ;; Test frequency clipping (lin input)
@@ -160,14 +144,14 @@
 			 "VCO"
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440.0
+			 :cv-lin-hz-v 3000.0
 			 :f-max 12000.0
-			 :cv-max 5.0
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda() (update-module vco (list :cv-exp 0.0 :cv-lin 5.0)))
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
-		 (print-vco-state vco)
+		 ;;(print-vco-state vco)
 		 (assert-true (is-approximately 12000 f 0.5)))))
 
 
@@ -178,13 +162,12 @@
 			 (cl-synthesizer:make-environment)
 			 :base-frequency -5000.0
 			 :f-max 12000.0
-			 :cv-max 5.0
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda() (update-module vco (list :cv-exp 10.0 :cv-lin 0.0)) )
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
-		 (print-vco-state vco)
+		 ;;(print-vco-state vco)
 		 ;; Frequency calculated by frequency counter
 		 (assert-true (is-approximately 12000 f 0.5))
 		 ;; Internal frequency of module
@@ -197,13 +180,13 @@
 			 (cl-synthesizer:make-environment)
 			 :base-frequency 440.0
 			 :f-max 12000.0
-			 :cv-max 5.0
+			 :cv-lin-hz-v 1000.0
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda() (update-module vco (list :cv-lin -20.0 :cv-exp 0.0)) )
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
-		 (print-vco-state vco)
+		 ;;(print-vco-state vco)
 		 ;; Frequency calculated by frequency counter
 		 (assert-true (is-approximately 12000 f 0.5))
 		 ;; Internal frequency of module
@@ -214,35 +197,33 @@
 	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
+			 :cv-lin-hz-v 1000.0
 			 :base-frequency 440.0
-			 :f-max 12000.0
-			 :cv-max 5.0
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda() (update-module vco (list :cv-exp 1.0 :cv-lin 1.0)))
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
-		 (print-vco-state vco)
-		 ;; (+ 880 (/ 12000 5)) = 880 + 2400 = 3280
-		 (assert-true (is-approximately 3280 f 0.5)))))
+		 ;;(print-vco-state vco)
+		 ;; (+ 880 1000) = 1880
+		 (assert-true (is-approximately 1880 f 0.5)))))
 
 ;; Test updating both cv inputs with zero crossing
 (define-test vco-test-fm-2 ()
 	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
+			 :cv-lin-hz-v 1000.0
 			 :base-frequency 440.0
-			 :f-max 12000.0
-			 :cv-max 5.0
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda() (update-module vco (list :cv-exp 1.0 :cv-lin -4.0)))
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
-		 (print-vco-state vco)
-		 ;; 880 - 9600 = -8720
-		 (assert-true (is-approximately 8720 f 0.5))
-		 (assert-true (is-approximately -8720 (funcall (getf vco :get-state) :frequency) 0.5)))))
+		 ;;(print-vco-state vco)
+		 ;; 880 - (* 4.0 1000.0) = -3120
+		 (assert-true (is-approximately 3120 f 0.5))
+		 (assert-true (is-approximately -3120 (funcall (getf vco :get-state) :frequency) 0.5)))))
 
 ;; This test assumes, that the square wave output is 5.0 for 0 <= Phi < PI
 ;; and -5.0 for PI < Phi < 2PI 
@@ -250,18 +231,17 @@
 	     (let ((vco (cl-synthesizer-modules-vco:make-module
 			 "VCO"
 			 (cl-synthesizer:make-environment)
+			 :cv-lin-hz-v 1000.0
 			 :base-frequency 0.0
-			 :f-max 12000.0
-			 :cv-max 5.0
 			 :v-peak 5.0
 			 :duty-cycle 0.5)))
 	       (update-module vco (list :cv-lin 0.5 :cv-exp 0.0))
-	       (print-vco-state vco)
+	       ;;(print-vco-state vco)
 	       (assert-equality #'= 5.0 (get-module-output vco :square))
 	       ;; Back to zero
 	       (update-module vco (list :cv-lin -0.5 :cv-exp 0.0))
 	       ;; One more step back
 	       (update-module vco (list :cv-lin -0.5 :cv-exp 0.0))
-	       (print-vco-state vco)
+	       ;;(print-vco-state vco)
 	       (assert-equality #'= -5.0 (get-module-output vco :square))))
 

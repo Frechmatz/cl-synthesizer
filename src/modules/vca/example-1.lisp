@@ -12,18 +12,14 @@
      rack "LFO-CV"
      #'cl-synthesizer-modules-vco:make-module
      :base-frequency 0.5
-     :v-peak 5.0
-     :cv-max 5.0
-     :f-max 12000.0)
+     :v-peak 5.0)
 
     ;; set up oscillator providing the audio signal
     (cl-synthesizer:add-module
      rack "VCO-AUDIO"
      #'cl-synthesizer-modules-vco:make-module
      :base-frequency 10000.0
-     :v-peak 5.0
-     :cv-max 5.0
-     :f-max 12000.0)
+     :v-peak 5.0)
 
     ;; Set up VCA
     (cl-synthesizer:add-module

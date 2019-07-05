@@ -11,7 +11,7 @@
      rack
      "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 440.0 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
+     :base-frequency 440.0 :v-peak 5.0)
 
     ;; Generate a Wave-File
     (cl-synthesizer-monitor:add-monitor

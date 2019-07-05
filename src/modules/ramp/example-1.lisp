@@ -11,7 +11,7 @@
     (cl-synthesizer:add-module
      rack "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 0.5 :v-peak 5.0 :f-max 500.0 :cv-max 5.0)
+     :base-frequency 0.5 :v-peak 5.0)
 
     (cl-synthesizer:add-module
      rack "TRIGGER"

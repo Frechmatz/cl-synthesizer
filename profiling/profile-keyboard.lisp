@@ -14,8 +14,6 @@
      rack "VCO"
      #'cl-synthesizer-modules-vco:make-module
      :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
-     :f-max 13000.0
-     :cv-max 5.0
      :v-peak 5.0)
 
     (cl-synthesizer:add-module

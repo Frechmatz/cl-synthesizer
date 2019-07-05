@@ -10,9 +10,6 @@
       (cl-synthesizer:add-module rack (format nil "MODULE-~a" i)
 				 #'cl-synthesizer-modules-vco:make-module
 				 :base-frequency 5000.0
-				 :f-max 13000.0
-				 :cv-max 5.0
-				 :v-peak 5.0
-				 ))
+				 :v-peak 5.0))
     rack))
 

@@ -11,7 +11,7 @@
      rack
      "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 440.0 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
+     :base-frequency 440.0 :v-peak 5.0)
 
     ;; Generate a Wave-File
     (cl-synthesizer-monitor:add-monitor
@@ -43,12 +43,12 @@
     (cl-synthesizer:add-module
      voice "LFO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency lfo-frequency :v-peak 0.1 :f-max 500.0 :cv-max 5.0)
+     :base-frequency lfo-frequency :v-peak 0.1)
 
     (cl-synthesizer:add-module
      voice "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency vco-frequency :f-max 5000.0 :v-peak 5.0 :cv-max 5.0)
+     :base-frequency vco-frequency :v-peak 5.0)
 
     (cl-synthesizer:add-patch voice "LFO" :sine "VCO" :cv-lin)
     (cl-synthesizer:add-patch voice "VCO" :saw "OUTPUT" :audio)
@@ -215,7 +215,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
       <li>:update A function with no arguments that is called after the rack has updated its state.</li>
       <li>:shutdown A function with no arguments that is called when the rack is shutting down.</li>
    </ul>
-   Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>.</p></section><section class="container"><h3 id="modules">Modules</h3><h4 id="vco">VCO</h4><p><b>cl-synthesizer-modules-vco:make-module</b> name environment &key base-frequency f-max v-peak cv-max (duty-cycle 0.5) (phase-offset 0.0) </p><p>Creates a Voltage Controlled Oscillator module with 1V/Octave and linear frequency modulation
+   Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>.</p></section><section class="container"><h3 id="modules">Modules</h3><h4 id="vco">VCO</h4><p><b>cl-synthesizer-modules-vco:make-module</b> name environment &key base-frequency v-peak (cv-lin-hz-v 0.0) (duty-cycle 0.5) (phase-offset 0.0) (f-max 12000.0) </p><p>Creates a Voltage Controlled Oscillator module with 1V/Octave and linear frequency modulation
    inputs. The oscillator has through-zero support, as on negative frequencies the
    phase will move backwards (in clockwise direction).
    The function has the following arguments:
@@ -225,8 +225,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 	<li>:base-frequency The frequency emitted by the oscillator when all frequency control 
            voltages are 0.</li>
 	<li>:f-max The maximum frequency of the oscillator. f-max must be greater than 0.</li>
-	<li>:cv-max The absolute value of the frequency control peak voltage of the :cv-lin input which
-           represents the maximum frequency of the oscillator.</li>
+	<li>:cv-lin-hz-v Frequency/Volt setting for the linear frequency modulation input :cv-lin.</li>
 	<li>:v-peak Absolute value of the output peak voltage emitted by the oscillator.</li>
 	<li>:duty-cycle The duty cycle of the square wave. 0 <= duty-cycle <= 1.</li>
 	<li>:phase-offset A phase offset in radians.</li>
@@ -237,12 +236,12 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 	    control voltage of 1.0 results in a frequency of 880Hz and a control
 	    voltage of -1.0 results in a frequency of 220Hz.
 	</li>
-        <li>:cv-lin Bipolar linear frequency control voltage. Example: If the :f-max of the oscillator
-           is 12000Hz and :cv-max is 5.0V then a :cv-lin of 2.5V results in a frequency of 6000Hz and 
-           a :cv-lin of -2.5V results in a frequency of -6000Hz.</li>
+        <li>:cv-lin Bipolar linear frequency control voltage. Example: If the :cv-lin-hz-v setting
+           of the oscillator is 77Hz a :cv-lin input value of 2.0V results in a frequency of 154Hz and 
+           a :cv-lin input value of -2.0V results in a frequency of -154Hz.</li>
     </ul>
     The frequency of the oscillator is calculated by adding the frequencies resulting from the
-    :cv-lin and :cv-exp inputs. It is clipped according to the :f-max setting.
+    :cv-lin and :cv-exp inputs. The frequency is clipped according to the :f-max setting.
     The module has the following outputs:
     <ul>
 	<li>:sine A sine wave.</li>
@@ -253,8 +252,8 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
     <p>The module exposes the following states via the get-state function:
        <ul>
           <li>:frequency The current frequency of the module.</li>
-          <li>:linear-frequency The current linear frequency part of the module.</li>
-          <li>:exponential-frequency The current exponential frequency part of the module.</li>
+          <li>:linear-frequency The current linear frequency portion of the module.</li>
+          <li>:exponential-frequency The current exponential frequency portion of the module.</li>
           <li>:phase The current phase in radians (0..2PI).</li>
        </ul>
     </p></p><p><b>Example:</b></p><p><pre><code>(defpackage :cl-synthesizer-modules-vco-example-1
@@ -269,7 +268,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
      rack
      "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 10.0 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
+     :base-frequency 10.0 :v-peak 5.0)
 
     (cl-synthesizer-monitor:add-monitor
      rack
@@ -309,8 +308,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
     The module has the following inputs:
     <ul>
 	<li>:cv Amplification control voltage.</li>
-	<li>:input Input signal to be amplified. The amplitude of this voltage is
-	    unknown to the VCA. It can have any value.</li>
+	<li>:input Input signal to be amplified.</li>
 	<li>:gain An offset that is added to the amplification control voltage.</li>
     </ul>
     The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.0 <= v <= :cv-max.
@@ -332,18 +330,14 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
      rack "LFO-CV"
      #'cl-synthesizer-modules-vco:make-module
      :base-frequency 0.5
-     :v-peak 5.0
-     :cv-max 5.0
-     :f-max 12000.0)
+     :v-peak 5.0)
 
     ;; set up oscillator providing the audio signal
     (cl-synthesizer:add-module
      rack "VCO-AUDIO"
      #'cl-synthesizer-modules-vco:make-module
      :base-frequency 10000.0
-     :v-peak 5.0
-     :cv-max 5.0
-     :f-max 12000.0)
+     :v-peak 5.0)
 
     ;; Set up VCA
     (cl-synthesizer:add-module
@@ -476,7 +470,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
     (cl-synthesizer:add-module
      rack "LFO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 1.0 :v-peak 1.0 :f-max 500.0 :cv-max 5.0)
+     :base-frequency 1.0 :v-peak 1.0)
     
     (cl-synthesizer:add-module rack "MULTIPLE"
                                #'cl-synthesizer-modules-multiple:make-module :output-count 5)
@@ -672,8 +666,6 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
     (cl-synthesizer:add-module
      rack "VCO" #'cl-synthesizer-modules-vco:make-module
      :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
-     :f-max 12000.0
-     :cv-max 5.0
      :v-peak 5.0)
 
     ;; Add ADSR
@@ -839,7 +831,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
      rack
      "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 5.0 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
+     :base-frequency 5.0 :v-peak 5.0)
 
     (cl-synthesizer:add-module
      rack
@@ -914,7 +906,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
     (cl-synthesizer:add-module
      rack "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 0.5 :v-peak 5.0 :f-max 500.0 :cv-max 5.0)
+     :base-frequency 0.5 :v-peak 5.0)
 
     (cl-synthesizer:add-module
      rack "TRIGGER"
@@ -1021,7 +1013,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
     (cl-synthesizer:add-module
      rack "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 0.5 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
+     :base-frequency 0.5 :v-peak 5.0)
     
     (cl-synthesizer:add-module
      rack "SUSTAIN"
@@ -1164,7 +1156,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
      rack
      "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 5.0 :v-peak 5.0 :cv-max 5.0 :f-max 12000.0)
+     :base-frequency 5.0 :v-peak 5.0)
 
     ;; Write the sine signal into a wave file
     (cl-synthesizer-monitor:add-monitor
@@ -1216,4 +1208,4 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
    and so on.</p></section><section class="container"><h2>Acknowledgements</h2>
 <ul>
 <li>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></li>
-</ul></section><footer class="container"><hr/><p><small>Generated 2019-07-04  19:35:30</small></p></footer></body></html>
+</ul></section><footer class="container"><hr/><p><small>Generated 2019-07-05  21:51:11</small></p></footer></body></html>

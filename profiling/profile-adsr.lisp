@@ -12,8 +12,6 @@
      rack "LFO"
      #'cl-synthesizer-modules-vco:make-module
      :base-frequency 20.0 ;; not too fast as we not want to abort any phase
-     :f-max 1000.0
-     :cv-max 5.0
      :v-peak 5.0)
   
     (cl-synthesizer:add-module

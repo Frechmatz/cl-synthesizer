@@ -15,38 +15,35 @@
 	 (msb-controller-number
 	  (funcall
 	   (getf cl-synthesizer-vendor:*arturia-minilab-mk2* :get-controller-number) :encoder-9))
-	 (vco-f-max 5000.0)
-	 (vco-cv-max 5.0)
-	 (1Hz (/ vco-cv-max vco-f-max)))
+	 (delta-1-hz 0.01))
     
     (cl-synthesizer:add-module
      rack "MIDI-CC-IFC" #'cl-synthesizer-modules-midi-cc-interface:make-module
      :controller-numbers (list msb-controller-number lsb-controller-number)
      :initial-output 0.0
-     :min-output (* -1.0 vco-cv-max)
-     :max-output vco-cv-max
+     :min-output (* -5000.0 delta-1-hz)
+     :max-output (* 5000.0 delta-1-hz)
      :channel nil
      :transform-handler
      (lambda (cur-output controller-number control-value)
        (let ((offs 
 	      (cond
-		((= 61 control-value) (* -1.0 1Hz))
-		((= 62 control-value) (* -2.0 1Hz))
-		((= 63 control-value) (* -3.0 1Hz))
-		((= 65 control-value) (* 1.0 1Hz))
-		((= 66 control-value) (* 2.0 1Hz))
-		((= 67 control-value) (* 3.0 1Hz))
+		((= 61 control-value) (* -1.0 delta-1-hz))
+		((= 62 control-value) (* -2.0 delta-1-hz))
+		((= 63 control-value) (* -3.0 delta-1-hz))
+		((= 65 control-value) (* 1.0  delta-1-hz))
+		((= 66 control-value) (* 2.0 delta-1-hz))
+		((= 67 control-value) (* 3.0 delta-1-hz))
 		(t 0))))
 	 (if (= controller-number msb-controller-number)
-	     (setf offs (* 10.0 offs))) 
+	     (setf offs (* 10.0 offs))) ;; Jump in 10Hz steps
 	 (+ cur-output offs))))
     
     (cl-synthesizer:add-module
      rack "VCO"
      #'cl-synthesizer-modules-vco:make-module
      :base-frequency 440.0
-     :cv-max vco-cv-max
-     :f-max vco-f-max
+     :cv-lin-hz-v (/ 1.0 delta-1-hz)
      :v-peak 5.0)
 
     (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-CC-IFC" :midi-events)
