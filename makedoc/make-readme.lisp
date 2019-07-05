@@ -19,7 +19,7 @@
 		   "</p>"
 		   "<p><b>A simple example:</b></p>"
 		   (cl-readme:example-code "src/synthesizer/rack/example-sine.lisp" :omit-header t)
-		   "<p><b>A more complex example using nested racks to define voices:</b></p>"
+		   "<p><b>A more complex example:</b></p>"
 		   (cl-readme:example-code "src/synthesizer/rack/example-voice.lisp" :omit-header t)
 		   "<h2>Installation</h2>"
 		   (cl-readme:read-text-file "makedoc/installation.html")
