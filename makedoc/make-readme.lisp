@@ -14,7 +14,9 @@
 		   "<body>"
 		   "<section class=\"container\">"
 		   "<h1>cl-synthesizer</h1>"
-		   "<p>A Modular Audio Synthesizer library implemented in Common Lisp.</p>"
+		   "<p>A Modular Audio Synthesizer library implemented in Common Lisp. "
+		   "The source code can be found <a href=\"https://github.com/Frechmatz/cl-synthesizer\">here.</a>"
+		   "</p>"
 		   "<p><b>A simple example:</b></p>"
 		   (cl-readme:example-code "src/synthesizer/rack/example-sine.lisp" :omit-header t)
 		   "<p><b>A more complex example using nested racks to define voices:</b></p>"
