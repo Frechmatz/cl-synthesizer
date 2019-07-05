@@ -13,7 +13,6 @@
      #'cl-synthesizer-modules-vco:make-module
      :base-frequency 440.0 :v-peak 5.0)
 
-    ;; Generate a Wave-File
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:make-handler

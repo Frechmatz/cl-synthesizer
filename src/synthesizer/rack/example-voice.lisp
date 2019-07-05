@@ -41,7 +41,6 @@
     (cl-synthesizer:add-patch rack "VOICE-1" :audio "OUTPUT" :left)
     (cl-synthesizer:add-patch rack "VOICE-2" :audio "OUTPUT" :right)
 
-    ;; Generate a Wave-File
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:make-handler
