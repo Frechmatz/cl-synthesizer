@@ -210,8 +210,8 @@
 
    (list
     :id :adsr :name "ADSR"
-    :setup (lambda(&key duration-seconds)
-	     (let ((rack (cl-synthesizer-profiling-adsr::make-test-rack)))
+    :setup (lambda(&key duration-seconds (exponential nil))
+	     (let ((rack (cl-synthesizer-profiling-adsr::make-test-rack :exponential exponential)))
 	       (let ((info (get-rack-info rack)))
 		 (values 
 		  (lambda ()
@@ -220,7 +220,9 @@
 		     :duration-seconds duration-seconds))
 		  (format
 		   nil
-		   "Updating ADSR for ~a seconds (Modules: ~a Patches: ~a)" duration-seconds
+		   "Updating ADSR (Exponential mode: ~a) for ~a seconds (Modules: ~a Patches: ~a)"
+		   exponential
+		   duration-seconds
 		   (getf info :module-count) (getf info :patch-count)))))))
    (list
     :id :mixer :name "Mixer"
@@ -454,7 +456,16 @@
    :profile-time t
    :profile-statistical nil
    :init nil
-   :jobs '((:client-id :adsr :init (:duration-seconds 60)))))
+   :jobs '((:client-id :adsr :init (:duration-seconds 60 :exponential nil)))))
+
+(defparameter *profiling-plan-adsr-exponential*
+  (list
+   :name "ADSR"
+   :max-samples 500
+   :profile-time t
+   :profile-statistical nil
+   :init nil
+   :jobs '((:client-id :adsr :init (:duration-seconds 60 :exponential t)))))
 
 (defparameter *profiling-plan-mixer*
   (list
@@ -509,7 +520,8 @@
 	     :sample-rate 44100
 	     :filename "cl-synthesizer-examples/wave-profiling.wav"))
 	   (:client-id :midi-interface :init (:duration-seconds 60))
-	   (:client-id :adsr :init (:duration-seconds 60))
+	   (:client-id :adsr :init (:duration-seconds 60 :exponential nil))
+	   (:client-id :adsr :init (:duration-seconds 60 :exponential t))
 	   (:client-id :mixer :init (:duration-seconds 60 :channel-count 32))
 	   (:client-id :keyboard :init (:duration-seconds 10 :voice-count 50))
 	   )))
@@ -525,6 +537,7 @@
 ;; (run-plan *profiling-plan-wave-writer*)
 ;; (run-plan *profiling-plan-midi-interface*)
 ;; (run-plan *profiling-plan-adsr*)
+;; (run-plan *profiling-plan-adsr-exponential*)
 ;; (run-plan *profiling-plan-mixer*)
 ;; (run-plan *profiling-plan-keyboard*)
 

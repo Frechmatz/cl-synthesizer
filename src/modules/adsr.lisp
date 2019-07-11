@@ -7,7 +7,8 @@
 		      release-time-ms
 		      (time-cv-to-time-ms nil)
 		      (gate-threshold 2.5)
-		      (backward-coupled nil))
+		      (backward-coupled nil)
+		      (exponential nil))
   "Creates an envelope generator module with the phases Attack, Decay, Sustain and Release.
     This module has been realized using other modules such as Ramp, Sustain, Trigger and Multiple.
     The function has the following arguments:
@@ -25,6 +26,7 @@
         <li>:backward-coupled If t then the output signal of the envelope will be connected with 
             the input of the attack phase. This can be used to avoid sudden jumps of the envelope 
             as the attack phase by default starts at 0.0.</li>
+        <li>:exponential If t then the envelope will have exponential characteristic.</li>
     </ul>
     The module has the following inputs:
     <ul>
@@ -59,7 +61,8 @@
      :time-ms attack-time-ms :target-output attack-target-output
      :gate-state :on
      :time-cv-to-time-ms time-cv-to-time-ms
-     :gate-threshold gate-threshold)
+     :gate-threshold gate-threshold
+     :exponential exponential)
     (cl-synthesizer:add-patch rack "INPUT" :attack-cv-time "ATTACK" :cv-time)
     
     (cl-synthesizer:add-module
@@ -68,7 +71,8 @@
      :time-ms decay-time-ms :target-output decay-target-output
      :gate-state :on
      :time-cv-to-time-ms time-cv-to-time-ms
-     :gate-threshold gate-threshold)
+     :gate-threshold gate-threshold
+     :exponential exponential)
     
     (cl-synthesizer:add-module
      rack "SUSTAIN"
@@ -79,7 +83,8 @@
      rack "RELEASE"
      #'cl-synthesizer-modules-ramp:make-module
      :time-ms release-time-ms :target-output 0.0 :time-cv-to-time-ms time-cv-to-time-ms
-     :gate-threshold gate-threshold)
+     :gate-threshold gate-threshold
+     :exponential exponential)
     (cl-synthesizer:add-patch rack "INPUT" :release-cv-time "RELEASE" :cv-time)
 
     ;; Inputs => ATTACK
