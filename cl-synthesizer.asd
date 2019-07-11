@@ -26,6 +26,7 @@
 				     (:file "linear-converter")
 				     (:file "phase-waveform-converter")
 				     (:file "phase-generator")
+				     (:file "normalized-exp")
 				     (:file "round-time")))
 		(:module "src/midi"
 			:serial t

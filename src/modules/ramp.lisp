@@ -1,13 +1,14 @@
 (in-package :cl-synthesizer-modules-ramp)
 
+
 (defun make-module (name environment
 		    &key time-ms target-output (gate-state nil)
 		      (trigger-threshold 2.5) (gate-threshold 2.5)
-		      (time-cv-to-time-ms nil))
+		      (time-cv-to-time-ms nil)
+		      (exponential nil))
   "Creates a module whose output climbs from a given input value to a given output value
     in a given time. Main purpose of this module is to create envelope generators by chaining
-    multiple ramp and sustain modules. The module climbs linearly (exponential climbing will
-    be added later). The function has the following arguments:
+    multiple ramp and sustain modules. The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
@@ -20,6 +21,7 @@
 	<li>:gate-threshold Minimum value of the :gate input that indicates that the gate is on.</li>
 	<li>:time-cv-to-time-ms An optional function that converts a time control voltage to a duration in milliseconds.
         The default implementation is 1000ms/1V (abs(cv-time) * 1000).</li>
+        <li>:exponential If t then the ramp will climb with an exponential characteristic.</li>
     </ul>
     The module has the following inputs:
     <ul>
@@ -56,7 +58,19 @@
 	 (sample-rate (getf environment :sample-rate))
 	 (tick-delta-ms (/ 1 (/ sample-rate 1000.0)))
 	 (input-trigger nil) (input-input nil) (input-pass-through nil) (input-gate nil)
-	 (input-cv-time nil))
+	 (input-cv-time nil)
+	 (transfer-fn nil))
+    (if (not exponential)
+	;; Linear transfer
+	(setf transfer-fn (lambda()
+			    (let* ((ticks-per-cycle (* time-ms (/ sample-rate 1000)))
+				   (delta (/ (- target-output start) ticks-per-cycle)))
+			      (+ output delta))))
+	;; Exponential transfer
+	(setf transfer-fn (lambda()
+			    (let* ((ramp-progress-percent (/ elapsed-time-ms time-ms))
+				   (normalized-delta (cl-synthesizer-core:normalized-exp ramp-progress-percent)))
+			      (+ start (* (- target-output start) normalized-delta))))))
     (let ((inputs (list
 		   :trigger (lambda(value) (setf input-trigger value))
 		   :input (lambda(value) (setf input-input value))
@@ -68,48 +82,46 @@
 		    :busy (lambda() busy)
 		    :done (lambda() done)
 		    :gate (lambda() passthrough-gate))))
-    (list
-     :inputs (lambda () inputs)
-     :outputs (lambda () outputs)
-     :update (lambda ()
-	       (setf done 0.0)
-	       (if input-cv-time
-		   (setf time-ms (funcall time-cv-to-time-ms input-cv-time)))
-	       (setf passthrough-gate input-gate)
-	       (if (not input-gate)
-		   (setf input-gate 0.0))
-	       (if (not input-input)
-		   (setf input-input 0.0))
-	       (if (not input-trigger)
-		   (setf input-trigger 0.0))
-	       (if (not input-pass-through)
-		   (setf input-pass-through 0.0))
-	       (if (> input-pass-through 0.0)
-		   (progn
-		     (setf output input-input)
-		     (setf busy 5.0)) ;; busy with passing through the input
-		   (progn 
-		     (if (>= input-trigger trigger-threshold)
-			 ;; Start ramp
-			 (progn
-			   (setf busy 5.0)
-			   (setf start input-input) ;; sample
-			   (setf output input-input)
-			   (setf elapsed-time-ms 0.0)))
-		     ;; Only continue when busy
-		     (if (> busy 0.0)
-			 (if (or (<= time-ms 0.0)
-				 (and (eq gate-state :on) (<= input-gate gate-threshold))
-				 (and (eq gate-state :off) (> input-gate gate-threshold)))
-			     (progn
-			       (setf done 5.0)
-			       (setf busy 0.0))
-			     (progn
-			       (setf elapsed-time-ms (+ elapsed-time-ms tick-delta-ms))
-			       (if (> (cl-synthesizer-core:round-time elapsed-time-ms sample-rate) time-ms)
-				   (progn
-				     (setf done 5.0)
-				     (setf busy 0.0))
-				   (let* ((ticks-per-cycle (* time-ms (/ sample-rate 1000)))
-					  (delta (/ (- target-output start) ticks-per-cycle)))
-				     (setf output (+ output delta))))))))))))))
+      (list
+       :inputs (lambda () inputs)
+       :outputs (lambda () outputs)
+       :update (lambda ()
+		 (setf done 0.0)
+		 (if input-cv-time
+		     (setf time-ms (funcall time-cv-to-time-ms input-cv-time)))
+		 (setf passthrough-gate input-gate)
+		 (if (not input-gate)
+		     (setf input-gate 0.0))
+		 (if (not input-input)
+		     (setf input-input 0.0))
+		 (if (not input-trigger)
+		     (setf input-trigger 0.0))
+		 (if (not input-pass-through)
+		     (setf input-pass-through 0.0))
+		 (if (> input-pass-through 0.0)
+		     (progn
+		       (setf output input-input)
+		       (setf busy 5.0)) ;; busy with passing through the input
+		     (progn 
+		       (if (>= input-trigger trigger-threshold)
+			   ;; Start ramp
+			   (progn
+			     (setf busy 5.0)
+			     (setf start input-input) ;; sample
+			     (setf output input-input)
+			     (setf elapsed-time-ms 0.0)))
+		       ;; Only continue when busy
+		       (if (> busy 0.0)
+			   (if (or (<= time-ms 0.0)
+				   (and (eq gate-state :on) (<= input-gate gate-threshold))
+				   (and (eq gate-state :off) (> input-gate gate-threshold)))
+			       (progn
+				 (setf done 5.0)
+				 (setf busy 0.0))
+			       (progn
+				 (setf elapsed-time-ms (+ elapsed-time-ms tick-delta-ms))
+				 (if (> (cl-synthesizer-core:round-time elapsed-time-ms sample-rate) time-ms)
+				     (progn
+				       (setf done 5.0)
+				       (setf busy 0.0))
+				     (setf output (funcall transfer-fn)))))))))))))
