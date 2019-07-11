@@ -13,7 +13,6 @@
      #'cl-synthesizer-modules-vco:make-module
      :base-frequency 440.0 :v-peak 5.0)
 
-    ;; Generate a Wave-File
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:make-handler
@@ -26,7 +25,7 @@
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds 5)))
 
-;; (run-example)</code></pre></p><p><b>A more complex example using nested racks to define voices:</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-voice
+;; (run-example)</code></pre></p><p><b>A more complex example:</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-voice
   (:use :cl))
 
 (in-package :cl-synthesizer-rack-example-voice)
@@ -69,7 +68,6 @@
     (cl-synthesizer:add-patch rack "VOICE-1" :audio "OUTPUT" :left)
     (cl-synthesizer:add-patch rack "VOICE-2" :audio "OUTPUT" :right)
 
-    ;; Generate a Wave-File
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:make-handler
@@ -365,7 +363,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds 120)))
 
-;; (run-example)</code></pre></p><h4 id="adsr">ADSR</h4><p><b>cl-synthesizer-modules-adsr:make-module</b> name environment &key attack-time-ms attack-target-output decay-time-ms decay-target-output release-time-ms (time-cv-to-time-ms nil) (gate-threshold 2.5) (backward-coupled nil) </p><p>Creates an envelope generator module with the phases Attack, Decay, Sustain and Release.
+;; (run-example)</code></pre></p><h4 id="adsr">ADSR</h4><p><b>cl-synthesizer-modules-adsr:make-module</b> name environment &key attack-time-ms attack-target-output decay-time-ms decay-target-output release-time-ms (time-cv-to-time-ms nil) (gate-threshold 2.5) (backward-coupled nil) (exponential nil) </p><p>Creates an envelope generator module with the phases Attack, Decay, Sustain and Release.
     This module has been realized using other modules such as Ramp, Sustain, Trigger and Multiple.
     The function has the following arguments:
     <ul>
@@ -382,6 +380,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
         <li>:backward-coupled If t then the output signal of the envelope will be connected with 
             the input of the attack phase. This can be used to avoid sudden jumps of the envelope 
             as the attack phase by default starts at 0.0.</li>
+        <li>:exponential If t then the envelope will have exponential characteristic.</li>
     </ul>
     The module has the following inputs:
     <ul>
@@ -398,8 +397,27 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 
 (in-package :cl-synthesizer-modules-adsr-example-1)
 
+(defun make-voice (name environment &amp;key exponential)
+  (let ((rack (cl-synthesizer:make-rack
+               :environment environment
+               :input-sockets '(:gate)
+               :output-sockets '(:adsr-out))))
+
+    (cl-synthesizer:add-module
+     rack "ADSR"
+     #'cl-synthesizer-modules-adsr:make-module
+     :attack-time-ms 500 :attack-target-output 5.0
+     :decay-time-ms 250 :decay-target-output 4.0
+     :release-time-ms 1000
+     :exponential exponential)
+
+    (cl-synthesizer:add-patch rack "INPUT" :gate "ADSR" :gate)
+    (cl-synthesizer:add-patch rack "ADSR" :cv "OUTPUT" :adsr-out)
+
+    rack))
+
 (defun example ()
-  "ADSR example"
+  "ADSR example. Linear vs. Exponential"
   (let ((rack (cl-synthesizer:make-rack
                :environment (cl-synthesizer:make-environment))))
     
@@ -418,21 +436,29 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
      rack "MIDI-IFC"
      #'cl-synthesizer-modules-midi-interface:make-module :voice-count 1)
 
-    (cl-synthesizer:add-module
-     rack "ADSR"
-     #'cl-synthesizer-modules-adsr:make-module
-     :attack-time-ms 500 :attack-target-output 5.0
-     :decay-time-ms 250 :decay-target-output 4.0
-     :release-time-ms 1000)
-    
     (cl-synthesizer:add-patch rack "MIDI-SEQUENCER" :midi-events "MIDI-IFC" :midi-events)
-    (cl-synthesizer:add-patch rack "MIDI-IFC" :gate-1 "ADSR" :gate)
+    
+    (cl-synthesizer:add-module
+     rack "GATE-MULTIPLE"
+     #'cl-synthesizer-modules-multiple:make-module
+     :output-count 2)
+
+    (cl-synthesizer:add-patch rack "MIDI-IFC" :gate-1 "GATE-MULTIPLE" :input)
+
+    (cl-synthesizer:add-module
+     rack "LINEAR" #'make-voice :exponential nil)
+    (cl-synthesizer:add-patch rack "GATE-MULTIPLE" :output-1 "LINEAR" :gate)
+    
+    (cl-synthesizer:add-module
+     rack "EXPONENTIAL" #'make-voice :exponential t)
+    (cl-synthesizer:add-patch rack "GATE-MULTIPLE" :output-2 "EXPONENTIAL" :gate)
 
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-csv-handler:make-handler
-     '(("ADSR" :input-socket :gate :name "ADSR Gate In")
-       ("ADSR" :output-socket :cv :name "ADSR Out"))
+     '(("GATE-MULTIPLE" :input-socket :input :name "Gate")
+       ("LINEAR" :output-socket :adsr-out :name "ADSR Linear")
+       ("EXPONENTIAL" :output-socket :adsr-out :name "ADSR Exponential"))
      :filename "cl-synthesizer-examples/adsr-example-1.csv")
     
     rack))
@@ -854,10 +880,9 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds 2)))
 
-;; (run-example)</code></pre></p><h4 id="ramp">Ramp</h4><p><b>cl-synthesizer-modules-ramp:make-module</b> name environment &key time-ms target-output (gate-state nil) (trigger-threshold 2.5) (gate-threshold 2.5) (time-cv-to-time-ms nil) </p><p>Creates a module whose output climbs from a given input value to a given output value
+;; (run-example)</code></pre></p><h4 id="ramp">Ramp</h4><p><b>cl-synthesizer-modules-ramp:make-module</b> name environment &key time-ms target-output (gate-state nil) (trigger-threshold 2.5) (gate-threshold 2.5) (time-cv-to-time-ms nil) (exponential nil) </p><p>Creates a module whose output climbs from a given input value to a given output value
     in a given time. Main purpose of this module is to create envelope generators by chaining
-    multiple ramp and sustain modules. The module climbs linearly (exponential climbing will
-    be added later). The function has the following arguments:
+    multiple ramp and sustain modules. The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
@@ -870,6 +895,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 	<li>:gate-threshold Minimum value of the :gate input that indicates that the gate is on.</li>
 	<li>:time-cv-to-time-ms An optional function that converts a time control voltage to a duration in milliseconds.
         The default implementation is 1000ms/1V (abs(cv-time) * 1000).</li>
+        <li>:exponential If t then the ramp will climb with an exponential characteristic.</li>
     </ul>
     The module has the following inputs:
     <ul>
@@ -898,11 +924,38 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 
 (in-package :cl-synthesizer-modules-ramp-example-1)
 
+(defun make-voice (name environment &amp;key (exponential nil))
+  (declare (ignore name))
+  (let ((rack
+         (cl-synthesizer:make-rack
+          :environment environment
+          :input-sockets '(:trigger)
+          :output-sockets '(:output))))
+
+    (cl-synthesizer:add-module
+     rack "ATTACK"
+     #'cl-synthesizer-modules-ramp:make-module
+     :time-ms 700 :target-output 5.0 :gate-state nil :exponential exponential)
+
+    (cl-synthesizer:add-module
+     rack "DECAY"
+     #'cl-synthesizer-modules-ramp:make-module
+     :time-ms 500 :target-output -2.5 :exponential exponential)
+    
+    (cl-synthesizer:add-patch rack "INPUT" :trigger "ATTACK" :trigger)
+    (cl-synthesizer:add-patch rack "ATTACK" :busy "DECAY" :pass-through)
+    (cl-synthesizer:add-patch rack "ATTACK" :output "DECAY" :input)
+    (cl-synthesizer:add-patch rack "ATTACK" :done "DECAY" :trigger)
+
+    (cl-synthesizer:add-patch rack "DECAY" :output "OUTPUT" :output)
+
+    rack))
+
 (defun example ()
-  "Ramp example"
+  "Linear and Exponential Ramp"
   (let ((rack (cl-synthesizer:make-rack
                :environment (cl-synthesizer:make-environment))))
-    
+
     (cl-synthesizer:add-module
      rack "VCO"
      #'cl-synthesizer-modules-vco:make-module
@@ -913,28 +966,28 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
      #'cl-synthesizer-modules-trigger:make-module
      :trigger-threshold 4.9 :pulse-voltage 5.0)
 
-    (cl-synthesizer:add-module
-     rack "ATTACK"
-     #'cl-synthesizer-modules-ramp:make-module
-     :time-ms 200 :target-output 5.0 :gate-state nil)
-
-    (cl-synthesizer:add-module
-     rack "DECAY"
-     #'cl-synthesizer-modules-ramp:make-module
-     :time-ms 200 :target-output 2.5)
-    
     (cl-synthesizer:add-patch rack "VCO" :square "TRIGGER" :input)
-    (cl-synthesizer:add-patch rack "TRIGGER" :output "ATTACK" :trigger)
-    (cl-synthesizer:add-patch rack "ATTACK" :busy "DECAY" :pass-through)
-    (cl-synthesizer:add-patch rack "ATTACK" :output "DECAY" :input)
-    (cl-synthesizer:add-patch rack "ATTACK" :done "DECAY" :trigger)
+    
+    (cl-synthesizer:add-module
+     rack "TRIGGER-MULTIPLE"
+     #'cl-synthesizer-modules-multiple:make-module
+     :output-count 2)
+
+    (cl-synthesizer:add-patch rack "TRIGGER" :output "TRIGGER-MULTIPLE" :input)
+    
+    (cl-synthesizer:add-module
+     rack "LINEAR" #'make-voice :exponential nil)
+    (cl-synthesizer:add-patch rack "TRIGGER-MULTIPLE" :output-1 "LINEAR" :trigger)
+    
+    (cl-synthesizer:add-module
+     rack "EXPONENTIAL" #'make-voice :exponential t)
+    (cl-synthesizer:add-patch rack "TRIGGER-MULTIPLE" :output-2 "EXPONENTIAL" :trigger)
 
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-csv-handler:make-handler
-     '(("VCO" :output-socket :square :name "VCO Out")
-       ("ATTACK" :output-socket :output :name "Attack Out")
-       ("DECAY" :output-socket :output :name "Decay Out"))
+     '(("LINEAR" :output-socket :output :name "Lin Out")
+       ("EXPONENTIAL" :output-socket :output :name "Exp Out"))
      :filename "cl-synthesizer-examples/ramp-example-1.csv")
     
     rack))
@@ -1208,4 +1261,4 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
    and so on.</p></section><section class="container"><h2>Acknowledgements</h2>
 <ul>
 <li>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></li>
-</ul></section><footer class="container"><hr/><p><small>Generated 2019-07-05  23:31:48</small></p></footer></body></html>
+</ul></section><footer class="container"><hr/><p><small>Generated 2019-07-12  01:51:23</small></p></footer></body></html>
