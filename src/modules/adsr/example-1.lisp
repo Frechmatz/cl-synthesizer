@@ -13,7 +13,7 @@
      rack "ADSR"
      #'cl-synthesizer-modules-adsr:make-module
      :attack-time-ms 500 :attack-target-output 5.0
-     :decay-time-ms 250 :decay-target-output 4.0
+     :decay-time-ms 250 :decay-target-output -3.0
      :release-time-ms 1000
      :exponential exponential)
 
