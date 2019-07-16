@@ -240,10 +240,11 @@
 		 ))))
    (list
     :id :keyboard :name "Keyboard"
-    :setup (lambda(&key duration-seconds voice-count)
+    :setup (lambda(&key duration-seconds voice-count exponential)
 	     (let ((rack (cl-synthesizer-profiling-keyboard::make-test-rack
 			  :duration-seconds duration-seconds
-			  :voice-count voice-count)))
+			  :voice-count voice-count
+			  :exponential exponential)))
 	       (let ((info (get-rack-info rack)))
 		 (values 
 		  (lambda ()
@@ -252,9 +253,10 @@
 		     :duration-seconds duration-seconds))
 		  (format
 		   nil
-		   "Updating Keyboard with ~a voices for ~a seconds (Modules: ~a Patches: ~a)"
+		   "Updating Keyboard with ~a voices for ~a seconds (Exponential: ~a Modules: ~a Patches: ~a)"
 		   voice-count
 		   duration-seconds
+		   exponential
 		   (getf info :module-count) (getf info :patch-count)))))))
    ))
 
@@ -483,7 +485,8 @@
    :profile-time t
    :profile-statistical nil
    :init nil
-   :jobs '((:client-id :keyboard :init (:duration-seconds 60 :voice-count 50)))))
+   :jobs '((:client-id :keyboard :init (:duration-seconds 60 :voice-count 50 :exponential nil))
+	   (:client-id :keyboard :init (:duration-seconds 60 :voice-count 50 :exponential t)))))
 
 
 (defparameter *profiling-plan-all*

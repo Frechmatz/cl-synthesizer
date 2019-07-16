@@ -3,7 +3,7 @@
 
 (in-package :cl-synthesizer-profiling-keyboard)
 
-(defun make-voice (name environment)
+(defun make-voice (name environment &key exponential)
   (declare (ignore name))
   (let ((rack (cl-synthesizer:make-rack
 	       :environment environment
@@ -22,15 +22,21 @@
      :attack-time-ms 50 :attack-target-output 5.0
      :decay-time-ms 20 :decay-target-output 3.0
      :release-time-ms 30
-     :backward-coupled t)
+     :backward-coupled t
+     :exponential exponential)
     
-    (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:make-module :cv-max 5.0)
+    (cl-synthesizer:add-module
+     rack
+     "VCA"
+     #'cl-synthesizer-modules-vca:make-module
+     :cv-max 5.0
+     :exponential exponential)
 
     (cl-synthesizer:add-patch rack "VCO" :sine "VCA" :input)
     (cl-synthesizer:add-patch rack "ADSR" :cv "VCA" :cv)
     (cl-synthesizer:add-patch rack "INPUT" :cv "VCO" :cv-exp)
     (cl-synthesizer:add-patch rack "INPUT" :gate "ADSR" :gate)
-    (cl-synthesizer:add-patch rack "VCA" :output-linear "OUTPUT" :audio)
+    (cl-synthesizer:add-patch rack "VCA" :output "OUTPUT" :audio)
     
     rack))
 
@@ -62,14 +68,13 @@
     events))
 
 
-(defun make-test-rack (&key duration-seconds voice-count)
-  ""
+(defun make-test-rack (&key duration-seconds voice-count exponential)
   (let ((rack (cl-synthesizer:make-rack
 	       :environment (cl-synthesizer:make-environment))))
 
     ;; Add voices
     (dotimes (i voice-count)
-      (cl-synthesizer:add-module rack (format nil "VOICE-~a" i) #'make-voice))
+      (cl-synthesizer:add-module rack (format nil "VOICE-~a" i) #'make-voice :exponential exponential))
     
     (cl-synthesizer:add-module
      rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:make-module :voice-count voice-count)

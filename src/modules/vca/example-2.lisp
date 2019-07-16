@@ -20,7 +20,7 @@
     (cl-synthesizer:add-module
      rack "VCO-AUDIO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 10000.0
+     :base-frequency 5.0
      :v-peak 5.0)
 
     ;; Set up VCA with Gain
@@ -28,27 +28,27 @@
      rack "VCA"
      #'cl-synthesizer-modules-vca:make-module
      :cv-max 5.0
-     :initial-gain 2.5)
+     :initial-gain 2.5
+     :exponential nil)
 
     ;; Add patches
     (cl-synthesizer:add-patch rack "VCO-AUDIO" :sine "VCA" :input)
     (cl-synthesizer:add-patch rack "LFO-CV" :triangle "VCA" :cv)
 
-    ;; Record VCA inputs/outputs into a Wave-File
+    ;; Write VCA inputs/outputs into a CSV-File
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:make-handler
-     '(("VCA" :input-socket :cv)
-       ("VCA" :input-socket :input)
-       ("VCA" :output-socket :output-linear)
-       ("VCA" :output-socket :output-exponential))
-     :filename "cl-synthesizer-examples/vca-example-2.wav")
+     #'cl-synthesizer-monitor-csv-handler:make-handler
+     '(("VCA" :input-socket :cv :name "CV")
+       ("VCA" :input-socket :input :name "Input")
+       ("VCA" :output-socket :output :name "Output"))
+     :filename "cl-synthesizer-examples/vca-example-2.csv")
     
     rack))
 
 (defun run-example ()
   (let ((rack (example)))
-    (cl-synthesizer:play-rack rack :duration-seconds 120)))
+    (cl-synthesizer:play-rack rack :duration-seconds 5.0)))
 
 ;; (run-example)
 
