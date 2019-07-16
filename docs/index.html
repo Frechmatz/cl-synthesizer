@@ -294,7 +294,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds 1)))
 
-;; (run-example)</code></pre></p><h4 id="vca">VCA</h4><p><b>cl-synthesizer-modules-vca:make-module</b> name environment &key cv-max (initial-gain 0.0) </p><p>Creates a Voltage Controlled Amplifier/Attenuator module. The VCA multiplies an
+;; (run-example)</code></pre></p><h4 id="vca">VCA</h4><p><b>cl-synthesizer-modules-vca:make-module</b> name environment &key cv-max (initial-gain 0.0) (exponential nil) </p><p>Creates a Voltage Controlled Amplifier/Attenuator module. The VCA multiplies an
     incoming signal with a factor of 0..1. The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
@@ -302,6 +302,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 	<li>:cv-max The value of the effective amplification control voltage that represents the maximum
 	    amplification of 1.0.</li>
 	<li>:initial-gain An offset that is added to the amplification control voltage.</li>
+        <li>:exponential If t then the amplification will have an exponential characteristic.</li>
     </ul>
     The module has the following inputs:
     <ul>
@@ -312,8 +313,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
     The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.0 <= v <= :cv-max.
     The module has the following outputs:
     <ul>
-	<li>:output-linear Amplified input signal with linear amplification characteristic.</li>
-	<li>:output-exponential Amplified input signal with exponential amplification characteristic.</li>
+	<li>:output Amplified input signal.</li>
     </ul></p><p><b>Example:</b></p><p><pre><code>(defpackage :cl-synthesizer-modules-vca-example-1
   (:use :cl))
 
@@ -334,34 +334,34 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
     (cl-synthesizer:add-module
      rack "VCO-AUDIO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 10000.0
+     :base-frequency 5.0
      :v-peak 5.0)
 
     ;; Set up VCA
     (cl-synthesizer:add-module
      rack "VCA"
      #'cl-synthesizer-modules-vca:make-module
-     :cv-max 5.0)
+     :cv-max 5.0
+     :exponential t)
 
     ;; Add patches
     (cl-synthesizer:add-patch rack "VCO-AUDIO" :sine "VCA" :input)
     (cl-synthesizer:add-patch rack "LFO-CV" :triangle "VCA" :cv)
 
-    ;; Record VCA inputs/outputs into a Wave-File
+    ;; Write VCA inputs/outputs into a CSV file
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:make-handler
-     '(("VCA" :input-socket :cv)
-       ("VCA" :input-socket :input)
-       ("VCA" :output-socket :output-linear)
-       ("VCA" :output-socket :output-exponential))
-     :filename "cl-synthesizer-examples/vca-example-1.wav")
+     #'cl-synthesizer-monitor-csv-handler:make-handler
+     '(("VCA" :input-socket :cv :name "CV")
+       ("VCA" :input-socket :input :name "Input")
+       ("VCA" :output-socket :output :name "Output"))
+     :filename "cl-synthesizer-examples/vca-example-1.csv")
     
     rack))
 
 (defun run-example ()
   (let ((rack (example)))
-    (cl-synthesizer:play-rack rack :duration-seconds 120)))
+    (cl-synthesizer:play-rack rack :duration-seconds 5.0)))
 
 ;; (run-example)</code></pre></p><h4 id="adsr">ADSR</h4><p><b>cl-synthesizer-modules-adsr:make-module</b> name environment &key attack-time-ms attack-target-output decay-time-ms decay-target-output release-time-ms (time-cv-to-time-ms nil) (gate-threshold 2.5) (backward-coupled nil) (exponential nil) </p><p>Creates an envelope generator module with the phases Attack, Decay, Sustain and Release.
     This module has been realized using other modules such as Ramp, Sustain, Trigger and Multiple.
@@ -407,7 +407,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
      rack "ADSR"
      #'cl-synthesizer-modules-adsr:make-module
      :attack-time-ms 500 :attack-target-output 5.0
-     :decay-time-ms 250 :decay-target-output 4.0
+     :decay-time-ms 250 :decay-target-output -3.0
      :release-time-ms 1000
      :exponential exponential)
 
@@ -703,10 +703,10 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
      :release-time-ms 100)
     
     ;; Add VCA
-    (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:make-module :cv-max 5.0)
+    (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:make-module :cv-max 5.0 :exponential nil)
 
     ;; Connect VCA with ADSR and VCO
-    (cl-synthesizer:add-patch rack "VCA" :output-linear "OUTPUT" :line-out)
+    (cl-synthesizer:add-patch rack "VCA" :output "OUTPUT" :line-out)
     (cl-synthesizer:add-patch rack "ADSR" :cv "VCA" :cv)
     (cl-synthesizer:add-patch rack "VCO" :triangle "VCA" :input)
     
@@ -1261,4 +1261,4 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
    and so on.</p></section><section class="container"><h2>Acknowledgements</h2>
 <ul>
 <li>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></li>
-</ul></section><footer class="container"><hr/><p><small>Generated 2019-07-12  01:51:23</small></p></footer></body></html>
+</ul></section><footer class="container"><hr/><p><small>Generated 2019-07-16  20:45:34</small></p></footer></body></html>
