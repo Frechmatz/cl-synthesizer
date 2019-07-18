@@ -39,7 +39,7 @@
 			:cv 5.0
 			:gain 0.0))
 	       (let ((output (get-module-output vca :output)))
-		 (assert-true (is-approximately 10.0 output 0.1)))))
+		 (assert-true (is-approximately 10.0 output 0.01)))))
 
 (define-test vca-test-3 ()
 	     (let ((vca (cl-synthesizer-modules-vca:make-module
