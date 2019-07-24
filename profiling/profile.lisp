@@ -344,11 +344,12 @@
 
 (defparameter *profiling-plan-vco-core*
   (list
-   :name "Phase Generator and Waveform Converters"
+   :name "Phase Generator and Waveform Converters representing 100 VCOs running for 60 seconds"
    :max-samples 500
    :profile-time t
    :profile-statistical nil
-   :init '(:duration-seconds 3600)
+   ;; 100 VCOs 60 seconds => 6000 seconds
+   :init '(:duration-seconds 6000)
    :jobs '((:client-id :phase-sine-converter :init nil)
 	   (:client-id :phase-square-converter :init nil)
 	   (:client-id :phase-triangle-converter :init nil)
@@ -377,24 +378,6 @@
 	    :init (:duration-seconds 60 :module-count 100 :input-socket-count 4 :output-socket-count 4))
 	   (:client-id :rack-core-chain
 	    :init (:duration-seconds 60 :module-count 100 :socket-count 4)))))
-
-(defparameter *profiling-plan-vco-overhead*
-  (list
-   :name "Measure overhead of 100 VCO Modules against 100 modules and core calls"
-   :max-samples 500
-   :profile-time t
-   :profile-statistical nil
-   :init nil
-   :jobs '((:client-id :vco
-	    :init (:duration-seconds 60 :vco-count 100))
-	   ;; A VCO has 2 input and 4 output sockets
-	   (:client-id :rack-core-cloud
-	    :init (:duration-seconds 60 :module-count 100 :input-socket-count 2 :output-socket-count 4))
-	   (:client-id :phase-sine-converter :init (:duration-seconds 6000))
-	   (:client-id :phase-square-converter :init (:duration-seconds 6000))
-	   (:client-id :phase-triangle-converter :init (:duration-seconds 6000))
-	   (:client-id :phase-saw-converter :init (:duration-seconds 6000))
-	   (:client-id :phase-generator :init (:duration-seconds 6000)))))
 
 (defparameter *profiling-plan-monitor*
   (list
@@ -532,7 +515,6 @@
 ;; (run-plan *profiling-plan-vco-core*)
 ;; (run-plan *profiling-plan-vco*)
 ;; (run-plan *profiling-plan-rack-core*)
-;; (run-plan *profiling-plan-vco-overhead*)
 ;; (run-plan *profiling-plan-monitor*)
 ;; (run-plan *profiling-plan-all*)
 ;; (run-plan *profiling-plan-midi-sequencer*)
