@@ -220,7 +220,7 @@
 		     :duration-seconds duration-seconds))
 		  (format
 		   nil
-		   "Updating ADSR (Exponential mode: ~a) for ~a seconds (Modules: ~a Patches: ~a)"
+		   "Updating ADSR (Exponential: ~a) for ~a seconds (Modules: ~a Patches: ~a)"
 		   exponential
 		   duration-seconds
 		   (getf info :module-count) (getf info :patch-count)))))))
