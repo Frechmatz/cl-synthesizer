@@ -11,7 +11,6 @@
   :components ((:module "makedoc"
 			:serial t
 			:components ((:file "packages")
-				     (:file "doc-to-html")
 				     (:file "make-readme")
 				     (:file "make-patches")))))
 

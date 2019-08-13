@@ -160,7 +160,7 @@
 			:if-exists :supersede
 			:if-does-not-exist :create
 			:external-format :utf-8)
-      (generate-html fh (get-doc))))
+      (cl-readme:doc-to-html fh (get-doc))))
   "DONE")
 
 ;;(make-readme)
