@@ -237,11 +237,11 @@
         can be patched with other modules via the bridge module \"OUTPUT\".</li>
     </ul>
     <p>    
-    The update function calls the update function of all modules. If the 
+    The update function of the rack calls the update function of all embedded modules. If the 
     rack has already been shut down the function immediately returns <b>nil</b>.
     Othwerwise it returns <b>t</b>.
     </p><p>
-    The shutdown function calls the shutdown handlers of all modules and hooks. If the rack has 
+    The shutdown function of the rack calls the shutdown handlers of all embedded modules and hooks. If the rack has 
     already been shut down the function immediately returns.
     </p>
     <p>See also: add-module</p>"

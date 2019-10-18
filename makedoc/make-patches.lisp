@@ -32,7 +32,7 @@
 		   "<h2>Siren</h2>"
 		   "<p>"
 		   (audio "siren.wav")
-		   (cl-readme:example-code "patches/siren.lisp" :omit-header t)
+		   (cl-readme:read-code "patches/siren.lisp")
 		   "</p>"
 		   "</section>"
 		   "<section class=\"container\">"
