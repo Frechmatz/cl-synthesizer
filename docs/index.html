@@ -1,13 +1,13 @@
 <html><head></head><body><header class="container"><h2 id="Generated-Id-cl-synthesizer">cl-synthesizer</h2><p>A Modular Audio Synthesizer library implemented in Common Lisp. The source code can be found <a href="https://github.com/Frechmatz/cl-synthesizer">here.</a></header><nav class="container"><h2 id="Generated-Id-Table of contents">Table of contents</h2><ul><li><a href="#Generated-Id-Installation">Installation</a><ul></ul></li><li><a href="#Generated-Id-Examples">Examples</a><ul></ul></li><li><a href="#Generated-Id-API">API</a><ul><li><a href="#Generated-Id-Environment">Environment</a><ul><li><a href="#Generated-Id-make-environment">make-environment</a><ul></ul></li></ul></li><li><a href="#Generated-Id-Rack">Rack</a><ul><li><a href="#Generated-Id-make-rack">make-rack</a><ul></ul></li><li><a href="#Generated-Id-add-module">add-module</a><ul></ul></li><li><a href="#Generated-Id-add-patch">add-patch</a><ul></ul></li><li><a href="#Generated-Id-get-module">get-module</a><ul></ul></li><li><a href="#Generated-Id-get-module-name">get-module-name</a><ul></ul></li><li><a href="#Generated-Id-find-module">find-module</a><ul></ul></li><li><a href="#Generated-Id-get-patches">get-patches</a><ul></ul></li><li><a href="#Generated-Id-get-modules">get-modules</a><ul></ul></li><li><a href="#Generated-Id-add-hook">add-hook</a><ul></ul></li><li><a href="#Generated-Id-play-rack">play-rack</a><ul></ul></li><li><a href="#Generated-Id-is-rack">is-rack</a><ul></ul></li><li><a href="#Generated-Id-get-environment">get-environment</a><ul></ul></li></ul></li><li><a href="#Generated-Id-Modules">Modules</a><ul><li><a href="#Generated-Id-VCO">VCO</a><ul></ul></li><li><a href="#Generated-Id-VCA">VCA</a><ul></ul></li><li><a href="#Generated-Id-ADSR">ADSR</a><ul></ul></li><li><a href="#Generated-Id-Multiple">Multiple</a><ul></ul></li><li><a href="#Generated-Id-MIDI Interface">MIDI Interface</a><ul></ul></li><li><a href="#Generated-Id-MIDI CC Interface">MIDI CC Interface</a><ul></ul></li><li><a href="#Generated-Id-MIDI Sequencer">MIDI Sequencer</a><ul></ul></li><li><a href="#Generated-Id-Fixed Output">Fixed Output</a><ul></ul></li><li><a href="#Generated-Id-Adder">Adder</a><ul></ul></li><li><a href="#Generated-Id-Mixer">Mixer</a><ul></ul></li><li><a href="#Generated-Id-Trigger">Trigger</a><ul></ul></li><li><a href="#Generated-Id-Ramp">Ramp</a><ul></ul></li><li><a href="#Generated-Id-Sustain">Sustain</a><ul></ul></li><li><a href="#Generated-Id-Wave File Writer">Wave File Writer</a><ul></ul></li><li><a href="#Generated-Id-CSV File Writer">CSV File Writer</a><ul></ul></li></ul></li><li><a href="#Generated-Id-Monitor">Monitor</a><ul><li><a href="#Generated-Id-add-monitor">add-monitor</a><ul></ul></li><li><a href="#Generated-Id-wave-handler">wave-handler</a><ul></ul></li><li><a href="#Generated-Id-csv-handler">csv-handler</a><ul></ul></li></ul></li><li><a href="#Generated-Id-MIDI">MIDI</a><ul><li><a href="#Generated-Id-MIDI Event">MIDI Event</a><ul></ul></li><li><a href="#Generated-Id-MIDI Utilities">MIDI Utilities</a><ul></ul></li></ul></li><li><a href="#Generated-Id-Conditions">Conditions</a><ul></ul></li></ul></li><li><a href="#Generated-Id-Acknowledgements">Acknowledgements</a><ul></ul></li></ul></nav><section class="container"><h2 id="Generated-Id-Installation">Installation</h2><pre><code>cd ~/quicklisp/local-projects
 git clone https://github.com/Frechmatz/cl-wave-file-writer.git
 git clone https://github.com/Frechmatz/cl-synthesizer.git
-(ql:quickload "cl-synthesizer")</code></pre><h2 id="Generated-Id-Examples">Examples</h2><p><b>A simple example:</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-sine
+(ql:quickload "cl-synthesizer")</code></pre><h2 id="Generated-Id-Examples">Examples</h2><p><b>Generate a 440Hz sine wave and write it to a wave file.</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-sine
+  (:documentation "Generate a 440Hz sine wave and write it to a wave file.")
   (:use :cl))
 
 (in-package :cl-synthesizer-rack-example-sine)
 
 (defun example ()
-  "Generate a sine wave file"
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
     
     (cl-synthesizer:add-module
@@ -16,6 +16,8 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
      #'cl-synthesizer-modules-vco:make-module
      :base-frequency 440.0 :v-peak 5.0)
 
+    ;; We do not want to have a hard wired Wave-Writer module in our rack.
+    ;; Let the file writing stuff be handled by a monitor.
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:make-handler
@@ -28,20 +30,24 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds 5)))
 
-;; (run-example)</code></pre></p><p><b>A more complex example:</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-voice
+;; (run-example)</code></pre></p><p><b>Define a voice and use it two times. Write the output to a wave file.</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-voice
+  (:documentation "Define a voice and use it two times. Write the output to a wave file.")
   (:use :cl))
 
 (in-package :cl-synthesizer-rack-example-voice)
 
 (defun make-voice (name environment &amp;key lfo-frequency vco-frequency)
-  "Frequency modulated saw"
+  "Factory function of the voice."
   (declare (ignore name))
+  ;; The voice makes use of already available modules, so let it be a rack.
   (let ((voice
          (cl-synthesizer:make-rack
           :environment environment
-          ;; Expose audio output socket
+          ;; Expose an :audio output socket
           :output-sockets '(:audio))))
-    
+    ;;
+    ;; Add LFO and VCO and patch them to create a frequency modulated saw wave
+    ;;
     (cl-synthesizer:add-module
      voice "LFO"
      #'cl-synthesizer-modules-vco:make-module
@@ -53,6 +59,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
      :base-frequency vco-frequency :v-peak 5.0 :cv-lin-hz-v 20.0)
 
     (cl-synthesizer:add-patch voice "LFO" :sine "VCO" :cv-lin)
+    ;; Patch the VCO saw output with the :audio socket that is exposed by the voice
     (cl-synthesizer:add-patch voice "VCO" :saw "OUTPUT" :audio)
     
     voice))
@@ -71,6 +78,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
     (cl-synthesizer:add-patch rack "VOICE-1" :audio "OUTPUT" :left)
     (cl-synthesizer:add-patch rack "VOICE-2" :audio "OUTPUT" :right)
 
+    ;; Let a monitor write the Wave file.
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:make-handler
@@ -398,6 +406,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (in-package :cl-synthesizer-modules-adsr-example-1)
 
 (defun make-voice (name environment &amp;key exponential)
+  (declare (ignore name))
   (let ((rack (cl-synthesizer:make-rack
                :environment environment
                :input-sockets '(:gate)
@@ -1260,4 +1269,4 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
    a non-existing module, a patch is added to an already patched socket
    and so on.</p><h2 id="Generated-Id-Acknowledgements">Acknowledgements</h2><ul>
 <li>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></li>
-</ul></section><footer class="container"><p><small>Generated 2019-10-18  21:52:11</small></p></footer></body></html>
+</ul></section><footer class="container"><p><small>Generated 2019-10-23  21:06:04</small></p></footer></body></html>
