@@ -4,6 +4,7 @@
 (in-package :cl-synthesizer-modules-adsr-example-1)
 
 (defun make-voice (name environment &key exponential)
+  (declare (ignore name))
   (let ((rack (cl-synthesizer:make-rack
 	       :environment environment
 	       :input-sockets '(:gate)
