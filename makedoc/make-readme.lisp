@@ -22,6 +22,12 @@
    (documentation c 'type)
    "</p>"))
 
+(defun make-package-string (p)
+  (concatenate
+   'string
+   "<p><b>" (documentation (find-package p) t)
+   "</b></p>"))
+
 (defun get-doc ()
   (let ((tree
 	 `("<html>"
@@ -42,9 +48,11 @@
 		     (heading (:name "Installation" :toc t)
 			      ,(cl-readme:read-verbatim "makedoc/installation.html"))
 		     (heading (:name "Examples" :toc t)
-			      "<p><b>A simple example:</b></p>"
+			      ;;"<p><b>A simple example:</b></p>"
+			      ,(make-package-string 'cl-synthesizer-rack-example-sine)
 			      ,(cl-readme:read-code "src/synthesizer/rack/example-sine.lisp")
-			      "<p><b>A more complex example:</b></p>"
+			      ;;"<p><b>A more complex example:</b></p>"
+			      ,(make-package-string 'cl-synthesizer-rack-example-voice)
 			      ,(cl-readme:read-code "src/synthesizer/rack/example-voice.lisp"))
 		     (heading (:name "API" :toc t)
 			      (heading (:toc t :name "Environment")
