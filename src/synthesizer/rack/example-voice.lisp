@@ -1,17 +1,21 @@
 (defpackage :cl-synthesizer-rack-example-voice
+  (:documentation "Define a voice and use it two times. Write the output to a wave file.")
   (:use :cl))
 
 (in-package :cl-synthesizer-rack-example-voice)
 
 (defun make-voice (name environment &key lfo-frequency vco-frequency)
-  "Frequency modulated saw"
+  "Factory function of the voice."
   (declare (ignore name))
+  ;; The voice makes use of already available modules, so let it be a rack.
   (let ((voice
 	 (cl-synthesizer:make-rack
 	  :environment environment
-	  ;; Expose audio output socket
+	  ;; Expose an :audio output socket
 	  :output-sockets '(:audio))))
-    
+    ;;
+    ;; Add LFO and VCO and patch them to create a frequency modulated saw wave
+    ;;
     (cl-synthesizer:add-module
      voice "LFO"
      #'cl-synthesizer-modules-vco:make-module
@@ -23,6 +27,7 @@
      :base-frequency vco-frequency :v-peak 5.0 :cv-lin-hz-v 20.0)
 
     (cl-synthesizer:add-patch voice "LFO" :sine "VCO" :cv-lin)
+    ;; Patch the VCO saw output with the :audio socket that is exposed by the voice
     (cl-synthesizer:add-patch voice "VCO" :saw "OUTPUT" :audio)
     
     voice))
@@ -41,6 +46,7 @@
     (cl-synthesizer:add-patch rack "VOICE-1" :audio "OUTPUT" :left)
     (cl-synthesizer:add-patch rack "VOICE-2" :audio "OUTPUT" :right)
 
+    ;; Let a monitor write the Wave file.
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:make-handler
