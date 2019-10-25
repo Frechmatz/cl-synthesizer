@@ -40,8 +40,10 @@
 	   (semantic (:name "header")
 		     (heading
 		      (:name "cl-synthesizer")
-		      "<p>A Modular Audio Synthesizer library implemented in Common Lisp. "
-		      "The source code can be found <a href=\"https://github.com/Frechmatz/cl-synthesizer\">here.</a>"))
+		      ,(cl-readme:read-verbatim "makedoc/introduction.html")
+		     (heading
+		      (:name "Principles")
+		      ,(cl-readme:read-verbatim "makedoc/principles.html"))))
 	   (semantic (:name "nav")
  		     (heading (:name "Table of contents") TOC))
 	   (semantic (:name "section")
