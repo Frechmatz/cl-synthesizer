@@ -15,12 +15,12 @@
     (cl-synthesizer:add-module
      voice "LFO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency lfo-frequency :v-peak 5.0)
+     :base-frequency lfo-frequency :v-peak 5)
 
     (cl-synthesizer:add-module
      voice "VCO"
      #'cl-synthesizer-modules-vco:make-module
-     :base-frequency vco-frequency :v-peak 5.0 :cv-lin-hz-v 10.0)
+     :base-frequency vco-frequency :v-peak 5 :cv-lin-hz-v 10)
 
     (cl-synthesizer:add-patch voice "LFO" :sine "VCO" :cv-lin)
     (cl-synthesizer:add-patch voice "VCO" :saw "OUTPUT" :audio)
@@ -34,9 +34,9 @@
 	       :output-sockets '(:left :right))))
 
     (cl-synthesizer:add-module
-     rack "VOICE-1" #'make-voice :lfo-frequency 1.0 :vco-frequency 440.0)
+     rack "VOICE-1" #'make-voice :lfo-frequency 1 :vco-frequency 440)
     (cl-synthesizer:add-module
-     rack "VOICE-2" #'make-voice :lfo-frequency 2.0 :vco-frequency 442.0)
+     rack "VOICE-2" #'make-voice :lfo-frequency 2 :vco-frequency 442)
 
     (cl-synthesizer:add-patch rack "VOICE-1" :audio "OUTPUT" :left)
     (cl-synthesizer:add-patch rack "VOICE-2" :audio "OUTPUT" :right)
