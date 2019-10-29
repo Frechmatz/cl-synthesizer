@@ -41,19 +41,16 @@
 		     (heading
 		      (:name "cl-synthesizer")
 		      ,(cl-readme:read-verbatim "makedoc/introduction.html")
-		     (heading
-		      (:name "Principles")
-		      ,(cl-readme:read-verbatim "makedoc/principles.html"))))
+		      ,(cl-readme:read-verbatim "makedoc/principles.html"))
+		     "<p>The source code of cl-synthesizer can be found <a href=\"https://github.com/Frechmatz/cl-synthesizer\">here</a>.</p>")
 	   (semantic (:name "nav")
  		     (heading (:name "Table of contents") TOC))
 	   (semantic (:name "section")
 		     (heading (:name "Installation" :toc t)
 			      ,(cl-readme:read-verbatim "makedoc/installation.html"))
 		     (heading (:name "Examples" :toc t)
-			      ;;"<p><b>A simple example:</b></p>"
 			      ,(make-package-string 'cl-synthesizer-rack-example-sine)
 			      ,(cl-readme:read-code "src/synthesizer/rack/example-sine.lisp")
-			      ;;"<p><b>A more complex example:</b></p>"
 			      ,(make-package-string 'cl-synthesizer-rack-example-voice)
 			      ,(cl-readme:read-code "src/synthesizer/rack/example-voice.lisp"))
 		     (heading (:name "API" :toc t)
