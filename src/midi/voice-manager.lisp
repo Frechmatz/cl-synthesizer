@@ -4,20 +4,14 @@
 ;; Voice
 ;;
 
-;; Global tick counter used as timestamp for voice allocations
-(defparameter *tick* 0)
-
-(defun next-tick ()
-  (setf *tick* (+ 1 *tick*))
-  *tick*)
-
 (defclass voice ()
   ((notes :initform nil) ;; nil, a note or a list of notes. A note may be of any type
+   (tick-counter :initform nil)
    (tick :initform 0)))
 
-(defmethod initialize-instance :after ((v voice) &rest args)
-  (declare (ignore args))
-  (setf (slot-value v 'tick) (next-tick)))
+(defmethod initialize-instance :after ((v voice) &key tick-counter)
+  (setf (slot-value v 'tick-counter) tick-counter)
+  (setf (slot-value v 'tick) (funcall tick-counter)))
 
 (defun voice-is-note (cur-voice note)
   (with-slots (notes) cur-voice
@@ -43,7 +37,7 @@
 
 ;; Removes a note from the stack. Returns the current note or nil
 (defun voice-remove-note (cur-voice note)
-  (setf (slot-value cur-voice 'tick) (next-tick))
+  (setf (slot-value cur-voice 'tick) (funcall (slot-value cur-voice 'tick-counter)))
   (with-slots (notes) cur-voice
     (cond
       ((not notes)
@@ -60,7 +54,7 @@
 
 ;; Pushes a note. Returns the current note.
 (defun voice-push-note (cur-voice note)
-  (setf (slot-value cur-voice 'tick) (next-tick))
+  (setf (slot-value cur-voice 'tick) (funcall (slot-value cur-voice 'tick-counter)))
   (with-slots (notes) cur-voice
     (cond
       ((not notes)
@@ -90,9 +84,16 @@
 ;; Voice-Manager
 ;;
 
+(defun make-tick-counter ()
+  (let ((tick 0))
+    (lambda()
+      (setf tick (+ 1 tick))
+      tick)))
+
 (defclass voice-manager ()
   ((voices :initform nil) ;; list of (index voice)
-   (next-voice-index :initform 0))
+   (next-voice-index :initform 0)
+   (tick-counter :initform (make-tick-counter)))
   (:documentation
    "A voice-manager controls the assignment of notes to so called voices.
     Voices consist of an index, a current note and a stack of \"pushed back\"
@@ -140,7 +141,7 @@
   (if (equal 0 voice-count)
       (error "voice-manager: voice-count must be greater zero"))
   (dotimes (i voice-count)
-    (push (list i (make-instance 'voice)) (slot-value mgr 'voices)))
+    (push (list i (make-instance 'voice :tick-counter (slot-value mgr 'tick-counter))) (slot-value mgr 'voices)))
   (setf (slot-value mgr 'voices) (reverse (slot-value mgr 'voices))))
 
 (defun voice-manager-find-voice-by-note (cur-voice-manager note)
@@ -160,12 +161,12 @@
 	(let* ((resulting-voice-entry nil)
 	       (resulting-voice nil))
 	  ;; get least recently used un-allocated voice
-	  (let ((min-tick 99999999))
+	  (let ((min-tick nil))
 	    (with-voices cur-voice-manager index voice voice-entry
 	      (declare (ignore index))
 	      (if (not (voice-get-current-note voice))
 		  (let ((tick (voice-get-tick voice)))
-		    (if (< tick min-tick)
+		    (if (or (not min-tick) (< tick min-tick))
 			(progn
 			  (setf min-tick tick)
 			  (setf resulting-voice voice)
