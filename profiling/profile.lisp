@@ -199,14 +199,14 @@
 
    (list
     :id :midi-interface :name "MIDI-Interface"
-    :setup (lambda(&key duration-seconds)
-	     (let ((update-fn (cl-synthesizer-profiling-midi-interface::init)))
+    :setup (lambda(&key duration-seconds midi-play-mode)
+	     (let ((update-fn (cl-synthesizer-profiling-midi-interface::init :midi-play-mode midi-play-mode)))
 	       (values 
 		(lambda ()
 		  (funcall update-fn :duration-seconds duration-seconds))
 		(format
 		 nil
-		 "Updating MIDI-Interface for ~a seconds" duration-seconds)))))
+		 "Updating MIDI-Interface for ~a seconds with play-mode ~a" duration-seconds midi-play-mode)))))
 
    (list
     :id :adsr :name "ADSR"
@@ -432,7 +432,8 @@
    :profile-time t
    :profile-statistical nil
    :init nil
-   :jobs '((:client-id :midi-interface :init (:duration-seconds 60)))))
+   :jobs '((:client-id :midi-interface :init (:duration-seconds 60 :midi-play-mode :play-mode-poly))
+	   (:client-id :midi-interface :init (:duration-seconds 60 :midi-play-mode :play-mode-unisono)))))
 
 (defparameter *profiling-plan-adsr*
   (list
@@ -505,7 +506,8 @@
 	    (:duration-seconds 60
 	     :sample-rate 44100
 	     :filename "cl-synthesizer-examples/wave-profiling.wav"))
-	   (:client-id :midi-interface :init (:duration-seconds 60))
+	   (:client-id :midi-interface :init (:duration-seconds 60 :midi-play-mode :play-mode-poly))
+	   (:client-id :midi-interface :init (:duration-seconds 60 :midi-play-mode :play-mode-unisono))
 	   (:client-id :adsr :init (:duration-seconds 60 :exponential nil))
 	   (:client-id :adsr :init (:duration-seconds 60 :exponential t))
 	   (:client-id :mixer :init (:duration-seconds 60 :channel-count 32))
