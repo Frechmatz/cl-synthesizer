@@ -90,7 +90,11 @@
 	<li>:cv-1 ... :cv-n</li>
     </ul>
     For an example see <b>midi-sequencer</b>"
-  (declare (ignore name environment))
+  (declare (ignore environment))
+  (if (and (not (eq play-mode :play-mode-poly)) (not (eq play-mode :play-mode-unisono)))
+      (cl-synthesizer:signal-assembly-error
+       :format-control "~a play-mode must be :play-mode-poly or :play-mode-unisono"
+       :format-arguments (list name)))
   (if (not note-number-to-cv)
       (setf note-number-to-cv (lambda (note-number) (the single-float (/ note-number 12.0)))))
   (let* ((outputs nil)
