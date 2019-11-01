@@ -7,21 +7,26 @@
 
 (defconstant +voice-state-cv+ 0)
 (defconstant +voice-state-gate+ 1)
+(defconstant +voice-state-gate-pending+ 2)
 
 (defparameter +voice-states+
   '(+voice-state-cv+
-    +voice-state-gate+))
+    +voice-state-gate+
+    +voice-state-gate-pending+))
 
 (defun make-voice-state ()
   (let ((voice-state (make-array (length +voice-states+) :initial-element nil)))
     (setf (elt voice-state +voice-state-cv+) 0.0)
     (setf (elt voice-state +voice-state-gate+) 0.0)
+    (setf (elt voice-state +voice-state-gate-pending+) nil)
     voice-state))
 
 (defun get-voice-state-cv (state) (elt state +voice-state-cv+))
 (defun set-voice-state-cv (state cv) (setf (elt state +voice-state-cv+) cv))
 (defun get-voice-state-gate (state) (elt state +voice-state-gate+))
 (defun set-voice-state-gate (state cv) (setf (elt state +voice-state-gate+) cv))
+(defun get-voice-state-gate-pending (state) (elt state +voice-state-gate-pending+))
+(defun set-voice-state-gate-pending (state pending) (setf (elt state +voice-state-gate-pending+) pending))
 
 (defun make-module (name environment
 		       &key
@@ -101,11 +106,10 @@
 	 (inputs nil)
 	 (input-midi-events nil)
 	 (voice-states (make-array voice-count))
-	 (pending-gate-on-voices nil)
+	 (pending-gates nil)
 	 (voice-manager (make-instance
 			 'cl-synthesizer-midi-voice-manager:voice-manager
 			 :voice-count (if (eq play-mode :PLAY-MODE-POLY) voice-count 1))))
-
     ;; Set up voice states
     (dotimes (i voice-count)
       (if (= i 0)
@@ -128,30 +132,39 @@
     ;; Set up inputs
     (setf inputs (list :midi-events (lambda(value) (setf input-midi-events value))))
 
-    (flet ((activate-gate (voice-index)
-	     ;; set gate to on or if already on let it go down for one tick
-	     (let ((voice-state (elt voice-states voice-index)))
-	       (cond
-		 ((= cv-gate-off (get-voice-state-gate voice-state))
-		  (set-voice-state-gate voice-state cv-gate-on))
-		 ((eq play-mode :PLAY-MODE-UNISONO)
-		  (if force-gate-retrigger
-		      (progn
-			(set-voice-state-gate voice-state cv-gate-off)
-			(push voice-index pending-gate-on-voices))))
-		 (t
-		  (set-voice-state-gate voice-state cv-gate-off)
-		  (push voice-index pending-gate-on-voices))))))
+    (labels ((retrigger-gate (voice-state)
+	       "Put gate down for one tick."
+	       (set-voice-state-gate voice-state cv-gate-off)
+	       (set-voice-state-gate-pending voice-state t)
+	       (setf pending-gates t))
+	     (activate-pending-gates ()
+	       "Put pending gates up."
+	       (if pending-gates
+		   (progn
+		     (dotimes (index voice-count)
+		       (let ((voice-state (elt voice-states index)))
+			 (if (get-voice-state-gate-pending voice-state)
+			     (progn
+			       (set-voice-state-gate voice-state cv-gate-on)
+			       (set-voice-state-gate-pending voice-state nil)))))
+		     (setf pending-gates nil))))
+	     (activate-gate (voice-index)
+	       "Set gate to up. If its already up then depending on state put it down for one tick."
+	       (let ((voice-state (elt voice-states voice-index)))
+		 (cond
+		   ((= cv-gate-off (get-voice-state-gate voice-state))
+		    (set-voice-state-gate voice-state cv-gate-on))
+		   ((eq play-mode :PLAY-MODE-UNISONO)
+		    (if force-gate-retrigger
+			(retrigger-gate voice-state)))
+		   (t
+		    (retrigger-gate voice-state))))))
       (list
        :inputs (lambda () inputs)
        :outputs (lambda () outputs)
        :update (lambda ()
-		 ;; Set pending gates to on.
-		 (dolist (voice-index pending-gate-on-voices)
-		   (let ((voice-state (elt voice-states voice-index)))
-		     (if (cl-synthesizer-midi-voice-manager:has-note voice-manager voice-index)
-			 (set-voice-state-gate voice-state cv-gate-on))))
-		 (setf pending-gate-on-voices nil)
+		 ;; Pull up pending gates
+		 (activate-pending-gates)
 		 ;; Update voices
 		 (dolist (midi-event input-midi-events)
 		   (if (and midi-event
