@@ -199,14 +199,15 @@
 
    (list
     :id :midi-interface :name "MIDI-Interface"
-    :setup (lambda(&key duration-seconds midi-play-mode)
-	     (let ((update-fn (cl-synthesizer-profiling-midi-interface::init :midi-play-mode midi-play-mode)))
+    :setup (lambda(&key duration-seconds midi-play-mode voice-count)
+	     (let ((update-fn (cl-synthesizer-profiling-midi-interface::init :midi-play-mode midi-play-mode :voice-count voice-count)))
 	       (values 
 		(lambda ()
 		  (funcall update-fn :duration-seconds duration-seconds))
 		(format
 		 nil
-		 "Updating MIDI-Interface for ~a seconds with play-mode ~a" duration-seconds midi-play-mode)))))
+		 "Updating MIDI-Interface for ~a seconds with play-mode ~a and voice-count ~a"
+		 duration-seconds midi-play-mode voice-count)))))
 
    (list
     :id :adsr :name "ADSR"
@@ -432,8 +433,8 @@
    :profile-time t
    :profile-statistical nil
    :init nil
-   :jobs '((:client-id :midi-interface :init (:duration-seconds 60 :midi-play-mode :play-mode-poly))
-	   (:client-id :midi-interface :init (:duration-seconds 60 :midi-play-mode :play-mode-unisono)))))
+   :jobs '((:client-id :midi-interface :init (:duration-seconds 60 :midi-play-mode :play-mode-poly :voice-count 5))
+	   (:client-id :midi-interface :init (:duration-seconds 60 :midi-play-mode :play-mode-unisono :voice-count 5)))))
 
 (defparameter *profiling-plan-adsr*
   (list
@@ -506,8 +507,8 @@
 	    (:duration-seconds 60
 	     :sample-rate 44100
 	     :filename "cl-synthesizer-examples/wave-profiling.wav"))
-	   (:client-id :midi-interface :init (:duration-seconds 60 :midi-play-mode :play-mode-poly))
-	   (:client-id :midi-interface :init (:duration-seconds 60 :midi-play-mode :play-mode-unisono))
+	   (:client-id :midi-interface :init (:duration-seconds 60 :midi-play-mode :play-mode-poly :voice-count 5))
+	   (:client-id :midi-interface :init (:duration-seconds 60 :midi-play-mode :play-mode-unisono :voice-count 5))
 	   (:client-id :adsr :init (:duration-seconds 60 :exponential nil))
 	   (:client-id :adsr :init (:duration-seconds 60 :exponential t))
 	   (:client-id :mixer :init (:duration-seconds 60 :channel-count 32))
