@@ -173,11 +173,11 @@
 			  (setf resulting-voice-entry voice-entry)))))))
 	  ;; if no un-allocated voice found then get least recently used voice
 	  (if (not resulting-voice)
-	      (let ((min-tick 99999999))
+	      (let ((min-tick nil))
 		(with-voices cur-voice-manager index voice voice-entry
 		  (declare (ignore index))
 		  (let ((tick (voice-get-tick voice)))
-		    (if (< tick min-tick)
+		    (if (or (not min-tick) (< tick min-tick))
 			(progn
 			  (setf min-tick tick)
 			  (setf resulting-voice voice)
