@@ -290,23 +290,17 @@
 (defun test-polyphonic-midi-interface-make-midi-interface
     (voice-count
      &key
-       (play-mode :PLAY-MODE-POLY)
-       (force-gate-retrigger nil)
        (channel nil))
   (cl-synthesizer-modules-midi-polyphonic-interface:make-module
    "Test-Midi-Interface"
    (cl-synthesizer:make-environment)
    :voice-count voice-count
    :channel channel
-   :force-gate-retrigger force-gate-retrigger
-   :note-number-to-cv (lambda (n) (* 1000 n))
-   :play-mode play-mode))
+   :note-number-to-cv (lambda (n) (* 1000 n))))
 
 (defun run-polyphonic-test-case-midi-ifc (test-case)
   (let ((ifc (test-polyphonic-midi-interface-make-midi-interface
 	      (getf test-case :voice-count)
-	      :play-mode (getf test-case :play-mode)
-	      :force-gate-retrigger (getf test-case :force-gate-retrigger)
 	      :channel (getf test-case :channel)
 	      )))
     (dolist (cur-test-case (getf test-case :test-cases))
@@ -316,14 +310,14 @@
 
 (define-test test-polyphonic-midi-interface-1 ()
 	     (let ((test
-		    '(:voice-count 2 :play-mode :PLAY-MODE-POLY
+		    '(:voice-count 2 
 		      :test-cases
 		      ((:events nil :outputs ((:CV-1 0) (:CV-2 0) (:GATE-1 0) (:GATE-2 0)))))))
 	       (run-polyphonic-test-case-midi-ifc test)))
 
 (define-test test-polyphonic-midi-interface-2 ()
 	     (let ((test
-		    `(:voice-count 2 :play-mode :PLAY-MODE-POLY
+		    `(:voice-count 2 
 				   :test-cases
 				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
 					     :outputs ((:CV-1 64000)
@@ -335,7 +329,7 @@
 
 (define-test test-polyphonic-midi-interface-3 ()
 	     (let ((test
-		    `(:voice-count 2 :play-mode :PLAY-MODE-POLY
+		    `(:voice-count 2 
 				   :test-cases
 				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
 					     :outputs ((:CV-1 64000)
@@ -361,77 +355,11 @@
 	       (assert-equal 2.0 (get-module-output ifc :cv-1))))
 
 ;;
-;; unisono tests
-;;
-(define-test test-polyphonic-midi-interface-unisono-1 ()
-	     (let ((test
-		    `(:voice-count 2 :play-mode :PLAY-MODE-UNISONO
-				   :test-cases
-				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
-					     :outputs ((:CV-1 64000)
-						       (:GATE-1 5.0)
-						       (:CV-2 64000)
-						       (:GATE-2 5.0)))
-				    (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
-					     :outputs ((:CV-1 32000)
-						       (:GATE-1 5.0)
-						       (:CV-2 32000)
-						       (:GATE-2 5.0)))))))
-	       (run-polyphonic-test-case-midi-ifc test)))
-
-(define-test test-polyphonic-midi-interface-unisono-2 ()
-	     (let ((test
-		    `(:voice-count 2 :play-mode :PLAY-MODE-UNISONO
-				   :test-cases
-				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
-					     :outputs ((:CV-1 64000)
-						       (:GATE-1 5.0)
-						       (:CV-2 64000)
-						       (:GATE-2 5.0)))
-				    (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
-					     :outputs ((:CV-1 32000)
-						       (:GATE-1 5.0)
-						       (:CV-2 32000)
-						       (:GATE-2 5.0)))
-				    (:events (,(cl-synthesizer-midi-event:make-note-off-event 1 32 0))
-					     :outputs ((:CV-1 64000)
-						       (:GATE-1 5.0)
-						       (:CV-2 64000)
-						       (:GATE-2 5.0)))))))
-	       (run-polyphonic-test-case-midi-ifc test)))
-
-(define-test test-polyphonic-midi-interface-unisono-3 ()
-	     (let ((test
-		    `(:voice-count 2 :play-mode :PLAY-MODE-UNISONO
-				   :test-cases
-				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
-					     :outputs ((:CV-1 64000)
-						       (:GATE-1 5.0)
-						       (:CV-2 64000)
-						       (:GATE-2 5.0)))
-				    (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
-					     :outputs ((:CV-1 32000)
-						       (:GATE-1 5.0)
-						       (:CV-2 32000)
-						       (:GATE-2 5.0)))
-				    (:events (,(cl-synthesizer-midi-event:make-note-off-event 1 64 0))
-					     :outputs ((:CV-1 32000)
-						       (:GATE-1 5.0)
-						       (:CV-2 32000)
-						       (:GATE-2 5.0)))
-				    (:events (,(cl-synthesizer-midi-event:make-note-off-event 1 32 0))
-					     :outputs ((:CV-1 32000)
-						       (:GATE-1 0)
-						       (:CV-2 32000)
-						       (:GATE-2 0)))))))
-	       (run-polyphonic-test-case-midi-ifc test)))
-
-;;
 ;; tests for update with multiple midi-events
 ;;
 (define-test test-polyphonic-midi-interface-multiple-events-1 ()
 	     (let ((test
-		    `(:voice-count 2 :play-mode :PLAY-MODE-POLY
+		    `(:voice-count 2 
 				   :test-cases
 				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0)
 					       ,(cl-synthesizer-midi-event:make-note-off-event 1 64 0))
@@ -443,7 +371,7 @@
 
 (define-test test-polyphonic-midi-interface-multiple-events-2 ()
 	     (let ((test
-		    `(:voice-count 2 :play-mode :PLAY-MODE-POLY
+		    `(:voice-count 2 
 				   :test-cases
 				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0)
 					       ,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
@@ -455,7 +383,7 @@
 
 (define-test test-polyphonic-midi-interface-multiple-events-3 ()
 	     (let ((test
-		    `(:voice-count 2 :play-mode :PLAY-MODE-POLY
+		    `(:voice-count 2 
 				   :test-cases
 				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0)
 					       ,(cl-synthesizer-midi-event:make-note-on-event 1 32 0)
@@ -470,7 +398,7 @@
 
 (define-test test-polyphonic-midi-interface-channel-1 ()
 	     (let ((test
-		    `(:voice-count 1 :play-mode :PLAY-MODE-POLY :channel 2
+		    `(:voice-count 1 :channel 2
 				   :test-cases
 				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
 					     :outputs ((:CV-1 0)
@@ -479,7 +407,7 @@
 
 (define-test test-polyphonic-midi-interface-channel-2 ()
 	     (let ((test
-		    `(:voice-count 1 :play-mode :PLAY-MODE-POLY :channel 1
+		    `(:voice-count 1 :channel 1
 				   :test-cases
 				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
 					     :outputs ((:CV-1 64000)
@@ -495,7 +423,7 @@
 
 (define-test test-polyphonic-midi-interface-gate-retrigger-1 ()
 	     (let ((test
-		    `(:voice-count 2 :play-mode :PLAY-MODE-POLY
+		    `(:voice-count 2 
 				   :test-cases
 				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
 					     :outputs ((:CV-1 32000)
@@ -521,7 +449,7 @@
 
 (define-test test-polyphonic-midi-interface-gate-retrigger-2 ()
 	     (let ((test
-		    `(:voice-count 2 :play-mode :PLAY-MODE-POLY
+		    `(:voice-count 2 
 				   :test-cases
 				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
 					     :outputs ((:CV-1 32000)
@@ -550,59 +478,6 @@
 						       (:CV-2 48000) ;; CV keeps frequency but Gate goes down
 						       (:GATE-2 0)))))))
 	       (run-polyphonic-test-case-midi-ifc test)))
-
-;;
-;; Tests that check that gate goes not down for one tick when a voice
-;; is overloaded in unisono mode
-;;
-
-(define-test test-polyphonic-midi-interface-gate-retrigger-3 ()
-	     (let ((test
-		    `(:voice-count 2 :play-mode :PLAY-MODE-UNISONO
-				   :test-cases
-				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
-					     :outputs ((:CV-1 32000)
-						       (:GATE-1 5.0)
-						       (:CV-2 32000)
-						       (:GATE-2 5.0)))
-				    (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 48 0))
-					     :outputs ((:CV-1 48000)
-						       (:GATE-1 5.0)
-						       (:CV-2 48000)
-						       (:GATE-2 5.0)))
-				    (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
-					     :outputs ((:CV-1 64000)
-						       (:GATE-1 5.0)
-						       (:CV-2 64000)
-						       (:GATE-2 5.0)))))))
-	       (run-polyphonic-test-case-midi-ifc test)))
-
-;;
-;; Tests that check that gate goes down for one tick
-;; in unisono mode and when re-triggering of gate has been activated
-;;
-
-(define-test test-polyphonic-midi-interface-gate-retrigger-4 ()
-	     (let ((test
-		    `(:voice-count 2 :play-mode :PLAY-MODE-UNISONO :force-gate-retrigger t
-				   :test-cases
-				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
-					     :outputs ((:CV-1 32000)
-						       (:GATE-1 5.0)
-						       (:CV-2 32000)
-						       (:GATE-2 5.0)))
-				    (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 48 0))
-					     :outputs ((:CV-1 48000)
-						       (:GATE-1 0.0)
-						       (:CV-2 48000)
-						       (:GATE-2 0.0)))
-				    (:events nil
-					     :outputs ((:CV-1 48000)
-						       (:GATE-1 5.0)
-						       (:CV-2 48000)
-						       (:GATE-2 5.0)))))))
-	       (run-polyphonic-test-case-midi-ifc test)))
-
 
 (define-test test-polyphonic-midi-interface-update-1 ()
 	     (let ((rack (cl-synthesizer:make-rack

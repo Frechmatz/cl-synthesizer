@@ -250,10 +250,8 @@
 			 (voice-count 1)
 			 (channel nil)
 			 (note-number-to-cv nil)
-			 (play-mode :PLAY-MODE-POLY)
 			 (cv-gate-on 5.0)
-			 (cv-gate-off 0.0)
-			 (force-gate-retrigger nil))
+			 (cv-gate-off 0.0))
   "Creates a MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
     voice is represented by a control-voltage and a gate signal. The function has the following arguments:
     <ul>
@@ -271,36 +269,16 @@
 	    channel is ignored.</li>
 	<li>:note-number-to-cv An optional function that is called with a MIDI note number
 	    and returns a control-voltage. The default implementation is cv = note-number / 12.0</li>
-	<li>:play-mode
-	    <ul>
-		<li>:play-mode-poly Polyphonic play mode. Incoming note events will be
-		    dispatched to \"available\" voices.</li>
-		<li>:play-mode-unisono Monophonic play mode. All voices exposed by the module
-		    are set to the current \"active\" note. Notes are stacked. When a note is
-		    released, the voice outputs switch to the previous note.</li>
-	    </ul>
-            <p>
-            The handling of play-modes is implemented by the package 
-            cl-synthesizer-midi-voice-manager:voice-manager.
-            </p>
-        </li>
 	<li>:cv-gate-on The \"Gate on\" control voltage.</li>
 	<li>:cv-gate-off The \"Gate off\" control voltage.</li>
-	<li>:force-gate-retrigger If t then in :play-mode-unisono play mode each note
-	    event will cause a retriggering of the gate signal. Otherwise the gate signal
-	    will just stay on when it is already on.</li>
     </ul>
     Gate transitions are implemented as follows:
     <ul>
-	<li>In :play-mode-poly play mode each incoming note causes that the gate signal of the
+	<li>Each incoming note causes that the gate signal of the
 	    assigned voice switches to On. If the gate signal of the assigned voice is already On
 	    (this happens when the available voices are exhausted and a voice is \"stolen\") then
 	    the gate signal switches to Off for the duration of one system tick and
 	    then to On again.</li>
-	<li>In :play-mode-unisono play mode incoming notes are stacked. The first note causes
-	    the gate signal to switch to On. Further \"nested\" note-on events only result
-	    in a change of the CV output but the gate signal will stay On.
-	    This behaviour can be overridden with the :force-gate-retrigger parameter.</li>
     </ul>
     The module has the following inputs:
     <ul>
@@ -313,105 +291,106 @@
     </ul>
     For an example see <b>midi-sequencer</b>"
   (declare (ignore environment))
-  (if (and (not (eq play-mode :play-mode-poly)) (not (eq play-mode :play-mode-unisono)))
-      (cl-synthesizer:signal-assembly-error
-       :format-control "~a play-mode must be :play-mode-poly or :play-mode-unisono"
-       :format-arguments (list name)))
-  (if (not note-number-to-cv)
-      (setf note-number-to-cv (lambda (note-number) (the single-float (/ note-number 12.0)))))
-  (let* ((outputs nil)
-	 (inputs nil)
-	 (input-midi-events nil)
-	 (voice-states (make-array voice-count))
-	 (pending-gates nil)
-	 (voice-manager (make-instance
-			 'voice-manager
-			 :voice-count (if (eq play-mode :PLAY-MODE-POLY) voice-count 1))))
-    ;; Set up voice states
-    (dotimes (i voice-count)
-      (if (= i 0)
-	  (setf (elt voice-states 0) (make-voice-state))
-	  ;; in Unisono mode all voices share the same state object
-	  (if (eq play-mode :PLAY-MODE-UNISONO)
-	      (setf (elt voice-states i) (elt voice-states 0))
-	      (setf (elt voice-states i) (make-voice-state)))))
+  (let ((play-mode :PLAY-MODE-POLY) (force-gate-retrigger nil))
+    (if (and (not (eq play-mode :play-mode-poly)) (not (eq play-mode :play-mode-unisono)))
+	(cl-synthesizer:signal-assembly-error
+	 :format-control "~a play-mode must be :play-mode-poly or :play-mode-unisono"
+	 :format-arguments (list name)))
+    (if (not note-number-to-cv)
+	(setf note-number-to-cv (lambda (note-number) (the single-float (/ note-number 12.0)))))
+    (let* ((outputs nil)
+	   (inputs nil)
+	   (input-midi-events nil)
+	   (voice-states (make-array voice-count))
+	   (pending-gates nil)
+	   (voice-manager (make-instance
+			   'voice-manager
+			   :voice-count (if (eq play-mode :PLAY-MODE-POLY) voice-count 1))))
+      ;; Set up voice states
+      (dotimes (i voice-count)
+	(if (= i 0)
+	    (setf (elt voice-states 0) (make-voice-state))
+	    ;; in Unisono mode all voices share the same state object
+	    (if (eq play-mode :PLAY-MODE-UNISONO)
+		(setf (elt voice-states i) (elt voice-states 0))
+		(setf (elt voice-states i) (make-voice-state)))))
 
-    ;; Set up outputs
-    (dotimes (i voice-count)
-      (let ((cv-socket (cl-synthesizer-macro-util:make-keyword "CV" i))
-	    (gate-socket (cl-synthesizer-macro-util:make-keyword "GATE" i)))
-	(let ((cur-i i)) ;; new context
-	  (push (lambda () (get-voice-state-cv (elt voice-states cur-i))) outputs)
-	  (push cv-socket outputs)
-	  (push (lambda () (get-voice-state-gate (elt voice-states cur-i))) outputs)
-	  (push gate-socket outputs))))
+      ;; Set up outputs
+      (dotimes (i voice-count)
+	(let ((cv-socket (cl-synthesizer-macro-util:make-keyword "CV" i))
+	      (gate-socket (cl-synthesizer-macro-util:make-keyword "GATE" i)))
+	  (let ((cur-i i)) ;; new context
+	    (push (lambda () (get-voice-state-cv (elt voice-states cur-i))) outputs)
+	    (push cv-socket outputs)
+	    (push (lambda () (get-voice-state-gate (elt voice-states cur-i))) outputs)
+	    (push gate-socket outputs))))
 
-    ;; Set up inputs
-    (setf inputs (list :midi-events (lambda(value) (setf input-midi-events value))))
+      ;; Set up inputs
+      (setf inputs (list :midi-events (lambda(value) (setf input-midi-events value))))
 
-    (labels ((retrigger-gate (voice-state)
-	       "Put gate down for one tick."
-	       (set-voice-state-gate voice-state cv-gate-off)
-	       (set-voice-state-gate-pending voice-state t)
-	       (setf pending-gates t))
-	     (activate-pending-gates ()
-	       "Put pending gates up."
-	       (if pending-gates
-		   (progn
-		     (dotimes (index voice-count)
-		       (let ((voice-state (elt voice-states index)))
-			 (if (get-voice-state-gate-pending voice-state)
-			     (progn
-			       (set-voice-state-gate voice-state cv-gate-on)
-			       (set-voice-state-gate-pending voice-state nil)))))
-		     (setf pending-gates nil))))
-	     (activate-gate (voice-index)
-	       "Set gate to up. If its already up then depending on state put it down for one tick."
-	       (let ((voice-state (elt voice-states voice-index)))
-		 (cond
-		   ((= cv-gate-off (get-voice-state-gate voice-state))
-		    (set-voice-state-gate voice-state cv-gate-on))
-		   ((eq play-mode :PLAY-MODE-UNISONO)
-		    (if force-gate-retrigger
-			(retrigger-gate voice-state)))
-		   (t
-		    (retrigger-gate voice-state))))))
-      (list
-       :inputs (lambda () inputs)
-       :outputs (lambda () outputs)
-       :update (lambda ()
-		 ;; Pull up pending gates
-		 (activate-pending-gates)
-		 ;; Update voices
-		 (dolist (midi-event input-midi-events)
-		   (if (and midi-event
-			    (or (not channel)
-				(= channel (cl-synthesizer-midi-event:get-channel midi-event))))
-		       (cond
-			 ;; Note on
-			 ((cl-synthesizer-midi-event:note-on-eventp midi-event)
-			  (let ((voice-index
-				 (push-note
-				  voice-manager
-				  (cl-synthesizer-midi-event:get-note-number midi-event))))
-			    (let ((voice-state (elt voice-states voice-index)))
-			      (activate-gate voice-index)
-			      (set-voice-state-cv
-			       voice-state
-			       (funcall
-				note-number-to-cv
-				(cl-synthesizer-midi-event:get-note-number midi-event))))))
-			 ;; Note off
-			 ((cl-synthesizer-midi-event:note-off-eventp midi-event)
-			  (multiple-value-bind (voice-index voice-note)
-			      (remove-note
-			       voice-manager
-			       (cl-synthesizer-midi-event:get-note-number midi-event))
-			    (if voice-index
-				(let ((voice-state (elt voice-states voice-index)))
-				  ;; if no note left then set gate to off
-				  (if (not voice-note)
-				      (set-voice-state-gate voice-state cv-gate-off)
-				      (set-voice-state-cv
-				       voice-state
-				       (funcall note-number-to-cv voice-note)))))))))))))))
+      (labels ((retrigger-gate (voice-state)
+		 "Put gate down for one tick."
+		 (set-voice-state-gate voice-state cv-gate-off)
+		 (set-voice-state-gate-pending voice-state t)
+		 (setf pending-gates t))
+	       (activate-pending-gates ()
+		 "Put pending gates up."
+		 (if pending-gates
+		     (progn
+		       (dotimes (index voice-count)
+			 (let ((voice-state (elt voice-states index)))
+			   (if (get-voice-state-gate-pending voice-state)
+			       (progn
+				 (set-voice-state-gate voice-state cv-gate-on)
+				 (set-voice-state-gate-pending voice-state nil)))))
+		       (setf pending-gates nil))))
+	       (activate-gate (voice-index)
+		 "Set gate to up. If its already up then depending on state put it down for one tick."
+		 (let ((voice-state (elt voice-states voice-index)))
+		   (cond
+		     ((= cv-gate-off (get-voice-state-gate voice-state))
+		      (set-voice-state-gate voice-state cv-gate-on))
+		     ((eq play-mode :PLAY-MODE-UNISONO)
+		      (if force-gate-retrigger
+			  (retrigger-gate voice-state)))
+		     (t
+		      (retrigger-gate voice-state))))))
+	(list
+	 :inputs (lambda () inputs)
+	 :outputs (lambda () outputs)
+	 :update (lambda ()
+		   ;; Pull up pending gates
+		   (activate-pending-gates)
+		   ;; Update voices
+		   (dolist (midi-event input-midi-events)
+		     (if (and midi-event
+			      (or (not channel)
+				  (= channel (cl-synthesizer-midi-event:get-channel midi-event))))
+			 (cond
+			   ;; Note on
+			   ((cl-synthesizer-midi-event:note-on-eventp midi-event)
+			    (let ((voice-index
+				   (push-note
+				    voice-manager
+				    (cl-synthesizer-midi-event:get-note-number midi-event))))
+			      (let ((voice-state (elt voice-states voice-index)))
+				(activate-gate voice-index)
+				(set-voice-state-cv
+				 voice-state
+				 (funcall
+				  note-number-to-cv
+				  (cl-synthesizer-midi-event:get-note-number midi-event))))))
+			   ;; Note off
+			   ((cl-synthesizer-midi-event:note-off-eventp midi-event)
+			    (multiple-value-bind (voice-index voice-note)
+				(remove-note
+				 voice-manager
+				 (cl-synthesizer-midi-event:get-note-number midi-event))
+			      (if voice-index
+				  (let ((voice-state (elt voice-states voice-index)))
+				    ;; if no note left then set gate to off
+				    (if (not voice-note)
+					(set-voice-state-gate voice-state cv-gate-off)
+					(set-voice-state-cv
+					 voice-state
+					 (funcall note-number-to-cv voice-note))))))))))))))))
