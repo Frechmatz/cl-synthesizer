@@ -32,8 +32,7 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "tuning")
-				     (:file "event")
-				     (:file "voice-manager")))
+				     (:file "event")))
 	       (:module "src/modules"
 			:serial t
 			:components ((:file "packages")

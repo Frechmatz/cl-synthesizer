@@ -32,8 +32,7 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "tuning")
-				     (:file "event")
-				     (:file "voice-manager")))
+				     (:file "event")))
 	       (:module "src/modules"
 			:serial t
 			:components ((:file "packages")
@@ -72,10 +71,6 @@
 	       (:module "test/core"
 			:serial t
 			:components ((:file "test-waveform")))
-	       (:module "test/midi"
-			:serial t
-			:components ((:file "test-voice-manager-voice")
-				     (:file "test-voice-manager")))
 	       (:module "test/modules"
 			:serial t
 			:components ((:file "test-adder")
