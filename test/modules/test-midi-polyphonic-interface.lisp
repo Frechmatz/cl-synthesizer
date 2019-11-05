@@ -6,94 +6,94 @@
 ;;
 
 (define-test test-polyphonic-voice-manager-voice-2 ()
-	     (let ((v (make-instance 'cl-synthesizer-modules-midi-interface::voice
-				     :tick-counter (cl-synthesizer-modules-midi-interface::make-tick-counter)
+	     (let ((v (make-instance 'cl-synthesizer-modules-midi-polyphonic-interface::voice
+				     :tick-counter (cl-synthesizer-modules-midi-polyphonic-interface::make-tick-counter)
 				     )))
 	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-interface::voice-push-note v 1)
+		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1)
 		 (assert-equal 1 current-voice-note)
-		 (assert-true (cl-synthesizer-modules-midi-interface::voice-is-note v 1))
-		 (assert-nil (cl-synthesizer-modules-midi-interface::voice-is-note v 99)))))
+		 (assert-true (cl-synthesizer-modules-midi-polyphonic-interface::voice-is-note v 1))
+		 (assert-nil (cl-synthesizer-modules-midi-polyphonic-interface::voice-is-note v 99)))))
 
 (define-test test-polyphonic-voice-manager-voice-3 ()
-	     (let ((v (make-instance 'cl-synthesizer-modules-midi-interface::voice
-				     :tick-counter (cl-synthesizer-modules-midi-interface::make-tick-counter))))
+	     (let ((v (make-instance 'cl-synthesizer-modules-midi-polyphonic-interface::voice
+				     :tick-counter (cl-synthesizer-modules-midi-polyphonic-interface::make-tick-counter))))
 	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-interface::voice-push-note v 1)
+		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1)
 		 (assert-equal 1 current-voice-note))
 	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-interface::voice-push-note v 2)
+		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 2)
 		 (assert-equal 2 current-voice-note))))
 
 (define-test test-polyphonic-voice-manager-voice-4 ()
-	     (let ((v (make-instance 'cl-synthesizer-modules-midi-interface::voice
-				     :tick-counter (cl-synthesizer-modules-midi-interface::make-tick-counter))))
-	       (assert-equal 1 (cl-synthesizer-modules-midi-interface::voice-push-note v 1))
-	       (assert-true (< 1 (cl-synthesizer-modules-midi-interface::voice-push-note v 2)))
-	       (assert-equal 1 (cl-synthesizer-modules-midi-interface::voice-remove-note v 2))))
+	     (let ((v (make-instance 'cl-synthesizer-modules-midi-polyphonic-interface::voice
+				     :tick-counter (cl-synthesizer-modules-midi-polyphonic-interface::make-tick-counter))))
+	       (assert-equal 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1))
+	       (assert-true (< 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 2)))
+	       (assert-equal 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-remove-note v 2))))
 
 (define-test test-polyphonic-voice-manager-voice-5 ()
-	     (let ((v (make-instance 'cl-synthesizer-modules-midi-interface::voice
-				     :tick-counter (cl-synthesizer-modules-midi-interface::make-tick-counter))))
-	       (assert-equal 1 (cl-synthesizer-modules-midi-interface::voice-push-note v 1))
-	       (assert-true (< 1 (cl-synthesizer-modules-midi-interface::voice-push-note v 2)))
-	       (assert-equal 2 (cl-synthesizer-modules-midi-interface::voice-remove-note v 1))
-	       (assert-nil (cl-synthesizer-modules-midi-interface::voice-remove-note v 2))
-	       (assert-nil (cl-synthesizer-modules-midi-interface::voice-remove-note v 2))))
+	     (let ((v (make-instance 'cl-synthesizer-modules-midi-polyphonic-interface::voice
+				     :tick-counter (cl-synthesizer-modules-midi-polyphonic-interface::make-tick-counter))))
+	       (assert-equal 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1))
+	       (assert-true (< 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 2)))
+	       (assert-equal 2 (cl-synthesizer-modules-midi-polyphonic-interface::voice-remove-note v 1))
+	       (assert-nil (cl-synthesizer-modules-midi-polyphonic-interface::voice-remove-note v 2))
+	       (assert-nil (cl-synthesizer-modules-midi-polyphonic-interface::voice-remove-note v 2))))
 
 (define-test test-polyphonic-voice-manager-voice-6 ()
-	     (let ((v (make-instance 'cl-synthesizer-modules-midi-interface::voice
-				     :tick-counter (cl-synthesizer-modules-midi-interface::make-tick-counter))))
-	       (assert-equal 1 (cl-synthesizer-modules-midi-interface::voice-push-note v 1))
-	       (assert-true (< 1 (cl-synthesizer-modules-midi-interface::voice-push-note v 2)))
-	       (assert-equal 2 (cl-synthesizer-modules-midi-interface::voice-remove-note v 3))))
+	     (let ((v (make-instance 'cl-synthesizer-modules-midi-polyphonic-interface::voice
+				     :tick-counter (cl-synthesizer-modules-midi-polyphonic-interface::make-tick-counter))))
+	       (assert-equal 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1))
+	       (assert-true (< 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 2)))
+	       (assert-equal 2 (cl-synthesizer-modules-midi-polyphonic-interface::voice-remove-note v 3))))
 
 (define-test test-polyphonic-voice-manager-voice-7 ()
-	     (let ((v (make-instance 'cl-synthesizer-modules-midi-interface::voice
-				     :tick-counter (cl-synthesizer-modules-midi-interface::make-tick-counter))))
-	       (assert-equal 1 (cl-synthesizer-modules-midi-interface::voice-push-note v 1))
-	       (assert-true (< 1 (cl-synthesizer-modules-midi-interface::voice-push-note v 2)))
+	     (let ((v (make-instance 'cl-synthesizer-modules-midi-polyphonic-interface::voice
+				     :tick-counter (cl-synthesizer-modules-midi-polyphonic-interface::make-tick-counter))))
+	       (assert-equal 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1))
+	       (assert-true (< 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 2)))
 	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-interface::voice-push-note v 2)
+		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 2)
 		 (assert-equal 2 current-voice-note))
-	       (assert-equal 1 (cl-synthesizer-modules-midi-interface::voice-remove-note v 2))
-	       (assert-nil (cl-synthesizer-modules-midi-interface::voice-remove-note v 1))))
+	       (assert-equal 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-remove-note v 2))
+	       (assert-nil (cl-synthesizer-modules-midi-polyphonic-interface::voice-remove-note v 1))))
 
 (define-test test-polyphonic-voice-manager-voice-8 ()
-	     (let ((v (make-instance 'cl-synthesizer-modules-midi-interface::voice
-				     :tick-counter (cl-synthesizer-modules-midi-interface::make-tick-counter))))
+	     (let ((v (make-instance 'cl-synthesizer-modules-midi-polyphonic-interface::voice
+				     :tick-counter (cl-synthesizer-modules-midi-polyphonic-interface::make-tick-counter))))
 	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-interface::voice-push-note v 1)
+		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1)
 		 (assert-equal 1 current-voice-note))
 	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-interface::voice-push-note v 2)
+		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 2)
 		 (assert-equal 2 current-voice-note))
-	       (assert-equal 1 (cl-synthesizer-modules-midi-interface::voice-remove-note v 2))
+	       (assert-equal 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-remove-note v 2))
 	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-interface::voice-push-note v 3)
+		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 3)
 		 (assert-equal 3 current-voice-note))))
 
 (define-test test-polyphonic-voice-manager-voice-9 ()
-	     (let ((v (make-instance 'cl-synthesizer-modules-midi-interface::voice
-				     :tick-counter (cl-synthesizer-modules-midi-interface::make-tick-counter))))
+	     (let ((v (make-instance 'cl-synthesizer-modules-midi-polyphonic-interface::voice
+				     :tick-counter (cl-synthesizer-modules-midi-polyphonic-interface::make-tick-counter))))
 	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-interface::voice-push-note v 1)
+		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1)
 	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-interface::voice-push-note v 2)
+		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 2)
 		 (assert-equal 2 current-voice-note))
-	       (assert-equal 1 (cl-synthesizer-modules-midi-interface::voice-remove-note v 2))
+	       (assert-equal 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-remove-note v 2))
 	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-interface::voice-push-note v 1)
+		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1)
 		 (assert-equal 1 current-voice-note)))))
 
 (define-test test-polyphonic-voice-manager-voice-10 ()
-	     (let ((v (make-instance 'cl-synthesizer-modules-midi-interface::voice
-				     :tick-counter (cl-synthesizer-modules-midi-interface::make-tick-counter))))
-	       (assert-equal 1 (cl-synthesizer-modules-midi-interface::voice-push-note v 1))
+	     (let ((v (make-instance 'cl-synthesizer-modules-midi-polyphonic-interface::voice
+				     :tick-counter (cl-synthesizer-modules-midi-polyphonic-interface::make-tick-counter))))
+	       (assert-equal 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1))
 	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-interface::voice-push-note v 1)
+		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1)
 		 (assert-equal 1 current-voice-note))
-	       (assert-nil (cl-synthesizer-modules-midi-interface::voice-remove-note v 1))))
+	       (assert-nil (cl-synthesizer-modules-midi-polyphonic-interface::voice-remove-note v 1))))
 
 
 
@@ -103,7 +103,7 @@
 ;;
 
 (defun run-polyphonic-test-case (test-case)
-  (let ((mgr (make-instance 'cl-synthesizer-modules-midi-interface::voice-manager :voice-count (getf test-case :voice-count))))
+  (let ((mgr (make-instance 'cl-synthesizer-modules-midi-polyphonic-interface::voice-manager :voice-count (getf test-case :voice-count))))
     (dolist (test-case (getf test-case :test-cases))
       (let ((cmd (first test-case))
 	    (cmd-arg (second test-case))
@@ -112,11 +112,11 @@
 	    )
 	(cond
 	  ((eq cmd :push)
-	   (let ((resulting-voice-number (cl-synthesizer-modules-midi-interface::push-note mgr cmd-arg)))
+	   (let ((resulting-voice-number (cl-synthesizer-modules-midi-polyphonic-interface::push-note mgr cmd-arg)))
 	     (assert-equal expected-voice-number resulting-voice-number)))
 	  ((eq cmd :remove)
 	   (multiple-value-bind (resulting-voice-number resulting-note)
-	       (cl-synthesizer-modules-midi-interface::remove-note mgr cmd-arg)
+	       (cl-synthesizer-modules-midi-polyphonic-interface::remove-note mgr cmd-arg)
 	     (assert-equal expected-voice-number resulting-voice-number)
 	     (assert-equal expected-note resulting-note)))
 	  (t
@@ -293,7 +293,7 @@
        (play-mode :PLAY-MODE-POLY)
        (force-gate-retrigger nil)
        (channel nil))
-  (cl-synthesizer-modules-midi-interface:make-module
+  (cl-synthesizer-modules-midi-polyphonic-interface:make-module
    "Test-Midi-Interface"
    (cl-synthesizer:make-environment)
    :voice-count voice-count
@@ -354,7 +354,7 @@
 ;;
 
 (define-test test-polyphonic-midi-interface-default-note-to-cv ()
-	     (let ((ifc (cl-synthesizer-modules-midi-interface:make-module
+	     (let ((ifc (cl-synthesizer-modules-midi-polyphonic-interface:make-module
 			 "MIDI-IFC"
 			 (cl-synthesizer:make-environment))))
 	       (update-module ifc (list :midi-events (list (cl-synthesizer-midi-event:make-note-on-event 1 24 0))))
@@ -627,7 +627,7 @@
 
 	       (cl-synthesizer:add-module
 		rack "MIDI-IFC"
-		#'cl-synthesizer-modules-midi-interface:make-module :voice-count 1)
+		#'cl-synthesizer-modules-midi-polyphonic-interface:make-module :voice-count 1)
 
 	       (cl-synthesizer:add-patch rack "MIDI-SEQUENCER" :midi-events "MIDI-IFC" :midi-events)
 	       (let ((midi-ifc (cl-synthesizer:get-module rack "MIDI-IFC")))
@@ -658,7 +658,7 @@
 
 	       (cl-synthesizer:add-module
 		rack "MIDI-IFC"
-		#'cl-synthesizer-modules-midi-interface:make-module :voice-count 1)
+		#'cl-synthesizer-modules-midi-polyphonic-interface:make-module :voice-count 1)
 
 	       (cl-synthesizer:add-patch rack "MIDI-SEQUENCER" :midi-events "MIDI-IFC" :midi-events)
 	       (let ((midi-ifc (cl-synthesizer:get-module rack "MIDI-IFC")))
