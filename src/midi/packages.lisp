@@ -19,11 +19,3 @@
    :get-controller-number
    :get-controller-value))
 
-(defpackage :cl-synthesizer-midi-voice-manager
-  (:use :cl)
-  (:export
-   :voice-manager
-   :push-note
-   :remove-note
-   :has-note))
-
