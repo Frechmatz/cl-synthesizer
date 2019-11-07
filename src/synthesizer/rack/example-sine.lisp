@@ -1,5 +1,5 @@
 (defpackage :cl-synthesizer-rack-example-sine
-  (:documentation "Generate a 440Hz sine wave and write it to a wave file.")
+  (:documentation "Example: Generate a 440Hz sine wave and write it to a wave file.")
   (:use :cl))
 
 (in-package :cl-synthesizer-rack-example-sine)

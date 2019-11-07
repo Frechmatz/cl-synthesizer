@@ -1,5 +1,5 @@
 (defpackage :cl-synthesizer-rack-example-voice
-  (:documentation "Define a voice and use it two times. Write the output to a wave file.")
+  (:documentation "Example: Nested Racks.")
   (:use :cl))
 
 (in-package :cl-synthesizer-rack-example-voice)
