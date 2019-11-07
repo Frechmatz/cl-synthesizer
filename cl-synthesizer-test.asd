@@ -7,53 +7,8 @@
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "An audio synthesizer"
   :long-description "An audio synthesizer"
-  :depends-on (:lisp-unit :cl-wave-file-writer)
-  :components ((:module "src/util"
-			:serial t
-			:components ((:file "packages")
-				     (:file "macro-util")))
-	       (:module "src/synthesizer"
-			:serial t
-			:components ((:file "packages")
-				     (:file "assembly-error")
-				     (:file "invalid-arguments-error")
-				     (:file "environment")
-				     (:file "rack-compiler") 
-				     (:file "rack")))
-	       (:module "src/core"
-			:serial t
-			:components ((:file "packages")
-				     (:file "linear-converter")
-				     (:file "phase-waveform-converter")
-				     (:file "phase-generator")
-				     (:file "normalized-exp")
-				     (:file "round-time")))
-		(:module "src/midi"
-			:serial t
-			:components ((:file "packages")
-				     (:file "tuning")
-				     (:file "event")))
-	       (:module "src/modules"
-			:serial t
-			:components ((:file "packages")
-				     (:file "midi-polyphonic-interface")
-				     (:file "midi-monophonic-interface")
-				     (:file "midi-cc-interface")
-				     (:file "midi-sequencer")
-				     (:file "vca")
-				     (:file "vco")
-				     (:file "adder")
-				     (:file "trigger")
-				     (:file "mixer")
-				     (:file "ramp")
-				     (:file "sustain")
-				     (:file "wave-file-writer")
-				     (:file "csv-file-writer")))
-	       (:module "src/monitor"
-			:serial t
-			:components ((:file "packages")
-				     (:file "monitor")))
-	       (:module "test"
+  :depends-on (:lisp-unit :cl-synthesizer)
+  :components ((:module "test"
 			:serial t
 			:components ((:file "packages")))
 	       (:module "test/test-util"
