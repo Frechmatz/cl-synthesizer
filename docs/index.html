@@ -8,7 +8,7 @@
 	The Common Lisp Standard Library shall it be.</li>
     <li>Extensive unit testing. The library comes with hundreds of unit tests.</li>
     <li>Extensive profiling of consing and execution speed.</li>
-</ul><p>The source code of cl-synthesizer can be found <a href="https://github.com/Frechmatz/cl-synthesizer">here</a>.</p></header><nav class="container"><h1 id="id-Table of contents">Table of contents</h1><ul><li><a href="#id-Installation">Installation</a><ul></ul></li><li><a href="#id-Examples">Examples</a><ul></ul></li><li><a href="#id-API">API</a><ul><li><a href="#id-Environment">Environment</a><ul><li><a href="#id-make-environment">make-environment</a><ul></ul></li></ul></li><li><a href="#id-Rack">Rack</a><ul><li><a href="#id-make-rack">make-rack</a><ul></ul></li><li><a href="#id-add-module">add-module</a><ul></ul></li><li><a href="#id-add-patch">add-patch</a><ul></ul></li><li><a href="#id-get-module">get-module</a><ul></ul></li><li><a href="#id-get-module-name">get-module-name</a><ul></ul></li><li><a href="#id-find-module">find-module</a><ul></ul></li><li><a href="#id-get-patches">get-patches</a><ul></ul></li><li><a href="#id-get-modules">get-modules</a><ul></ul></li><li><a href="#id-add-hook">add-hook</a><ul></ul></li><li><a href="#id-play-rack">play-rack</a><ul></ul></li><li><a href="#id-is-rack">is-rack</a><ul></ul></li><li><a href="#id-get-environment">get-environment</a><ul></ul></li></ul></li><li><a href="#id-Modules">Modules</a><ul><li><a href="#id-VCO">VCO</a><ul></ul></li><li><a href="#id-VCA">VCA</a><ul></ul></li><li><a href="#id-ADSR">ADSR</a><ul></ul></li><li><a href="#id-Multiple">Multiple</a><ul></ul></li><li><a href="#id-MIDI Interface">MIDI Interface</a><ul></ul></li><li><a href="#id-MIDI CC Interface">MIDI CC Interface</a><ul></ul></li><li><a href="#id-MIDI Sequencer">MIDI Sequencer</a><ul></ul></li><li><a href="#id-Fixed Output">Fixed Output</a><ul></ul></li><li><a href="#id-Adder">Adder</a><ul></ul></li><li><a href="#id-Mixer">Mixer</a><ul></ul></li><li><a href="#id-Trigger">Trigger</a><ul></ul></li><li><a href="#id-Ramp">Ramp</a><ul></ul></li><li><a href="#id-Sustain">Sustain</a><ul></ul></li><li><a href="#id-Wave File Writer">Wave File Writer</a><ul></ul></li><li><a href="#id-CSV File Writer">CSV File Writer</a><ul></ul></li></ul></li><li><a href="#id-Monitor">Monitor</a><ul><li><a href="#id-add-monitor">add-monitor</a><ul></ul></li><li><a href="#id-wave-handler">wave-handler</a><ul></ul></li><li><a href="#id-csv-handler">csv-handler</a><ul></ul></li></ul></li><li><a href="#id-MIDI">MIDI</a><ul><li><a href="#id-MIDI Event">MIDI Event</a><ul></ul></li><li><a href="#id-MIDI Utilities">MIDI Utilities</a><ul></ul></li></ul></li><li><a href="#id-Conditions">Conditions</a><ul></ul></li></ul></li><li><a href="#id-Acknowledgements">Acknowledgements</a><ul></ul></li></ul></nav><section class="container"><h1 id="id-Installation">Installation</h1><pre><code>cd ~/quicklisp/local-projects
+</ul><p>The source code of cl-synthesizer can be found <a href="https://github.com/Frechmatz/cl-synthesizer">here</a>.</p></header><nav class="container"><h1 id="id-Table of contents">Table of contents</h1><ul><li><a href="#id-Installation">Installation</a><ul></ul></li><li><a href="#id-Examples">Examples</a><ul></ul></li><li><a href="#id-API">API</a><ul><li><a href="#id-Environment">Environment</a><ul><li><a href="#id-make-environment">make-environment</a><ul></ul></li></ul></li><li><a href="#id-Rack">Rack</a><ul><li><a href="#id-make-rack">make-rack</a><ul></ul></li><li><a href="#id-add-module">add-module</a><ul></ul></li><li><a href="#id-add-patch">add-patch</a><ul></ul></li><li><a href="#id-get-module">get-module</a><ul></ul></li><li><a href="#id-get-module-name">get-module-name</a><ul></ul></li><li><a href="#id-find-module">find-module</a><ul></ul></li><li><a href="#id-get-patches">get-patches</a><ul></ul></li><li><a href="#id-get-modules">get-modules</a><ul></ul></li><li><a href="#id-add-hook">add-hook</a><ul></ul></li><li><a href="#id-play-rack">play-rack</a><ul></ul></li><li><a href="#id-is-rack">is-rack</a><ul></ul></li><li><a href="#id-get-environment">get-environment</a><ul></ul></li></ul></li><li><a href="#id-Modules">Modules</a><ul><li><a href="#id-VCO">VCO</a><ul></ul></li><li><a href="#id-VCA">VCA</a><ul></ul></li><li><a href="#id-ADSR">ADSR</a><ul></ul></li><li><a href="#id-Multiple">Multiple</a><ul></ul></li><li><a href="#id-MIDI Polyphonic Interface">MIDI Polyphonic Interface</a><ul></ul></li><li><a href="#id-MIDI Monophonic Interface">MIDI Monophonic Interface</a><ul></ul></li><li><a href="#id-MIDI CC Interface">MIDI CC Interface</a><ul></ul></li><li><a href="#id-MIDI Sequencer">MIDI Sequencer</a><ul></ul></li><li><a href="#id-Fixed Output">Fixed Output</a><ul></ul></li><li><a href="#id-Adder">Adder</a><ul></ul></li><li><a href="#id-Mixer">Mixer</a><ul></ul></li><li><a href="#id-Trigger">Trigger</a><ul></ul></li><li><a href="#id-Ramp">Ramp</a><ul></ul></li><li><a href="#id-Sustain">Sustain</a><ul></ul></li><li><a href="#id-Wave File Writer">Wave File Writer</a><ul></ul></li><li><a href="#id-CSV File Writer">CSV File Writer</a><ul></ul></li></ul></li><li><a href="#id-Monitor">Monitor</a><ul><li><a href="#id-add-monitor">add-monitor</a><ul></ul></li><li><a href="#id-wave-handler">wave-handler</a><ul></ul></li><li><a href="#id-csv-handler">csv-handler</a><ul></ul></li></ul></li><li><a href="#id-MIDI">MIDI</a><ul><li><a href="#id-MIDI Event">MIDI Event</a><ul></ul></li><li><a href="#id-MIDI Utilities">MIDI Utilities</a><ul></ul></li></ul></li><li><a href="#id-Conditions">Conditions</a><ul></ul></li></ul></li><li><a href="#id-Acknowledgements">Acknowledgements</a><ul></ul></li></ul></nav><section class="container"><h1 id="id-Installation">Installation</h1><pre><code>cd ~/quicklisp/local-projects
 git clone https://github.com/Frechmatz/cl-wave-file-writer.git
 git clone https://github.com/Frechmatz/cl-synthesizer.git
 (ql:quickload "cl-synthesizer")</code></pre><h1 id="id-Examples">Examples</h1><p><b>Generate a 440Hz sine wave and write it to a wave file.</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-sine
@@ -453,7 +453,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 
     (cl-synthesizer:add-module
      rack "MIDI-IFC"
-     #'cl-synthesizer-modules-midi-interface:make-module :voice-count 1)
+     #'cl-synthesizer-modules-midi-polyphonic-interface:make-module :voice-count 1)
 
     (cl-synthesizer:add-patch rack "MIDI-SEQUENCER" :midi-events "MIDI-IFC" :midi-events)
     
@@ -529,53 +529,49 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds 10)))
 
-;; (run-example)</code></pre></p><h3 id="id-MIDI Interface">MIDI Interface</h3><p><b>cl-synthesizer-modules-midi-interface:make-module</b> name environment &key (voice-count 1) (channel nil) (note-number-to-cv nil) (play-mode :play-mode-poly) (cv-gate-on 5.0) (cv-gate-off 0.0) (force-gate-retrigger nil) </p><p>Creates a MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
+;; (run-example)</code></pre></p><h3 id="id-MIDI Polyphonic Interface">MIDI Polyphonic Interface</h3><p><b>cl-synthesizer-modules-midi-polyphonic-interface:make-module</b> name environment &key (voice-count 1) (channel nil) (note-number-to-cv nil) (cv-gate-on 5.0) (cv-gate-off 0.0) </p><p>Creates a polyphonic MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
     voice is represented by a control-voltage and a gate signal. The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
-	<li>:voice-count The number of voices to be exposed by the module. Each voice consists
-	    of the following output sockets:
-	    <ul>
-		<li>:gate-n The gate signal. n = 1..voice-count.</li>
-		<li>:cv-n A control voltage representing the note number.
-		    n = 1..voice-count.</li>
-	    </ul>
-        </li>
+	<li>:voice-count The number of voices to be exposed by the module.</li>
 	<li>:channel Optional MIDI channel to which note events must belong. By default the
 	    channel is ignored.</li>
 	<li>:note-number-to-cv An optional function that is called with a MIDI note number
 	    and returns a control-voltage. The default implementation is cv = note-number / 12.0</li>
-	<li>:play-mode
-	    <ul>
-		<li>:play-mode-poly Polyphonic play mode. Incoming note events will be
-		    dispatched to "available" voices.</li>
-		<li>:play-mode-unisono Monophonic play mode. All voices exposed by the module
-		    are set to the current "active" note. Notes are stacked. When a note is
-		    released, the voice outputs switch to the previous note.</li>
-	    </ul>
-            <p>
-            The handling of play-modes is implemented by the package 
-            cl-synthesizer-midi-voice-manager:voice-manager.
-            </p>
-        </li>
 	<li>:cv-gate-on The "Gate on" control voltage.</li>
 	<li>:cv-gate-off The "Gate off" control voltage.</li>
-	<li>:force-gate-retrigger If t then in :play-mode-unisono play mode each note
-	    event will cause a retriggering of the gate signal. Otherwise the gate signal
-	    will just stay on when it is already on.</li>
     </ul>
-    Gate transitions are implemented as follows:
+    Gate transitions are implemented as follows: Each incoming note causes that the gate signal of the
+    assigned voice switches to On. If the gate signal of the assigned voice is already On
+    (this happens when the available voices are exhausted and a voice is "stolen") then
+    the gate signal switches to Off for the duration of one system tick and then to On again.</br>
+    The module has the following inputs:
     <ul>
-	<li>In :play-mode-poly play mode each incoming note causes that the gate signal of the
-	    assigned voice switches to On. If the gate signal of the assigned voice is already On
-	    (this happens when the available voices are exhausted and a voice is "stolen") then
-	    the gate signal switches to Off for the duration of one system tick and
-	    then to On again.</li>
-	<li>In :play-mode-unisono play mode incoming notes are stacked. The first note causes
-	    the gate signal to switch to On. Further "nested" note-on events only result
-	    in a change of the CV output but the gate signal will stay On.
-	    This behaviour can be overridden with the :force-gate-retrigger parameter.</li>
+	<li>:midi-events A list of MIDI events.</li>
+    </ul>
+    The module has the following outputs:
+    <ul>
+	<li>:gate-1 ... :gate-n Gates of the voices.</li>
+	<li>:cv-1 ... :cv-n Control voltages of the voices.</li>
+    </ul></b></p><h3 id="id-MIDI Monophonic Interface">MIDI Monophonic Interface</h3><p><b>cl-synthesizer-modules-midi-monophonic-interface:make-module</b> name environment &key (channel nil) (note-number-to-cv nil) (cv-gate-on 5.0) (cv-gate-off 0.0) (force-gate-retrigger nil) </p><p>Creates a monophonic MIDI interface module. The module dispatches MIDI-Note events to a single voice. 
+   The function has the following arguments:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:channel Optional MIDI channel to which note events must belong. By default the
+	    channel is ignored.</li>
+	<li>:note-number-to-cv An optional function that is called with a MIDI note number
+	    and returns a control-voltage. The default implementation is cv = note-number / 12.0</li>
+	<li>:cv-gate-on The "Gate on" control voltage.</li>
+	<li>:cv-gate-off The "Gate off" control voltage.</li>
+	<li>:force-gate-retrigger If t then each note on event will cause a retriggering 
+            of the gate signal. Otherwise the gate signal will just stay on when it is already on.</li>
+    </ul>
+    Gate transitions are implemented as follows: Incoming notes are stacked. The first note causes
+    the gate signal to switch to On. Further "nested" note-on events only result
+    in a change of the CV output but the gate signal will stay On.
+    This behaviour can be overridden with the :force-gate-retrigger parameter.</li>
     </ul>
     The module has the following inputs:
     <ul>
@@ -583,8 +579,8 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
     </ul>
     The module has the following outputs:
     <ul>
-	<li>:gate-1 ... :gate-n</li>
-	<li>:cv-1 ... :cv-n</li>
+	<li>:gate-1 The gate signal.</li>
+	<li>:cv-1 The control voltage representing the note which is on top of the note stack.</li>
     </ul>
     For an example see <b>midi-sequencer</b></p><h3 id="id-MIDI CC Interface">MIDI CC Interface</h3><p><b>cl-synthesizer-modules-midi-cc-interface:make-module</b> name environment &key controller-numbers transform-handler (channel nil) (initial-output 0) (min-output nil) (max-output nil) </p><p>Creates a MIDI CC Event interface module. The module maps MIDI control change events to
    an output value. The function has the following arguments:
@@ -704,7 +700,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
     (cl-synthesizer:add-module
      rack
      "MIDI-IFC"
-     #'cl-synthesizer-modules-midi-interface:make-module :voice-count 1)
+     #'cl-synthesizer-modules-midi-polyphonic-interface:make-module :voice-count 1)
     (cl-synthesizer:add-patch rack "MIDI-SEQUENCER" :midi-events "MIDI-IFC" :midi-events)
 
     ;; Add VCO
@@ -1071,7 +1067,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 
     (cl-synthesizer:add-module
      rack "MIDI-IFC"
-     #'cl-synthesizer-modules-midi-interface:make-module :voice-count 1)
+     #'cl-synthesizer-modules-midi-polyphonic-interface:make-module :voice-count 1)
 
     (cl-synthesizer:add-module
      rack "GATE-MULTIPLE"
@@ -1279,4 +1275,4 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
    a non-existing module, a patch is added to an already patched socket
    and so on.</p><h1 id="id-Acknowledgements">Acknowledgements</h1><ul>
 <li>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></li>
-</ul></section><footer class="container"><p><small>Generated 2019-10-29  21:38:10</small></p></footer></body></html>
+</ul></section><footer class="container"><p><small>Generated 2019-11-07  20:23:30</small></p></footer></body></html>

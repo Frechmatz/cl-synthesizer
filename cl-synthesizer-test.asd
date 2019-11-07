@@ -36,7 +36,6 @@
 	       (:module "src/modules"
 			:serial t
 			:components ((:file "packages")
-				     (:file "midi-interface")
 				     (:file "midi-polyphonic-interface")
 				     (:file "midi-monophonic-interface")
 				     (:file "midi-cc-interface")
@@ -78,7 +77,6 @@
 			:components ((:file "test-adder")
 				     (:file "test-trigger")
 				     (:file "test-midi-cc-interface")
-				     (:file "test-midi-interface")
 				     (:file "test-midi-polyphonic-interface")
 				     (:file "test-midi-monophonic-interface")
 				     (:file "test-midi-sequencer")

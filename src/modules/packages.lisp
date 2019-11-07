@@ -1,9 +1,4 @@
 
-(defpackage :cl-synthesizer-modules-midi-interface
-  (:use :cl)
-  (:export
-   :make-module))
-
 (defpackage :cl-synthesizer-modules-midi-polyphonic-interface
   (:use :cl)
   (:export

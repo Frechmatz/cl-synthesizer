@@ -39,7 +39,6 @@
 				     (:file "vco")
 				     (:file "multiple")
 				     (:file "vca")
-				     (:file "midi-interface")
 				     (:file "midi-polyphonic-interface")
 				     (:file "midi-monophonic-interface")
 				     (:file "midi-cc-interface")

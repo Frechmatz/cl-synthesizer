@@ -52,7 +52,7 @@
     (cl-synthesizer:add-module rack "VOICE-1" #'make-voice)
     (cl-synthesizer:add-module rack "VOICE-2" #'make-voice)
     (cl-synthesizer:add-module
-     rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:make-module :voice-count 2)
+     rack "MIDI-IFC" #'cl-synthesizer-modules-midi-polyphonic-interface:make-module :voice-count 2)
     (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-IFC" :midi-events)
 
     ;; Connect voices with midi-interface

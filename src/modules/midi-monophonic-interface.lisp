@@ -252,8 +252,8 @@
 			 (cv-gate-on 5.0)
 			 (cv-gate-off 0.0)
 			 (force-gate-retrigger nil))
-  "Creates a MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
-    voice is represented by a control-voltage and a gate signal. The function has the following arguments:
+  "Creates a monophonic MIDI interface module. The module dispatches MIDI-Note events to a single voice. 
+   The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
@@ -263,16 +263,13 @@
 	    and returns a control-voltage. The default implementation is cv = note-number / 12.0</li>
 	<li>:cv-gate-on The \"Gate on\" control voltage.</li>
 	<li>:cv-gate-off The \"Gate off\" control voltage.</li>
-	<li>:force-gate-retrigger If t then in :play-mode-unisono play mode each note
-	    event will cause a retriggering of the gate signal. Otherwise the gate signal
-	    will just stay on when it is already on.</li>
+	<li>:force-gate-retrigger If t then each note on event will cause a retriggering 
+            of the gate signal. Otherwise the gate signal will just stay on when it is already on.</li>
     </ul>
-    Gate transitions are implemented as follows:
-    <ul>
-	<li>Incoming notes are stacked. The first note causes
-	    the gate signal to switch to On. Further \"nested\" note-on events only result
-	    in a change of the CV output but the gate signal will stay On.
-	    This behaviour can be overridden with the :force-gate-retrigger parameter.</li>
+    Gate transitions are implemented as follows: Incoming notes are stacked. The first note causes
+    the gate signal to switch to On. Further \"nested\" note-on events only result
+    in a change of the CV output but the gate signal will stay On.
+    This behaviour can be overridden with the :force-gate-retrigger parameter.</li>
     </ul>
     The module has the following inputs:
     <ul>
@@ -280,10 +277,9 @@
     </ul>
     The module has the following outputs:
     <ul>
-	<li>:gate-1</li>
-	<li>:cv-1</li>
-    </ul>
-    For an example see <b>midi-sequencer</b>"
+	<li>:gate-1 The gate signal.</li>
+	<li>:cv-1 The control voltage representing the note which is on top of the note stack.</li>
+    </ul></b>"
   (declare (ignore environment))
   (let ((play-mode :PLAY-MODE-UNISONO) (voice-count 1))
     (if (not note-number-to-cv)

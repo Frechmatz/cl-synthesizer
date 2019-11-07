@@ -21,7 +21,7 @@
 
     (cl-synthesizer:add-module
      rack "MIDI-IFC"
-     #'cl-synthesizer-modules-midi-interface:make-module :voice-count 1)
+     #'cl-synthesizer-modules-midi-polyphonic-interface:make-module :voice-count 1)
 
     (cl-synthesizer:add-module
      rack "ADSR"

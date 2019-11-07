@@ -198,16 +198,27 @@
 		 duration-seconds sample-rate filename)))))
 
    (list
-    :id :midi-interface :name "MIDI-Interface"
-    :setup (lambda(&key duration-seconds midi-play-mode voice-count)
-	     (let ((update-fn (cl-synthesizer-profiling-midi-interface::init :midi-play-mode midi-play-mode :voice-count voice-count)))
+    :id :midi-polyphonic-interface :name "MIDI-Polyphonic-Interface"
+    :setup (lambda(&key duration-seconds voice-count)
+	     (let ((update-fn (cl-synthesizer-profiling-midi-polyphonic-interface::init :voice-count voice-count)))
 	       (values 
 		(lambda ()
 		  (funcall update-fn :duration-seconds duration-seconds))
 		(format
 		 nil
-		 "Updating MIDI-Interface for ~a seconds with play-mode ~a and voice-count ~a"
-		 duration-seconds midi-play-mode voice-count)))))
+		 "Updating MIDI-Polyphonic-Interface for ~a seconds with voice-count ~a"
+		 duration-seconds voice-count)))))
+   (list
+    :id :midi-monophonic-interface :name "MIDI-Monophonic-Interface"
+    :setup (lambda(&key duration-seconds)
+	     (let ((update-fn (cl-synthesizer-profiling-midi-monophonic-interface::init)))
+	       (values 
+		(lambda ()
+		  (funcall update-fn :duration-seconds duration-seconds))
+		(format
+		 nil
+		 "Updating MIDI-Monophonic-Interface for ~a seconds"
+		 duration-seconds)))))
 
    (list
     :id :adsr :name "ADSR"
@@ -426,15 +437,23 @@
 	    (:duration-seconds 30 :sample-rate 96000
 	     :filename "cl-synthesizer-examples/wave-profiling-96000.wav")))))
 
-(defparameter *profiling-plan-midi-interface*
+(defparameter *profiling-plan-midi-polyphonic-interface*
   (list
-   :name "MIDI-Interface"
+   :name "MIDI-Polyphonic-Interface"
    :max-samples 500
    :profile-time t
    :profile-statistical nil
    :init nil
-   :jobs '((:client-id :midi-interface :init (:duration-seconds 60 :midi-play-mode :play-mode-poly :voice-count 5))
-	   (:client-id :midi-interface :init (:duration-seconds 60 :midi-play-mode :play-mode-unisono :voice-count 5)))))
+   :jobs '((:client-id :midi-polyphonic-interface :init (:duration-seconds 60 :voice-count 5)))))
+
+(defparameter *profiling-plan-midi-monophonic-interface*
+  (list
+   :name "MIDI-Monophonic-Interface"
+   :max-samples 500
+   :profile-time t
+   :profile-statistical nil
+   :init nil
+   :jobs '((:client-id :midi-monophonic-interface :init (:duration-seconds 60)))))
 
 (defparameter *profiling-plan-adsr*
   (list
@@ -507,8 +526,8 @@
 	    (:duration-seconds 60
 	     :sample-rate 44100
 	     :filename "cl-synthesizer-examples/wave-profiling.wav"))
-	   (:client-id :midi-interface :init (:duration-seconds 60 :midi-play-mode :play-mode-poly :voice-count 5))
-	   (:client-id :midi-interface :init (:duration-seconds 60 :midi-play-mode :play-mode-unisono :voice-count 5))
+	   (:client-id :midi-polyphonic-interface :init (:duration-seconds 60 :voice-count 5))
+	   (:client-id :midi-monophonic-interface :init (:duration-seconds 60))
 	   (:client-id :adsr :init (:duration-seconds 60 :exponential nil))
 	   (:client-id :adsr :init (:duration-seconds 60 :exponential t))
 	   (:client-id :mixer :init (:duration-seconds 60 :channel-count 32))
@@ -523,7 +542,8 @@
 ;; (run-plan *profiling-plan-midi-sequencer*)
 ;; (run-plan *profiling-plan-csv-writer*)
 ;; (run-plan *profiling-plan-wave-writer*)
-;; (run-plan *profiling-plan-midi-interface*)
+;; (run-plan *profiling-plan-midi-polyphonic-interface*)
+;; (run-plan *profiling-plan-midi-monophonic-interface*)
 ;; (run-plan *profiling-plan-adsr*)
 ;; (run-plan *profiling-plan-adsr-exponential*)
 ;; (run-plan *profiling-plan-mixer*)

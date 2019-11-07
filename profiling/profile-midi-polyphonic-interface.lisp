@@ -1,16 +1,15 @@
-(defpackage :cl-synthesizer-profiling-midi-interface
+(defpackage :cl-synthesizer-profiling-midi-polyphonic-interface
   (:use :cl))
 
-(in-package :cl-synthesizer-profiling-midi-interface)
+(in-package :cl-synthesizer-profiling-midi-polyphonic-interface)
 
-(defun make-test-rack (&key (play-mode :PLAY-MODE-POLY) voice-count)
+(defun make-test-rack (&key voice-count)
   (let ((rack (cl-synthesizer:make-rack
 	       :environment (cl-synthesizer:make-environment)
 	       :input-sockets '(:midi-events))))
     (cl-synthesizer:add-module
      rack "MIDI-IFC"
-     #'cl-synthesizer-modules-midi-interface:make-module :voice-count voice-count :play-mode play-mode
-     :force-gate-retrigger t)
+     #'cl-synthesizer-modules-midi-polyphonic-interface:make-module :voice-count voice-count)
     (cl-synthesizer:add-patch rack "INPUT" :midi-events "MIDI-IFC" :midi-events)
     rack))
 
@@ -23,8 +22,8 @@
       (push (funcall factory-fn 1 (+ 75 i) 100) events))
     events))
 
-(defun init (&key midi-play-mode voice-count)
-  (let ((rack (make-test-rack :play-mode midi-play-mode :voice-count voice-count))
+(defun init (&key voice-count)
+  (let ((rack (make-test-rack :voice-count voice-count))
 	(input-args-1 (make-note-events #'cl-synthesizer-midi-event:make-note-on-event voice-count))
 	(input-args-2 (make-note-events #'cl-synthesizer-midi-event:make-note-off-event voice-count)))
     (lambda (&key duration-seconds)

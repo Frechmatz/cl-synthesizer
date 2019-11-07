@@ -77,7 +77,7 @@
       (cl-synthesizer:add-module rack (format nil "VOICE-~a" i) #'make-voice :exponential exponential))
     
     (cl-synthesizer:add-module
-     rack "MIDI-IFC" #'cl-synthesizer-modules-midi-interface:make-module :voice-count voice-count)
+     rack "MIDI-IFC" #'cl-synthesizer-modules-midi-polyphonic-interface:make-module :voice-count voice-count)
     
     (cl-synthesizer:add-module
      rack
