@@ -2,103 +2,6 @@
 
 
 ;;
-;; Voice
-;;
-
-(define-test test-polyphonic-voice-manager-voice-2 ()
-	     (let ((v (make-instance 'cl-synthesizer-modules-midi-polyphonic-interface::voice
-				     :tick-counter (cl-synthesizer-modules-midi-polyphonic-interface::make-tick-counter)
-				     )))
-	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1)
-		 (assert-equal 1 current-voice-note)
-		 (assert-true (cl-synthesizer-modules-midi-polyphonic-interface::voice-is-note v 1))
-		 (assert-nil (cl-synthesizer-modules-midi-polyphonic-interface::voice-is-note v 99)))))
-
-(define-test test-polyphonic-voice-manager-voice-3 ()
-	     (let ((v (make-instance 'cl-synthesizer-modules-midi-polyphonic-interface::voice
-				     :tick-counter (cl-synthesizer-modules-midi-polyphonic-interface::make-tick-counter))))
-	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1)
-		 (assert-equal 1 current-voice-note))
-	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 2)
-		 (assert-equal 2 current-voice-note))))
-
-(define-test test-polyphonic-voice-manager-voice-4 ()
-	     (let ((v (make-instance 'cl-synthesizer-modules-midi-polyphonic-interface::voice
-				     :tick-counter (cl-synthesizer-modules-midi-polyphonic-interface::make-tick-counter))))
-	       (assert-equal 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1))
-	       (assert-true (< 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 2)))
-	       (assert-equal 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-remove-note v 2))))
-
-(define-test test-polyphonic-voice-manager-voice-5 ()
-	     (let ((v (make-instance 'cl-synthesizer-modules-midi-polyphonic-interface::voice
-				     :tick-counter (cl-synthesizer-modules-midi-polyphonic-interface::make-tick-counter))))
-	       (assert-equal 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1))
-	       (assert-true (< 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 2)))
-	       (assert-equal 2 (cl-synthesizer-modules-midi-polyphonic-interface::voice-remove-note v 1))
-	       (assert-nil (cl-synthesizer-modules-midi-polyphonic-interface::voice-remove-note v 2))
-	       (assert-nil (cl-synthesizer-modules-midi-polyphonic-interface::voice-remove-note v 2))))
-
-(define-test test-polyphonic-voice-manager-voice-6 ()
-	     (let ((v (make-instance 'cl-synthesizer-modules-midi-polyphonic-interface::voice
-				     :tick-counter (cl-synthesizer-modules-midi-polyphonic-interface::make-tick-counter))))
-	       (assert-equal 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1))
-	       (assert-true (< 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 2)))
-	       (assert-equal 2 (cl-synthesizer-modules-midi-polyphonic-interface::voice-remove-note v 3))))
-
-(define-test test-polyphonic-voice-manager-voice-7 ()
-	     (let ((v (make-instance 'cl-synthesizer-modules-midi-polyphonic-interface::voice
-				     :tick-counter (cl-synthesizer-modules-midi-polyphonic-interface::make-tick-counter))))
-	       (assert-equal 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1))
-	       (assert-true (< 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 2)))
-	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 2)
-		 (assert-equal 2 current-voice-note))
-	       (assert-equal 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-remove-note v 2))
-	       (assert-nil (cl-synthesizer-modules-midi-polyphonic-interface::voice-remove-note v 1))))
-
-(define-test test-polyphonic-voice-manager-voice-8 ()
-	     (let ((v (make-instance 'cl-synthesizer-modules-midi-polyphonic-interface::voice
-				     :tick-counter (cl-synthesizer-modules-midi-polyphonic-interface::make-tick-counter))))
-	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1)
-		 (assert-equal 1 current-voice-note))
-	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 2)
-		 (assert-equal 2 current-voice-note))
-	       (assert-equal 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-remove-note v 2))
-	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 3)
-		 (assert-equal 3 current-voice-note))))
-
-(define-test test-polyphonic-voice-manager-voice-9 ()
-	     (let ((v (make-instance 'cl-synthesizer-modules-midi-polyphonic-interface::voice
-				     :tick-counter (cl-synthesizer-modules-midi-polyphonic-interface::make-tick-counter))))
-	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1)
-	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 2)
-		 (assert-equal 2 current-voice-note))
-	       (assert-equal 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-remove-note v 2))
-	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1)
-		 (assert-equal 1 current-voice-note)))))
-
-(define-test test-polyphonic-voice-manager-voice-10 ()
-	     (let ((v (make-instance 'cl-synthesizer-modules-midi-polyphonic-interface::voice
-				     :tick-counter (cl-synthesizer-modules-midi-polyphonic-interface::make-tick-counter))))
-	       (assert-equal 1 (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1))
-	       (multiple-value-bind (current-voice-note)
-		   (cl-synthesizer-modules-midi-polyphonic-interface::voice-push-note v 1)
-		 (assert-equal 1 current-voice-note))
-	       (assert-nil (cl-synthesizer-modules-midi-polyphonic-interface::voice-remove-note v 1))))
-
-
-
-
-;;
 ;; Voice-Manager
 ;;
 
@@ -122,7 +25,6 @@
 	  (t
 	   (error "Invalid test case")))))))
 
-;;
 ;;
 ;; Tests, where no voice overloading takes place
 ;;
