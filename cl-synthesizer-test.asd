@@ -24,6 +24,9 @@
 				     (:file "frequency-counter")
 				     (:file "is-approximately")
 				     (:file "get-patch")))
+	       (:module "test/util"
+			:serial t
+			:components ((:file "test-lru-set")))
 	       (:module "test/core"
 			:serial t
 			:components ((:file "test-waveform")))

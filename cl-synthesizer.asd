@@ -11,7 +11,8 @@
   :components ((:module "src/util"
 			:serial t
 			:components ((:file "packages")
-				     (:file "macro-util")))
+				     (:file "macro-util")
+				     (:file "lru-set")))
 		(:module "src/synthesizer"
 			:serial t
 			:components ((:file "packages")

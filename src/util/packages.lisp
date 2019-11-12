@@ -6,3 +6,12 @@
    :make-keyword-list
    :with-property-list
    ))
+
+(defpackage :cl-synthesizer-lru-set
+  (:use :cl)
+  (:export
+   :lru-set
+   :remove-note
+   :push-note
+   :current-note
+   ))
