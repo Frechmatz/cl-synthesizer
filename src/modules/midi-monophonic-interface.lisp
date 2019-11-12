@@ -32,10 +32,12 @@
 		      (force-gate-retrigger nil)
 		      (stack-depth 5))
   "Creates a monophonic MIDI interface module. The module dispatches MIDI-Note events to a single voice. 
+   If the voice is already assigned to a note, then the next note is pushed on top of the current note.
    The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
+        <li>:stack-depth Maximum number of stacked notes.</li>
 	<li>:channel Optional MIDI channel to which note events must belong. By default the
 	    channel is ignored.</li>
 	<li>:note-number-to-cv An optional function that is called with a MIDI note number
@@ -66,7 +68,7 @@
 	 (inputs nil)
 	 (input-midi-events nil)
 	 (voice-state (make-voice-state))
-	 (voice-manager (make-instance 'cl-synthesizer-lru-set:lru-set :voice-count stack-depth)))
+	 (voice-manager (make-instance 'cl-synthesizer-lru-set:lru-set :capacity stack-depth)))
 
     ;; Set up outputs
     (let ((cv-socket (cl-synthesizer-macro-util:make-keyword "CV" 0))
@@ -113,15 +115,15 @@
 			 ;; Note on
 			 ((cl-synthesizer-midi-event:note-on-eventp midi-event)
 			  (let ((note-number (cl-synthesizer-midi-event:get-note-number midi-event)))
-			    (cl-synthesizer-lru-set:push-note voice-manager note-number)
+			    (cl-synthesizer-lru-set:push-value voice-manager note-number)
 			    (activate-gate)
 			    (set-voice-state-cv voice-state  (funcall note-number-to-cv note-number))))
 			 ;; Note off
 			 ((cl-synthesizer-midi-event:note-off-eventp midi-event)
-			  (cl-synthesizer-lru-set:remove-note
+			  (cl-synthesizer-lru-set:remove-value
 			   voice-manager
 			   (cl-synthesizer-midi-event:get-note-number midi-event))
-			  (let ((voice-note (cl-synthesizer-lru-set:current-note voice-manager)))
+			  (let ((voice-note (cl-synthesizer-lru-set:current-value voice-manager)))
 			    ;; if no note left then set gate to off
 			    (if (not voice-note)
 				(set-voice-state-gate voice-state cv-gate-off)

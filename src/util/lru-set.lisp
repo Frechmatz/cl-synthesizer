@@ -1,46 +1,46 @@
 (in-package :cl-synthesizer-lru-set)
 
 ;;
-;; Voice
+;; Entry
 ;;
 
-(defclass voice ()
-  ((notes :initform nil) ;; nil or a note
+(defclass lru-entry ()
+  ((v :initform nil) ;; the value or nil
    (tick-counter :initform nil)
    (tick :initform 0)))
 
-(defmethod initialize-instance :after ((v voice) &key tick-counter)
+(defmethod initialize-instance :after ((v lru-entry) &key tick-counter)
   (setf (slot-value v 'tick-counter) tick-counter)
   (setf (slot-value v 'tick) (funcall tick-counter)))
 
-(defmacro voice-is-note (cur-voice note)
-  `(equal ,note (slot-value ,cur-voice 'notes)))
+(defmacro lru-entry-is-value (cur-entry v)
+  `(equal ,v (slot-value ,cur-entry 'v)))
 
-(defmacro voice-get-current-note (cur-voice)
-  `(slot-value ,cur-voice 'notes))
+(defmacro lru-entry-get-current-value (cur-entry)
+  `(slot-value ,cur-entry 'v))
 
-(defmacro voice-get-tick (cur-voice)
-  `(slot-value ,cur-voice 'tick))
+(defmacro lru-entry-get-tick (cur-entry)
+  `(slot-value ,cur-entry 'tick))
 
-(defmacro voice-touch (cur-voice)
-  `(setf (slot-value ,cur-voice 'tick) (funcall (slot-value ,cur-voice 'tick-counter))))
+(defmacro lru-entry-touch (cur-entry)
+  `(setf (slot-value ,cur-entry 'tick) (funcall (slot-value ,cur-entry 'tick-counter))))
 
-;; Sets a note.
-(defun voice-set-note (cur-voice note)
-  (voice-touch cur-voice)
-  (setf (slot-value cur-voice 'notes) note)
-  note)
+;; Sets a value
+(defun lru-entry-set-value (cur-entry value)
+  (lru-entry-touch cur-entry)
+  (setf (slot-value cur-entry 'v) value)
+  value)
 
-;; Resets the voice. Returns the current note or nil
-(defun voice-reset (cur-voice)
-  (if (slot-value cur-voice 'notes)
+;; Resets the entry. Returns the current value or nil
+(defun lru-entry-reset (cur-entry)
+  (if (slot-value cur-entry 'v)
       (progn
-	(voice-touch cur-voice)
-	(setf (slot-value cur-voice 'notes) nil)))
+	(lru-entry-touch cur-entry)
+	(setf (slot-value cur-entry 'v) nil)))
   nil)
 
 ;;
-;; Voice-Manager
+;; Lru-Set
 ;;
 
 (defun make-tick-counter ()
@@ -50,91 +50,90 @@
       tick)))
 
 (defclass lru-set ()
-  ((voices :initform nil) ;; list of (index voice)
-   (tick-counter :initform (make-tick-counter))))
+  ((entries :initform nil)
+   (tick-counter :initform (make-tick-counter)))
+  (:documentation "A fixed capacity LRU Set. Entries are accessible by index."))
 
-(defmethod initialize-instance :after ((mgr lru-set) &key voice-count)
-  (if (equal 0 voice-count)
-      (error "voice-manager: voice-count must be greater zero"))
-  (let ((voice-array (make-array voice-count)))
-    (setf (slot-value mgr 'voices) voice-array)
-    (dotimes (i voice-count)
-      (setf (aref voice-array i) (make-instance 'voice :tick-counter (slot-value mgr 'tick-counter))))))
+(defmethod initialize-instance :after ((mgr lru-set) &key capacity)
+  (if (equal 0 capacity)
+      (error "lru-set: capacity must be greater zero"))
+  (let ((entry-array (make-array capacity)))
+    (setf (slot-value mgr 'entries) entry-array)
+    (dotimes (i capacity)
+      (setf (aref entry-array i) (make-instance 'lru-entry :tick-counter (slot-value mgr 'tick-counter))))))
 
 ;; Returns an index
-(defun voice-manager-find-voice-by-note (cur-voice-manager note)
-  (let ((voices (slot-value cur-voice-manager 'voices)))
-    (dotimes (index (length voices))
-      (if (voice-is-note (elt voices index) note)
+(defun lru-set-find-index-by-value (cur-lru-set value)
+  (let ((entries (slot-value cur-lru-set 'entries)))
+    (dotimes (index (length entries))
+      (if (lru-entry-is-value (elt entries index) value)
 	  (return index)))))
 
-
 ;; Returns a value
-(defun current-note (cur-voice-manager)
+(defun current-value (cur-lru-set)
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-  (let ((voices (slot-value cur-voice-manager 'voices))
-	(max-tick-playing-voice nil)
-	(index-playing-voice nil)
-	(note-playing-voice nil))
-    ;; get the newest playing voice
-    (format t "~%current-note: length: ~a" (length voices))
-    (dotimes (index (length voices))
-      (let ((voice (elt voices index)))
-	(let ((tick (voice-get-tick voice)))
-	  (if (voice-get-current-note voice)
-	      ;; Already playing voice
-	      (if (or (not max-tick-playing-voice) (< max-tick-playing-voice tick))
+  (let ((entries (slot-value cur-lru-set 'entries))
+	(max-tick-active-entry nil)
+	(index-active-entry nil)
+	(value-active-entry nil))
+    ;; get the newest active value
+    (dotimes (index (length entries))
+      (let ((entry (elt entries index)))
+	(let ((tick (lru-entry-get-tick entry)))
+	  (if (lru-entry-get-current-value entry)
+	      ;; Already active entry
+	      (if (or (not max-tick-active-entry) (< max-tick-active-entry tick))
 		  (progn
-		    (format t "~%Voice: Index: ~a Note: ~a Tick: ~a" index (voice-get-current-note voice) tick)
-		    (setf note-playing-voice (voice-get-current-note voice))
-		    (setf max-tick-playing-voice tick)
-		    (setf index-playing-voice index)))))))
-    note-playing-voice))
+		    (setf value-active-entry (lru-entry-get-current-value entry))
+		    (setf max-tick-active-entry tick)
+		    (setf index-active-entry index)))))))
+    value-active-entry))
 
 ;; Returns an index
-(defun voice-manager-allocate-voice (cur-voice-manager)
+(defun lru-set-allocate-entry (cur-lru-set)
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-  (let ((voices (slot-value cur-voice-manager 'voices))
-	(min-tick-available-voice nil)
-	(min-tick-playing-voice nil)
-	(index-available-voice nil)
-	(index-playing-voice nil))
+  (let ((entries (slot-value cur-lru-set 'entries))
+	(min-tick-available-entry nil)
+	(min-tick-active-entry nil)
+	(index-available-entry nil)
+	(index-active-entry nil))
     ;;
     ;; Collect
-    ;; - the eldest available voice
-    ;; - the eldest playing voice
+    ;; - the eldest available entry
+    ;; - the eldest active entry
     ;;
-    (dotimes (index (length voices))
-      (let ((voice (elt voices index)))
-	(let ((tick (voice-get-tick voice)))
-	  (if (not (voice-get-current-note voice))
-	      ;; We've found an available voice
-	      (if (or (not min-tick-available-voice) (< tick min-tick-available-voice))
+    (dotimes (index (length entries))
+      (let ((entry (elt entries index)))
+	(let ((tick (lru-entry-get-tick entry)))
+	  (if (not (lru-entry-get-current-value entry))
+	      ;; We've found an available entry
+	      (if (or (not min-tick-available-entry) (< tick min-tick-available-entry))
 		  (progn
-		    (setf min-tick-available-voice tick)
-		    (setf index-available-voice index)))
-	      ;; Already playing voice
-	      (if (or (not min-tick-playing-voice) (< tick min-tick-playing-voice))
+		    (setf min-tick-available-entry tick)
+		    (setf index-available-entry index)))
+	      ;; Already active entry
+	      (if (or (not min-tick-active-entry) (< tick min-tick-active-entry))
 		  (progn
-		    (setf min-tick-playing-voice tick)
-		    (setf index-playing-voice index)))))))
-    (let ((resulting-index (if index-available-voice index-available-voice index-playing-voice)))
-      (voice-reset (elt voices resulting-index))
+		    (setf min-tick-active-entry tick)
+		    (setf index-active-entry index)))))))
+    (let ((resulting-index (if index-available-entry index-available-entry index-active-entry)))
+      (lru-entry-reset (elt entries resulting-index))
       resulting-index)))
 
-;; Pushes a note.
-;; Returns the voice index
-(defun push-note (cur-voice-manager note)
-  (let ((index (voice-manager-allocate-voice cur-voice-manager)))
-    (voice-set-note (elt (slot-value cur-voice-manager 'voices) index) note)
-       index))
-
-;; Removes a note.
-;; Returns the index of the voice which has been cleared or nil
-(defun remove-note (cur-voice-manager note)
-  (let ((index (voice-manager-find-voice-by-note cur-voice-manager note)))
-    (if index
-	(voice-reset (elt (slot-value cur-voice-manager 'voices) index)))
+(defun push-value (cur-lru-set value)
+  "Determine index (oldest not used one or oldest used one), assign value to it and 'touch' it. Returns the index."
+  (let ((index (lru-set-allocate-entry cur-lru-set)))
+    (lru-entry-set-value (elt (slot-value cur-lru-set 'entries) index) value)
     index))
 
+(defun remove-value (cur-lru-set value)
+  "Remove value and 'touch' corresponding index. Returns an index or nil."
+  (let ((index (lru-set-find-index-by-value cur-lru-set value)))
+    (if index
+	(lru-entry-reset (elt (slot-value cur-lru-set 'entries) index)))
+    index))
+
+(defun get-valuee (cur-lru-set index)
+  "Get a value by its index."
+  (elt (slot-value cur-lru-set 'entries) index))
 

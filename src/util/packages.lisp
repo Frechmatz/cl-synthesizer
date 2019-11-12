@@ -11,7 +11,7 @@
   (:use :cl)
   (:export
    :lru-set
-   :remove-note
-   :push-note
-   :current-note
+   :remove-value
+   :push-value
+   :current-value
    ))
