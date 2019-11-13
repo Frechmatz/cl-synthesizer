@@ -15,12 +15,12 @@
 	  ((eq cmd :push)
 	   (let ((resulting-index (cl-synthesizer-lru-set:push-value mgr cmd-arg)))
 	     (assert-equal expected-entry-index resulting-index))
-	   (let ((current-value (cl-synthesizer-lru-set:current-value mgr)))
+	   (let ((current-value (cl-synthesizer-lru-set::current-value mgr)))
 	     (assert-equal expected-current-value current-value)))
 	  ((eq cmd :remove)
 	   (let ((resulting-index (cl-synthesizer-lru-set:remove-value mgr cmd-arg)))
 	     (assert-equal expected-entry-index resulting-index))
-	   (let ((current-value (cl-synthesizer-lru-set:current-value mgr)))
+	   (let ((current-value (cl-synthesizer-lru-set::current-value mgr)))
 	     (assert-equal expected-current-value current-value)))
 	  (t
 	   (error "Invalid test case")))))))
@@ -87,5 +87,12 @@
 		       ;; do not assign to index 0 but to 1
 		       (:push "C" :expected-entry-index 1 :expected-current-value "C")))))
 	     (run-lru-set-test-case test)))
+
+(define-test test-lru-set-6 ()
+	     (let ((lru-set (make-instance 'cl-synthesizer-lru-set:lru-set :capacity 2)))
+	       (cl-synthesizer-lru-set:push-value lru-set "A")
+	       (cl-synthesizer-lru-set:push-value lru-set "B")
+	       (assert-equal "A" (cl-synthesizer-lru-set:get-value lru-set 0))
+	       (assert-equal "B" (cl-synthesizer-lru-set:get-value lru-set 1))))
 
 
