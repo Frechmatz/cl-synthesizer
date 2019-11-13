@@ -44,6 +44,10 @@
 ;;
 
 (defun make-tick-counter ()
+  "Entries are holding a 'tick' that indicates which entry was last used. Compared
+   to the effort of managing some kind of linked list this is not too bad. However,
+   this doesn't work for large sets (for which this Set implementation is not designed).
+   TODO: Take care of overflows and in such case adjust the ticks of the entries."
   (let ((tick 0))
     (lambda()
       (setf tick (+ 1 tick))
@@ -52,7 +56,14 @@
 (defclass lru-set ()
   ((entries :initform nil)
    (tick-counter :initform (make-tick-counter)))
-  (:documentation "A fixed capacity LRU Set. Entries are accessible by index."))
+  (:documentation
+   "A fixed capacity LRU Set.
+    - Focus is on zero consing. The implementation is quite CPU heavy.
+    - Designed for small capacities (maybe up to 20 entries).
+    - Entries are identified by their index.
+    - Round robin assignment of values to indices (background of this behaviour is 
+      the release phase of envelope generators).
+    - Uses 'equal' to compare values."))
 
 (defmethod initialize-instance :after ((mgr lru-set) &key capacity)
   (if (equal 0 capacity)
