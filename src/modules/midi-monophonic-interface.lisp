@@ -32,7 +32,7 @@
 		      (force-gate-retrigger nil)
 		      (stack-depth 5))
   "Creates a monophonic MIDI interface module. The module dispatches MIDI-Note events to a single voice. 
-   If the voice is already assigned to a note, then the next note is pushed on top of the current note.
+   If the voice is already assigned to a note, then the incoming note is pushed on top of the current note.
    The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
