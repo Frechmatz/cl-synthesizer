@@ -14,8 +14,7 @@
 (defun run-monophonic-test-case-midi-ifc (test-case)
   (let ((ifc (test-monophonic-midi-interface-make-midi-interface
 	      :force-gate-retrigger (getf test-case :force-gate-retrigger)
-	      :channel (getf test-case :channel)
-	      )))
+	      :channel (getf test-case :channel))))
     (dolist (cur-test-case (getf test-case :test-cases))
       (update-module ifc (list :midi-events (getf cur-test-case :events)))
       (dolist (cur-output (getf cur-test-case :outputs))
@@ -32,10 +31,7 @@
 	       (update-module ifc (list :midi-events (list (cl-synthesizer-midi-event:make-note-on-event 1 24 0))))
 	       (assert-equal 2.0 (get-module-output ifc :cv))))
 
-;;
-;; unisono tests
-;;
-(define-test test-monophonic-midi-interface-unisono-1 ()
+(define-test test-monophonic-midi-interface-1 ()
 	     (let ((test
 		    `(:test-cases
 		      ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
@@ -46,7 +42,7 @@
 					  (:GATE 5.0)))))))
 	       (run-monophonic-test-case-midi-ifc test)))
 
-(define-test test-monophonic-midi-interface-unisono-2 ()
+(define-test test-monophonic-midi-interface-2 ()
 	     (let ((test
 		    `(:test-cases
 		      ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
@@ -57,37 +53,31 @@
 					  (:GATE 5.0)))
 		       (:events (,(cl-synthesizer-midi-event:make-note-off-event 1 32 0))
 				:outputs ((:CV 64000)
-					  (:GATE 5.0)))
-		       
-		       ))))
+					  (:GATE 5.0)))))))
 	       (run-monophonic-test-case-midi-ifc test)))
 
-(define-test test-monophonic-midi-interface-unisono-3 ()
+(define-test test-monophonic-midi-interface-3 ()
 	     (let ((test
 		    `(:test-cases
 		      ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
 				:outputs ((:CV 64000)
-					  (:GATE 5.0)
-					  ))
+					  (:GATE 5.0)))
 		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
 				:outputs ((:CV 32000)
-					  (:GATE 5.0)
-					  ))
+					  (:GATE 5.0)))
 		       (:events (,(cl-synthesizer-midi-event:make-note-off-event 1 64 0))
 				:outputs ((:CV 32000)
-					  (:GATE 5.0)
-					  ))
+					  (:GATE 5.0)))
 		       (:events (,(cl-synthesizer-midi-event:make-note-off-event 1 32 0))
 				:outputs ((:CV 32000)
-					  (:GATE 0)
-					  ))))))
+					  (:GATE 0)))))))
 	       (run-monophonic-test-case-midi-ifc test)))
 
 
 
 ;;
-;; Tests that check that gate goes not down for one tick when a voice
-;; is overloaded in unisono mode
+;; Tests that checks that the gate goes not down for one tick when a voice
+;; is overloaded
 ;;
 
 (define-test test-monophonic-midi-interface-gate-retrigger-3 ()
@@ -95,21 +85,18 @@
 		    `(:test-cases
 		      ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
 				:outputs ((:CV 32000)
-					  (:GATE 5.0)
-					  ))
+					  (:GATE 5.0)))
 		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 48 0))
 				:outputs ((:CV 48000)
-					  (:GATE 5.0)
-					  ))
+					  (:GATE 5.0)))
 		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
 				:outputs ((:CV 64000)
-					  (:GATE 5.0)
-					  ))))))
+					  (:GATE 5.0)))))))
 	       (run-monophonic-test-case-midi-ifc test)))
 
 ;;
 ;; Tests that check that gate goes down for one tick
-;; in unisono mode and when re-triggering of gate has been activated
+;; when re-triggering of gate has been activated
 ;;
 
 (define-test test-monophonic-midi-interface-gate-retrigger-4 ()
@@ -118,16 +105,13 @@
 					    :test-cases
 					    ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
 						      :outputs ((:CV 32000)
-								(:GATE 5.0)
-								))
+								(:GATE 5.0)))
 					     (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 48 0))
 						      :outputs ((:CV 48000)
-								(:GATE 0.0)
-								))
+								(:GATE 0.0)))
 					     (:events nil
 						      :outputs ((:CV 48000)
-								(:GATE 5.0)
-								))))))
+								(:GATE 5.0)))))))
 	       (run-monophonic-test-case-midi-ifc test)))
 
 
