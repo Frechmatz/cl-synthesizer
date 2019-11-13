@@ -58,8 +58,8 @@
     </ul>
     The module has the following outputs:
     <ul>
-	<li>:gate-1 The gate signal.</li>
-	<li>:cv-1 The control voltage representing the note which is on top of the note stack.</li>
+	<li>:gate The gate signal.</li>
+	<li>:cv The control voltage representing the note which is on top of the note stack.</li>
     </ul></b>"
   (declare (ignore environment name))
   (if (not note-number-to-cv)
@@ -71,12 +71,10 @@
 	 (voice-manager (make-instance 'cl-synthesizer-lru-set:lru-set :capacity stack-depth)))
 
     ;; Set up outputs
-    (let ((cv-socket (cl-synthesizer-macro-util:make-keyword "CV" 0))
-	  (gate-socket (cl-synthesizer-macro-util:make-keyword "GATE" 0)))
-      (push (lambda () (get-voice-state-cv voice-state)) outputs)
-      (push cv-socket outputs)
-      (push (lambda () (get-voice-state-gate voice-state)) outputs)
-      (push gate-socket outputs))
+    (push (lambda () (get-voice-state-cv voice-state)) outputs)
+    (push :cv outputs)
+    (push (lambda () (get-voice-state-gate voice-state)) outputs)
+    (push :gate outputs)
 
     ;; Set up inputs
     (setf inputs (list :midi-events (lambda(value) (setf input-midi-events value))))

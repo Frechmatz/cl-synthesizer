@@ -30,7 +30,7 @@
 			 "MIDI-IFC"
 			 (cl-synthesizer:make-environment))))
 	       (update-module ifc (list :midi-events (list (cl-synthesizer-midi-event:make-note-on-event 1 24 0))))
-	       (assert-equal 2.0 (get-module-output ifc :cv-1))))
+	       (assert-equal 2.0 (get-module-output ifc :cv))))
 
 ;;
 ;; unisono tests
@@ -39,25 +39,25 @@
 	     (let ((test
 		    `(:test-cases
 		      ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
-				:outputs ((:CV-1 64000)
-					  (:GATE-1 5.0)))
+				:outputs ((:CV 64000)
+					  (:GATE 5.0)))
 		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
-				:outputs ((:CV-1 32000)
-					  (:GATE-1 5.0)))))))
+				:outputs ((:CV 32000)
+					  (:GATE 5.0)))))))
 	       (run-monophonic-test-case-midi-ifc test)))
 
 (define-test test-monophonic-midi-interface-unisono-2 ()
 	     (let ((test
 		    `(:test-cases
 		      ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
-				:outputs ((:CV-1 64000)
-					  (:GATE-1 5.0)))
+				:outputs ((:CV 64000)
+					  (:GATE 5.0)))
 		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
-				:outputs ((:CV-1 32000)
-					  (:GATE-1 5.0)))
+				:outputs ((:CV 32000)
+					  (:GATE 5.0)))
 		       (:events (,(cl-synthesizer-midi-event:make-note-off-event 1 32 0))
-				:outputs ((:CV-1 64000)
-					  (:GATE-1 5.0)))
+				:outputs ((:CV 64000)
+					  (:GATE 5.0)))
 		       
 		       ))))
 	       (run-monophonic-test-case-midi-ifc test)))
@@ -66,20 +66,20 @@
 	     (let ((test
 		    `(:test-cases
 		      ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
-				:outputs ((:CV-1 64000)
-					  (:GATE-1 5.0)
+				:outputs ((:CV 64000)
+					  (:GATE 5.0)
 					  ))
 		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
-				:outputs ((:CV-1 32000)
-					  (:GATE-1 5.0)
+				:outputs ((:CV 32000)
+					  (:GATE 5.0)
 					  ))
 		       (:events (,(cl-synthesizer-midi-event:make-note-off-event 1 64 0))
-				:outputs ((:CV-1 32000)
-					  (:GATE-1 5.0)
+				:outputs ((:CV 32000)
+					  (:GATE 5.0)
 					  ))
 		       (:events (,(cl-synthesizer-midi-event:make-note-off-event 1 32 0))
-				:outputs ((:CV-1 32000)
-					  (:GATE-1 0)
+				:outputs ((:CV 32000)
+					  (:GATE 0)
 					  ))))))
 	       (run-monophonic-test-case-midi-ifc test)))
 
@@ -94,16 +94,16 @@
 	     (let ((test
 		    `(:test-cases
 		      ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
-				:outputs ((:CV-1 32000)
-					  (:GATE-1 5.0)
+				:outputs ((:CV 32000)
+					  (:GATE 5.0)
 					  ))
 		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 48 0))
-				:outputs ((:CV-1 48000)
-					  (:GATE-1 5.0)
+				:outputs ((:CV 48000)
+					  (:GATE 5.0)
 					  ))
 		       (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
-				:outputs ((:CV-1 64000)
-					  (:GATE-1 5.0)
+				:outputs ((:CV 64000)
+					  (:GATE 5.0)
 					  ))))))
 	       (run-monophonic-test-case-midi-ifc test)))
 
@@ -117,16 +117,16 @@
 		    `(:force-gate-retrigger t
 					    :test-cases
 					    ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 32 0))
-						      :outputs ((:CV-1 32000)
-								(:GATE-1 5.0)
+						      :outputs ((:CV 32000)
+								(:GATE 5.0)
 								))
 					     (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 48 0))
-						      :outputs ((:CV-1 48000)
-								(:GATE-1 0.0)
+						      :outputs ((:CV 48000)
+								(:GATE 0.0)
 								))
 					     (:events nil
-						      :outputs ((:CV-1 48000)
-								(:GATE-1 5.0)
+						      :outputs ((:CV 48000)
+								(:GATE 5.0)
 								))))))
 	       (run-monophonic-test-case-midi-ifc test)))
 
@@ -159,13 +159,13 @@
 	       (cl-synthesizer:add-patch rack "MIDI-SEQUENCER" :midi-events "MIDI-IFC" :midi-events)
 	       (let ((midi-ifc (cl-synthesizer:get-module rack "MIDI-IFC")))
 		 ;; initial gate must not be nil
-		 (assert-true (get-module-output midi-ifc :gate-1))
+		 (assert-true (get-module-output midi-ifc :gate))
 		 (let ((count (cl-synthesizer-test::output-change-counter
 			       :sample-rate 44100
 			       :duration-seconds 4
 			       :update-fn (lambda () (update-module rack nil))
 			       :get-output-fn (lambda ()
-						(get-module-output midi-ifc :gate-1)))))
+						(get-module-output midi-ifc :gate)))))
 		   (assert-true (< 0.0 count))))))
 
 (define-test test-monophonic-midi-interface-update-2 ()
@@ -190,12 +190,12 @@
 	       (cl-synthesizer:add-patch rack "MIDI-SEQUENCER" :midi-events "MIDI-IFC" :midi-events)
 	       (let ((midi-ifc (cl-synthesizer:get-module rack "MIDI-IFC")))
 		 ;; initial gate must not be nil
-		 (assert-true (get-module-output midi-ifc :gate-1))
+		 (assert-true (get-module-output midi-ifc :gate))
 		 (let ((count (cl-synthesizer-test::output-change-counter
 			       :sample-rate 44100
 			       :duration-seconds 4
 			       :update-fn (lambda () (update-module rack nil))
 			       :get-output-fn (lambda ()
-						(get-module-output midi-ifc :gate-1)))))
+						(get-module-output midi-ifc :gate)))))
 		   (assert-true (< 0.0 count))))))
 
