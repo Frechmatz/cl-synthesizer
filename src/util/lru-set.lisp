@@ -90,7 +90,7 @@
     value-active-entry))
 
 ;; Returns an index
-(defun lru-set-allocate-entry (cur-lru-set)
+(defun lru-set-allocate-entry (cur-lru-set value)
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((entries (slot-value cur-lru-set 'entries))
 	(min-tick-available-entry nil)
@@ -115,14 +115,19 @@
 	      (if (or (not min-tick-active-entry) (< tick min-tick-active-entry))
 		  (progn
 		    (setf min-tick-active-entry tick)
-		    (setf index-active-entry index)))))))
+		    (setf index-active-entry index)
+		    ;; Value already in set?
+		    (if (lru-entry-is-value entry value)
+			(progn
+			  (setf index-available-entry nil)
+			  (return)))))))))
     (let ((resulting-index (if index-available-entry index-available-entry index-active-entry)))
       (lru-entry-reset (elt entries resulting-index))
       resulting-index)))
 
 (defun push-value (cur-lru-set value)
   "Determine index (oldest not used one or oldest used one), assign value to it and 'touch' it. Returns the index."
-  (let ((index (lru-set-allocate-entry cur-lru-set)))
+  (let ((index (lru-set-allocate-entry cur-lru-set value)))
     (lru-entry-set-value (elt (slot-value cur-lru-set 'entries) index) value)
     index))
 
