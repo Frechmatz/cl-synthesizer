@@ -25,28 +25,7 @@
 	  (t
 	   (error "Invalid test case")))))))
 
-;; test that A and B are allocated to indexes 0 and 1
-(define-test test-lru-set-no-overload-0 ()
-	     (let ((test
-		    '(:capacity 2
-		      :test-cases
-		      ((:push "A" :expected-entry-index 0 :expected-current-value "A")
-		       (:push "B" :expected-entry-index 1 :expected-current-value "B")))))
-	     (run-lru-set-test-case test)))
-
-;; test that A is removed from index 0
-(define-test test-lru-set-no-overload-1 ()
-	     (let ((test
-		    '(:capacity 2
-		      :test-cases
-		      ((:push "A" :expected-entry-index 0 :expected-current-value "A")
-		       (:push "B" :expected-entry-index 1 :expected-current-value "B")
-		       (:remove "A" :expected-entry-index 0 :expected-current-value "B")
-		       ))))
-	     (run-lru-set-test-case test)))
-
-;; Test that C is allocated to previously released slot of A
-(define-test test-lru-set-no-overload-2 ()
+(define-test test-lru-set-1 ()
 	     (let ((test
 		    '(:capacity 2
 		      :test-cases
@@ -54,62 +33,15 @@
 		       (:push "B" :expected-entry-index 1 :expected-current-value "B")
 		       (:remove "A" :expected-entry-index 0 :expected-current-value "B")
 		       (:push "C" :expected-entry-index 0 :expected-current-value "C")
-		       ))))
-	     (run-lru-set-test-case test)))
-
-;; Test that C is allocated to previously released slot of B
-(define-test test-lru-set-no-overload-3 ()
-	     (let ((test
-		    '(:capacity 2
-		      :test-cases
-		      ((:push "A" :expected-entry-index 0 :expected-current-value "A")
-		       (:push "B" :expected-entry-index 1 :expected-current-value "B")
-		       (:remove "B" :expected-entry-index 1 :expected-current-value "A")
-		       (:push "C" :expected-entry-index 1 :expected-current-value "C")
-		       ))))
-	     (run-lru-set-test-case test)))
-
-;; Test that A (index 0) is playing after multiple adds/removes to index 1
-(define-test test-lru-set-no-overload-4 ()
-	     (let ((test
-		    '(:capacity 2
-		      :test-cases
-		      ((:push "A" :expected-entry-index 0 :expected-current-value "A")
-		       (:push "B" :expected-entry-index 1 :expected-current-value "B")
-		       (:remove "B" :expected-entry-index 1 :expected-current-value "A")
-		       (:push "C" :expected-entry-index 1 :expected-current-value "C")
-		       (:remove "C" :expected-entry-index 1 :expected-current-value "A")
+		       (:remove "B" :expected-entry-index 1 :expected-current-value "C")
 		       (:push "D" :expected-entry-index 1 :expected-current-value "D")
-		       ))))
+		       (:remove "D" :expected-entry-index 1 :expected-current-value "C")
+		       (:push "D" :expected-entry-index 1 :expected-current-value "D")
+		       (:remove "D" :expected-entry-index 1 :expected-current-value "C")))))
 	     (run-lru-set-test-case test)))
 
-(define-test test-lru-set-no-overload-5 ()
-	     (let ((test
-		    '(:capacity 2
-		      :test-cases
-		      ((:push "A" :expected-entry-index 0 :expected-current-value "A")
-		       (:push "B" :expected-entry-index 1 :expected-current-value "B")
-		       (:remove "A" :expected-entry-index 0 :expected-current-value "B")
-		       (:push "C" :expected-entry-index 0 :expected-current-value "C")
-
-		       ))))
-	     (run-lru-set-test-case test)))
-
-;; both indexes set and released, next value will be assigned to first released index
-(define-test test-lru-set-no-overload-6 ()
-	     (let ((test
-		    '(:capacity 2
-		      :test-cases
-		      ((:push "A" :expected-entry-index 0 :expected-current-value "A")
-		       (:push "B" :expected-entry-index 1 :expected-current-value "B")
-		       (:remove "A" :expected-entry-index 0 :expected-current-value "B")
-		       (:remove "B" :expected-entry-index 1 :expected-current-value nil)
-		       (:push "C" :expected-entry-index 0 :expected-current-value "C")
-		       ))))
-	     (run-lru-set-test-case test)))
-
-;; both indexes played and released, next value will be assigned to first released index
-(define-test test-lru-set-no-overload-7 ()
+;; Tests that when a new entry is added, that it is assigned to the least recently used index
+(define-test test-lru-set-2 ()
 	     (let ((test
 		    '(:capacity 2
 		      :test-cases
@@ -117,11 +49,10 @@
 		       (:push "B" :expected-entry-index 1 :expected-current-value "B")
 		       (:remove "B" :expected-entry-index 1 :expected-current-value "A")
 		       (:remove "A" :expected-entry-index 0 :expected-current-value nil)
-		       (:push "C" :expected-entry-index 1 :expected-current-value "C")
-		       ))))
+		       (:push "C" :expected-entry-index 1 :expected-current-value "C")))))
 	     (run-lru-set-test-case test)))
 
-(define-test test-lru-set-overload-0 ()
+(define-test test-lru-set-3 ()
 	     (let ((test
 		    '(:capacity 2
 		      :test-cases
@@ -130,46 +61,31 @@
 		       (:push "C" :expected-entry-index 0 :expected-current-value "C")
 		       (:push "D" :expected-entry-index 1 :expected-current-value "D")
 		       (:push "E" :expected-entry-index 0 :expected-current-value "E")
-		       (:push "F" :expected-entry-index 1 :expected-current-value "F")
-		       ))))
+		       (:push "F" :expected-entry-index 1 :expected-current-value "F")))))
 	     (run-lru-set-test-case test)))
 
-;; Fast ON/OFF of values when all entries are occupied. Current value should be consecutively assigned to same entry index
-(define-test test-lru-set-overload-1 ()
+(define-test test-lru-set-4 ()
 	     (let ((test
-		    '(:capacity 2
+		    '(:capacity 4
 		      :test-cases
 		      ((:push "A" :expected-entry-index 0 :expected-current-value "A")
 		       (:push "B" :expected-entry-index 1 :expected-current-value "B")
-		       (:push "C-ON" :expected-entry-index 0 :expected-current-value "C-ON")
-		       (:remove "C-ON" :expected-entry-index 0 :expected-current-value "B")
-		       (:push "D-ON" :expected-entry-index 0 :expected-current-value "D-ON")
-		       ))))
+		       (:remove "B" :expected-entry-index 1 :expected-current-value "A")
+		       ;; do not assign to index 1 (even if it is available) but to 2
+		       (:push "D" :expected-entry-index 2 :expected-current-value "D")))))
 	     (run-lru-set-test-case test)))
 
-;; Fast ON/OFF of values when all entries are playing. Current value should be consecutively assigned to same entry index
-(define-test test-lru-set-overload-2 ()
+;; push same value multiple times
+(define-test test-lru-set-5 ()
 	     (let ((test
-		    '(:capacity 2
+		    '(:capacity 4
 		      :test-cases
 		      ((:push "A" :expected-entry-index 0 :expected-current-value "A")
-		       (:push "B" :expected-entry-index 1 :expected-current-value "B")
-		       (:push "C" :expected-entry-index 0 :expected-current-value "C")
-		       (:push "D-ON" :expected-entry-index 1 :expected-current-value "D-ON")
-		       (:remove "D-ON" :expected-entry-index 1 :expected-current-value "C")
-		       (:push "D-ON" :expected-entry-index 1 :expected-current-value "D-ON")
-		       ))))
-	     (run-lru-set-test-case test)))
-
-(define-test test-lru-set-overload-3 ()
-	     (let ((test
-		    '(:capacity 2
-		      :test-cases
-		      ((:push "A" :expected-entry-index 0 :expected-current-value "A")
-		       (:push "B" :expected-entry-index 1 :expected-current-value "B")
-		       (:push "C" :expected-entry-index 0 :expected-current-value "C")
-		       (:remove "B" :expected-entry-index 1 :expected-current-value "C")
-		       ))))
+		       ;; Keep index
+		       (:push "A" :expected-entry-index 0 :expected-current-value "A")
+		       (:remove "A" :expected-entry-index 0 :expected-current-value nil)
+		       ;; do not assign to index 0 but to 1
+		       (:push "C" :expected-entry-index 1 :expected-current-value "C")))))
 	     (run-lru-set-test-case test)))
 
 
