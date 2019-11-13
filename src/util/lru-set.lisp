@@ -138,7 +138,9 @@
 	(lru-entry-reset (elt (slot-value cur-lru-set 'entries) index)))
     index))
 
-(defun get-valuee (cur-lru-set index)
+(defun get-value (cur-lru-set index)
   "Get a value by its index."
-  (elt (slot-value cur-lru-set 'entries) index))
+  (let ((entry (elt (slot-value cur-lru-set 'entries) index)))
+    (lru-entry-get-current-value entry)))
+
 

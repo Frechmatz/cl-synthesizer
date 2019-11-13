@@ -13,5 +13,5 @@
    :lru-set
    :remove-value
    :push-value
-   :current-value
-   ))
+   :get-value
+   :current-value))
