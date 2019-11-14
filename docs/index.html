@@ -231,7 +231,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 	<li>:duration-seconds Duration in seconds of how long to play the rack. If for
 	    example the duration is 2 seconds and the sample rate of the rack as declared
 	    by its environment is 44100, then the update function of the rack will be called 88200 times.</li>
-    </ul></p><h3 id="id-is-rack">is-rack</h3><p><b>cl-synthesizer:is-rack</b> module </p><p>Returns <b>t</b> if the given module represents a rack.</p><h3 id="id-get-environment">get-environment</h3><p><b>cl-synthesizer:get-environment</b> rack </p><p>Returns the environment of the rack.</p><h2 id="id-Modules">Modules</h2><h3 id="id-VCO">VCO</h3><p><b>cl-synthesizer-modules-vco:make-module</b> name environment &key base-frequency v-peak (cv-lin-hz-v 0.0) (duty-cycle 0.5) (phase-offset 0.0) (f-max 12000.0) </p><p>Creates a Voltage Controlled Oscillator module with 1V/Octave and linear frequency modulation
+    </ul></p><h3 id="id-is-rack">is-rack</h3><p><b>cl-synthesizer:is-rack</b> module </p><p>Returns <b>t</b> if the given module represents a rack.</p><h3 id="id-get-environment">get-environment</h3><p><b>cl-synthesizer:get-environment</b> rack </p><p>Returns the environment of the rack.</p><h2 id="id-Modules">Modules</h2><h3 id="id-VCO">VCO</h3><p><b>cl-synthesizer-modules-vco:make-module</b> name environment &key base-frequency v-peak (cv-lin-hz-v 0.0) (duty-cycle 0.5) (phase-offset 0.0) (f-max 12000.0) (wave-forms nil) </p><p>Creates a Voltage Controlled Oscillator module with 1V/Octave and linear frequency modulation
    inputs. The oscillator has through-zero support, as on negative frequencies the
    phase will move backwards (in clockwise direction).
    The function has the following arguments:
@@ -245,6 +245,10 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 	<li>:v-peak Absolute value of the output peak voltage emitted by the oscillator.</li>
 	<li>:duty-cycle The duty cycle of the square wave. 0 <= duty-cycle <= 1.</li>
 	<li>:phase-offset A phase offset in radians.</li>
+        <li>:wave-forms A list of keywords that declares the wave forms that are to be exposed by 
+          the module. Each keyword must be one of :sine, :saw, :triangle or :square. By default
+          the module exposes all wave forms. Declaring only the required wave forms can speed up
+          the module up to 50%.</li>
     </ul>
     The module has the following inputs:
     <ul>
@@ -258,7 +262,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
     </ul>
     The frequency of the oscillator is calculated by adding the frequencies resulting from the
     :cv-lin and :cv-exp inputs. The frequency is clipped according to the :f-max setting.
-    The module has the following outputs:
+    The module has the following outputs (depending on the :wave-forms argument):
     <ul>
 	<li>:sine A sine wave.</li>
 	<li>:triangle A triangle wave.</li>
@@ -1276,4 +1280,4 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
    a non-existing module, a patch is added to an already patched socket
    and so on.</p><h1 id="id-Acknowledgements">Acknowledgements</h1><ul>
 <li>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></li>
-</ul></section><footer class="container"><p><small>Generated 2019-11-13  22:24:54</small></p></footer></body></html>
+</ul></section><footer class="container"><p><small>Generated 2019-11-14  21:35:44</small></p></footer></body></html>

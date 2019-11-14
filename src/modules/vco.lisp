@@ -6,7 +6,8 @@
 				       (cv-lin-hz-v 0.0)
 				       (duty-cycle 0.5)
 				       (phase-offset 0.0)
-				       (f-max 12000.0))
+				       (f-max 12000.0)
+				       (wave-forms nil))
   "Creates a Voltage Controlled Oscillator module with 1V/Octave and linear frequency modulation
    inputs. The oscillator has through-zero support, as on negative frequencies the
    phase will move backwards (in clockwise direction).
@@ -21,6 +22,10 @@
 	<li>:v-peak Absolute value of the output peak voltage emitted by the oscillator.</li>
 	<li>:duty-cycle The duty cycle of the square wave. 0 <= duty-cycle <= 1.</li>
 	<li>:phase-offset A phase offset in radians.</li>
+        <li>:wave-forms A list of keywords that declares the wave forms that are to be exposed by 
+          the module. Each keyword must be one of :sine, :saw, :triangle or :square. By default
+          the module exposes all wave forms. Declaring only the required wave forms can speed up
+          the module up to 50%.</li>
     </ul>
     The module has the following inputs:
     <ul>
@@ -34,7 +39,7 @@
     </ul>
     The frequency of the oscillator is calculated by adding the frequencies resulting from the
     :cv-lin and :cv-exp inputs. The frequency is clipped according to the :f-max setting.
-    The module has the following outputs:
+    The module has the following outputs (depending on the :wave-forms argument):
     <ul>
 	<li>:sine A sine wave.</li>
 	<li>:triangle A triangle wave.</li>
@@ -56,6 +61,8 @@
 	(phase-offset (coerce phase-offset 'single-float))
 	(duty-cycle (coerce duty-cycle 'single-float)))
     (declare (type single-float base-frequency f-max v-peak cv-lin-hz-v phase-offset duty-cycle))
+    (if (not wave-forms)
+	(setf wave-forms (list :sine :saw :square :triangle)))
     (if (> 0.0 f-max)
 	(cl-synthesizer:signal-assembly-error
 	 :format-control "f-max of VCO ~a must be greater than 0: ~a"
@@ -105,11 +112,62 @@
 	(let ((inputs (list
 		       :cv-exp (lambda(value) (setf input-cv-exp value))
 		       :cv-lin (lambda(value) (setf input-cv-lin value))))
-	      (outputs (list
-			:sine (lambda() cur-sine-output)
-			:triangle (lambda() cur-triangle-output)
-			:saw (lambda() cur-saw-output)
-			:square (lambda() cur-square-output))))
+	      (outputs nil)
+	      (update-functions (make-array (length wave-forms))))
+	  (let ((index nil) (added-wave-forms nil))
+	    (dolist (wave-form wave-forms)
+	      (setf index (if (not index) 0 (+ index 1)))
+	      (if (find wave-form added-wave-forms)
+		  (cl-synthesizer:signal-assembly-error
+		   :format-control "VCO ~a: wave-forms must be unique :~a"
+		   :format-arguments (list name wave-forms)))
+	      (push wave-form added-wave-forms)
+	      (cond
+		((eq wave-form :sine)
+		 (push (lambda() cur-sine-output) outputs)
+		 (push :sine outputs)
+		 (setf (elt update-functions index)
+		       (lambda()
+		     (declare (inline
+			       cl-synthesizer-core:phase-sine-converter
+			       cl-synthesizer-core:phase-saw-converter
+			       cl-synthesizer-core:phase-square-converter
+			       cl-synthesizer-core:phase-triangle-converter))
+			 (setf cur-sine-output
+			       (* v-peak
+				  (cl-synthesizer-core:phase-sine-converter
+				  cur-phi :phase-offset phase-offset))))))
+		((eq wave-form :saw)
+		 (push (lambda() cur-saw-output) outputs)
+		 (push :saw outputs)
+		 (setf (elt update-functions index)
+		       (lambda()
+			 (declare (inline cl-synthesizer-core:phase-saw-converter))
+			 (setf cur-saw-output
+			       (* v-peak (cl-synthesizer-core:phase-saw-converter
+					  cur-phi :phase-offset phase-offset))))))
+		((eq wave-form :square)
+		 (push (lambda() cur-square-output) outputs)
+		 (push :square outputs)
+		 (setf (elt update-functions index)
+		       (lambda()
+			 (declare (inline cl-synthesizer-core:phase-square-converter))
+			 (setf cur-square-output
+			       (* v-peak (cl-synthesizer-core:phase-square-converter
+					  cur-phi :duty-cycle duty-cycle :phase-offset phase-offset))))))
+		((eq wave-form :triangle)
+		 (push (lambda() cur-triangle-output) outputs)
+		 (push :triangle outputs)
+		 (setf (elt update-functions index)
+		       (lambda()
+			 (declare (inline cl-synthesizer-core:phase-triangle-converter))
+			 (setf cur-triangle-output
+			       (* v-peak (cl-synthesizer-core:phase-triangle-converter
+					  cur-phi :phase-offset phase-offset))))))
+		(t
+		 (cl-synthesizer:signal-assembly-error
+		  :format-control "Invalid wave-form ~a passed to VCO ~a"
+		  :format-arguments (list wave-form name))))))
 	  (list
 	   :inputs (lambda () inputs)
 	   :outputs (lambda () outputs)
@@ -127,18 +185,8 @@
 			    (phi (funcall phase-generator f)))
 		       (setf cur-frequency f)
 		       (setf cur-phi phi)
-		       (setf cur-sine-output
-			     (* v-peak (cl-synthesizer-core:phase-sine-converter
-					phi :phase-offset phase-offset)))
-		       (setf cur-triangle-output
-			     (* v-peak (cl-synthesizer-core:phase-triangle-converter
-					phi :phase-offset phase-offset)))
-		       (setf cur-saw-output
-			     (* v-peak (cl-synthesizer-core:phase-saw-converter
-					phi :phase-offset phase-offset)))
-		       (setf cur-square-output
-			     (* v-peak (cl-synthesizer-core:phase-square-converter
-					phi :duty-cycle duty-cycle :phase-offset phase-offset)))))
+		       (dotimes (i (length update-functions))
+			 (funcall (elt update-functions i)))))
 	   :get-state (lambda (key)
 			(cond
 			  ((eq key :frequency)

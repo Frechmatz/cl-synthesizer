@@ -14,7 +14,8 @@
      rack "VCO"
      #'cl-synthesizer-modules-vco:make-module
      :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
-     :v-peak 5.0)
+     :v-peak 5.0
+     :wave-forms '(:sine))
 
     (cl-synthesizer:add-module
      rack "ADSR"

@@ -136,16 +136,20 @@
 		(format nil "Converting phase ~,2F to saw waveform for ~a seconds" phi duration-seconds)))))
    (list
     :id :vco :name "VCO"
-    :setup (lambda(&key duration-seconds vco-count)
-	       (let ((rack (cl-synthesizer-profiling-vco::make-test-rack :vco-count vco-count)))
-		 (let ((info (get-rack-info rack)))
-		   (values 
-		    (lambda ()
-		      (cl-synthesizer:play-rack rack :duration-seconds duration-seconds))
-		    (format
-		     nil
-		     "Updating ~a VCOs for ~a seconds (Modules: ~a Patches: ~a)"
-		     vco-count duration-seconds (getf info :module-count) (getf info :patch-count)))))))
+    :setup (lambda(&key duration-seconds vco-count wave-forms)
+	     (let ((rack (cl-synthesizer-profiling-vco::make-test-rack :vco-count vco-count :wave-forms wave-forms)))
+	       (let ((info (get-rack-info rack)))
+		 (values 
+		  (lambda ()
+		    (cl-synthesizer:play-rack rack :duration-seconds duration-seconds))
+		  (format
+		   nil
+		   "Updating ~a VCOs with Wave-Forms ~a for ~a seconds (Modules: ~a Patches: ~a)"
+		   vco-count
+		   (if wave-forms wave-forms "<All>")
+		   duration-seconds
+		   (getf info :module-count)
+		   (getf info :patch-count)))))))
    (list
     :id :monitor :name "Monitor"
     :setup (lambda(&key duration-seconds)
@@ -375,7 +379,8 @@
    :profile-time t
    :profile-statistical nil
    :init '(:duration-seconds 60 :vco-count 100)
-   :jobs '((:client-id :vco :init nil))))
+   :jobs '((:client-id :vco :init (:wave-forms nil))
+	   (:client-id :vco :init (:wave-forms (:sine))))))
 
 (defparameter *profiling-plan-rack-core*
   (list
@@ -515,7 +520,8 @@
 	    (:duration-seconds 60
 	     :module-count 100
 	     :socket-count 4))
-	   (:client-id :vco :init (:duration-seconds 60 :vco-count 100))
+	   (:client-id :vco :init (:duration-seconds 60 :vco-count 100 :wave-forms nil))
+	   (:client-id :vco :init (:duration-seconds 60 :vco-count 100 :wave-forms (:sine)))
 	   (:client-id :monitor :init (:duration-seconds 120))
 	   (:client-id :midi-sequencer :init (:duration-seconds 3600))
 	   (:client-id :csv-writer :init
