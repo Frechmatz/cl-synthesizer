@@ -13,11 +13,7 @@
 	       :bordeaux-threads
 	       :coremidi
 	       :queues.simple-cqueue)
-  :components ((:module "src/util"
-			:serial t
-			:components ((:file "packages")
-				     (:file "macro-util")))
-	       (:module "experimental/device"
+  :components ((:module "experimental/device"
 			:serial t
 			:components ((:file "packages")
 				     (:file "speaker")
