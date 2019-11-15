@@ -24,8 +24,8 @@
 	<li>:phase-offset A phase offset in radians.</li>
         <li>:wave-forms A list of keywords that declares the wave forms that are to be exposed by 
           the module. Each keyword must be one of :sine, :saw, :triangle or :square. By default
-          the module exposes all wave forms. Declaring only the required wave forms can speed up
-          the module up to 50%.</li>
+          the module exposes all wave forms. Declaring the required wave forms is highly recommended
+          as this can improve the execution speed of the module significantly (up to 50%).</li>
     </ul>
     The module has the following inputs:
     <ul>
@@ -128,11 +128,7 @@
 		 (push :sine outputs)
 		 (setf (elt update-functions index)
 		       (lambda()
-		     (declare (inline
-			       cl-synthesizer-core:phase-sine-converter
-			       cl-synthesizer-core:phase-saw-converter
-			       cl-synthesizer-core:phase-square-converter
-			       cl-synthesizer-core:phase-triangle-converter))
+			 (declare (inline cl-synthesizer-core:phase-sine-converter))
 			 (setf cur-sine-output
 			       (* v-peak
 				  (cl-synthesizer-core:phase-sine-converter
@@ -166,17 +162,12 @@
 					  cur-phi :phase-offset phase-offset))))))
 		(t
 		 (cl-synthesizer:signal-assembly-error
-		  :format-control "Invalid wave-form ~a passed to VCO ~a"
+		  :format-control "Invalid wave-form identifier ~a passed to VCO ~a"
 		  :format-arguments (list wave-form name))))))
 	  (list
 	   :inputs (lambda () inputs)
 	   :outputs (lambda () outputs)
 	   :update (lambda ()
-		     (declare (inline
-			       cl-synthesizer-core:phase-sine-converter
-			       cl-synthesizer-core:phase-saw-converter
-			       cl-synthesizer-core:phase-square-converter
-			       cl-synthesizer-core:phase-triangle-converter))
 		     (if (not input-cv-exp)
 			 (setf input-cv-exp 0.0))
 		     (if (not input-cv-lin)
