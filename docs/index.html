@@ -230,7 +230,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 	<li>:duration-seconds Duration in seconds of how long to play the rack. If for
 	    example the duration is 2 seconds and the sample rate of the rack as declared
 	    by its environment is 44100, then the update function of the rack will be called 88200 times.</li>
-    </ul></p><h3 id="id-is-rack">is-rack</h3><p><b>cl-synthesizer:is-rack</b> module </p><p>Returns <b>t</b> if the given module represents a rack.</p><h3 id="id-get-environment">get-environment</h3><p><b>cl-synthesizer:get-environment</b> rack </p><p>Returns the environment of the rack.</p><h2 id="id-Modules">Modules</h2><h3 id="id-VCO">VCO</h3><p><b>cl-synthesizer-modules-vco:make-module</b> name environment &key base-frequency v-peak (cv-lin-hz-v 0.0) (duty-cycle 0.5) (phase-offset 0.0) (f-max 12000.0) (wave-forms nil) </p><p>Creates a Voltage Controlled Oscillator module with 1V/Octave and linear frequency modulation
+    </ul></p><h3 id="id-is-rack">is-rack</h3><p><b>cl-synthesizer:is-rack</b> module </p><p>Returns <b>t</b> if the given module represents a rack.</p><h3 id="id-get-environment">get-environment</h3><p><b>cl-synthesizer:get-environment</b> rack </p><p>Returns the environment of the rack.</p><h2 id="id-Modules">Modules</h2><h3 id="id-VCO">VCO</h3><p><b>cl-synthesizer-modules-vco:make-module</b> name environment &key base-frequency v-peak (cv-lin-hz-v 0.0) (duty-cycle 0.5) (phase-offset 0.0) (f-max 12000.0) (wave-forms nil) (hardsync-threshold 2.5) </p><p>Creates a Voltage Controlled Oscillator module with 1V/Octave and linear frequency modulation
    inputs. The oscillator has through-zero support, as on negative frequencies the
    phase will move backwards (in clockwise direction).
    The function has the following arguments:
@@ -248,6 +248,8 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
           the module. Each keyword must be one of :sine, :saw, :triangle or :square. By default
           the module exposes all wave forms. Declaring the required wave forms is highly recommended
           as this can improve the execution speed of the module significantly (up to 50%).</li>
+        <li>:hardsync-threshold Minimum value of the :hardsync input that indicates 
+            that a hard sync (phase reset) is to be applied.</li>
     </ul>
     The module has the following inputs:
     <ul>
@@ -258,6 +260,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
         <li>:cv-lin Bipolar linear frequency control voltage. Example: If the :cv-lin-hz-v setting
            of the oscillator is 77Hz a :cv-lin input value of 2.0V results in a frequency of 154Hz and 
            a :cv-lin input value of -2.0V results in a frequency of -154Hz.</li>
+        <li>:hardsync A trigger signal that resets the phase.</li>
     </ul>
     The frequency of the oscillator is calculated by adding the frequencies resulting from the
     :cv-lin and :cv-exp inputs. The frequency is clipped according to the :f-max setting.
@@ -274,6 +277,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
           <li>:linear-frequency The current linear frequency portion of the module.</li>
           <li>:exponential-frequency The current exponential frequency portion of the module.</li>
           <li>:phase The current phase in radians (0..2PI).</li>
+          <li>:hardsync 5.0 when a hard sync has been applied, otherwise 0.0</li>
        </ul>
     </p></p><p><pre><code>(defpackage :cl-synthesizer-modules-vco-example-1
   (:use :cl))
@@ -1279,4 +1283,4 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
    a non-existing module, a patch is added to an already patched socket
    and so on.</p><h1 id="id-Acknowledgements">Acknowledgements</h1><ul>
 <li>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></li>
-</ul></section><footer class="container"><p><small>Generated 2019-11-15  19:35:57</small></p></footer></body></html>
+</ul></section><footer class="container"><p><small>Generated 2019-11-19  21:38:41</small></p></footer></body></html>

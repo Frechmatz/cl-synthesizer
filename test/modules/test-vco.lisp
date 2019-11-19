@@ -245,3 +245,18 @@
 	       ;;(print-vco-state vco)
 	       (assert-equality #'= -5.0 (get-module-output vco :square))))
 
+(define-test vco-test-hardsync ()
+	     (let ((vco (cl-synthesizer-modules-vco:make-module
+			 "VCO"
+			 (cl-synthesizer:make-environment)
+			 :cv-lin-hz-v 0.0
+			 :base-frequency 440
+			 :v-peak 5.0
+			 :hardsync-threshold 2.5)))
+	       (update-module vco nil)
+	       (let ((initial-sine (get-module-output vco :sine)))
+		 (dotimes (i 100)
+		   (update-module vco nil))
+		 (update-module vco (list :hardsync 5.0))
+		 (let ((cur-sine (get-module-output vco :sine)))
+		   (assert-equality #'= initial-sine cur-sine)))))
