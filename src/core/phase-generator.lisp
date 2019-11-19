@@ -20,5 +20,6 @@
 	     (+ 2PI phi) ;; -45 deg => 315 deg
 	     phi))
        (lambda ()
-	 (setf phi 0.0))))))
+	 (setf phi 0.0)
+	 phi)))))
 
