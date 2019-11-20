@@ -144,7 +144,7 @@
 	(prepare-audio-output rack environment attach-audio audio-output-sockets)
       (multiple-value-bind (push-midi-input shutdown-midi)
 	  (prepare-midi-input rack environment attach-midi midi-input-socket)
-	(dotimes (i (* duration-seconds (floor (getf environment :sample-rate))))
+	(dotimes (i (floor (* duration-seconds (floor (getf environment :sample-rate)))))
 	  ;; Push events of Midi device into rack
 	  (funcall push-midi-input)
 	  ;; Update rack
