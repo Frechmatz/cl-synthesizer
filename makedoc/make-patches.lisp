@@ -1,50 +1,66 @@
 (in-package :cl-synthesizer-makepatches)
 
 
-(defun audio (filename)
+(defun make-audio-element (filename)
   (concatenate
    'string
    "<audio controls=\"controls\" preload=\"none\">"
    "Your browser does not support the <code>audio</code> element."
    "<source src=\""
+   ;; Add query parameter with timestamp as a cache buster
    (format nil "~a?cb=~a" filename (get-universal-time))
    "\" type=\"audio/wav\">"
    "</audio>"))
 
-(defun write-html ()
+(defun make-patch-header (&key (title nil))
+  (concatenate
+   'string
+   "<p><b>" (if title title "Patch") "</b></p>"))
+
+(defun get-doc ()
+  (let ((tree
+	 `("<html>"
+	   "<head>"
+	   ;;"<link rel=\"stylesheet\" href=\"//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic\">"
+	   ;;"<link rel=\"stylesheet\" href=\"//cdn.rawgit.com/necolas/normalize.css/master/normalize.css\">"
+	   ;;"<link rel=\"stylesheet\" href=\"//cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css\">"
+	   "</head>"
+	   "<body>"
+	   (semantic (:name "header")
+		     (heading (:name "cl-synthesizer-patches")
+		   "Example patches for cl-synthesizer. Work in progress..."
+		   "<p>Back to the <a href=\"https://frechmatz.github.io/cl-synthesizer/\">project site.</a></p>"))
+	   (semantic (:name "nav")
+ 		     (heading (:name "Patches") TOC))
+	   (semantic (:name "section")
+		     (heading (:name "Siren" :toc t)
+			      ,(make-audio-element "siren.wav")
+			      ,(make-patch-header) 
+			      ,(cl-readme:read-code "patches/siren.lisp")))
+	   (semantic (:name "footer")
+		     "<p><small>Generated " ,(cl-readme:current-date) "</small></p>")
+	   "</body></html>")))
+    tree))
+
+(defclass cl-synthesizer-readme-writer (cl-readme:html-writer) ())
+
+(defmethod cl-readme:open-semantic ((writer cl-synthesizer-readme-writer) semantic-element-settings)
+  (format nil "<~a class=\"container\">" (getf semantic-element-settings :name)))
+
+(defun make-readme ()
+  ;; Generate patches
+  (cl-synthesizer-patches-siren::run-example)
+  ;; Generate doc
   (let ((cl-readme:*home-directory* "/Users/olli/src/lisp/cl-synthesizer/")
 	(cl-readme:*tab-width* 8))
-    (let ((docstr (concatenate
-		   'string
-		   "<html>"
-		   "<head>"
-		   "<link rel=\"stylesheet\" href=\"//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic\">"
-		   "<link rel=\"stylesheet\" href=\"//cdn.rawgit.com/necolas/normalize.css/master/normalize.css\">"
-		   "<link rel=\"stylesheet\" href=\"//cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css\">"
-		   "</head>"
-		   "<body>"
-		   "<section class=\"container\">"
-		   "<h1>Example patches for cl-synthesizer</h1>"
-		   "<p>Work in progress...</p>"
-		   "<p>Back to the <a href=\"https://frechmatz.github.io/cl-synthesizer/\">project site.</a></p>"
-		   "</section>"
-		   "<section class=\"container\">"
-		   "<h2>Siren</h2>"
-		   "<p>"
-		   (audio "siren.wav")
-		   (cl-readme:read-code "patches/siren.lisp")
-		   "</p>"
-		   "</section>"
-		   "<section class=\"container\">"
-		   "<hr/><p><small>Generated " (cl-readme:current-date) "</small></p>"
-		   "</section>"
-		   "</body></html>")))
-      (with-open-file (fh (cl-readme:make-path "docs/patches.html")
-			  :direction :output
-			  :if-exists :supersede
-			  :if-does-not-exist :create
-			  :external-format :utf-8)
-	(format fh "~a" docstr)))))
+    (with-open-file (fh (cl-readme:make-path "docs/patches.html")
+			:direction :output
+			:if-exists :supersede
+			:if-does-not-exist :create
+			:external-format :utf-8)
+      (let ((w (make-instance 'cl-synthesizer-readme-writer)))
+	(cl-readme:doc-to-html w fh (get-doc))))
+  "DONE"))
 
-;;(write-html)
+;;(make-readme)
 
