@@ -26,9 +26,9 @@
     
     voice))
   
-(defun example ()
+(defun example (&key (sample-rate 44100))
   (let ((rack (cl-synthesizer:make-rack
-	       :environment (cl-synthesizer:make-environment :sample-rate 22050)
+	       :environment (cl-synthesizer:make-environment :sample-rate sample-rate)
 	       :output-sockets '(:left :right))))
 
     (cl-synthesizer:add-module
