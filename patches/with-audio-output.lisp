@@ -21,7 +21,7 @@
 (defun play-siren ()
   (cl-synthesizer-experimental::play-rack
    (cl-synthesizer-patches-siren::example :sample-rate *sample-rate*)
-   :duration-seconds 1.8
+   :duration-seconds cl-synthesizer-patches-siren::*duration-seconds*
    :attach-audio t
    :audio-output-sockets '(:left :right)))
 

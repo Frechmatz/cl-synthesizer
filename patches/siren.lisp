@@ -48,10 +48,12 @@
     
     rack))
 
+(defparameter *duration-seconds* 1.8)
+
 (defun run-example ()
   (cl-synthesizer:play-rack
    (example)
-   :duration-seconds 1.8))
+   :duration-seconds *duration-seconds*))
   
 ;;(run-example)
 
