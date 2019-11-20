@@ -2,6 +2,8 @@
 ;;
 ;; Play patches using experimental Audio output
 ;;
+;; For loading use slime-load-file
+;;
 ;;
 
 (defpackage :cl-synthesizer-patches-with-audio-output
@@ -23,7 +25,7 @@
    (cl-synthesizer-patches-siren::example :sample-rate *sample-rate*)
    :duration-seconds cl-synthesizer-patches-siren::*duration-seconds*
    :attach-audio t
-   :audio-output-sockets '(:left :right)))
+   :audio-output-sockets cl-synthesizer-patches-siren::*audio-output-sockets*))
 
 ;;(play-siren)
 

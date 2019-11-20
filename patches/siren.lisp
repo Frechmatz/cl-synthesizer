@@ -49,6 +49,7 @@
     rack))
 
 (defparameter *duration-seconds* 1.8)
+(defparameter *audio-output-sockets* '(:left :right))
 
 (defun run-example ()
   (cl-synthesizer:play-rack
