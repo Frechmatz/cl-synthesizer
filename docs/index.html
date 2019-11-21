@@ -277,7 +277,6 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
           <li>:linear-frequency The current linear frequency portion of the module.</li>
           <li>:exponential-frequency The current exponential frequency portion of the module.</li>
           <li>:phase The current phase in radians (0..2PI).</li>
-          <li>:sync 5.0 when a phase reset has been applied, otherwise 0.0</li>
        </ul>
     </p></p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-modules-vco-example-1
   (:use :cl))
@@ -1268,7 +1267,32 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 	<li>inputs The column input settings as provided by the Monitor component.</li>
 	<li>:filename A file path relative to the output directory as defined by the environment.</li>
     </ul>
-    <p>See also cl-synthesizer-modules:wave-file-writer.</p></p><h3 id="id-csv-handler">csv-handler</h3><p><b>cl-synthesizer-monitor-csv-handler:make-handler</b> name environment inputs &rest rest &key filename &allow-other-keys </p><p>Creates a monitor handler which writes its inputs into a CSV file.
+    <p>See also cl-synthesizer-modules:wave-file-writer.</p></p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-monitor-example-3
+  (:use :cl))
+
+(in-package :cl-synthesizer-monitor-example-3)
+
+(defun example ()
+  "Wave-Handler example"
+  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+    
+    (cl-synthesizer:add-module
+     rack "VCO" #'cl-synthesizer-modules-vco:make-module
+     :base-frequency 5.0 :v-peak 5.0)
+
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-wave-handler:make-handler
+     '(("VCO" :output-socket :sine))
+     :filename "cl-synthesizer-examples/monitor-example-3.wav")
+    
+    rack))
+
+(defun run-example ()
+  (let ((rack (example)))
+    (cl-synthesizer:play-rack rack :duration-seconds 2)))
+
+;; (run-example)</code></pre></p><h3 id="id-csv-handler">csv-handler</h3><p><b>cl-synthesizer-monitor-csv-handler:make-handler</b> name environment inputs &rest rest &key filename &allow-other-keys </p><p>Creates a monitor handler which writes its inputs into a CSV file.
     The function has the following arguments:
     <ul>
 	<li>name A name.</li>
@@ -1276,11 +1300,37 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 	<li>inputs The column input settings as provided by the Monitor component.</li>
 	<li>:filename A file path relative to the output directory as defined by the environment.</li>
     </ul>
-    <p>See also cl-synthesizer-modules:csv-file-writer.</p></p><h2 id="id-MIDI">MIDI</h2><h3 id="id-MIDI Event">MIDI Event</h3><p><b>cl-synthesizer-midi-event:make-control-change-event</b> channel controller-number value </p><p>Creates a MIDI control change event.</p><p><b>cl-synthesizer-midi-event:make-note-on-event</b> channel note-number velocity </p><p>Creates a MIDI Note-On event.</p><p><b>cl-synthesizer-midi-event:make-note-off-event</b> channel note-number velocity </p><p>Creates a MIDI Note-Off event.</p><p><b>cl-synthesizer-midi-event:control-change-eventp</b> event </p><p>Returns t if the given MIDI event is a Control-Change event.</p><p><b>cl-synthesizer-midi-event:note-on-eventp</b> event </p><p>Returns t if the given MIDI event is a Note-On event.</p><p><b>cl-synthesizer-midi-event:note-off-eventp</b> event </p><p>Returns t if the given MIDI event is a Note-Off event.</p><p><b>cl-synthesizer-midi-event:get-channel</b> event </p><p>Returns the MIDI channel number to which the event belongs.</p><p><b>cl-synthesizer-midi-event:get-controller-number</b> event </p><p>Returns the controller number of a Control-Change MIDI event.</p><p><b>cl-synthesizer-midi-event:get-controller-value</b> event </p><p>Returns the controller value of a Control-Change MIDI event.</p><p><b>cl-synthesizer-midi-event:get-note-number</b> event </p><p>Returns the note number of Note-On/Off MIDI event.</p><p><b>cl-synthesizer-midi-event:get-velocity</b> event </p><p>Returns the velocity of a Note-On/Off MIDI event.</p><h3 id="id-MIDI Utilities">MIDI Utilities</h3><p><b>cl-synthesizer-midi:get-note-number-frequency</b> note-number </p><p>Returns the frequency of a given note number. Note number 69 results in a frequency of 440Hz.
+    <p>See also cl-synthesizer-modules:csv-file-writer.</p></p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-monitor-example-2
+  (:use :cl))
+
+(in-package :cl-synthesizer-monitor-example-2)
+
+(defun example ()
+  "CSV-Handler example"
+  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+    
+    (cl-synthesizer:add-module
+     rack "VCO" #'cl-synthesizer-modules-vco:make-module :base-frequency 5.0 :v-peak 5.0)
+
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-csv-handler:make-handler
+     '(("VCO" :output-socket :sine :name "Sine"))
+     :filename "cl-synthesizer-examples/monitor-example-2.csv"
+     :add-header t
+     :column-separator ",")
+    
+    rack))
+
+(defun run-example ()
+  (let ((rack (example)))
+    (cl-synthesizer:play-rack rack :duration-seconds 2)))
+
+;; (run-example)</code></pre></p><h2 id="id-MIDI">MIDI</h2><h3 id="id-MIDI Event">MIDI Event</h3><p><b>cl-synthesizer-midi-event:make-control-change-event</b> channel controller-number value </p><p>Creates a MIDI control change event.</p><p><b>cl-synthesizer-midi-event:make-note-on-event</b> channel note-number velocity </p><p>Creates a MIDI Note-On event.</p><p><b>cl-synthesizer-midi-event:make-note-off-event</b> channel note-number velocity </p><p>Creates a MIDI Note-Off event.</p><p><b>cl-synthesizer-midi-event:control-change-eventp</b> event </p><p>Returns t if the given MIDI event is a Control-Change event.</p><p><b>cl-synthesizer-midi-event:note-on-eventp</b> event </p><p>Returns t if the given MIDI event is a Note-On event.</p><p><b>cl-synthesizer-midi-event:note-off-eventp</b> event </p><p>Returns t if the given MIDI event is a Note-Off event.</p><p><b>cl-synthesizer-midi-event:get-channel</b> event </p><p>Returns the MIDI channel number to which the event belongs.</p><p><b>cl-synthesizer-midi-event:get-controller-number</b> event </p><p>Returns the controller number of a Control-Change MIDI event.</p><p><b>cl-synthesizer-midi-event:get-controller-value</b> event </p><p>Returns the controller value of a Control-Change MIDI event.</p><p><b>cl-synthesizer-midi-event:get-note-number</b> event </p><p>Returns the note number of Note-On/Off MIDI event.</p><p><b>cl-synthesizer-midi-event:get-velocity</b> event </p><p>Returns the velocity of a Note-On/Off MIDI event.</p><h3 id="id-MIDI Utilities">MIDI Utilities</h3><p><b>cl-synthesizer-midi:get-note-number-frequency</b> note-number </p><p>Returns the frequency of a given note number. Note number 69 results in a frequency of 440Hz.
    This function implements a mapping according to 
    <a href="http://subsynth.sourceforge.net/midinote2freq.html">midinote2freq</a></p><h2 id="id-Conditions">Conditions</h2><b>assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
    because for example a module name is not unique, a patch is added for
    a non-existing module, a patch is added to an already patched socket
    and so on.</p><h1 id="id-Acknowledgements">Acknowledgements</h1><ul>
 <li>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></li>
-</ul></section><footer class="container"><p><small>Generated 2019-11-20  20:35:23</small></p></footer></body></html>
+</ul></section><footer class="container"><p><small>Generated 2019-11-21  21:22:53</small></p></footer></body></html>
