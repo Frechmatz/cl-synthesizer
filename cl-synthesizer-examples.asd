@@ -45,7 +45,9 @@
 			:components ((:file "example-1")))
 	       (:module "src/monitor/monitor"
 			:serial t
-			:components ((:file "example-1")))
+			:components ((:file "example-1")
+				     (:file "example-2")
+				     (:file "example-3")))
 	       (:module "src/modules/trigger"
 			:serial t
 			:components ((:file "example-1")))
