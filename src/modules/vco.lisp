@@ -56,7 +56,6 @@
           <li>:linear-frequency The current linear frequency portion of the module.</li>
           <li>:exponential-frequency The current exponential frequency portion of the module.</li>
           <li>:phase The current phase in radians (0..2PI).</li>
-          <li>:sync 5.0 when a phase reset has been applied, otherwise 0.0</li>
        </ul>
     </p>"
   (let ((base-frequency (coerce base-frequency 'single-float))
@@ -91,7 +90,6 @@
 	   (cur-frequency 0.0)
 	   (cur-lin-frequency 0.0)
 	   (cur-exp-frequency 0.0)
-	   (cur-sync 0.0)
 	   (cur-phi 0.0)
 	   (cur-sine-output 1.0)
 	   (cur-triangle-output 1.0)
@@ -191,11 +189,9 @@
 			 (if (or (<= sync-threshold input-sync) initial-sync)
 			     (progn
 			       (setf phi (funcall phase-reset))
-			       (setf initial-sync nil)
-			       (setf cur-sync 5.0))
+			       (setf initial-sync nil))
 			     (progn
-			       (setf phi (funcall phase-generator f))
-			       (setf cur-sync 0.0)))
+			       (setf phi (funcall phase-generator f))))
 			 (setf cur-frequency f)
 			 (setf cur-phi phi)
 			 (dotimes (i (length update-functions))
@@ -210,7 +206,5 @@
 			     cur-exp-frequency)
 			    ((eq key :phase)
 			     cur-phi)
-			    ((eq key :sync)
-			     cur-sync)
 			    (t nil))))))))))
 
