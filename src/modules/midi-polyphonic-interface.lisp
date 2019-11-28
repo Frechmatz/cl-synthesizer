@@ -8,17 +8,20 @@
 (defconstant +voice-state-cv+ 0)
 (defconstant +voice-state-gate+ 1)
 (defconstant +voice-state-gate-pending+ 2)
+(defconstant +voice-state-velocity+ 3)
 
 (defparameter +voice-states+
   '(+voice-state-cv+
     +voice-state-gate+
-    +voice-state-gate-pending+))
+    +voice-state-gate-pending+
+    +voice-state-velocity+))
 
 (defun make-voice-state ()
   (let ((voice-state (make-array (length +voice-states+) :initial-element nil)))
     (setf (elt voice-state +voice-state-cv+) 0.0)
     (setf (elt voice-state +voice-state-gate+) 0.0)
     (setf (elt voice-state +voice-state-gate-pending+) nil)
+    (setf (elt voice-state +voice-state-velocity+) 0.0)
     voice-state))
 
 (defun get-voice-state-cv (state) (elt state +voice-state-cv+))
@@ -27,6 +30,8 @@
 (defun set-voice-state-gate (state cv) (setf (elt state +voice-state-gate+) cv))
 (defun get-voice-state-gate-pending (state) (elt state +voice-state-gate-pending+))
 (defun set-voice-state-gate-pending (state pending) (setf (elt state +voice-state-gate-pending+) pending))
+(defun get-voice-state-velocity (state) (elt state +voice-state-velocity+))
+(defun set-voice-state-velocity (state cv) (setf (elt state +voice-state-velocity+) cv))
 
 (defun make-module (name environment
 		    &key
@@ -34,7 +39,8 @@
 		      (channel nil)
 		      (note-number-to-cv nil)
 		      (cv-gate-on 5.0)
-		      (cv-gate-off 0.0))
+		      (cv-gate-off 0.0)
+		      (cv-velocity-max 5.0))
   "Creates a polyphonic MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
     voice is represented by a control-voltage and a gate signal. The function has the following arguments:
     <ul>
@@ -47,6 +53,7 @@
 	    and returns a control-voltage. The default implementation is cv = note-number / 12.0</li>
 	<li>:cv-gate-on The \"Gate on\" control voltage.</li>
 	<li>:cv-gate-off The \"Gate off\" control voltage.</li>
+	<li>:cv-velocity-max Control voltage that represents the maximum velocity (Velocity = 127).</li>
     </ul>
     Gate transitions are implemented as follows: Each incoming note causes that the gate signal of the
     assigned voice switches to On. If the gate signal of the assigned voice is already On
@@ -60,16 +67,27 @@
     <ul>
 	<li>:gate-1 ... :gate-n Gates of the voices.</li>
 	<li>:cv-1 ... :cv-n Control voltages of the voices.</li>
+	<li>:velocity-1 ... :cv-n Velocity control voltages of the voices. 0..cv-velocity-max.</li>
     </ul></b>"
-  (declare (ignore environment name))
+  (declare (ignore environment))
   (if (not note-number-to-cv)
       (setf note-number-to-cv (lambda (note-number) (the single-float (/ note-number 12.0)))))
+  (if (not cv-velocity-max)
+      (cl-synthesizer:signal-assembly-error
+       :format-control "cv-velocity-max of MIDI-Polyphonic-Interface ~a must not be nil"
+       :format-arguments (list name)))
+  (if (<= cv-velocity-max 0.0)
+      (cl-synthesizer:signal-assembly-error
+       :format-control "cv-velocity-max of MIDI-Polyphonic-Interfae ~a must be greater than 0: ~a"
+       :format-arguments (list name cv-velocity-max)))
+  
   (let* ((outputs nil)
 	 (inputs nil)
 	 (input-midi-events nil)
 	 (voice-states (make-array voice-count))
 	 (pending-gates nil)
 	 (voice-manager (make-instance 'cl-synthesizer-lru-set:lru-set :capacity voice-count )))
+
     ;; Set up voice states
     (dotimes (i voice-count)
       (setf (elt voice-states i) (make-voice-state)))
@@ -77,12 +95,15 @@
     ;; Set up outputs
     (dotimes (i voice-count)
       (let ((cv-socket (cl-synthesizer-macro-util:make-keyword "CV" i))
-	    (gate-socket (cl-synthesizer-macro-util:make-keyword "GATE" i)))
+	    (gate-socket (cl-synthesizer-macro-util:make-keyword "GATE" i))
+	    (velocity-socket (cl-synthesizer-macro-util:make-keyword "VELOCITY" i)))
 	(let ((cur-i i)) ;; new context
 	  (push (lambda () (get-voice-state-cv (elt voice-states cur-i))) outputs)
 	  (push cv-socket outputs)
 	  (push (lambda () (get-voice-state-gate (elt voice-states cur-i))) outputs)
-	  (push gate-socket outputs))))
+	  (push gate-socket outputs)
+	  (push (lambda () (get-voice-state-velocity (elt voice-states cur-i))) outputs)
+	  (push velocity-socket outputs))))
 
     ;; Set up inputs
     (setf inputs (list :midi-events (lambda(value) (setf input-midi-events value))))
@@ -110,7 +131,10 @@
 		   ((= cv-gate-off (get-voice-state-gate voice-state))
 		    (set-voice-state-gate voice-state cv-gate-on))
 		   (t
-		    (retrigger-gate voice-state))))))
+		    (retrigger-gate voice-state)))))
+	     (velocity-to-cv (velocity)
+	       "Velocity value (0..127) to CV"
+	       (* velocity (/ cv-velocity-max 127.0))))
       (list
        :inputs (lambda () inputs)
        :outputs (lambda () outputs)
@@ -135,7 +159,10 @@
 			       voice-state
 			       (funcall
 				note-number-to-cv
-				(cl-synthesizer-midi-event:get-note-number midi-event))))))
+				(cl-synthesizer-midi-event:get-note-number midi-event)))
+			      (set-voice-state-velocity
+			       voice-state
+			       (velocity-to-cv (cl-synthesizer-midi-event:get-velocity midi-event))))))
 			 ;; Note off
 			 ((cl-synthesizer-midi-event:note-off-eventp midi-event)
 			  (multiple-value-bind (voice-index voice-note)

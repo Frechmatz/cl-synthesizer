@@ -15,7 +15,8 @@
    (cl-synthesizer:make-environment)
    :voice-count voice-count
    :channel channel
-   :note-number-to-cv (lambda (n) (* 1000 n))))
+   :note-number-to-cv (lambda (n) (* 1000 n))
+   :cv-velocity-max 1270.0))
 
 (defun run-polyphonic-test-case-midi-ifc (test-case)
   (let ((ifc (test-polyphonic-midi-interface-make-midi-interface
@@ -288,3 +289,12 @@
 		 (assert-equal 2 event-count))))
 
 
+(define-test test-polyphonic-midi-interface-velocity-1 ()
+	     (let ((test
+		    `(:voice-count 2 
+				   :test-cases
+				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event 1 64 0))
+					     :outputs ((:VELOCITY-1 0)))
+				    (:events (,(cl-synthesizer-midi-event:make-note-on-event 1 65 127))
+					     :outputs ((:VELOCITY-1 0) (:VELOCITY-2 1270)))))))
+	       (run-polyphonic-test-case-midi-ifc test)))
