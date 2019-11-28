@@ -25,19 +25,8 @@
 (defmacro lru-entry-touch (cur-entry)
   `(setf (slot-value ,cur-entry 'tick) (funcall (slot-value ,cur-entry 'tick-counter))))
 
-;; Sets a value
-(defun lru-entry-set-value (cur-entry value)
-  (lru-entry-touch cur-entry)
-  (setf (slot-value cur-entry 'v) value)
-  value)
-
-;; Resets the entry. Returns the current value or nil
-(defun lru-entry-reset (cur-entry)
-  (if (slot-value cur-entry 'v)
-      (progn
-	(lru-entry-touch cur-entry)
-	(setf (slot-value cur-entry 'v) nil)))
-  nil)
+(defmacro lru-entry-set-value (cur-entry value)
+  `(setf (slot-value ,cur-entry 'v) ,value))
 
 ;;
 ;; Lru-Set
@@ -45,7 +34,7 @@
 
 (defun make-tick-counter ()
   "Entries are holding a 'tick' that indicates which entry was last used. Compared
-   to the effort of managing some kind of linked list this is not too bad. However,
+   to the effort of managing some kind of linked list or a heap this is not too bad. However,
    this doesn't work for large sets (for which this Set implementation is not designed).
    TODO: Take care of overflows and in such case adjust the ticks of the entries."
   (let ((tick 0))
@@ -73,85 +62,92 @@
     (dotimes (i capacity)
       (setf (aref entry-array i) (make-instance 'lru-entry :tick-counter (slot-value mgr 'tick-counter))))))
 
-;; Returns an index
-(defun lru-set-find-index-by-value (cur-lru-set value)
-  (let ((entries (slot-value cur-lru-set 'entries)))
-    (dotimes (index (length entries))
-      (if (lru-entry-is-value (elt entries index) value)
-	  (return index)))))
-
-;; Returns a value
-(defun current-value (cur-lru-set)
+(defun lru-set-info (cur-lru-set value)
+  "Returns values (index-set-eldest, index-nil-eldest, index-value, index-set-newest)"
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (let ((entries (slot-value cur-lru-set 'entries))
-	(max-tick-active-entry nil)
-	(index-active-entry nil)
-	(value-active-entry nil))
-    ;; get the newest active value
-    (dotimes (index (length entries))
-      (let ((entry (elt entries index)))
-	(let ((tick (lru-entry-get-tick entry)))
-	  (if (lru-entry-get-current-value entry)
-	      ;; Already active entry
-	      (if (or (not max-tick-active-entry) (< max-tick-active-entry tick))
-		  (progn
-		    (setf value-active-entry (lru-entry-get-current-value entry))
-		    (setf max-tick-active-entry tick)
-		    (setf index-active-entry index)))))))
-    value-active-entry))
-
-;; Returns an index
-(defun lru-set-allocate-entry (cur-lru-set value)
-  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
-  (let ((entries (slot-value cur-lru-set 'entries))
-	(min-tick-available-entry nil)
-	(min-tick-active-entry nil)
-	(index-available-entry nil)
-	(index-active-entry nil))
+	(min-tick-nil nil)
+	(min-tick-set nil)
+	(max-tick-set nil)
+	(index-nil nil)
+	(index-set nil)
+	(index-set-cur nil)
+	(index-value nil))
     ;;
     ;; Collect
-    ;; - the eldest available entry
-    ;; - the eldest active entry
+    ;; - the eldest nil entry
+    ;; - the eldest set entry
+    ;; - index of the (optional) given value
+    ;; - index of currently set value
     ;;
     (dotimes (index (length entries))
       (let ((entry (elt entries index)))
-	(let ((tick (lru-entry-get-tick entry)))
-	  (if (not (lru-entry-get-current-value entry))
-	      ;; We've found an available entry
-	      (if (or (not min-tick-available-entry) (< tick min-tick-available-entry))
+	(let ((tick (lru-entry-get-tick entry)) (cur-value (lru-entry-get-current-value entry)))
+	  (if (and cur-value value (lru-entry-is-value entry value))
+	      (setf index-value index))
+	  (if (not cur-value)
+	      (if (or (not min-tick-nil) (< tick min-tick-nil))
 		  (progn
-		    (setf min-tick-available-entry tick)
-		    (setf index-available-entry index)))
-	      ;; Already active entry
-	      (if (or (not min-tick-active-entry) (< tick min-tick-active-entry))
-		  (progn
-		    (setf min-tick-active-entry tick)
-		    (setf index-active-entry index)
-		    ;; Value already in set?
-		    (if (lru-entry-is-value entry value)
-			(progn
-			  (setf index-available-entry nil)
-			  (return)))))))))
-    (let ((resulting-index (if index-available-entry index-available-entry index-active-entry)))
-      (lru-entry-reset (elt entries resulting-index))
-      resulting-index)))
+		    (setf min-tick-nil tick)
+		    (setf index-nil index)))
+	      ;; Entry value set
+	      (progn
+		(if (or (not max-tick-set) (< max-tick-set tick))
+		    (progn
+		      (setf index-set-cur index)
+		      (setf max-tick-set tick)))
+		(if (or (not min-tick-set) (< tick min-tick-set))
+		    (progn
+		      (setf min-tick-set tick)
+		      (setf index-set index))))))))
+    (values index-set index-nil index-value index-set-cur)))
+
+(defun current-value (cur-lru-set)
+  "Returns value of current (newest) set index or nil."
+  (multiple-value-bind (index-set index-nil index-value index-set-cur)
+      (lru-set-info cur-lru-set nil)
+    (declare (ignore index-set index-nil index-value))
+    (if (not index-set-cur)
+	nil
+	(lru-entry-get-current-value (elt (slot-value cur-lru-set 'entries) index-set-cur)))))
 
 (defun push-value (cur-lru-set value)
-  "Determine index (oldest not used one or oldest used one), assign value to it and 'touch' it. Returns the index."
-  (let ((index (lru-set-allocate-entry cur-lru-set value)))
-    (lru-entry-set-value (elt (slot-value cur-lru-set 'entries) index) value)
-    index))
+  "Push and touch. Returns index or nil."
+  (if (not value)
+      nil
+      (multiple-value-bind (index-set index-nil index-value)
+	  (lru-set-info cur-lru-set value)
+	(cond
+	  (index-value
+	   (lru-entry-touch (elt (slot-value cur-lru-set 'entries) index-value))
+	   index-value)
+	  (index-nil
+	   (let ((entry (elt (slot-value cur-lru-set 'entries) index-nil)))
+	     (lru-entry-set-value entry value)
+	     (lru-entry-touch entry))
+	   index-nil)
+	  (index-set
+	   (let ((entry (elt (slot-value cur-lru-set 'entries) index-set)))
+	     (lru-entry-set-value entry value)
+	     (lru-entry-touch entry))
+	   index-set)
+	  (t nil)))))
 
 (defun remove-value (cur-lru-set value)
-  "Remove value and 'touch' corresponding index. Returns an index or nil."
-  (let ((index (lru-set-find-index-by-value cur-lru-set value)))
-    (if index
-	(lru-entry-reset (elt (slot-value cur-lru-set 'entries) index)))
-    index))
+  "Remove and touch. Returns an index or nil."
+  (if (not value)
+      nil
+      (multiple-value-bind (index-set index-nil index-value)
+	  (lru-set-info cur-lru-set value)
+	(declare (ignore index-set index-nil))
+	(if index-value
+	    (let ((entry (elt (slot-value cur-lru-set 'entries) index-value)))
+	      (lru-entry-set-value entry nil)
+	      (lru-entry-touch entry)))
+	index-value)))
 
 (defun get-value (cur-lru-set index)
   "Get a value by its index."
   (let ((entry (elt (slot-value cur-lru-set 'entries) index)))
     (lru-entry-get-current-value entry)))
-
 
