@@ -29,3 +29,17 @@
 
 ;;(play-siren)
 
+
+;;
+;; Harmonic
+;;
+(defun play-harmonic ()
+  (cl-synthesizer-experimental::play-rack
+   (cl-synthesizer-patches-harmonic::example :sample-rate *sample-rate*)
+   :duration-seconds cl-synthesizer-patches-harmonic::*duration-seconds*
+   :attach-audio t
+   :audio-output-sockets cl-synthesizer-patches-harmonic::*audio-output-sockets*))
+
+;;(play-harmonic)
+
+
