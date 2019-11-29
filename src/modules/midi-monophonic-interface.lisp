@@ -36,7 +36,8 @@
 		      (cv-gate-off 0.0)
 		      (force-gate-retrigger nil)
 		      (stack-depth 5)
-		      (cv-velocity-max 5.0))
+		      (cv-velocity-max 5.0)
+		      (force-velocity-update nil))
   "Creates a monophonic MIDI interface module. The module dispatches MIDI-Note events to a single voice. 
    If the voice is already assigned to a note, then the incoming note is pushed on top of the current note.
    The function has the following arguments:
@@ -50,25 +51,28 @@
 	    and returns a control-voltage. The default implementation is cv = note-number / 12.0</li>
 	<li>:cv-gate-on The \"Gate on\" control voltage.</li>
 	<li>:cv-gate-off The \"Gate off\" control voltage.</li>
-	<li>:force-gate-retrigger If t then each note on event will cause a retriggering 
-            of the gate signal. Otherwise the gate signal will just stay on when it is already on.</li>
+	<li>:force-gate-retrigger If t then each \"note on\" event will cause a retriggering 
+            of the gate signal. Otherwise the gate signal will stay on when it is already on.</li>
 	<li>:cv-velocity-max Control voltage that represents the maximum velocity (Velocity = 127).</li>
+	<li>:force-velocity-update If t then each \"note on\" event will cause an
+            update of the velocity according to the velocity of this event.</li>
     </ul>
     Gate transitions are implemented as follows: Incoming notes are stacked. The first note causes
-    the gate signal to switch to On. Further \"nested\" note-on events only result
+    the gate signal to switch to On. Further nested \"note on\" events only result
     in a change of the CV output but the gate signal will stay On.
-    This behaviour can be overridden with the :force-gate-retrigger parameter.</li>
-    </ul>
-    The module has the following inputs:
+    This behaviour can be overridden with the :force-gate-retrigger parameter.
+    <p>The module has the following inputs:
     <ul>
 	<li>:midi-events A list of MIDI events.</li>
-    </ul>
-    The module has the following outputs:
+    </ul></p>
+    <p>The module has the following outputs:
     <ul>
 	<li>:gate The gate signal.</li>
 	<li>:cv The control voltage representing the note which is on top of the note stack.</li>
-	<li>:velocity Control voltage representing the current velocity. 0..cv-velocity-max.</li>
-    </ul></b>"
+	<li>:velocity Control voltage representing the current velocity (0 ... cv-velocity-max).
+        By default the velocity output is set to the velocity of the current \"note on\" event,
+        when there are no other notes on the stack. This can be overriden via :force-velocity-update.</li>
+    </ul></p>"
   (declare (ignore environment))
   (if (not note-number-to-cv)
       (setf note-number-to-cv (lambda (note-number) (the single-float (/ note-number 12.0)))))
@@ -78,7 +82,7 @@
        :format-arguments (list name)))
   (if (<= cv-velocity-max 0.0)
       (cl-synthesizer:signal-assembly-error
-       :format-control "cv-velocity-max of MIDI-Monophonic-Interfae ~a must be greater than 0: ~a"
+       :format-control "cv-velocity-max of MIDI-Monophonic-Interface ~a must be greater than 0: ~a"
        :format-arguments (list name cv-velocity-max)))
   (let* ((outputs nil)
 	 (inputs nil)
@@ -132,10 +136,15 @@
 		       (cond
 			 ;; Note on
 			 ((cl-synthesizer-midi-event:note-on-eventp midi-event)
-			  (let ((note-number (cl-synthesizer-midi-event:get-note-number midi-event)))
+			  (let ((note-number (cl-synthesizer-midi-event:get-note-number midi-event))
+				(first-note-p (cl-synthesizer-lru-set:empty-p voice-manager)))
 			    (cl-synthesizer-lru-set:push-value voice-manager note-number)
 			    (activate-gate)
-			    (set-voice-state-cv voice-state  (funcall note-number-to-cv note-number))))
+			    (set-voice-state-cv voice-state  (funcall note-number-to-cv note-number))
+			    (if (or first-note-p force-velocity-update)
+				(set-voice-state-velocity
+				 voice-state
+				 (velocity-to-cv (cl-synthesizer-midi-event:get-velocity midi-event))))))
 			 ;; Note off
 			 ((cl-synthesizer-midi-event:note-off-eventp midi-event)
 			  (cl-synthesizer-lru-set:remove-value
