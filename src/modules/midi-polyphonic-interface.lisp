@@ -67,7 +67,7 @@
     <ul>
 	<li>:gate-1 ... :gate-n Gates of the voices.</li>
 	<li>:cv-1 ... :cv-n Control voltages of the voices.</li>
-	<li>:velocity-1 ... :cv-n Velocity control voltages of the voices. 0..cv-velocity-max.</li>
+	<li>:velocity-1 ... :velocity-n Velocity control voltages of the voices (0 ... cv-velocity-max).</li>
     </ul></b>"
   (declare (ignore environment))
   (if (not note-number-to-cv)
@@ -78,7 +78,7 @@
        :format-arguments (list name)))
   (if (<= cv-velocity-max 0.0)
       (cl-synthesizer:signal-assembly-error
-       :format-control "cv-velocity-max of MIDI-Polyphonic-Interfae ~a must be greater than 0: ~a"
+       :format-control "cv-velocity-max of MIDI-Polyphonic-Interface ~a must be greater than 0: ~a"
        :format-arguments (list name cv-velocity-max)))
   
   (let* ((outputs nil)
