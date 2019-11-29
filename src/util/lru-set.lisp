@@ -44,7 +44,8 @@
 
 (defclass lru-set ()
   ((entries :initform nil)
-   (tick-counter :initform (make-tick-counter)))
+   (tick-counter :initform (make-tick-counter))
+   (entry-count :initform 0))
   (:documentation
    "A fixed capacity LRU Set.
     - Focus is on zero consing. The implementation is quite CPU heavy.
@@ -61,6 +62,12 @@
     (setf (slot-value mgr 'entries) entry-array)
     (dotimes (i capacity)
       (setf (aref entry-array i) (make-instance 'lru-entry :tick-counter (slot-value mgr 'tick-counter))))))
+
+(defmacro inc-entry-count (cur-lru-set)
+  `(setf (slot-value ,cur-lru-set 'entry-count) (+ 1 (slot-value ,cur-lru-set 'entry-count))))
+
+(defmacro dec-entry-count (cur-lru-set)
+  `(setf (slot-value ,cur-lru-set 'entry-count) (+ -1 (slot-value ,cur-lru-set 'entry-count))))
 
 (defun lru-set-info (cur-lru-set value)
   "Returns values (index-set-eldest, index-nil-eldest, index-value, index-set-newest)"
@@ -112,7 +119,10 @@
 	(lru-entry-get-current-value (elt (slot-value cur-lru-set 'entries) index-set-cur)))))
 
 (defun push-value (cur-lru-set value)
-  "Push and touch. Returns index or nil."
+  "Push and touch. Returns (values index stolen).
+  - index Index of the set to which the value has been assigned or nil if value is nil.
+  - stolen Boolean that indicates if insertion of the value has caused the removal of another value
+    due to reaching the capacity limit of the set. "
   (if (not value)
       nil
       (multiple-value-bind (index-set index-nil index-value)
@@ -120,18 +130,19 @@
 	(cond
 	  (index-value
 	   (lru-entry-touch (elt (slot-value cur-lru-set 'entries) index-value))
-	   index-value)
+	   (values index-value nil))
 	  (index-nil
+	   (inc-entry-count cur-lru-set)
 	   (let ((entry (elt (slot-value cur-lru-set 'entries) index-nil)))
 	     (lru-entry-set-value entry value)
 	     (lru-entry-touch entry))
-	   index-nil)
+	   (values index-nil nil))
 	  (index-set
 	   (let ((entry (elt (slot-value cur-lru-set 'entries) index-set)))
 	     (lru-entry-set-value entry value)
 	     (lru-entry-touch entry))
-	   index-set)
-	  (t nil)))))
+	   (values index-set t))
+	  (t (values nil nil))))))
 
 (defun remove-value (cur-lru-set value)
   "Remove and touch. Returns an index or nil."
@@ -141,13 +152,22 @@
 	  (lru-set-info cur-lru-set value)
 	(declare (ignore index-set index-nil))
 	(if index-value
-	    (let ((entry (elt (slot-value cur-lru-set 'entries) index-value)))
-	      (lru-entry-set-value entry nil)
-	      (lru-entry-touch entry)))
+	    (progn
+	      (dec-entry-count cur-lru-set)
+	      (let ((entry (elt (slot-value cur-lru-set 'entries) index-value)))
+		(lru-entry-set-value entry nil)
+		(lru-entry-touch entry))))
 	index-value)))
 
 (defun get-value (cur-lru-set index)
   "Get a value by its index."
-  (let ((entry (elt (slot-value cur-lru-set 'entries) index)))
-    (lru-entry-get-current-value entry)))
+  (lru-entry-get-current-value (elt (slot-value cur-lru-set 'entries) index)))
+
+(defun entry-count (cur-lru-set)
+  "Get the current entry count."
+  (slot-value cur-lru-set 'entry-count))
+
+(defun empty-p (cur-lru-set)
+  "Returns t if the set is empty."
+  (= 0 (slot-value cur-lru-set 'entry-count)))
 

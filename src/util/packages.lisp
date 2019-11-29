@@ -14,4 +14,6 @@
    :remove-value
    :push-value
    :get-value
-   :current-value))
+   :current-value
+   :entry-count
+   :empty-p))
