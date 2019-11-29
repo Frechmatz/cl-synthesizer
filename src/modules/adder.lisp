@@ -1,21 +1,22 @@
 (in-package :cl-synthesizer-modules-adder)
 
 (defun make-module (name environment &key input-count)
-  "Creates a simple voltage adder module. The function has the following arguments:
+  "Creates a simple voltage adder module. 
+   <p>The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
 	<li>:input-count The number of input sockets.</li>
-    </ul>
-    The module has the following inputs:
+    </ul></p>
+    <p>The module has the following inputs:
     <ul>
         <li>:input-1 ... :input-n. Where n is the input-count. Input values
         not of type <b>number</b> are ignored.</li>
-    </ul>
-    The module has the following outputs:
+    </ul></p>
+    <p>The module has the following outputs:
     <ul>
 	<li>:output The output consisting of the sum of the inputs.</li>
-    </ul>"
+    </ul></p>"
   (declare (ignore environment))
   (if (<= input-count 0)
       (cl-synthesizer:signal-assembly-error

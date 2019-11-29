@@ -40,7 +40,7 @@
 		      (force-velocity-update nil))
   "Creates a monophonic MIDI interface module. The module dispatches MIDI-Note events to a single voice. 
    If the voice is already assigned to a note, then the incoming note is pushed on top of the current note.
-   The function has the following arguments:
+   <p>The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
@@ -60,7 +60,7 @@
     Gate transitions are implemented as follows: Incoming notes are stacked. The first note causes
     the gate signal to switch to On. Further nested \"note on\" events only result
     in a change of the CV output but the gate signal will stay On.
-    This behaviour can be overridden with the :force-gate-retrigger parameter.
+    This behaviour can be overridden with the :force-gate-retrigger parameter.</p>
     <p>The module has the following inputs:
     <ul>
 	<li>:midi-events A list of MIDI events.</li>

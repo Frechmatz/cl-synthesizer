@@ -12,7 +12,7 @@
 
 (defun make-module (name environment &key channel-count filename (v-peak 5.0) (sample-width :16bit))
   "Creates a Wave File Writer module. Writes files in \"Waveform Audio File\" (\"WAV\") format.
-    The function has the following arguments:
+    <p>The function has the following arguments:
   <ul>
     <li>name Name of the writer.</li>
     <li>environment The synthesizer environment.</li>
@@ -26,12 +26,12 @@
         value of -0.25. The default value is 5.0. Incoming voltages will be clipped 
         according to v-peak.</li>
     <li>:sample-width Resolution of samples. One of :8Bit, :16Bit, :24Bit</li> 
-  </ul>
-  The module has the following inputs:
+  </ul></p>
+  <p>The module has the following inputs:
   <ul>
       <li>:channel-1 ... :channel-n The sample values of the generated frames
 	  are written in order :channel-1 ... :channel-n</li>
-  </ul>
+  </ul></p>
   The module has no outputs.
   <p>See also cl-synthesizer-monitor:add-monitor which provides Wave-File-Writing
      without having to add the module and the required patches to the rack.</p>"

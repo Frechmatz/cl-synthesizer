@@ -11,7 +11,7 @@
 		      (exponential nil))
   "Creates an envelope generator module with the phases Attack, Decay, Sustain and Release.
     This module has been realized using other modules such as Ramp, Sustain, Trigger and Multiple.
-    The function has the following arguments:
+    <p>The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
@@ -27,18 +27,18 @@
             the input of the attack phase. This can be used to avoid sudden jumps of the envelope 
             as the attack phase by default starts at 0.0.</li>
         <li>:exponential If t then the envelope will have exponential characteristic.</li>
-    </ul>
-    The module has the following inputs:
+    </ul></p>
+    <p>The module has the following inputs:
     <ul>
 	<li>:gate The gate signal (see also :gate-threshold). The envelope starts working when the
 	gate input switches to \"on\" and enters into the release phase when it switches to \"off\".</li>
 	<li>:attack-cv-time Modulates the climbing time of the attack phase (see also Ramp module).</li>
 	<li>:release-cv-time Modulates the climbing time of the release phase (see also Ramp module).</li>
-    </ul>
-    The module has the following outputs:
+    </ul></p>
+    <p>The module has the following outputs:
     <ul>
 	<li>:cv The envelope.</li>
-    </ul>"
+    </ul></p>"
   (declare (ignore name))
   (let ((rack (cl-synthesizer:make-rack
 	       :environment environment

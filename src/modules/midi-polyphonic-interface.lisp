@@ -42,7 +42,7 @@
 		      (cv-gate-off 0.0)
 		      (cv-velocity-max 5.0))
   "Creates a polyphonic MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
-    voice is represented by a control-voltage and a gate signal. The function has the following arguments:
+    voice is represented by a control-voltage and a gate signal. <p>The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
@@ -55,20 +55,20 @@
 	<li>:cv-gate-off The \"Gate off\" control voltage.</li>
 	<li>:cv-velocity-max Control voltage that represents the maximum velocity (Velocity = 127).</li>
     </ul>
-    Gate transitions are implemented as follows: Each incoming note causes that the gate signal of the
+    Gate transitions are implemented as follows: Each incoming \"note on\" event causes that the gate signal of the
     assigned voice switches to On. If the gate signal of the assigned voice is already On
     (this happens when the available voices are exhausted and a voice is \"stolen\") then
-    the gate signal switches to Off for the duration of one system tick and then to On again.</br>
-    The module has the following inputs:
+    the gate signal switches to Off for the duration of one system tick and then to On again.</p>
+    <p>The module has the following inputs:
     <ul>
 	<li>:midi-events A list of MIDI events.</li>
-    </ul>
-    The module has the following outputs:
+    </ul></p>
+    <p>The module has the following outputs:
     <ul>
 	<li>:gate-1 ... :gate-n Gates of the voices.</li>
 	<li>:cv-1 ... :cv-n Control voltages of the voices.</li>
 	<li>:velocity-1 ... :velocity-n Velocity control voltages of the voices (0 ... cv-velocity-max).</li>
-    </ul></b>"
+    </ul></p>"
   (declare (ignore environment))
   (if (not note-number-to-cv)
       (setf note-number-to-cv (lambda (note-number) (the single-float (/ note-number 12.0)))))

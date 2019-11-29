@@ -4,22 +4,22 @@
 		    &key (trigger-threshold 2.5) (gate-threshold 2.5))
   "Creates a module which holds a given input as long as its gate input is \"on\".
     Main purpose of this module is to create envelope generators by chaining
-    multiple ramp and sustain modules. The function has the following arguments:
+    multiple ramp and sustain modules. <p>The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
 	<li>:trigger-threshold Minimum value of the :trigger input that indicates that the trigger is active.</li>
 	<li>:gate-threshold Minimum value of the :gate input that indicates that the gate is on.</li>
-    </ul>
-    The module has the following inputs:
+    </ul></p>
+    <p>The module has the following inputs:
     <ul>
 	<li>:trigger Trigger input. If the trigger is active (see also :trigger-threshold), the module samples
 	    its current input value and begins passing it to its output socket.</li>
 	<li>:input Input value.</li>
 	<li>:pass-through If value is >= 5.0 the module passes through its input value.</li>
 	<li>:gate A gate signal (see also :gate-threshold).</li>
-    </ul>
-    The module has the following outputs:
+    </ul></p>
+    <p>The module has the following outputs:
     <ul>
 	<li>:output Output value of the module. The initial output value is 0.0.</li>
 	<li>:busy A value >= 5.0 indicates that the module is busy by either passing through
@@ -28,7 +28,7 @@
 	    has finished.</li>
 	<li>:gate Passed through :gate input. Purpose of this output is to support more convenient
 	    chaining of ramp and sustain modules.</li>
-    </ul>
+    </ul></p>
     This module has been inspired by <a href=\"https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes\">dhemery</a>"
   (declare (ignore name environment))
   ;; (declare (optimize (debug 3) (speed 0) (space 0)))

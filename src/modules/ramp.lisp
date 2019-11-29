@@ -8,7 +8,7 @@
 		      (exponential nil))
   "Creates a module whose output climbs from a given input value to a given output value
     in a given time. Main purpose of this module is to create envelope generators by chaining
-    multiple ramp and sustain modules. The function has the following arguments:
+    multiple ramp and sustain modules. <p>The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
@@ -22,8 +22,8 @@
 	<li>:time-cv-to-time-ms An optional function that converts a time control voltage to a duration in milliseconds.
         The default implementation is 1000ms/1V (abs(cv-time) * 1000).</li>
         <li>:exponential If t then the ramp will climb with an exponential characteristic.</li>
-    </ul>
-    The module has the following inputs:
+    </ul></p>
+    <p>The module has the following inputs:
     <ul>
 	<li>:trigger Trigger input. If the trigger is active (see also :trigger-threshold), the module samples
 	    its current input value and begins climbing to the desired target output value.</li>
@@ -31,8 +31,8 @@
 	<li>:pass-through If value is >= 5.0 the module passes through its input value.</li>
 	<li>:gate A gate signal (see also :gate-threshold).</li>
 	<li>:cv-time NIL or climbing time (duration) of the ramp (see also :time-cv-to-time-ms).</li>
-    </ul>
-    The module has the following outputs:
+    </ul></p>
+    <p>The module has the following outputs:
     <ul>
 	<li>:output Output value of the module. The initial output value is 0.0.</li>
 	<li>:busy A value >= 5.0 indicates that the module is busy by either passing through
@@ -41,7 +41,7 @@
 	finished.</li>
 	<li>:gate Passed through :gate input. Purpose of this output is to support more convenient
 	    chaining of ramp and sustain modules.</li>
-    </ul>
+    </ul></p>
     When the ramp aborts due to a toggling Gate signal or when its supposed
     duration has been exceeded due to time modulation then the output value does not jump 
     to the desired target-output but stays at its current value.<br><br>

@@ -8,7 +8,7 @@
 
 (defun make-module (name environment &key events)
   "Creates a Midi-Sequencer module.
-	The function has the following arguments:
+    <p>The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
@@ -21,7 +21,7 @@
 	    </ul>
             The events must be ordered by timestamp and there must be no duplicate timestamps. 
 	</li>
-    </ul>
+    </ul></p>
     The module has no inputs.
     The module has one output socket :midi-events."
   (let ((ticks-per-milli-second (/ (getf environment :sample-rate) 1000))

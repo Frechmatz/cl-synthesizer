@@ -13,7 +13,7 @@
 	      (initial-gain 0.0)
 	      (exponential nil))
   "Creates a Voltage Controlled Amplifier/Attenuator module. The VCA multiplies an
-    incoming signal with a factor of 0..1. The function has the following arguments:
+    incoming signal with a factor of 0..1. <p>The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
@@ -21,18 +21,18 @@
 	    amplification of 1.0.</li>
 	<li>:initial-gain An offset that is added to the amplification control voltage.</li>
         <li>:exponential If t then the amplification will have an exponential characteristic.</li>
-    </ul>
-    The module has the following inputs:
+    </ul></p>
+    <p>The module has the following inputs:
     <ul>
 	<li>:cv Amplification control voltage.</li>
 	<li>:input Input signal to be amplified.</li>
 	<li>:gain An offset that is added to the amplification control voltage.</li>
     </ul>
-    The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.0 <= v <= :cv-max.
-    The module has the following outputs:
+    The effective amplification voltage is v = :cv + :gain + :initial-gain, where 0.0 <= v <= :cv-max.</p>
+    <p>The module has the following outputs:
     <ul>
 	<li>:output Amplified input signal.</li>
-    </ul>"
+    </ul></p>"
   (declare (ignore environment name))
   (let ((cv-max (coerce cv-max 'single-float))
 	(initial-gain (coerce initial-gain 'single-float)))

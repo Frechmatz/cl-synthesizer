@@ -106,7 +106,7 @@
    "Adds a monitor to a rack. A monitor is a high-level Rack hook that
     collects module states (values of input/output/state sockets) and 
     passes them to a monitor handler. A monitor handler can for example be a
-    Wave-File-Writer. The function has the following arguments:
+    Wave-File-Writer. <p>The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
 	<li>monitor-handler A function that instantiates the monitor handler.
@@ -156,7 +156,7 @@
 	</li>
 	<li>&rest additional-handler-args Optional keyword arguments to be passed to
 	    the handler instantiation function.</li>
-    </ul>"
+    </ul></p>"
      ;; Call the monitor handler to get a backend (which is a module) and an
      ;; ordered list of input sockets of the backend. We cannot
      ;; depend here on the order of the input sockets that is exposed by the backend,

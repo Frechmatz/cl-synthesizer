@@ -8,7 +8,7 @@
 			    (min-output nil)
 			    (max-output nil))
   "Creates a MIDI CC Event interface module. The module maps MIDI control change events to
-   an output value. The function has the following arguments:
+   an output value. <p>The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
@@ -32,15 +32,15 @@
         <li>:max-output Optional largest numeric output value of the module. If
           the transform handler returns a number greater than max-output then
           the actual output value is set to max-output.</li>
-    </ul>
-    The module has the following inputs:
+    </ul></p>
+    <p>The module has the following inputs:
     <ul>
 	<li>:midi-events A list of MIDI events.</li>
-    </ul>
-    The module has the following outputs:
+    </ul></p>
+    <p>The module has the following outputs:
     <ul>
 	<li>:output The current output value.</li>
-    </ul>"
+    </ul></p>"
   (declare (ignore environment))
   (if (not controller-numbers)
       (cl-synthesizer:signal-assembly-error

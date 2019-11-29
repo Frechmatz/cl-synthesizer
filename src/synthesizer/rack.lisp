@@ -49,11 +49,11 @@
 ;;
 
 (defun get-module-name (rack module)
-  "Get the name of a module. The function has the following arguments:
+  "Get the name of a module. <p>The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
 	<li>module The module.</li>
-    </ul>
+    </ul></p>
    Returns the name or nil if the module does not belong to the rack"
   (let ((match
 	    (find-if
@@ -62,11 +62,11 @@
     (if match (getf match :name) nil)))
 
 (defun get-module (rack name)
-  "Get a module of a rack. The function has the following arguments:
+  "Get a module of a rack. <p>The function has the following arguments:
     <ul>
       <li>rack The rack.</li>
       <li>name The name of the module.</li>
-    </ul>
+    </ul></p>
    Returns the module or nil."
   (let ((module
 	 (find-if
@@ -79,7 +79,7 @@
   (getf rack :environment))
 
 (defun add-module (rack module-name module-fn &rest args)
-  "Adds a module to a rack. The function has the following arguments:
+  "Adds a module to a rack. <p>The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
 	<li>module-name Unique name of the module, for example \"VCO-1\". If the name
@@ -114,28 +114,28 @@
 	</li>
 	<li>&rest args Arbitrary additional arguments to be passed to the module instantiation function.
 	    These arguments typically consist of keyword parameters.</li>
-    </ul>
+    </ul></p>
     Returns the module."
   (apply (getf rack :add-module) module-name module-fn args))
   
 (defun add-hook (rack hook)
   "Adds a hook to the rack. A hook is called each time after the rack has updated its state.
-   A hook consists a property list with the following keys:
+   <p>A hook consists a property list with the following keys:
    <ul>
       <li>:update A function with no arguments that is called after the rack has updated its state.</li>
       <li>:shutdown A function with no arguments that is called when the rack is shutting down.</li>
-   </ul>
+   </ul></p>
    Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>."
   (funcall (getf rack :add-hook) hook))
 
 (defun find-module (rack module-path)
-  "Get a module of a rack. The function has the following arguments:
+  "Get a module of a rack. <p>The function has the following arguments:
     <ul>
       <li>rack The root rack.</li>
       <li>module-path The path of the module within the rack (through multiple nested racks).</br>
          Example 1: \"VCO\"</br> 
          Example 2: '(\"VOICE-1\" \"VCO\")</li>
-    </ul>
+    </ul></p>
    Returns nil or a values object consisting of the rack of the module, the module name and the module itself."
   (if (not (listp module-path))
       (setf module-path (list module-path)))
@@ -155,7 +155,7 @@
   "Adds a patch to the rack. A patch is an unidirectional connection between an output socket
     of a source module and an input socket of a destination module. The rack supports cycles 
     which means that an output socket of a module can be patched with one of its inputs (typically via
-    multiple hops through other modules). The function has the following arguments:
+    multiple hops through other modules). <p>The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
 	<li>output-module-name Name of the output (source) module.</li>
@@ -164,8 +164,8 @@
 	<li>input-module-name Name of the input (destination) module.</li>
 	<li>input-socket A keyword representing one of the input sockets of the
 	    input module.</li>
-    </ul>
-    The rack signals an assembly-error in the following cases:
+    </ul></p>
+    <p>The rack signals an assembly-error in the following cases:
     <ul>
 	<li>A module with the given output name does not exist.</li>
 	<li>A module with the given input name does not exist.</li>
@@ -173,14 +173,14 @@
 	<li>The given output-socket is not exposed by the output module.</li>
 	<li>The given input-socket is already connected with a module.</li>
 	<li>The given input-socket is not exposed by the input module.</li>
-    </ul>"
+    </ul></p>"
   (funcall (getf rack :add-patch) output-module-name output-socket input-module-name input-socket))
 
 (defun get-patches (rack)
-  "Get all patches of a rack. The function has the following arguments:
+  "Get all patches of a rack. <p>The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
-    </ul>
+    </ul></p>
    Returns a list of property lists with the following keys:
    <ul>
      <li>:output-name Name of the output module.</li>
@@ -191,10 +191,10 @@
   (funcall (getf rack :patches)))
 
 (defun get-modules (rack)
-  "Get all modules of a rack. The function has the following arguments:
+  "Get all modules of a rack. <p>The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
-    </ul>
+    </ul></p>
     Returns a list of modules where each module consists of a property list with
     the following keys:
     <ul>
@@ -209,13 +209,13 @@
 
 (defun play-rack (rack &key duration-seconds)
   "A utility function that \"plays\" the rack by consecutively calling its update function
-    for a given number of \"ticks\". The function has the following arguments:
+    for a given number of \"ticks\". <p>The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
 	<li>:duration-seconds Duration in seconds of how long to play the rack. If for
 	    example the duration is 2 seconds and the sample rate of the rack as declared
 	    by its environment is 44100, then the update function of the rack will be called 88200 times.</li>
-    </ul>"
+    </ul></p>"
   (let ((sample-rate (floor (getf (getf rack :environment) :sample-rate))) (update-fn (getf rack :update)))
     (dotimes (i (floor (* duration-seconds sample-rate)))
       (funcall update-fn)))
@@ -228,14 +228,14 @@
 
 (defun make-rack (&key environment (input-sockets nil) (output-sockets nil))
   "Creates a rack. A rack is a module container as well as a module. Racks can
-   be added to other racks. The function has the following arguments:
+   be added to other racks. <p>The function has the following arguments:
     <ul>
 	<li>:environment The synthesizer environment.</li>
         <li>:input-sockets The input sockets to be exposed by the rack. The inputs
         can be patched with other modules via the bridge module \"INPUT\".</li>
         <li>:output-sockets The output sockets to be exposed by the rack. The outputs
         can be patched with other modules via the bridge module \"OUTPUT\".</li>
-    </ul>
+    </ul></p>
     <p>    
     The update function of the rack calls the update function of all embedded modules. If the 
     rack has already been shut down the function immediately returns <b>nil</b>.

@@ -8,7 +8,7 @@
 				 (main-cv-max 5.0) (main-cv-gain 5.0))
   "Creates a mixer module. The mixer provides an attenuator for each input and a main
    attenuator for the mixer output. All attenuators have linear amplification
-   characteristic. The function has the following arguments:
+   characteristic. <p>The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
@@ -21,17 +21,17 @@
         represents an amplification of 1.0.</li>
         <li>:main-cv-gain An offset that is added to the main attenuation 
         control voltage.</li>
-    </ul>
-    The module has the following inputs:
+    </ul></p>
+    <p>The module has the following inputs:
     <ul>
         <li>:channel-1 ... :channel-n. Channel input signal, where n is the channel-count.</li>
         <li>:cv-1 ... :cv-n. Channel attenuation control voltage, where n is the channel-count.</li>
         <li>:cv-main Attenuation control voltage of the mixer output.</li> 
-    </ul>
-    The module has the following outputs:
+    </ul></p>
+    <p>The module has the following outputs:
     <ul>
 	<li>:output The output consisting of the sum of the inputs.</li>
-    </ul>"
+    </ul></p>"
   (if (<= channel-count 0)
       (cl-synthesizer:signal-assembly-error
        :format-control "~a: channel-count must be greater than 0: ~a"

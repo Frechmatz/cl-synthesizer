@@ -10,9 +10,8 @@
 				       (wave-forms nil)
 				       (sync-threshold 2.5))
   "Creates a Voltage Controlled Oscillator module with 1V/Octave and linear frequency modulation
-   inputs. The oscillator has through-zero support, as on negative frequencies the
-   phase will move backwards (in clockwise direction).
-   The function has the following arguments:
+   inputs. The oscillator has through-zero support.
+   <p>The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
@@ -29,8 +28,8 @@
           as this can improve the execution speed of the module significantly (up to 50%).</li>
         <li>:sync-threshold Minimum value of the :sync input that indicates 
             that a phase reset is to be applied.</li>
-    </ul>
-    The module has the following inputs:
+    </ul></p>
+    <p>The module has the following inputs:
     <ul>
 	<li>:cv-exp Exponential frequency control voltage. For a given base-frequency of 440Hz a
 	    control voltage of 1.0 results in a frequency of 880Hz and a control
@@ -42,14 +41,14 @@
         <li>:sync A trigger signal that resets the phase.</li>
     </ul>
     The frequency of the oscillator is calculated by adding the frequencies resulting from the
-    :cv-lin and :cv-exp inputs. The frequency is clipped according to the :f-max setting.
-    The module has the following outputs (depending on the :wave-forms argument):
+    :cv-lin and :cv-exp inputs. The frequency is clipped according to the :f-max setting.</p>
+    <p>The module has the following outputs (depending on the :wave-forms argument):
     <ul>
 	<li>:sine A sine wave.</li>
 	<li>:triangle A triangle wave.</li>
 	<li>:saw A saw wave.</li>
 	<li>:square A square wave.</li>
-    </ul>
+    </ul></p>
     <p>The module exposes the following states via the get-state function:
        <ul>
           <li>:frequency The current frequency of the module.</li>

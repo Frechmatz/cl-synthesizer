@@ -31,7 +31,7 @@
 
 (defun make-module (name environment &key columns filename (column-separator ",") (add-header t))
   "Creates a CSV File Writer module.
-    The function has the following arguments:
+    <p>The function has the following arguments:
   <ul>
     <li>name Name of the writer.</li>
     <li>environment The synthesizer environment.</li>
@@ -46,11 +46,11 @@
         with the base path as defined by the :home-directory property of the environment.</li>
     <li>:column-separator The column separator.</li>
     <li>:add-header If t then a header consisting of the column-names will be written.</li>
-  </ul>
-  The module has the following inputs:
+  </ul></p>
+  <p>The module has the following inputs:
   <ul>
       <li>:column-1 ... :column-n Where n is the number of columns.</li>
-  </ul>
+  </ul></p>
   <p>Due to performance/consing considerations all columns are written using the Lisp-Writer. 
      If a value contains the column separator it will not be quoted. The file is opened on the first 
      call of the update function and closed by the shutdown handler.

@@ -3,20 +3,20 @@
 (defun make-module (name environment &key output-count)
   "Creates a Multiple module. A multiple passes the value of exactly one input socket
    to as many output sockets as defined by output-count.
-   The function has the following arguments:
+   <p>The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
 	<li>:output-count The number of output sockets.</li>
-    </ul>
-    The module has the following inputs:
+    </ul></p>
+    <p>The module has the following inputs:
     <ul>
 	<li>:input The input signal to be passed to the outputs.</li>
-    </ul>
-    The module has the following outputs:
+    </ul></p>
+    <p>The module has the following outputs:
     <ul>
         <li>:output-1 ... :output-n. Where n is the output-count.</li>
-    </ul>"
+    </ul></p>"
   (declare (ignore environment))
   (if (<= output-count 0)
       (cl-synthesizer:signal-assembly-error
