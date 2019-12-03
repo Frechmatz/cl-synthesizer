@@ -17,7 +17,7 @@
 	<li>environment The synthesizer environment.</li>
 	<li>:base-frequency The frequency emitted by the oscillator when all frequency control 
            voltages are 0.</li>
-	<li>:f-max The maximum frequency of the oscillator. f-max must be greater than 0.</li>
+	<li>:f-max Absolute value of the maximum frequency of the oscillator. f-max must be greater than 0.</li>
 	<li>:cv-lin-hz-v Frequency/Volt setting for the linear frequency modulation input :cv-lin.</li>
 	<li>:v-peak Absolute value of the output peak voltage emitted by the oscillator.</li>
 	<li>:duty-cycle The duty cycle of the square wave. 0 <= duty-cycle <= 1.</li>
