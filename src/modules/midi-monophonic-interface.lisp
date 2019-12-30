@@ -55,12 +55,11 @@
             of the gate signal. Otherwise the gate signal will stay on when it is already on.</li>
 	<li>:cv-velocity-max Control voltage that represents the maximum velocity (Velocity = 127).</li>
 	<li>:force-velocity-update If t then each \"note on\" event will cause an
-            update of the velocity according to the velocity of this event.</li>
+            update of the velocity control voltage according to the velocity of the current event.</li>
     </ul>
-    Gate transitions are implemented as follows: Incoming notes are stacked. The first note causes
-    the gate signal to switch to On. Further nested \"note on\" events only result
-    in a change of the CV output but the gate signal will stay On.
-    This behaviour can be overridden with the :force-gate-retrigger parameter.</p>
+    Gate transitions are implemented as follows: Incoming notes are stacked. The 
+    first (\"initiating\") \"note on\" event causes the gate signal to go up. The gate goes 
+    down when after a \"note off\" event no more notes are on the stack.</p>
     <p>The module has the following inputs:
     <ul>
 	<li>:midi-events A list of MIDI events.</li>
@@ -68,10 +67,11 @@
     <p>The module has the following outputs:
     <ul>
 	<li>:gate The gate signal.</li>
-	<li>:cv The control voltage representing the note which is on top of the note stack.</li>
-	<li>:velocity Control voltage representing the current velocity (0 ... cv-velocity-max).
-        By default the velocity output is set to the velocity of the current \"note on\" event,
-        when there are no other notes on the stack. This can be overriden via :force-velocity-update.</li>
+	<li>:cv Pitch control voltage representing the note which is on top of the note stack.</li>
+	<li>:velocity Velocity control voltage. The velocity control voltage represents 
+        the velocity of the initiating \"note on\" event (Gate goes up). Nested \"note on\" 
+        events do not cause an update of this voltage. This behaviour can be overridden 
+        by the :force-velocity-update argument.</li>
     </ul></p>"
   (declare (ignore environment))
   (if (not note-number-to-cv)
