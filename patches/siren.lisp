@@ -1,6 +1,6 @@
 (defpackage :cl-synthesizer-patches-siren
   (:use :cl)
-  (:documentation "Two saw signals linearly frequency modulated with 20Hz / 40Hz"))
+  (:documentation "Siren: Two low-frequency modulated saw signals."))
 
 (in-package :cl-synthesizer-patches-siren)
 
@@ -49,7 +49,7 @@
     
     rack))
 
-(defparameter *duration-seconds* 1.8)
+(defparameter *duration-seconds* 2.0)
 (defparameter *audio-output-sockets* '(:left :right))
 
 (defun run-example ()

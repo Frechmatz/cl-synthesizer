@@ -238,7 +238,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 	<li>environment The synthesizer environment.</li>
 	<li>:base-frequency The frequency emitted by the oscillator when all frequency control 
            voltages are 0.</li>
-	<li>:f-max The maximum frequency of the oscillator. f-max must be greater than 0.</li>
+	<li>:f-max Absolute value of the maximum frequency of the oscillator. f-max must be greater than 0.</li>
 	<li>:cv-lin-hz-v Frequency/Volt setting for the linear frequency modulation input :cv-lin.</li>
 	<li>:v-peak Absolute value of the output peak voltage emitted by the oscillator.</li>
 	<li>:duty-cycle The duty cycle of the square wave. 0 <= duty-cycle <= 1.</li>
@@ -535,7 +535,8 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
     (cl-synthesizer:play-rack rack :duration-seconds 10)))
 
 ;; (run-example)</code></pre></p><h3 id="id-MIDI Polyphonic Interface">MIDI Polyphonic Interface</h3><p><b>cl-synthesizer-modules-midi-polyphonic-interface:make-module</b> name environment &key (voice-count 1) (channel nil) (note-number-to-cv nil) (cv-gate-on 5.0) (cv-gate-off 0.0) (cv-velocity-max 5.0) </p><p>Creates a polyphonic MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
-    voice is represented by a control-voltage and a gate signal. <p>The function has the following arguments:
+    voice is represented by a pitch-control voltage, a velocity-control voltage and a gate signal.
+    <p>The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
@@ -546,7 +547,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 	    and returns a control-voltage. The default implementation is cv = note-number / 12.0</li>
 	<li>:cv-gate-on The "Gate on" control voltage.</li>
 	<li>:cv-gate-off The "Gate off" control voltage.</li>
-	<li>:cv-velocity-max Control voltage that represents the maximum velocity (Velocity = 127).</li>
+	<li>:cv-velocity-max Control voltage that represents the maximum velocity of 127.</li>
     </ul>
     Gate transitions are implemented as follows: Each incoming "note on" event causes that the gate signal of the
     assigned voice switches to On. If the gate signal of the assigned voice is already On
@@ -558,9 +559,9 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
     </ul></p>
     <p>The module has the following outputs:
     <ul>
-	<li>:gate-1 ... :gate-n Gates of the voices.</li>
-	<li>:cv-1 ... :cv-n Control voltages of the voices.</li>
-	<li>:velocity-1 ... :velocity-n Velocity control voltages of the voices (0 ... cv-velocity-max).</li>
+	<li>:gate-1 ... :gate-n Gate signal.</li>
+	<li>:cv-1 ... :cv-n Pitch control voltage.</li>
+	<li>:velocity-1 ... :velocity-n Velocity control voltage.</li>
     </ul></p></p><h3 id="id-MIDI Monophonic Interface">MIDI Monophonic Interface</h3><p><b>cl-synthesizer-modules-midi-monophonic-interface:make-module</b> name environment &key (channel nil) (note-number-to-cv nil) (cv-gate-on 5.0) (cv-gate-off 0.0) (force-gate-retrigger nil) (stack-depth 5) (cv-velocity-max 5.0) (force-velocity-update nil) </p><p>Creates a monophonic MIDI interface module. The module dispatches MIDI-Note events to a single voice. 
    If the voice is already assigned to a note, then the incoming note is pushed on top of the current note.
    <p>The function has the following arguments:
@@ -578,12 +579,11 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
             of the gate signal. Otherwise the gate signal will stay on when it is already on.</li>
 	<li>:cv-velocity-max Control voltage that represents the maximum velocity (Velocity = 127).</li>
 	<li>:force-velocity-update If t then each "note on" event will cause an
-            update of the velocity according to the velocity of this event.</li>
+            update of the velocity control voltage according to the velocity of the current event.</li>
     </ul>
-    Gate transitions are implemented as follows: Incoming notes are stacked. The first note causes
-    the gate signal to switch to On. Further nested "note on" events only result
-    in a change of the CV output but the gate signal will stay On.
-    This behaviour can be overridden with the :force-gate-retrigger parameter.</p>
+    Gate transitions are implemented as follows: Incoming notes are stacked. The 
+    first ("initiating") "note on" event causes the gate signal to go up. The gate goes 
+    down when after a "note off" event no more notes are on the stack.</p>
     <p>The module has the following inputs:
     <ul>
 	<li>:midi-events A list of MIDI events.</li>
@@ -591,10 +591,11 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
     <p>The module has the following outputs:
     <ul>
 	<li>:gate The gate signal.</li>
-	<li>:cv The control voltage representing the note which is on top of the note stack.</li>
-	<li>:velocity Control voltage representing the current velocity (0 ... cv-velocity-max).
-        By default the velocity output is set to the velocity of the current "note on" event,
-        when there are no other notes on the stack. This can be overriden via :force-velocity-update.</li>
+	<li>:cv Pitch control voltage representing the note which is on top of the note stack.</li>
+	<li>:velocity Velocity control voltage. The velocity control voltage represents 
+        the velocity of the initiating "note on" event (Gate goes up). Nested "note on" 
+        events do not cause an update of this voltage. This behaviour can be overridden 
+        by the :force-velocity-update argument.</li>
     </ul></p></p><h3 id="id-MIDI CC Interface">MIDI CC Interface</h3><p><b>cl-synthesizer-modules-midi-cc-interface:make-module</b> name environment &key controller-numbers transform-handler (channel nil) (initial-output 0) (min-output nil) (max-output nil) </p><p>Creates a MIDI CC Event interface module. The module maps MIDI control change events to
    an output value. <p>The function has the following arguments:
     <ul>
@@ -1340,4 +1341,4 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
    a non-existing module, a patch is added to an already patched socket
    and so on.</p><h1 id="id-Acknowledgements">Acknowledgements</h1><ul>
 <li>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></li>
-</ul></section><footer class="container"><p><small>Generated 2019-11-29  19:30:01</small></p></footer></body></html>
+</ul></section><footer class="container"><p><small>Generated 2019-12-30  23:28:35</small></p></footer></body></html>
