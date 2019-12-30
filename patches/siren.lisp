@@ -1,5 +1,6 @@
 (defpackage :cl-synthesizer-patches-siren
-  (:use :cl))
+  (:use :cl)
+  (:documentation "Two saw signals linearly frequency modulated with 20Hz / 40Hz"))
 
 (in-package :cl-synthesizer-patches-siren)
 

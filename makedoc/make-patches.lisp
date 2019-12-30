@@ -12,10 +12,17 @@
    "\" type=\"audio/wav\">"
    "</audio>"))
 
-(defun make-patch-header (&key (title nil))
+(defun make-package-string (p)
   (concatenate
    'string
-   "<p><b>" (if title title "Patch") "</b></p>"))
+   "<p><b>" (documentation (find-package p) t)
+   "</b></p>"))
+
+(defun make-patch (&key package title code wave-file)
+  `(heading (:name ,title :toc t)
+	    ,(make-package-string package)
+	    ,(make-audio-element wave-file)
+	    ,(cl-readme:read-code code)))
 
 (defun get-doc ()
   (let ((tree
@@ -33,10 +40,10 @@
 	   (semantic (:name "nav")
  		     (heading (:name "Patches") TOC))
 	   (semantic (:name "section")
-		     (heading (:name "Siren" :toc t)
-			      ,(make-audio-element "siren.wav")
-			      ,(make-patch-header) 
-			      ,(cl-readme:read-code "patches/siren.lisp")))
+		     ,(make-patch :package 'cl-synthesizer-patches-siren
+				 :title "Siren"
+				 :code "patches/siren.lisp"
+				 :wave-file "siren.wav"))
 	   (semantic (:name "footer")
 		     "<p><small>Generated " ,(cl-readme:current-date) "</small></p>")
 	   "</body></html>")))
