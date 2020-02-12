@@ -1,4 +1,4 @@
-<html><head></head><script type="text/javascript" src="toggledisplay.js"></script><body><header class="container"><h1 id="id-cl-synthesizer-patches">cl-synthesizer-patches</h1>Example patches for cl-synthesizer. Work in progress...<p>Back to the <a href="https://frechmatz.github.io/cl-synthesizer/">project site.</a></p></header><section class="container"><h1 id="id-<p><b>440Hz sine</b></p>"><p><b>440Hz sine</b></p></h1><audio controls="controls" preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3790531884" type="audio/wav"></audio><p><a href="#" id="G572"onclick="return toggleDisplay('Show patch', 'Hide patch', 'G572', 'G573')">Show patch</a></p><div style="display: none" id='G573'><p><pre><code>(defpackage :cl-synthesizer-patches-sine
+<html><head></head><script type="text/javascript" src="toggledisplay.js"></script><body><header class="container"><h1 id="id-cl-synthesizer-patches">cl-synthesizer-patches</h1>Example patches for cl-synthesizer. Work in progress...<p>Back to the <a href="https://frechmatz.github.io/cl-synthesizer/">project site.</a></p></header><section class="container"><h1 id="id-<p><b>440Hz sine</b></p>"><p><b>440Hz sine</b></p></h1><audio controls="controls" preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3790534016" type="audio/wav"></audio><p><a href="#" id="G568"onclick="return toggleDisplay('Show patch', 'Hide patch', 'G568', 'G569')">Show patch</a></p><div style="display: none" id='G569'><p><pre><code>(defpackage :cl-synthesizer-patches-sine
   (:documentation "440Hz sine")
   (:use :cl))
 
@@ -28,13 +28,14 @@
     rack))
 
 (defparameter *duration-seconds* 3.0)
+;; parameter and corresponding OUTPUT patches only required for experimental audio output
 (defparameter *audio-output-sockets* '(:sine))
 
 (defun run-example ()
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds *duration-seconds*)))
 
-;; (run-example)</code></pre></p></div><h1 id="id-<p><b>Two frequency modulated saws</b></p>"><p><b>Two frequency modulated saws</b></p></h1><audio controls="controls" preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3790531884" type="audio/wav"></audio><p><a href="#" id="G574"onclick="return toggleDisplay('Show patch', 'Hide patch', 'G574', 'G575')">Show patch</a></p><div style="display: none" id='G575'><p><pre><code>(defpackage :cl-synthesizer-patches-siren
+;; (run-example)</code></pre></p></div><h1 id="id-<p><b>Two frequency modulated saws</b></p>"><p><b>Two frequency modulated saws</b></p></h1><audio controls="controls" preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3790534016" type="audio/wav"></audio><p><a href="#" id="G570"onclick="return toggleDisplay('Show patch', 'Hide patch', 'G570', 'G571')">Show patch</a></p><div style="display: none" id='G571'><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation "Two frequency modulated saws"))
 
@@ -63,9 +64,9 @@
     
     voice))
   
-(defun example (&amp;key (sample-rate 44100))
+(defun example ()
   (let ((rack (cl-synthesizer:make-rack
-               :environment (cl-synthesizer:make-environment :sample-rate sample-rate)
+               :environment (cl-synthesizer:make-environment)
                :output-sockets '(:left :right))))
 
     (cl-synthesizer:add-module
@@ -79,13 +80,14 @@
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:make-handler
-     '(("OUTPUT" :input-socket :left)
-       ("OUTPUT" :input-socket :right))
+     '(("VOICE-1" :output-socket :audio)
+       ("VOICE-2" :output-socket :audio))
      :filename "src/lisp/cl-synthesizer/docs/siren.wav")
     
     rack))
 
 (defparameter *duration-seconds* 2.0)
+;; parameter and corresponding OUTPUT patches only required for experimental audio output
 (defparameter *audio-output-sockets* '(:left :right))
 
 (defun run-example ()
@@ -93,4 +95,4 @@
    (example)
    :duration-seconds *duration-seconds*))
   
-;;(run-example)</code></pre></p></div></section><footer class="container"><p><small>Generated 2020-02-12  22:31:24</small></p></footer></body></html>
+;;(run-example)</code></pre></p></div></section><footer class="container"><p><small>Generated 2020-02-12  23:06:56</small></p></footer></body></html>

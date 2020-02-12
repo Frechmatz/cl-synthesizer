@@ -13,16 +13,27 @@
 
 (asdf:load-system "cl-synthesizer-macos-device")
 (asdf:load-system "cl-synthesizer-experimental")
-(asdf:load-system "cl-synthesizer-patches")
+(asdf:load-system "cl-synthesizer-makedoc")
 
-(defparameter *sample-rate* 44100)  ;; cl-out123 throws division by zero on sample rates such as 22050
+
+;;
+;; Sine
+;;
+(defun play-sine ()
+  (cl-synthesizer-experimental::play-rack
+   (cl-synthesizer-patches-sine::example)
+   :duration-seconds cl-synthesizer-patches-sine::*duration-seconds*
+   :attach-audio t
+   :audio-output-sockets cl-synthesizer-patches-sine::*audio-output-sockets*))
+
+;;(play-sine)
 
 ;;
 ;; Siren
 ;;
 (defun play-siren ()
   (cl-synthesizer-experimental::play-rack
-   (cl-synthesizer-patches-siren::example :sample-rate *sample-rate*)
+   (cl-synthesizer-patches-siren::example)
    :duration-seconds cl-synthesizer-patches-siren::*duration-seconds*
    :attach-audio t
    :audio-output-sockets cl-synthesizer-patches-siren::*audio-output-sockets*))

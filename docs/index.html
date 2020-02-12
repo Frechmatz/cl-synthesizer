@@ -40,13 +40,14 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
     rack))
 
 (defparameter *duration-seconds* 3.0)
+;; parameter and corresponding OUTPUT patches only required for experimental audio output
 (defparameter *audio-output-sockets* '(:sine))
 
 (defun run-example ()
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds *duration-seconds*)))
 
-;; (run-example)</code></pre></p><audio controls="controls" preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3790531884" type="audio/wav"></audio><p><b>Two frequency modulated saws</b></p><p><pre><code>(defpackage :cl-synthesizer-patches-siren
+;; (run-example)</code></pre></p><audio controls="controls" preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3790534016" type="audio/wav"></audio><p><b>Two frequency modulated saws</b></p><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation "Two frequency modulated saws"))
 
@@ -75,9 +76,9 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
     
     voice))
   
-(defun example (&amp;key (sample-rate 44100))
+(defun example ()
   (let ((rack (cl-synthesizer:make-rack
-               :environment (cl-synthesizer:make-environment :sample-rate sample-rate)
+               :environment (cl-synthesizer:make-environment)
                :output-sockets '(:left :right))))
 
     (cl-synthesizer:add-module
@@ -91,13 +92,14 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:make-handler
-     '(("OUTPUT" :input-socket :left)
-       ("OUTPUT" :input-socket :right))
+     '(("VOICE-1" :output-socket :audio)
+       ("VOICE-2" :output-socket :audio))
      :filename "src/lisp/cl-synthesizer/docs/siren.wav")
     
     rack))
 
 (defparameter *duration-seconds* 2.0)
+;; parameter and corresponding OUTPUT patches only required for experimental audio output
 (defparameter *audio-output-sockets* '(:left :right))
 
 (defun run-example ()
@@ -105,7 +107,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
    (example)
    :duration-seconds *duration-seconds*))
   
-;;(run-example)</code></pre></p><audio controls="controls" preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3790531884" type="audio/wav"></audio><h1 id="id-API">API</h1><h2 id="id-Environment">Environment</h2><h3 id="id-make-environment">make-environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (home-directory nil) </p><p>Creates an environment. The environment defines properties such as
+;;(run-example)</code></pre></p><audio controls="controls" preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3790534016" type="audio/wav"></audio><h1 id="id-API">API</h1><h2 id="id-Environment">Environment</h2><h3 id="id-make-environment">make-environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (home-directory nil) </p><p>Creates an environment. The environment defines properties such as
     the sample rate of the rack.
     An enviroment is a property list with the following keys:
     <ul>
@@ -1346,4 +1348,4 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
    a non-existing module, a patch is added to an already patched socket
    and so on.</p><h1 id="id-Acknowledgements">Acknowledgements</h1><ul>
 <li>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></li>
-</ul></section><footer class="container"><p><small>Generated 2020-02-12  22:31:24</small></p></footer></body></html>
+</ul></section><footer class="container"><p><small>Generated 2020-02-12  23:06:56</small></p></footer></body></html>

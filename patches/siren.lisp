@@ -27,9 +27,9 @@
     
     voice))
   
-(defun example (&key (sample-rate 44100))
+(defun example ()
   (let ((rack (cl-synthesizer:make-rack
-	       :environment (cl-synthesizer:make-environment :sample-rate sample-rate)
+	       :environment (cl-synthesizer:make-environment)
 	       :output-sockets '(:left :right))))
 
     (cl-synthesizer:add-module
@@ -43,13 +43,14 @@
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:make-handler
-     '(("OUTPUT" :input-socket :left)
-       ("OUTPUT" :input-socket :right))
+     '(("VOICE-1" :output-socket :audio)
+       ("VOICE-2" :output-socket :audio))
      :filename "src/lisp/cl-synthesizer/docs/siren.wav")
     
     rack))
 
 (defparameter *duration-seconds* 2.0)
+;; parameter and corresponding OUTPUT patches only required for experimental audio output
 (defparameter *audio-output-sockets* '(:left :right))
 
 (defun run-example ()

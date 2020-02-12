@@ -28,6 +28,7 @@
     rack))
 
 (defparameter *duration-seconds* 3.0)
+;; parameter and corresponding OUTPUT patches only required for experimental audio output
 (defparameter *audio-output-sockets* '(:sine))
 
 (defun run-example ()
