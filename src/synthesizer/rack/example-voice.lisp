@@ -52,7 +52,7 @@
      #'cl-synthesizer-monitor-wave-handler:make-handler
      '(("OUTPUT" :input-socket :left)
        ("OUTPUT" :input-socket :right))
-     :filename "rack-example-voice.wav")
+     :filename "cl-synthesizer-examples/rack-example-voice.wav")
     
     rack))
 
