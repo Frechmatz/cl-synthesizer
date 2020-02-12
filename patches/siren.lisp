@@ -1,6 +1,6 @@
 (defpackage :cl-synthesizer-patches-siren
   (:use :cl)
-  (:documentation "Siren: Two low-frequency modulated saw signals."))
+  (:documentation "Two frequency modulated saws"))
 
 (in-package :cl-synthesizer-patches-siren)
 

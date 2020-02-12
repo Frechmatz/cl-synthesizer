@@ -10,14 +10,16 @@
 </ul><p>The source code of cl-synthesizer can be found <a href="https://github.com/Frechmatz/cl-synthesizer">here</a>.</p></header><nav class="container"><h1 id="id-Table of contents">Table of contents</h1><ul><li><a href="#id-Installation">Installation</a><ul></ul></li><li><a href="#id-Examples">Examples</a><ul></ul></li><li><a href="#id-API">API</a><ul><li><a href="#id-Environment">Environment</a><ul><li><a href="#id-make-environment">make-environment</a><ul></ul></li></ul></li><li><a href="#id-Rack">Rack</a><ul><li><a href="#id-make-rack">make-rack</a><ul></ul></li><li><a href="#id-add-module">add-module</a><ul></ul></li><li><a href="#id-add-patch">add-patch</a><ul></ul></li><li><a href="#id-get-module">get-module</a><ul></ul></li><li><a href="#id-get-module-name">get-module-name</a><ul></ul></li><li><a href="#id-find-module">find-module</a><ul></ul></li><li><a href="#id-get-patches">get-patches</a><ul></ul></li><li><a href="#id-get-modules">get-modules</a><ul></ul></li><li><a href="#id-add-hook">add-hook</a><ul></ul></li><li><a href="#id-play-rack">play-rack</a><ul></ul></li><li><a href="#id-is-rack">is-rack</a><ul></ul></li><li><a href="#id-get-environment">get-environment</a><ul></ul></li></ul></li><li><a href="#id-Modules">Modules</a><ul><li><a href="#id-VCO">VCO</a><ul></ul></li><li><a href="#id-VCA">VCA</a><ul></ul></li><li><a href="#id-ADSR">ADSR</a><ul></ul></li><li><a href="#id-Multiple">Multiple</a><ul></ul></li><li><a href="#id-MIDI Polyphonic Interface">MIDI Polyphonic Interface</a><ul></ul></li><li><a href="#id-MIDI Monophonic Interface">MIDI Monophonic Interface</a><ul></ul></li><li><a href="#id-MIDI CC Interface">MIDI CC Interface</a><ul></ul></li><li><a href="#id-MIDI Sequencer">MIDI Sequencer</a><ul></ul></li><li><a href="#id-Fixed Output">Fixed Output</a><ul></ul></li><li><a href="#id-Adder">Adder</a><ul></ul></li><li><a href="#id-Mixer">Mixer</a><ul></ul></li><li><a href="#id-Trigger">Trigger</a><ul></ul></li><li><a href="#id-Ramp">Ramp</a><ul></ul></li><li><a href="#id-Sustain">Sustain</a><ul></ul></li><li><a href="#id-Wave File Writer">Wave File Writer</a><ul></ul></li><li><a href="#id-CSV File Writer">CSV File Writer</a><ul></ul></li></ul></li><li><a href="#id-Monitor">Monitor</a><ul><li><a href="#id-add-monitor">add-monitor</a><ul></ul></li><li><a href="#id-wave-handler">wave-handler</a><ul></ul></li><li><a href="#id-csv-handler">csv-handler</a><ul></ul></li></ul></li><li><a href="#id-MIDI">MIDI</a><ul><li><a href="#id-MIDI Event">MIDI Event</a><ul></ul></li><li><a href="#id-MIDI Utilities">MIDI Utilities</a><ul></ul></li></ul></li><li><a href="#id-Conditions">Conditions</a><ul></ul></li></ul></li><li><a href="#id-Acknowledgements">Acknowledgements</a><ul></ul></li></ul></nav><section class="container"><h1 id="id-Installation">Installation</h1><pre><code>cd ~/quicklisp/local-projects
 git clone https://github.com/Frechmatz/cl-wave-file-writer.git
 git clone https://github.com/Frechmatz/cl-synthesizer.git
-(ql:quickload "cl-synthesizer")</code></pre><h1 id="id-Examples">Examples</h1><p><b>Example: Generate a 440Hz sine wave and write it to a wave file.</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-sine
-  (:documentation "Example: Generate a 440Hz sine wave and write it to a wave file.")
+(ql:quickload "cl-synthesizer")</code></pre><h1 id="id-Examples">Examples</h1><p><b>440Hz sine</b></p><p><pre><code>(defpackage :cl-synthesizer-patches-sine
+  (:documentation "440Hz sine")
   (:use :cl))
 
-(in-package :cl-synthesizer-rack-example-sine)
+(in-package :cl-synthesizer-patches-sine)
 
 (defun example ()
-  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+  (let ((rack (cl-synthesizer:make-rack
+               :environment (cl-synthesizer:make-environment)
+               :output-sockets '(:sine))))
     
     (cl-synthesizer:add-module
      rack
@@ -25,38 +27,39 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
      #'cl-synthesizer-modules-vco:make-module
      :base-frequency 440.0 :v-peak 5.0)
 
+    (cl-synthesizer:add-patch rack "VCO" :sine "OUTPUT" :sine)
+    
     ;; We do not want to have a hard wired Wave-Writer module in our rack.
     ;; Let the file writing stuff be handled by a monitor.
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:make-handler
      '(("VCO" :output-socket :sine))
-     :filename "cl-synthesizer-examples/rack-example-sine.wav")
+     :filename "src/lisp/cl-synthesizer/docs/sine.wav")
 
     rack))
 
+(defparameter *duration-seconds* 3.0)
+(defparameter *audio-output-sockets* '(:sine))
+
 (defun run-example ()
   (let ((rack (example)))
-    (cl-synthesizer:play-rack rack :duration-seconds 5)))
+    (cl-synthesizer:play-rack rack :duration-seconds *duration-seconds*)))
 
-;; (run-example)</code></pre></p><p><b>Example: Nested Racks.</b></p><p><pre><code>(defpackage :cl-synthesizer-rack-example-voice
-  (:documentation "Example: Nested Racks.")
-  (:use :cl))
+;; (run-example)</code></pre></p><audio controls="controls" preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3790531884" type="audio/wav"></audio><p><b>Two frequency modulated saws</b></p><p><pre><code>(defpackage :cl-synthesizer-patches-siren
+  (:use :cl)
+  (:documentation "Two frequency modulated saws"))
 
-(in-package :cl-synthesizer-rack-example-voice)
+(in-package :cl-synthesizer-patches-siren)
 
 (defun make-voice (name environment &amp;key lfo-frequency vco-frequency)
-  "Factory function of the voice."
+  "Frequency modulated saw"
   (declare (ignore name))
-  ;; The voice makes use of already available modules, so let it be a rack.
   (let ((voice
          (cl-synthesizer:make-rack
           :environment environment
-          ;; Expose an :audio output socket
           :output-sockets '(:audio))))
-    ;;
-    ;; Add LFO and VCO and patch them to create a frequency modulated saw wave
-    ;;
+    
     (cl-synthesizer:add-module
      voice "LFO"
      #'cl-synthesizer-modules-vco:make-module
@@ -68,15 +71,13 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
      :base-frequency vco-frequency :v-peak 5.0 :cv-lin-hz-v 20.0)
 
     (cl-synthesizer:add-patch voice "LFO" :sine "VCO" :cv-lin)
-    ;; Patch the VCO saw output with the :audio socket that is exposed by the voice
     (cl-synthesizer:add-patch voice "VCO" :saw "OUTPUT" :audio)
     
     voice))
   
-(defun example ()
+(defun example (&amp;key (sample-rate 44100))
   (let ((rack (cl-synthesizer:make-rack
-               :environment (cl-synthesizer:make-environment)
-               ;; Expose line-out sockets
+               :environment (cl-synthesizer:make-environment :sample-rate sample-rate)
                :output-sockets '(:left :right))))
 
     (cl-synthesizer:add-module
@@ -87,20 +88,24 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
     (cl-synthesizer:add-patch rack "VOICE-1" :audio "OUTPUT" :left)
     (cl-synthesizer:add-patch rack "VOICE-2" :audio "OUTPUT" :right)
 
-    ;; Let a monitor write the Wave file.
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:make-handler
      '(("OUTPUT" :input-socket :left)
        ("OUTPUT" :input-socket :right))
-     :filename "rack-example-voice.wav")
+     :filename "src/lisp/cl-synthesizer/docs/siren.wav")
     
     rack))
 
+(defparameter *duration-seconds* 2.0)
+(defparameter *audio-output-sockets* '(:left :right))
+
 (defun run-example ()
-  (cl-synthesizer:play-rack (example) :duration-seconds 5))
+  (cl-synthesizer:play-rack
+   (example)
+   :duration-seconds *duration-seconds*))
   
-;;(run-example)</code></pre></p><h1 id="id-API">API</h1><h2 id="id-Environment">Environment</h2><h3 id="id-make-environment">make-environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (home-directory nil) </p><p>Creates an environment. The environment defines properties such as
+;;(run-example)</code></pre></p><audio controls="controls" preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3790531884" type="audio/wav"></audio><h1 id="id-API">API</h1><h2 id="id-Environment">Environment</h2><h3 id="id-make-environment">make-environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (home-directory nil) </p><p>Creates an environment. The environment defines properties such as
     the sample rate of the rack.
     An enviroment is a property list with the following keys:
     <ul>
@@ -1341,4 +1346,4 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
    a non-existing module, a patch is added to an already patched socket
    and so on.</p><h1 id="id-Acknowledgements">Acknowledgements</h1><ul>
 <li>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></li>
-</ul></section><footer class="container"><p><small>Generated 2019-12-30  23:28:35</small></p></footer></body></html>
+</ul></section><footer class="container"><p><small>Generated 2020-02-12  22:31:24</small></p></footer></body></html>
