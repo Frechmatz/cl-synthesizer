@@ -10,7 +10,7 @@
 </ul><p>The source code of cl-synthesizer can be found <a href="https://github.com/Frechmatz/cl-synthesizer">here</a>.</p></header><nav class="container"><h1 id="id-Table of contents">Table of contents</h1><ul><li><a href="#id-Installation">Installation</a><ul></ul></li><li><a href="#id-Examples">Examples</a><ul></ul></li><li><a href="#id-API">API</a><ul><li><a href="#id-Environment">Environment</a><ul><li><a href="#id-make-environment">make-environment</a><ul></ul></li></ul></li><li><a href="#id-Rack">Rack</a><ul><li><a href="#id-make-rack">make-rack</a><ul></ul></li><li><a href="#id-add-module">add-module</a><ul></ul></li><li><a href="#id-add-patch">add-patch</a><ul></ul></li><li><a href="#id-get-module">get-module</a><ul></ul></li><li><a href="#id-get-module-name">get-module-name</a><ul></ul></li><li><a href="#id-find-module">find-module</a><ul></ul></li><li><a href="#id-get-patches">get-patches</a><ul></ul></li><li><a href="#id-get-modules">get-modules</a><ul></ul></li><li><a href="#id-add-hook">add-hook</a><ul></ul></li><li><a href="#id-play-rack">play-rack</a><ul></ul></li><li><a href="#id-is-rack">is-rack</a><ul></ul></li><li><a href="#id-get-environment">get-environment</a><ul></ul></li></ul></li><li><a href="#id-Modules">Modules</a><ul><li><a href="#id-VCO">VCO</a><ul></ul></li><li><a href="#id-VCA">VCA</a><ul></ul></li><li><a href="#id-ADSR">ADSR</a><ul></ul></li><li><a href="#id-Multiple">Multiple</a><ul></ul></li><li><a href="#id-MIDI Polyphonic Interface">MIDI Polyphonic Interface</a><ul></ul></li><li><a href="#id-MIDI Monophonic Interface">MIDI Monophonic Interface</a><ul></ul></li><li><a href="#id-MIDI CC Interface">MIDI CC Interface</a><ul></ul></li><li><a href="#id-MIDI Sequencer">MIDI Sequencer</a><ul></ul></li><li><a href="#id-Fixed Output">Fixed Output</a><ul></ul></li><li><a href="#id-Adder">Adder</a><ul></ul></li><li><a href="#id-Mixer">Mixer</a><ul></ul></li><li><a href="#id-Trigger">Trigger</a><ul></ul></li><li><a href="#id-Ramp">Ramp</a><ul></ul></li><li><a href="#id-Sustain">Sustain</a><ul></ul></li><li><a href="#id-Wave File Writer">Wave File Writer</a><ul></ul></li><li><a href="#id-CSV File Writer">CSV File Writer</a><ul></ul></li></ul></li><li><a href="#id-Monitor">Monitor</a><ul><li><a href="#id-add-monitor">add-monitor</a><ul></ul></li><li><a href="#id-wave-handler">wave-handler</a><ul></ul></li><li><a href="#id-csv-handler">csv-handler</a><ul></ul></li></ul></li><li><a href="#id-MIDI">MIDI</a><ul><li><a href="#id-MIDI Event">MIDI Event</a><ul></ul></li><li><a href="#id-MIDI Utilities">MIDI Utilities</a><ul></ul></li></ul></li><li><a href="#id-Conditions">Conditions</a><ul></ul></li></ul></li><li><a href="#id-Acknowledgements">Acknowledgements</a><ul></ul></li></ul></nav><section class="container"><h1 id="id-Installation">Installation</h1><pre><code>cd ~/quicklisp/local-projects
 git clone https://github.com/Frechmatz/cl-wave-file-writer.git
 git clone https://github.com/Frechmatz/cl-synthesizer.git
-(ql:quickload "cl-synthesizer")</code></pre><h1 id="id-Examples">Examples</h1><p><b>440Hz sine</b></p><p><pre><code>(defpackage :cl-synthesizer-patches-sine
+(ql:quickload "cl-synthesizer")</code></pre><h1 id="id-Examples">Examples</h1><p>440Hz sine</p><p><pre><code>(defpackage :cl-synthesizer-patches-sine
   (:documentation "440Hz sine")
   (:use :cl))
 
@@ -47,7 +47,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds *duration-seconds*)))
 
-;; (run-example)</code></pre></p><audio controls="controls" preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3790534016" type="audio/wav"></audio><p><b>Two frequency modulated saws</b></p><p><pre><code>(defpackage :cl-synthesizer-patches-siren
+;; (run-example)</code></pre></p><audio controls="controls" preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3790703898" type="audio/wav"></audio><p>Two frequency modulated saws</p><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation "Two frequency modulated saws"))
 
@@ -107,7 +107,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
    (example)
    :duration-seconds *duration-seconds*))
   
-;;(run-example)</code></pre></p><audio controls="controls" preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3790534016" type="audio/wav"></audio><h1 id="id-API">API</h1><h2 id="id-Environment">Environment</h2><h3 id="id-make-environment">make-environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (home-directory nil) </p><p>Creates an environment. The environment defines properties such as
+;;(run-example)</code></pre></p><audio controls="controls" preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3790703898" type="audio/wav"></audio><h1 id="id-API">API</h1><h2 id="id-Environment">Environment</h2><h3 id="id-make-environment">make-environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (home-directory nil) </p><p>Creates an environment. The environment defines properties such as
     the sample rate of the rack.
     An enviroment is a property list with the following keys:
     <ul>
@@ -1180,10 +1180,11 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
      call of the update function and closed by the shutdown handler.
   </p>
   The module has no outputs.
-  <p>See also cl-synthesizer-monitor:add-monitor</p></p><h2 id="id-Monitor">Monitor</h2><h3 id="id-add-monitor">add-monitor</h3><p><b>cl-synthesizer-monitor:add-monitor</b> rack monitor-handler socket-mappings &rest additional-handler-args </p><p>Adds a monitor to a rack. A monitor is a high-level Rack hook that
-    collects module states (values of input/output/state sockets) and 
-    passes them to a monitor handler. A monitor handler can for example be a
-    Wave-File-Writer. <p>The function has the following arguments:
+  <p>See also cl-synthesizer-monitor:add-monitor</p></p><h2 id="id-Monitor">Monitor</h2><p>A monitor is a high-level Rack-Hook. A Rack-Hook is a function
+    that is called after each "tick" of the synthesizer. Monitors provide 
+    a simple syntax to access the values of input sockets, output sockets
+    and state sockets. These values are passed to a so called Monitor-Handler.
+    The cl-synthesizer library provides Monitor-Handlers for writing Wave and CSV files.</p><h3 id="id-add-monitor">add-monitor</h3><p><b>cl-synthesizer-monitor:add-monitor</b> rack monitor-handler socket-mappings &rest additional-handler-args </p><p>Adds a monitor to a rack. <p>The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
 	<li>monitor-handler A function that instantiates the monitor handler.
@@ -1348,4 +1349,4 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
    a non-existing module, a patch is added to an already patched socket
    and so on.</p><h1 id="id-Acknowledgements">Acknowledgements</h1><ul>
 <li>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></li>
-</ul></section><footer class="container"><p><small>Generated 2020-02-12  23:06:56</small></p></footer></body></html>
+</ul></section><footer class="container"><p><small>Generated 2020-02-14  22:18:18</small></p></footer></body></html>

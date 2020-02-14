@@ -103,10 +103,7 @@
 	input-fetcher))))
 
 (defun add-monitor (rack monitor-handler socket-mappings &rest additional-handler-args)
-   "Adds a monitor to a rack. A monitor is a high-level Rack hook that
-    collects module states (values of input/output/state sockets) and 
-    passes them to a monitor handler. A monitor handler can for example be a
-    Wave-File-Writer. <p>The function has the following arguments:
+   "Adds a monitor to a rack. <p>The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
 	<li>monitor-handler A function that instantiates the monitor handler.

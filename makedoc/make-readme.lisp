@@ -25,8 +25,8 @@
 (defun make-package-string (p)
   (concatenate
    'string
-   "<p><b>" (documentation (find-package p) t)
-   "</b></p>"))
+   "<p>" (documentation (find-package p) t)
+   "</p>"))
 
 (defun make-example-header (&key (title nil))
   (concatenate
@@ -174,6 +174,7 @@
 			       (heading (:toc t :name "CSV File Writer")
 					,(make-function-string 'cl-synthesizer-modules-csv-file-writer:make-module)))
 			      (heading (:toc t :name "Monitor")
+				       ,(make-package-string 'cl-synthesizer-monitor)
 				       (heading (:toc t :name "add-monitor")
 						,(make-function-string 'cl-synthesizer-monitor:add-monitor)
 						,(make-example-header)
