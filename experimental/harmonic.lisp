@@ -49,7 +49,7 @@
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:make-handler
+     #'cl-synthesizer-monitor-wave-handler:make-backend
      '(("OUTPUT" :input-socket :audio))
      :filename "src/lisp/cl-synthesizer/docs/harmonic.wav")
     

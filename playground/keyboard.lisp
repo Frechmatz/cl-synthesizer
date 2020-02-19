@@ -75,7 +75,7 @@
     ;; Write LINE-OUT to Wave-File
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:make-handler
+     #'cl-synthesizer-monitor-wave-handler:make-backend
      '(("OUTPUT" :input-socket :line-out-1))
      :filename "keyboard.wav")
     

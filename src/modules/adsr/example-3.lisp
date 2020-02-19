@@ -42,7 +42,7 @@
     
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-handler
+     #'cl-synthesizer-monitor-csv-handler:make-backend
      '(("ADSR" :input-socket :gate :name "ADSR Gate In")
        ("ADSR" :output-socket :cv :name "ADSR Out"))
      :filename "cl-synthesizer-examples/adsr-example-3.csv")

@@ -71,7 +71,7 @@
 ;; instantiated backend but we want to check its status.
 ;;
 
-(defun test-monitor-make-handler (module)
+(defun test-monitor-make-backend (module)
   (lambda (name environment inputs)
     (declare (ignore name environment))
     (let ((socket-mapping nil))
@@ -95,7 +95,7 @@
 	       (let ((monitor-backend-module (pass-through-module "Backend" (cl-synthesizer:get-environment rack))))
 		 (cl-synthesizer-monitor:add-monitor
 		  rack
-		  (test-monitor-make-handler monitor-backend-module)
+		  (test-monitor-make-backend monitor-backend-module)
 		  '(("Multiplier" :output-socket :out)
 		    ("Multiplier" :input-socket :in)
 		    ("Counter" :state :module-name)))
@@ -114,7 +114,7 @@
 		 (cl-synthesizer-test::expect-assembly-error
 		   (cl-synthesizer-monitor:add-monitor
 		    rack
-		    (test-monitor-make-handler monitor-backend-module)
+		    (test-monitor-make-backend monitor-backend-module)
 		    '(("Multiplier" :output-socket :out)
 		      ("Multiplier" :input-socket :in)
 		      ("Counter" :state :module-name)))))))
@@ -132,7 +132,7 @@
 		 (cl-synthesizer-test::expect-assembly-error
 		   (cl-synthesizer-monitor:add-monitor
 		    rack
-		    (test-monitor-make-handler monitor-backend-module)
+		    (test-monitor-make-backend monitor-backend-module)
 		    '(("Multiplier" :output-socket :out)
 		      ("Multiplier" :input-socket :in)
 		      ("Counter" :state :module-name)

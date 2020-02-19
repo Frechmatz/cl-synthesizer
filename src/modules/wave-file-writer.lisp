@@ -33,8 +33,7 @@
 	  are written in order :channel-1 ... :channel-n</li>
   </ul></p>
   The module has no outputs.
-  <p>See also cl-synthesizer-monitor:add-monitor which provides Wave-File-Writing
-     without having to add the module and the required patches to the rack.</p>"
+  <p>The recommended way of Wave file generation is to use a Monitor.</p>"
   (if (<= channel-count 0)
       (cl-synthesizer:signal-assembly-error
        :format-control "~a: channel-count must be greater than 0: ~a"

@@ -57,7 +57,7 @@
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-handler
+     #'cl-synthesizer-monitor-csv-handler:make-backend
      '(("MIDI-IFC" :output-socket :gate-1 :name "Gate")
        ("SUSTAIN" :input-socket :trigger :name "Sustain Trigger In")
        ("SUSTAIN" :input-socket :input :name "Sustain In")

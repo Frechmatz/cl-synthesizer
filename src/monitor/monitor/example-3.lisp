@@ -13,7 +13,7 @@
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:make-handler
+     #'cl-synthesizer-monitor-wave-handler:make-backend
      '(("VCO" :output-socket :sine))
      :filename "cl-synthesizer-examples/monitor-example-3.wav")
     

@@ -17,7 +17,7 @@
     ;; Let the file writing stuff be handled by a monitor.
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:make-handler
+     #'cl-synthesizer-monitor-wave-handler:make-backend
      '(("VCO" :output-socket :sine))
      :filename "cl-synthesizer-examples/rack-example-sine.wav")
 

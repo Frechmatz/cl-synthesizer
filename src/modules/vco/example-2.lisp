@@ -18,13 +18,13 @@
     
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:make-handler
+     #'cl-synthesizer-monitor-wave-handler:make-backend
      '(("VCO" :output-socket :triangle))
      :filename "cl-synthesizer-examples/vco-example-2.wav")
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-handler
+     #'cl-synthesizer-monitor-csv-handler:make-backend
      '(("VCO" :state :frequency :name "Frequency"))
     :filename "cl-synthesizer-examples/vco-example-2.csv")
     

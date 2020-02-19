@@ -12,7 +12,7 @@
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-handler
+     #'cl-synthesizer-monitor-csv-handler:make-backend
      '(("VCO" :output-socket :sine :name "Sine"))
      :filename "cl-synthesizer-examples/monitor-example-2.csv"
      :add-header t

@@ -56,7 +56,7 @@
      call of the update function and closed by the shutdown handler.
   </p>
   The module has no outputs.
-  <p>See also cl-synthesizer-monitor:add-monitor</p>"
+  <p>The recommended way of CSV file generation is to use a Monitor.</p>"
   (if (<= (length columns) 0)
       (cl-synthesizer:signal-assembly-error
        :format-control "~a: Columns must not be empty."

@@ -102,11 +102,11 @@
 	    :format-arguments (list socket-type))))
 	input-fetcher))))
 
-(defun add-monitor (rack monitor-handler socket-mappings &rest additional-handler-args)
+(defun add-monitor (rack monitor-backend socket-mappings &rest additional-handler-args)
    "Adds a monitor to a rack. <p>The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
-	<li>monitor-handler A function that instantiates the monitor handler.
+	<li>monitor-backend A function that instantiates the monitor backend.
 	    This function is called with the following arguments:
 	    <ul>
 		<li>name A name.</li>
@@ -121,16 +121,12 @@
 	    </ul>
 	    The function must return a values object with the following entries:
 	    <ul>
-		<li>module A property list that implements a module. See also cl-synthesizer:add-module.</li>
-		<li>An ordered list of input sockets of the module, where the first entry represents 
-                   the first entry of the socket mappings (e.g. column-1) and so on. This list
-                   is in place because we cannot depend on the order of the input sockets
-                   exposed by the module. It is up to the monitor-handler to know about 
-                   specifica of modules, for example that the csv-file-writer module
-                   uses input socket :column-1 to represent the first column.</li>
+		<li>module A property list that implements a module (this is the Monitor-Backend).</li>
+		<li>An ordered list of input sockets of the module (the Monitor-Backend), where the first entry represents 
+                   the first entry of the socket mappings (e.g. column-1) and so on.</li>
 	    </ul>
 	</li>
-	<li>socket-mappings Declares the input/outputs/states whose values are to be monitored.
+	<li>socket-mappings Declares the input/outputs/states whose values are to be tracked.
             Each entry has the following format:
 	    <ul>
 		<li>module-path Path of the module from which the value of
@@ -161,8 +157,8 @@
      ;; Defining the positional mapping is job of the monitor handler.
    (multiple-value-bind (backend ordered-input-sockets)
        (apply
-	monitor-handler
-	"Monitor-Handler"
+	monitor-backend
+	"Monitor-Backend-Ctor"
 	(cl-synthesizer:get-environment rack)
 	(mapcar
 	 (lambda(m)

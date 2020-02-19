@@ -16,14 +16,14 @@
     ;; Write the sine signal into a wave file
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:make-handler
+     #'cl-synthesizer-monitor-wave-handler:make-backend
      '(("VCO" :output-socket :sine))
      :filename "cl-synthesizer-examples/monitor-example-1.wav")
 
     ;; Write all waveforms and the phase into a CSV file
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-handler
+     #'cl-synthesizer-monitor-csv-handler:make-backend
      '(("VCO" :output-socket :sine :name "Sine")
        ("VCO" :output-socket :triangle :name "Triangle")
        ("VCO" :output-socket :saw :name "Saw")

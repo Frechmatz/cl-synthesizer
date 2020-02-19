@@ -64,7 +64,7 @@
     ;; Debugging...
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-handler
+     #'cl-synthesizer-monitor-csv-handler:make-backend
      '(("ADSR" :input-socket :gate :name "ADSR Gate")
        ("ADSR" :output-socket :cv :name "ADSR Out")
        ("VCA" :input-socket :cv :name "VCA CV")       
