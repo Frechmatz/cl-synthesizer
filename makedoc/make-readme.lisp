@@ -77,7 +77,7 @@
 		      ,(cl-readme:read-verbatim "makedoc/principles.html"))
 		     "<p>The source code of cl-synthesizer can be found <a href=\"https://github.com/Frechmatz/cl-synthesizer\">here</a>.</p>")
 	   (semantic (:name "nav")
- 		     (heading (:name "Table of contents") TOC))
+ 		     (heading (:name "Table of contents") (toc)))
 	   (semantic (:name "section")
 		     (heading (:name "Installation" :toc t)
 			      ,(cl-readme:read-verbatim "makedoc/installation.html"))
