@@ -82,12 +82,14 @@
 		     (heading (:name "Installation" :toc t)
 			      ,(cl-readme:read-verbatim "makedoc/installation.html"))
 		     (heading (:name "Examples" :toc t)
-			      ,(make-package-string 'cl-synthesizer-patches-sine)
-			      ,(cl-readme:read-code "patches/sine.lisp")
-			      ,(make-audio-element "sine.wav")
-			      ,(make-package-string 'cl-synthesizer-patches-siren)
-			      ,(cl-readme:read-code "patches/siren.lisp")
-			      ,(make-audio-element "siren.wav"))
+			      (heading (:toc t :name ,(documentation (find-package 'cl-synthesizer-patches-sine) t))
+				       ;;,(make-package-string 'cl-synthesizer-patches-sine)
+				       ,(cl-readme:read-code "patches/sine.lisp")
+				       ,(make-audio-element "sine.wav"))
+			      (heading (:toc t :name ,(documentation (find-package 'cl-synthesizer-patches-siren) t))
+				       ;;,(make-package-string 'cl-synthesizer-patches-siren)
+				       ,(cl-readme:read-code "patches/siren.lisp")
+				       ,(make-audio-element "siren.wav")))
 		     (heading (:name "API" :toc t)
 			      (heading (:toc t :name "Environment")
 				       (heading (:toc t :name "make-environment")
@@ -236,15 +238,11 @@
     tree))
 
 
-(defclass cl-synthesizer-readme-writer (cl-readme:html-writer) ())
-
-(defmethod cl-readme:open-semantic ((writer cl-synthesizer-readme-writer) semantic-element-settings)
-  (format nil "<~a class=\"container\">" (getf semantic-element-settings :name)))
-
 (defun make-readme ()
   ;; Generate patches
   (cl-synthesizer-patches-siren::run-example)
   (cl-synthesizer-patches-sine::run-example)
+  ;; Generate html files
   (let ((cl-readme:*home-directory* "/Users/olli/src/lisp/cl-synthesizer/")
 	(cl-readme:*tab-width* 8))
     (with-open-file (fh (cl-readme:make-path "docs/index.html")
@@ -252,18 +250,14 @@
 			:if-exists :supersede
 			:if-does-not-exist :create
 			:external-format :utf-8)
-      (let ((w (make-instance 'cl-synthesizer-readme-writer)))
-	(cl-readme:doc-to-html w fh (get-readme))))
-    ;; Generate docs/patches.html
+      (cl-readme:doc-to-html fh (get-readme)))
     (with-open-file (fh (cl-readme:make-path "docs/patches.html")
 			:direction :output
 			:if-exists :supersede
 			:if-does-not-exist :create
 			:external-format :utf-8)
-      (let ((w (make-instance 'cl-synthesizer-readme-writer)))
-	(cl-readme:doc-to-html w fh (get-patches))))
-    
-  "DONE"))
+	(cl-readme:doc-to-html fh (get-patches))))
+  "DONE")
 
 ;;(make-readme)
 
