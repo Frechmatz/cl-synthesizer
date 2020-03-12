@@ -36,7 +36,7 @@
 (defun make-audio-element (filename)
   (concatenate
    'string
-   "<p><audio controls=\"controls\" preload=\"none\">" ;; loop=\"false\">"
+   "<p><audio controls preload=\"none\">" ;; loop=\"false\">"
    "Your browser does not support the <code>audio</code> element."
    "<source src=\""
    ;; Add query parameter with timestamp as a cache buster

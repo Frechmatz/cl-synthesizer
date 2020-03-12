@@ -47,7 +47,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds *duration-seconds*)))
 
-;; (run-example)</code></pre></p><p><audio controls="controls" preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3793039331" type="audio/wav"></audio></p><h2 id="Two frequency modulated saws-4">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3793040475" type="audio/wav"></audio></p><h2 id="Two frequency modulated saws-4">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation "Two frequency modulated saws"))
 
@@ -107,7 +107,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
    (example)
    :duration-seconds *duration-seconds*))
   
-;;(run-example)</code></pre></p><p><audio controls="controls" preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3793039331" type="audio/wav"></audio></p><h1 id="Concepts-5">Concepts</h1><h2 id="Environment-6">Environment</h2>The environment defines properties such as the sample rate of the synthesizer.<h2 id="Module-7">Module</h2>Todo<h2 id="Rack-8">Rack</h2>Todo<h2 id="Monitor-9">Monitor</h2>A monitor is a high-level Rack-Hook. The purpose of a monitor
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3793040475" type="audio/wav"></audio></p><h1 id="Concepts-5">Concepts</h1><h2 id="Environment-6">Environment</h2>The environment defines properties such as the sample rate of the synthesizer.<h2 id="Module-7">Module</h2>Todo<h2 id="Rack-8">Rack</h2>Todo<h2 id="Monitor-9">Monitor</h2>A monitor is a high-level Rack-Hook. The purpose of a monitor
 is to collect module states and pass them to a "Monitor-Backend". A backend may
 for example generate a Wave file. 
 Monitors provide a simple syntax for declaring the module sockets to be tracked (input, output and state)
@@ -1309,4 +1309,4 @@ cl-synthesizer comes with handlers for writing Wave and CSV files.<p><b>Example<
    a non-existing module, a patch is added to an already patched socket
    and so on.</p><h1 id="Acknowledgements-51">Acknowledgements</h1><ul>
 <li>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></li>
-</ul></section><footer><p><small>Generated 2020-03-12  23:02:11</small></p></footer></body></html>
+</ul></section><footer><p><small>Generated 2020-03-12  23:21:15</small></p></footer></body></html>
