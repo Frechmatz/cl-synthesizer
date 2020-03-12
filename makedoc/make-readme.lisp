@@ -36,13 +36,13 @@
 (defun make-audio-element (filename)
   (concatenate
    'string
-   "<audio controls=\"controls\" preload=\"none\">" ;; loop=\"false\">"
+   "<p><audio controls=\"controls\" preload=\"none\">" ;; loop=\"false\">"
    "Your browser does not support the <code>audio</code> element."
    "<source src=\""
    ;; Add query parameter with timestamp as a cache buster
    (format nil "~a?cb=~a" filename (get-universal-time))
    "\" type=\"audio/wav\">"
-   "</audio>"))
+   "</audio></p>"))
 
 (defparameter *show-code* "Show patch")
 (defparameter *hide-code* "Hide patch")
@@ -83,13 +83,22 @@
 			      ,(cl-readme:read-verbatim "makedoc/installation.html"))
 		     (heading (:name "Examples" :toc t)
 			      (heading (:toc t :name ,(documentation (find-package 'cl-synthesizer-patches-sine) t))
-				       ;;,(make-package-string 'cl-synthesizer-patches-sine)
 				       ,(cl-readme:read-code "patches/sine.lisp")
 				       ,(make-audio-element "sine.wav"))
 			      (heading (:toc t :name ,(documentation (find-package 'cl-synthesizer-patches-siren) t))
-				       ;;,(make-package-string 'cl-synthesizer-patches-siren)
 				       ,(cl-readme:read-code "patches/siren.lisp")
 				       ,(make-audio-element "siren.wav")))
+		     (heading (:name "Concepts" :toc t)
+			      (heading (:name "Environment" :toc t)
+				       ,(cl-readme:read-verbatim "makedoc/concepts-environment.html"))
+			      (heading (:name "Module" :toc t)
+				       ,(cl-readme:read-verbatim "makedoc/concepts-module.html"))
+			      (heading (:name "Rack" :toc t)
+				       ,(cl-readme:read-verbatim "makedoc/concepts-rack.html"))
+			      (heading (:name "Monitor" :toc t)
+				       ,(cl-readme:read-verbatim "makedoc/concepts-monitor.html")
+				       ,(make-example-header)
+				       ,(cl-readme:read-code "src/monitor/monitor/example-1.lisp")))
 		     (heading (:name "API" :toc t)
 			      (heading (:toc t :name "Environment")
 				       (heading (:toc t :name "make-environment")
@@ -176,9 +185,6 @@
 			       (heading (:toc t :name "CSV File Writer")
 					,(make-function-string 'cl-synthesizer-modules-csv-file-writer:make-module)))
 			      (heading (:toc t :name "Monitor")
-				       ,(make-package-string 'cl-synthesizer-monitor)
-				       ,(make-example-header)
-				       ,(cl-readme:read-code "src/monitor/monitor/example-1.lisp")
 				       (heading (:toc t :name "add-monitor")
 						,(make-function-string 'cl-synthesizer-monitor:add-monitor))
 				       (heading (:toc t :name "wave-handler")
