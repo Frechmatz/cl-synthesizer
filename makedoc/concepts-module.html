@@ -10,8 +10,7 @@ oscillator over time, a :phase state socket in conjunction with a Monitor is the
 <p>A module is represented by a property list. This list provides functions such as
 to get the input sockets, to get the output sockets, to get the state sockets, 
 to set input values, to retrieve output values, to update the module, to
-shutdown the module and so on. In general, a module implementation does not have any
-dependencies to the cl-synthesizer library.</p>
+shutdown the module and so on.</p>
 <p>A module must provide a factory/instantiation function. The typical name of this 
 function is "make-module". When a module is added to the synthesizer then not the 
 readily instantiated module (as a property list) is passed, but its factory function. 
