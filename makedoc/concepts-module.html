@@ -1,1 +1,20 @@
-Todo
+<p>Modules are the heart of cl-synthesizer because they are responsible for producing the
+actual audio data.</p>
+<p>Modules do have a name, inputs and outputs. The inputs/outputs are represented by keywords
+and are so called sockets.</p>
+<p>Beside the input/output sockets a module can also declare "state sockets".
+State sockets expose internal states of the module. These sockets 
+are not accessible when connecting modules with each other. They are meant 
+to be a debugging/analysis tool. For example to create a plot of the phase of an 
+oscillator over time, a :phase state socket in conjunction with a Monitor is the way to go.</p>
+<p>A module is represented by a property list. This list provides functions such as
+to get the input sockets, to get the output sockets, to get the state sockets, 
+to set input values, to retrieve output values, to update the module, to
+shutdown the module and so on. In general, a module implementation does not have any
+dependencies to the cl-synthesizer library.</p>
+<p>A module must provide a factory/instantiation function. The typical name of this 
+function is "make-module". When a module is added to the synthesizer then not the 
+readily instantiated module (as a property list) is passed, but its factory function. 
+This function is called by the synthesizer. The synthesizer passes the module name, 
+the environment and any arbitrary initialization parameters to it.</p>
+
