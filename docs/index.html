@@ -47,7 +47,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds *duration-seconds*)))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3793122654" type="audio/wav"></audio></p><h2 id="Two frequency modulated saws-4">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3793464517" type="audio/wav"></audio></p><h2 id="Two frequency modulated saws-4">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation "Two frequency modulated saws"))
 
@@ -107,7 +107,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
    (example)
    :duration-seconds *duration-seconds*))
   
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3793122654" type="audio/wav"></audio></p><h1 id="Concepts-5">Concepts</h1><h2 id="Environment-6">Environment</h2>The environment defines properties such as the sample rate of the synthesizer.<h2 id="Module-7">Module</h2><p>Modules are the heart of cl-synthesizer because they are responsible for producing the
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3793464517" type="audio/wav"></audio></p><h1 id="Concepts-5">Concepts</h1><h2 id="Environment-6">Environment</h2>The environment defines properties such as the sample rate of the synthesizer.<h2 id="Module-7">Module</h2><p>Modules are the heart of cl-synthesizer because they are responsible for producing the
 actual audio data.</p>
 <p>Modules do have a name, inputs and outputs. The inputs/outputs are represented by keywords
 and are so called sockets.</p>
@@ -124,7 +124,10 @@ shutdown the module and so on.</p>
 function is "make-module". When a module is added to the synthesizer then not the 
 readily instantiated module (as a property list) is passed, but its factory function. 
 This function is called by the synthesizer. The synthesizer passes the module name, 
-the environment and any arbitrary initialization parameters to it.</p><h2 id="Rack-8">Rack</h2>Todo<h2 id="Monitor-9">Monitor</h2><p>A monitor is a high-level Rack-Hook. The purpose of a monitor
+the environment and any arbitrary initialization parameters to it.</p><h2 id="Rack-8">Rack</h2><p>Racks contain modules and their connections which each other. The connections are so called "Patches".Racks are instantiated via "cl-synthesizer:make-rack"</p><p><pre><code>(let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment)))) ... )</code></pre></p><p>After the rack has been created, modules and patches can be added to it.</p><p><pre><code>(let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+  (cl-synthesizer:add-module rack "LFO" ...)
+  (cl-synthesizer:add-module rack "VCO" ...)
+  (cl-synthesizer:add-patch rack "LFO" :sine "VCO" :cv-lin))</code></pre></p><p>The rack is now ready to use and a "tick" can be processed.</p><p><pre><code>(funcall (getf rack :update))</code></pre></p><h2 id="Monitor-9">Monitor</h2><p>A monitor is a high-level Rack-Hook. The purpose of a monitor
 is to collect module states and pass them to a "Monitor-Backend". A backend may
 for example generate a Wave file.</p> 
 <p>Monitors provide a simple syntax for declaring the module sockets to be tracked (input, output and state) as well as any other settings supported by specific backends.</p>
@@ -1324,4 +1327,4 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
    a non-existing module, a patch is added to an already patched socket
    and so on.</p><h1 id="Acknowledgements-51">Acknowledgements</h1><ul>
 <li>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></li>
-</ul></section><footer><p><small>Generated 2020-03-13  22:10:54</small></p></footer></body></html>
+</ul></section><footer><p><small>Generated 2020-03-17  21:08:37</small></p></footer></body></html>
