@@ -227,8 +227,7 @@
 ;;
 
 (defun make-rack (&key environment (input-sockets nil) (output-sockets nil))
-  "Creates a rack. A rack is a module container as well as a module. Racks can
-   be added to other racks. <p>The function has the following arguments:
+  "Creates a rack.<p>The function has the following arguments:
     <ul>
 	<li>:environment The synthesizer environment.</li>
         <li>:input-sockets The input sockets to be exposed by the rack. The inputs
@@ -243,8 +242,7 @@
     </p><p>
     The shutdown function of the rack calls the shutdown handlers of all embedded modules and hooks. If the rack has 
     already been shut down the function immediately returns.
-    </p>
-    <p>See also: add-module</p>"
+    </p>"
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (if (not environment)
       (signal-invalid-arguments-error
