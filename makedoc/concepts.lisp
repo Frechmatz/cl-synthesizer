@@ -9,7 +9,7 @@
 actual audio data.</p>
 <p>Modules do have a name, inputs, outputs and a shutdown function. The inputs/outputs are represented by keywords and are so called sockets. The shutdown function can be used to release resources 
 that have been allocated by the module, for example opened files.</p>
-<p>Beside the input/output sockets a module can also declare \"state sockets\".
+<p>Beside the input/output sockets a module can also provide \"state sockets\".
 State sockets expose internal states of the module. These sockets 
 are not accessible when connecting modules with each other. They are meant 
 to be a debugging/analysis tool. For example to create a plot of the phase of an 
@@ -25,7 +25,7 @@ shutdown the module and so on.</p>
     the environment and any arbitrary initialization parameters to it.</p>
 <p>A module can implement all its logic on its own but it can also use
     other modules. An example of a module using other modules is the
-    <a href=\"https://github.com/Frechmatz/cl-synthesizer/blob/master/src/modules/mixer.lisp’\">Mixer</a></p>
+    <a href=\"https://github.com/Frechmatz/cl-synthesizer/blob/master/src/modules/mixer.lisp\">Mixer</a></p>
 <p>For each input/output socket that a module exposes, it must provide a corresponding setter/getter function. When processing an update, the synthesizer sets the inputs of the module via successive calls to the input setters. An input setter must not change the current output state of the module. When all inputs have been set, the synthesizer calls the update function of the module, which has no arguments. The update function must update the states of the output sockets, by using the previously set input values.</p>
 <p>Lets create a module:</p>"
 ,(cl-readme:read-code "makedoc/snippets/module-blueprint.lisp")

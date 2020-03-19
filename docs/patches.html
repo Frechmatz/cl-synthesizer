@@ -1,4 +1,4 @@
-<html><head></head><script type="text/javascript" src="toggledisplay.js"></script><body><header><h1>cl-synthesizer-patches</h1>Example patches for cl-synthesizer. Work in progress...<p>Back to the <a href="https://frechmatz.github.io/cl-synthesizer/">project site.</a></p></header><section><h1 id="<p>440Hz sine</p>-1"><p>440Hz sine</p></h1><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3793636760" type="audio/wav"></audio></p><p><a href="#" id="G572"onclick="return toggleDisplay('Show patch', 'Hide patch', 'G572', 'G573')">Show patch</a></p><div style="display: none" id='G573'><p><pre><code>(defpackage :cl-synthesizer-patches-sine
+<html><head></head><script type="text/javascript" src="toggledisplay.js"></script><body><header><h1>cl-synthesizer-patches</h1>Example patches for cl-synthesizer. Work in progress...<p>Back to the <a href="https://frechmatz.github.io/cl-synthesizer/">project site.</a></p></header><section><h1 id="<p>440Hz sine</p>-1"><p>440Hz sine</p></h1><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3793639071" type="audio/wav"></audio></p><p><a href="#" id="G580"onclick="return toggleDisplay('Show patch', 'Hide patch', 'G580', 'G581')">Show patch</a></p><div style="display: none" id='G581'><p><pre><code>(defpackage :cl-synthesizer-patches-sine
   (:documentation "440Hz sine")
   (:use :cl))
 
@@ -35,7 +35,7 @@
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds *duration-seconds*)))
 
-;; (run-example)</code></pre></p></div><h1 id="<p>Two frequency modulated saws</p>-2"><p>Two frequency modulated saws</p></h1><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3793636760" type="audio/wav"></audio></p><p><a href="#" id="G574"onclick="return toggleDisplay('Show patch', 'Hide patch', 'G574', 'G575')">Show patch</a></p><div style="display: none" id='G575'><p><pre><code>(defpackage :cl-synthesizer-patches-siren
+;; (run-example)</code></pre></p></div><h1 id="<p>Two frequency modulated saws</p>-2"><p>Two frequency modulated saws</p></h1><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3793639071" type="audio/wav"></audio></p><p><a href="#" id="G582"onclick="return toggleDisplay('Show patch', 'Hide patch', 'G582', 'G583')">Show patch</a></p><div style="display: none" id='G583'><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation "Two frequency modulated saws"))
 
@@ -95,4 +95,4 @@
    (example)
    :duration-seconds *duration-seconds*))
   
-;;(run-example)</code></pre></p></div></section><footer><p><small>Generated 2020-03-19  20:59:20</small></p></footer></body></html>
+;;(run-example)</code></pre></p></div></section><footer><p><small>Generated 2020-03-19  21:37:51</small></p></footer></body></html>
