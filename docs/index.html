@@ -47,7 +47,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds *duration-seconds*)))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3793633337" type="audio/wav"></audio></p><h2 id="Two frequency modulated saws-4">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3793636011" type="audio/wav"></audio></p><h2 id="Two frequency modulated saws-4">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation "Two frequency modulated saws"))
 
@@ -107,7 +107,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
    (example)
    :duration-seconds *duration-seconds*))
   
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3793633337" type="audio/wav"></audio></p><h1 id="Concepts-5">Concepts</h1><h2 id="Environment-6">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3793636011" type="audio/wav"></audio></p><h1 id="Concepts-5">Concepts</h1><h2 id="Environment-6">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
   ...)</code></pre></p><h2 id="Module-7">Module</h2><p>Modules are the heart of cl-synthesizer because they are responsible for producing the
 actual audio data.</p>
 <p>Modules do have a name, inputs, outputs and a shutdown function. The inputs/outputs are represented by keywords and are so called sockets. The shutdown function can be used to release resources 
@@ -153,7 +153,7 @@ shutdown the module and so on.</p>
        :update (lambda ()
                  (setf output-1 input-1)
                  (setf output-2 input-2))
-       :get-state (lambda (key)
+       :state (lambda (key)
                     (if (eq key :module-param) module-param nil))
        :shutdown (lambda ())))))</code></pre></p><p>Now lets add our module to a rack (Racks are explained in the following chapter):</p><p><pre><code>(let ((rack ...))
   (cl-synthesizer:add-module rack "MODULE-1" #'blueprint-module:make-module :module-param 1234))</code></pre></p><h2 id="Rack-8">Rack</h2><p>Racks contain modules and their connections which each other. The connections are so called "Patches". A rack is represented by a property list, which is fully compatible with a module. Beside the module functionality a rack provides Module and Patch management, Hooks and Compilation. Racks are instantiated via "cl-synthesizer:make-rack"</p><p><pre><code>(let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment)))) ... )</code></pre></p><p>After the rack has been created, modules and patches can be added to it.</p><p><pre><code>(let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
@@ -270,7 +270,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 		<li>:update A function with no arguments that updates the outputs according to the previously set inputs.</li>
 		<li>:shutdown An optional function with no arguments that is called when the rack
 		    is shutting down.</li>
-                <li>:get-state An optional function that can be used to expose internal states 
+                <li>:state An optional function that can be used to expose internal states 
                     of the module, for example a VCO may expose its frequency. The function has one 
                     argument that consists of a keyword identifying the requested state, for 
                     example :frequency.</li>
@@ -389,7 +389,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 	<li>:saw A saw wave.</li>
 	<li>:square A square wave.</li>
     </ul></p>
-    <p>The module exposes the following states via the get-state function:
+    <p>The module exposes the following states via the state function:
        <ul>
           <li>:frequency The current frequency of the module.</li>
           <li>:linear-frequency The current linear frequency portion of the module.</li>
@@ -1325,7 +1325,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
                     <ul>
                         <li>:input-socket The value of an input socket of the module.</li>
                         <li>:output-socket The value of an output socket of the module.</li>
-                        <li>:state The value of an internal state of the module (see get-state function).</li>
+                        <li>:state The value of an internal state of the module (see state function).</li>
                     </ul>
                 </li>
 		<li>socket A keyword that identifies one of the input/output sockets or internal states
@@ -1370,4 +1370,4 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
    a non-existing module, a patch is added to an already patched socket
    and so on.</p><h1 id="Acknowledgements-51">Acknowledgements</h1><ul>
 <li>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></li>
-</ul></section><footer><p><small>Generated 2020-03-19  20:02:17</small></p></footer></body></html>
+</ul></section><footer><p><small>Generated 2020-03-19  20:46:51</small></p></footer></body></html>

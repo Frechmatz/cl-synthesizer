@@ -49,7 +49,7 @@
 	<li>:saw A saw wave.</li>
 	<li>:square A square wave.</li>
     </ul></p>
-    <p>The module exposes the following states via the get-state function:
+    <p>The module exposes the following states via the state function:
        <ul>
           <li>:frequency The current frequency of the module.</li>
           <li>:linear-frequency The current linear frequency portion of the module.</li>
@@ -195,7 +195,7 @@
 			 (setf cur-phi phi)
 			 (dotimes (i (length update-functions))
 			   (funcall (elt update-functions i)))))
-	     :get-state (lambda (key)
+	     :state (lambda (key)
 			  (cond
 			    ((eq key :frequency)
 			     cur-frequency)

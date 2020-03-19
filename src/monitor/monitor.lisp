@@ -92,8 +92,8 @@
 		   (make-get-output-lambda source-module source-socket)
 		   )))
 	  ((eq :state socket-type)
-	   (let ((get-state-fn (if (getf module :get-state)
-				   (getf module :get-state)
+	   (let ((get-state-fn (if (getf module :state)
+				   (getf module :state)
 				   (lambda(key) (declare (ignore key)) nil))))
 	     (setf input-fetcher (lambda() (funcall get-state-fn socket-key)))))
 	  (t
@@ -137,7 +137,7 @@
                     <ul>
                         <li>:input-socket The value of an input socket of the module.</li>
                         <li>:output-socket The value of an output socket of the module.</li>
-                        <li>:state The value of an internal state of the module (see get-state function).</li>
+                        <li>:state The value of an internal state of the module (see state function).</li>
                     </ul>
                 </li>
 		<li>socket A keyword that identifies one of the input/output sockets or internal states

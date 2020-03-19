@@ -106,7 +106,7 @@
 		<li>:update A function with no arguments that updates the outputs according to the previously set inputs.</li>
 		<li>:shutdown An optional function with no arguments that is called when the rack
 		    is shutting down.</li>
-                <li>:get-state An optional function that can be used to expose internal states 
+                <li>:state An optional function that can be used to expose internal states 
                     of the module, for example a VCO may expose its frequency. The function has one 
                     argument that consists of a keyword identifying the requested state, for 
                     example :frequency.</li>

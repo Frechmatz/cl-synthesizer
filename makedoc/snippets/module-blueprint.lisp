@@ -21,6 +21,6 @@
        :update (lambda ()
 		 (setf output-1 input-1)
 		 (setf output-2 input-2))
-       :get-state (lambda (key)
+       :state (lambda (key)
 		    (if (eq key :module-param) module-param nil))
        :shutdown (lambda ())))))

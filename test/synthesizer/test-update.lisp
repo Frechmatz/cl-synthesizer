@@ -31,7 +31,7 @@
 		 (assert-equal 2 (get-module-output counter :out))
 		 (assert-equal 4 (get-module-output multiplier :out))
 		 (funcall (getf rack :shutdown))
-		 (assert-true (funcall (getf counter :get-state) :shutdown-called))
+		 (assert-true (funcall (getf counter :state) :shutdown-called))
 		 )))
 
 (defun create-test-rack-adder ()

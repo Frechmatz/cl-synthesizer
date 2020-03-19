@@ -5,7 +5,7 @@
   (declare (ignore environment))
   (let ((out 0) (in nil))
     (list
-     :get-state (lambda(state)
+     :state (lambda(state)
 		  (if (eq state :module-name)
 		      name
 		      (error (format nil "Unknown state ~a requested frm module multiplier-module" state))))

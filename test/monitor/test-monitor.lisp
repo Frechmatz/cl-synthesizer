@@ -104,7 +104,7 @@
 		 (assert-equal 1 (get-module-output monitor-backend-module :output-2))
 		 (assert-equal "Counter" (get-module-output monitor-backend-module :output-3))
 		 (funcall (getf rack :shutdown))
-		 (assert-true (funcall (getf monitor-backend-module :get-state) :shutdown-called)))))
+		 (assert-true (funcall (getf monitor-backend-module :state) :shutdown-called)))))
 
 (define-test test-monitor-unpatched-input ()
 	     (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
