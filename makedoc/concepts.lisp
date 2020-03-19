@@ -26,7 +26,7 @@ shutdown the module and so on.</p>
 <p>A module can implement all its logic on its own but it can also use
     other modules. An example of a module using other modules is the
     <a href=\"https://github.com/Frechmatz/cl-synthesizer/blob/master/src/modules/mixer.lisp’\">Mixer</a></p>
-<p>For each input/output socket that a module exposes, it must provide a corresponding setter/getter function. When processing an update, the synthesizer sets the inputs of the module via successive calls to the input setters. An input setter must not change the current output state of the module. When all inputs have been set, the synthesizer calls the update function of the module, which has no arguments. The update function must update the states of the output sockets, by using the previously set input values. This design decision has been made due to performance considerations.</p>
+<p>For each input/output socket that a module exposes, it must provide a corresponding setter/getter function. When processing an update, the synthesizer sets the inputs of the module via successive calls to the input setters. An input setter must not change the current output state of the module. When all inputs have been set, the synthesizer calls the update function of the module, which has no arguments. The update function must update the states of the output sockets, by using the previously set input values.</p>
 <p>Lets create a module:</p>"
 ,(cl-readme:read-code "makedoc/snippets/module-blueprint.lisp")
 "<p>Now lets add our module to a rack (Racks are explained in the following chapter):</p>"
