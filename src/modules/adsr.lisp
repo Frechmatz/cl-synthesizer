@@ -10,7 +10,6 @@
 		      (backward-coupled nil)
 		      (exponential nil))
   "Creates an envelope generator module with the phases Attack, Decay, Sustain and Release.
-    This module has been realized using other modules such as Ramp, Sustain, Trigger and Multiple.
     <p>The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
@@ -20,8 +19,7 @@
 	<li>:decay-time-ms Duration of the decay phase in milliseconds.</li>
 	<li>:decay-target-output Target value of the decay phase.</li>
 	<li>:release-time-ms Duration of the release phase in milliseconds. The release phase climbs to 0.0.</li>
-	<li>:time-cv-to-time-ms Optional function that converts a time control voltage to a duration in milliseconds
-	    (see also Ramp module).</li>
+	<li>:time-cv-to-time-ms Optional function that converts a time control voltage to a duration in milliseconds. The default implementation is 1000ms/1V.</li>
 	<li>:gate-threshold Minimum value of the :gate input that indicates that the gate is on.</li>
         <li>:backward-coupled If t then the output signal of the envelope will be connected with 
             the input of the attack phase. This can be used to avoid sudden jumps of the envelope 
@@ -32,8 +30,8 @@
     <ul>
 	<li>:gate The gate signal (see also :gate-threshold). The envelope starts working when the
 	gate input switches to \"on\" and enters into the release phase when it switches to \"off\".</li>
-	<li>:attack-cv-time Modulates the climbing time of the attack phase (see also Ramp module).</li>
-	<li>:release-cv-time Modulates the climbing time of the release phase (see also Ramp module).</li>
+	<li>:attack-cv-time Modulates the climbing time of the attack phase (see also :time-cv-to-time-ms).</li>
+	<li>:release-cv-time Modulates the climbing time of the release phase (see also :time-cv-to-time-ms).</li>
     </ul></p>
     <p>The module has the following outputs:
     <ul>
