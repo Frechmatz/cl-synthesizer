@@ -177,7 +177,13 @@
   (cl-synthesizer-patches-sine::run-example)
   ;; Generate html files
   (let ((cl-readme:*home-directory* "/Users/olli/src/lisp/cl-synthesizer/")
-	(cl-readme:*tab-width* 8))
+	(cl-readme:*tab-width* 8)
+	(cl-readme:*get-heading-class*
+	 (lambda(level) (format nil "header-class-~a" level)))
+	(cl-readme:*get-toc-container-class*
+	 (lambda(level) (format nil "toc-container-class-~a" level)))
+	(cl-readme:*get-toc-item-class*
+	 (lambda(level) (format nil "toc-item-class-~a" level))))
     (with-open-file (fh (cl-readme:make-path "docs/index.html")
 			:direction :output
 			:if-exists :supersede
