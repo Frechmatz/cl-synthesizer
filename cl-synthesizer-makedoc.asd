@@ -16,6 +16,5 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "utils")
-				     (:file "concepts")
 				     (:file "make-readme")))))
 
