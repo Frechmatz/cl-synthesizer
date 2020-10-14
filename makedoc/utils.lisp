@@ -1,32 +1,35 @@
 (in-package :cl-synthesizer-makedoc)
 
-;;
-;; Todos
-;; - define with-heading macros to reduce bloat
-;;
+(defun get-node (index package-name symbol-name)
+  (aref (docparser:query
+	 index
+	 :package-name (string-upcase package-name)
+	 :symbol-name (string-upcase symbol-name))
+	0))
 
-(defun make-function-string (f)
+(defun make-function-string (index package-name symbol-name)
+  (let* ((node (get-node index package-name symbol-name))
+	 (lambda-list (docparser:operator-lambda-list node)))
+    (concatenate
+     'string
+     "<b>" (string-downcase symbol-name) "</b>&nbsp;"
+     (string-downcase (format nil "~a" (if lambda-list lambda-list "()")))
+     "<p>" (docparser:node-docstring node) "</p>")))
+
+
+(defun make-condition-string (index package-name symbol-name)
+  (let* ((node (get-node index package-name symbol-name)))
+ (concatenate
+  'string
+  "<b>" (string-downcase symbol-name) "</b>"
+  "<p>"  (docparser:node-docstring node) "</p>")))
+
+(defun make-code-string (path)
   (concatenate
    'string
-   "<p>"
-   (cl-readme:sbcl-make-function-decl f)
-   "</p><p>"
-   (documentation f 'function)
-   "</p>"))
-
-(defun make-condition-string (c)
-  (concatenate
-   'string
-   "<b>" (string-downcase (symbol-name c)) "</b>"
-   "<p>"
-   (documentation c 'type)
-   "</p>"))
-
-(defun make-package-string (p)
-  (concatenate
-   'string
-   "<p>" (documentation (find-package p) t)
-   "</p>"))
+   "<p><pre><code>"
+   (cl-html-readme:read-file path :replace-tabs t :escape t)
+   "</code></pre></p>"))
 
 (defun make-example-header (&key (title nil))
   (concatenate
@@ -47,6 +50,7 @@
 (defparameter *show-code* "Show patch")
 (defparameter *hide-code* "Hide patch")
 
+#|
 (defun make-patch (&key package code wave-file (show-code nil))
   (let ((link-id (gensym)) (source-code-id (gensym)))
     (list 'heading (list :name (make-package-string package) :toc t)
@@ -60,3 +64,29 @@
 		  (if show-code "block" "none")
 		  source-code-id
 		  (cl-readme:read-code code)))))
+|#
+
+(defun make-patch (&key package code wave-file (show-code nil))
+  (declare (ignore package code wave-file show-code))
+  "<p>XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</p>"
+  ;; (let ((link-id (gensym)) (source-code-id (gensym)))
+  ;;   (list 'heading (list :name (make-package-string package) :toc t)
+  ;; 	  (make-audio-element wave-file)
+  ;; 	  (format nil "<p><a href=\"#\" id=\"~a\"" link-id)
+  ;; 	  (format nil "onclick=\"return toggleDisplay('~a', '~a', '~a', '~a')\">~a</a></p>"
+  ;; 		  *show-code* *hide-code* link-id source-code-id (if show-code *hide-code* *show-code*))
+  ;; 	  ;; TODO Pass id to read-code
+  ;; 	  (format nil
+  ;; 		  "<div style=\"display: ~a\" id='~a'>~a</div>"
+  ;; 		  (if show-code "block" "none")
+  ;; 		  source-code-id
+  ;; 		  (cl-readme:read-code code)))))
+  )
+
+(defun now ()
+  (multiple-value-bind (sec min hr day mon yr dow dst-p tz)
+      (get-decoded-time)
+    (declare (ignore dow dst-p tz))
+    ;; 2018-09-19 21:28:16
+    (let ((str (format nil "~4,'0d-~2,'0d-~2,'0d  ~2,'0d:~2,'0d:~2,'0d" yr mon day hr min sec)))
+      str)))

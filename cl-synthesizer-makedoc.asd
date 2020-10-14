@@ -7,7 +7,7 @@
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "An audio synthesizer"
   :long-description "An audio synthesizer"
-  :depends-on (:cl-synthesizer :cl-synthesizer-examples :cl-readme)
+  :depends-on (:cl-synthesizer :cl-synthesizer-examples :cl-html-readme :docparser)
   :components ((:module "patches"
 			:serial t
 			:components ((:file "siren")

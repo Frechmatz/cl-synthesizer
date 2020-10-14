@@ -47,7 +47,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds *duration-seconds*)))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3809785681" type="audio/wav"></audio></p><h2 id="Two frequency modulated saws-4"  >Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3811271337" type="audio/wav"></audio></p><h2 id="Two frequency modulated saws-4"  >Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation "Two frequency modulated saws"))
 
@@ -107,7 +107,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
    (example)
    :duration-seconds *duration-seconds*))
   
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3809785681" type="audio/wav"></audio></p><h1 id="Concepts-5"  >Concepts</h1><h2 id="Environment-6"  >Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3811271337" type="audio/wav"></audio></p><h1 id="Concepts-5"  >Concepts</h1><h2 id="Environment-6"  >Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
   ...)</code></pre></p><h2 id="Module-7"  >Module</h2><p>Modules are the heart of cl-synthesizer because they are responsible for producing the actual audio data.</p>
 <p>Modules do have a name, inputs, outputs and a shutdown function. The inputs/outputs are represented by keywords and are so called sockets. The shutdown function can be used to release resources 
 that have been allocated by the module, for example opened files.</p>
@@ -213,12 +213,12 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds 2)))
 
-;; (run-example)</code></pre></p><h1 id="API-10"  >API</h1><h2 id="Environment-11"  >Environment</h2><h3 id="make-environment-12"  >make-environment</h3><p><b>cl-synthesizer:make-environment</b> &key (sample-rate 44100) (home-directory nil) </p><p>Creates an environment. An enviroment is a property list with the following keys:
+;; (run-example)</code></pre></p><h1 id="API-10"  >API</h1><h2 id="Environment-11"  >Environment</h2><h3 id="make-environment-12"  >make-environment</h3><b>make-environment</b>&nbsp;(&key (sample-rate 44100) (home-directory nil))<p>Creates an environment. An enviroment is a property list with the following keys:
     <ul>
 	<li>:sample-rate Sample rate of the synthesizer.</li>
 	<li>:home-directory The base output directory for wave files etc. Default value is the home directory
         of the current user.</li>
-    </ul></p><h2 id="Rack-13"  >Rack</h2><h3 id="make-rack-14"  >make-rack</h3><p><b>cl-synthesizer:make-rack</b> &key environment (input-sockets nil) (output-sockets nil) </p><p>Creates a rack.<p>The function has the following arguments:
+    </ul></p><h2 id="Rack-13"  >Rack</h2><h3 id="make-rack-14"  >make-rack</h3><b>make-rack</b>&nbsp;(&key environment (input-sockets nil) (output-sockets nil))<p>Creates a rack.<p>The function has the following arguments:
     <ul>
 	<li>:environment The synthesizer environment.</li>
         <li>:input-sockets The input sockets to be exposed by the rack. The inputs
@@ -233,7 +233,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
     </p><p>
     The shutdown function of the rack calls the shutdown handlers of all embedded modules and hooks. If the rack has 
     already been shut down the function immediately returns.
-    </p></p><h3 id="add-module-15"  >add-module</h3><p><b>cl-synthesizer:add-module</b> rack module-name module-fn &rest args </p><p>Adds a module to a rack. <p>The function has the following arguments:
+    </p></p><h3 id="add-module-15"  >add-module</h3><b>add-module</b>&nbsp;(rack module-name module-fn &rest args)<p>Adds a module to a rack. <p>The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
 	<li>module-name Unique name of the module, for example "VCO-1". If the name
@@ -269,7 +269,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 	<li>&rest args Arbitrary additional arguments to be passed to the module instantiation function.
 	    These arguments typically consist of keyword parameters.</li>
     </ul></p>
-    Returns the module.</p><h3 id="add-patch-16"  >add-patch</h3><p><b>cl-synthesizer:add-patch</b> rack output-module-name output-socket input-module-name input-socket </p><p>Adds a patch to the rack. A patch is an unidirectional connection between an output socket
+    Returns the module.</p><h3 id="add-patch-16"  >add-patch</h3><b>add-patch</b>&nbsp;(rack output-module-name output-socket input-module-name input-socket)<p>Adds a patch to the rack. A patch is an unidirectional connection between an output socket
     of a source module and an input socket of a destination module. The rack supports cycles 
     which means that an output socket of a module can be patched with one of its inputs (typically via
     multiple hops through other modules). <p>The function has the following arguments:
@@ -290,24 +290,24 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 	<li>The given output-socket is not exposed by the output module.</li>
 	<li>The given input-socket is already connected with a module.</li>
 	<li>The given input-socket is not exposed by the input module.</li>
-    </ul></p></p><h3 id="get-module-17"  >get-module</h3><p><b>cl-synthesizer:get-module</b> rack name </p><p>Get a module of a rack. <p>The function has the following arguments:
+    </ul></p></p><h3 id="get-module-17"  >get-module</h3><b>get-module</b>&nbsp;(rack name)<p>Get a module of a rack. <p>The function has the following arguments:
     <ul>
       <li>rack The rack.</li>
       <li>name The name of the module.</li>
     </ul></p>
-   Returns the module or nil.</p><h3 id="get-module-name-18"  >get-module-name</h3><p><b>cl-synthesizer:get-module-name</b> rack module </p><p>Get the name of a module. <p>The function has the following arguments:
+   Returns the module or nil.</p><h3 id="get-module-name-18"  >get-module-name</h3><b>get-module-name</b>&nbsp;(rack module)<p>Get the name of a module. <p>The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
 	<li>module The module.</li>
     </ul></p>
-   Returns the name or nil if the module does not belong to the rack</p><h3 id="find-module-19"  >find-module</h3><p><b>cl-synthesizer:find-module</b> rack module-path </p><p>Get a module of a rack. <p>The function has the following arguments:
+   Returns the name or nil if the module does not belong to the rack</p><h3 id="find-module-19"  >find-module</h3><b>find-module</b>&nbsp;(rack module-path)<p>Get a module of a rack. <p>The function has the following arguments:
     <ul>
       <li>rack The root rack.</li>
       <li>module-path The path of the module within the rack (through multiple nested racks).</br>
          Example 1: "VCO"</br> 
          Example 2: '("VOICE-1" "VCO")</li>
     </ul></p>
-   Returns nil or a values object consisting of the rack of the module, the module name and the module itself.</p><h3 id="get-patches-20"  >get-patches</h3><p><b>cl-synthesizer:get-patches</b> rack </p><p>Get all patches of a rack. <p>The function has the following arguments:
+   Returns nil or a values object consisting of the rack of the module, the module name and the module itself.</p><h3 id="get-patches-20"  >get-patches</h3><b>get-patches</b>&nbsp;(rack)<p>Get all patches of a rack. <p>The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
     </ul></p>
@@ -317,7 +317,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
      <li>:output-socket Output socket. </li>
      <li>:input-name Name of the input module. </li>
      <li>:input-socket Input socket.</li>
-   </ul></p><h3 id="get-modules-21"  >get-modules</h3><p><b>cl-synthesizer:get-modules</b> rack </p><p>Get all modules of a rack. <p>The function has the following arguments:
+   </ul></p><h3 id="get-modules-21"  >get-modules</h3><b>get-modules</b>&nbsp;(rack)<p>Get all modules of a rack. <p>The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
     </ul></p>
@@ -326,20 +326,21 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
     <ul>
        <li>:module The module</li>
        <li>:name Name of the module</li>
-    </ul></p><h3 id="add-hook-22"  >add-hook</h3><p><b>cl-synthesizer:add-hook</b> rack hook </p><p>Adds a hook to the rack. A hook is called each time after the rack has updated its state.
+    </ul></p><h3 id="add-hook-22"  >add-hook</h3><b>add-hook</b>&nbsp;(rack hook)<p>Adds a hook to the rack. A hook is called each time after the rack has updated its state.
    <p>A hook consists a property list with the following keys:
    <ul>
       <li>:update A function with no arguments that is called after the rack has updated its state.</li>
       <li>:shutdown A function with no arguments that is called when the rack is shutting down.</li>
    </ul></p>
-   Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>.</p><h3 id="play-rack-23"  >play-rack</h3><p><b>cl-synthesizer:play-rack</b> rack &key duration-seconds </p><p>A utility function that "plays" the rack by consecutively calling its update function
+   Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>.</p><h3 id="play-rack-23"  >play-rack</h3><b>play-rack</b>&nbsp;(rack &key duration-seconds)<p>A utility function that "plays" the rack by consecutively calling its update function
     for a given number of "ticks". <p>The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
 	<li>:duration-seconds Duration in seconds of how long to play the rack. If for
 	    example the duration is 2 seconds and the sample rate of the rack as declared
 	    by its environment is 44100, then the update function of the rack will be called 88200 times.</li>
-    </ul></p></p><h3 id="is-rack-24"  >is-rack</h3><p><b>cl-synthesizer:is-rack</b> module </p><p>Returns <b>t</b> if the given module represents a rack.</p><h3 id="get-environment-25"  >get-environment</h3><p><b>cl-synthesizer:get-environment</b> rack </p><p>Returns the environment of the rack.</p><h2 id="Modules-26"  >Modules</h2><h3 id="VCO-27"  >VCO</h3><p><b>cl-synthesizer-modules-vco:make-module</b> name environment &key base-frequency v-peak (cv-lin-hz-v 0.0) (duty-cycle 0.5) (phase-offset 0.0) (f-max 12000.0) (wave-forms nil) (sync-threshold 2.5) </p><p>Creates a Voltage Controlled Oscillator module with 1V/Octave and linear frequency modulation
+    </ul></p></p><h3 id="is-rack-24"  >is-rack</h3><b>is-rack</b>&nbsp;(module)<p>Returns <b>t</b> if the given module represents a rack.</p><h3 id="get-environment-25"  >get-environment</h3><b>get-environment</b>&nbsp;(rack)<p>Returns the environment of the rack.</p><h2 id="Modules-26"  >Modules</h2><h3 id="VCO-27"  >VCO</h3><b>make-module</b>&nbsp;(name environment &key base-frequency v-peak (cv-lin-hz-v 0.0) (duty-cycle 0.5)
+ (phase-offset 0.0) (f-max 12000.0) (wave-forms nil) (sync-threshold 2.5))<p>Creates a Voltage Controlled Oscillator module with 1V/Octave and linear frequency modulation
    inputs. The oscillator has through-zero support.
    <p>The function has the following arguments:
     <ul>
@@ -426,7 +427,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds 1)))
 
-;; (run-example)</code></pre></p><h3 id="VCA-28"  >VCA</h3><p><b>cl-synthesizer-modules-vca:make-module</b> name environment &key cv-max (initial-gain 0.0) (exponential nil) </p><p>Creates a Voltage Controlled Amplifier/Attenuator module. The VCA multiplies an
+;; (run-example)</code></pre></p><h3 id="VCA-28"  >VCA</h3><b>make-module</b>&nbsp;(name environment &key cv-max (initial-gain 0.0) (exponential nil))<p>Creates a Voltage Controlled Amplifier/Attenuator module. The VCA multiplies an
     incoming signal with a factor of 0..1. <p>The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
@@ -495,7 +496,9 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds 5.0)))
 
-;; (run-example)</code></pre></p><h3 id="ADSR-29"  >ADSR</h3><p><b>cl-synthesizer-modules-adsr:make-module</b> name environment &key attack-time-ms attack-target-output decay-time-ms decay-target-output release-time-ms (time-cv-to-time-ms nil) (gate-threshold 2.5) (backward-coupled nil) (exponential nil) </p><p>Creates an envelope generator module with the phases Attack, Decay, Sustain and Release.
+;; (run-example)</code></pre></p><h3 id="ADSR-29"  >ADSR</h3><b>make-module</b>&nbsp;(name environment &key attack-time-ms attack-target-output decay-time-ms
+ decay-target-output release-time-ms (time-cv-to-time-ms nil)
+ (gate-threshold 2.5) (backward-coupled nil) (exponential nil))<p>Creates an envelope generator module with the phases Attack, Decay, Sustain and Release.
     <p>The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
@@ -598,7 +601,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds 3)))
 
-;; (run-example)</code></pre></p><h3 id="Multiple-30"  >Multiple</h3><p><b>cl-synthesizer-modules-multiple:make-module</b> name environment &key output-count </p><p>Creates a Multiple module. A multiple passes the value of exactly one input socket
+;; (run-example)</code></pre></p><h3 id="Multiple-30"  >Multiple</h3><b>make-module</b>&nbsp;(name environment &key output-count)<p>Creates a Multiple module. A multiple passes the value of exactly one input socket
    to as many output sockets as defined by output-count.
    <p>The function has the following arguments:
     <ul>
@@ -641,7 +644,8 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds 10)))
 
-;; (run-example)</code></pre></p><h3 id="MIDI Polyphonic Interface-31"  >MIDI Polyphonic Interface</h3><p><b>cl-synthesizer-modules-midi-polyphonic-interface:make-module</b> name environment &key (voice-count 1) (channel nil) (note-number-to-cv nil) (cv-gate-on 5.0) (cv-gate-off 0.0) (cv-velocity-max 5.0) </p><p>Creates a polyphonic MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
+;; (run-example)</code></pre></p><h3 id="MIDI Polyphonic Interface-31"  >MIDI Polyphonic Interface</h3><b>make-module</b>&nbsp;(name environment &key (voice-count 1) (channel nil) (note-number-to-cv nil)
+ (cv-gate-on 5.0) (cv-gate-off 0.0) (cv-velocity-max 5.0))<p>Creates a polyphonic MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
     voice is represented by a pitch-control voltage, a velocity-control voltage and a gate signal.
     <p>The function has the following arguments:
     <ul>
@@ -669,7 +673,9 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 	<li>:gate-1 ... :gate-n Gate signal.</li>
 	<li>:cv-1 ... :cv-n Pitch control voltage.</li>
 	<li>:velocity-1 ... :velocity-n Velocity control voltage.</li>
-    </ul></p></p><h3 id="MIDI Monophonic Interface-32"  >MIDI Monophonic Interface</h3><p><b>cl-synthesizer-modules-midi-monophonic-interface:make-module</b> name environment &key (channel nil) (note-number-to-cv nil) (cv-gate-on 5.0) (cv-gate-off 0.0) (force-gate-retrigger nil) (stack-depth 5) (cv-velocity-max 5.0) (force-velocity-update nil) </p><p>Creates a monophonic MIDI interface module. The module dispatches MIDI-Note events to a single voice. 
+    </ul></p></p><h3 id="MIDI Monophonic Interface-32"  >MIDI Monophonic Interface</h3><b>make-module</b>&nbsp;(name environment &key (channel nil) (note-number-to-cv nil) (cv-gate-on 5.0)
+ (cv-gate-off 0.0) (force-gate-retrigger nil) (stack-depth 5)
+ (cv-velocity-max 5.0) (force-velocity-update nil))<p>Creates a monophonic MIDI interface module. The module dispatches MIDI-Note events to a single voice. 
    If the voice is already assigned to a note, then the incoming note is pushed on top of the current note.
    <p>The function has the following arguments:
     <ul>
@@ -703,7 +709,8 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
         the velocity of the initiating "note on" event (Gate goes up). Nested "note on" 
         events do not cause an update of this voltage. This behaviour can be overridden 
         by the :force-velocity-update argument.</li>
-    </ul></p></p><h3 id="MIDI CC Interface-33"  >MIDI CC Interface</h3><p><b>cl-synthesizer-modules-midi-cc-interface:make-module</b> name environment &key controller-numbers transform-handler (channel nil) (initial-output 0) (min-output nil) (max-output nil) </p><p>Creates a MIDI CC Event interface module. The module maps MIDI control change events to
+    </ul></p></p><h3 id="MIDI CC Interface-33"  >MIDI CC Interface</h3><b>make-module</b>&nbsp;(name environment &key controller-numbers transform-handler (channel nil)
+ (initial-output 0) (min-output nil) (max-output nil))<p>Creates a MIDI CC Event interface module. The module maps MIDI control change events to
    an output value. <p>The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
@@ -771,7 +778,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 (defun run-example ()
   (cl-synthesizer::play-rack (example) :duration-seconds 5))
 
-;; (run-example)</code></pre></p><h3 id="MIDI Sequencer-34"  >MIDI Sequencer</h3><p><b>cl-synthesizer-modules-midi-sequencer:make-module</b> name environment &key events </p><p>Creates a Midi-Sequencer module.
+;; (run-example)</code></pre></p><h3 id="MIDI Sequencer-34"  >MIDI Sequencer</h3><b>make-module</b>&nbsp;(name environment &key events)<p>Creates a Midi-Sequencer module.
     <p>The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
@@ -863,7 +870,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
   (let ((rack (example)))
     (cl-synthesizer::play-rack rack :duration-seconds 5)))
 
-;; (run-example)</code></pre></p><h3 id="Fixed Output-35"  >Fixed Output</h3><p><b>cl-synthesizer-modules-fixed-output:make-module</b> name environment &key value (output-socket :out) </p><p>Creates a module with a fixed output value.
+;; (run-example)</code></pre></p><h3 id="Fixed Output-35"  >Fixed Output</h3><b>make-module</b>&nbsp;(name environment &key value (output-socket out))<p>Creates a module with a fixed output value.
    <p>The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
@@ -897,7 +904,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 1))
 
-;; (run-example)</code></pre></p><h3 id="Adder-36"  >Adder</h3><p><b>cl-synthesizer-modules-adder:make-module</b> name environment &key input-count </p><p>Creates a simple voltage adder module. 
+;; (run-example)</code></pre></p><h3 id="Adder-36"  >Adder</h3><b>make-module</b>&nbsp;(name environment &key input-count)<p>Creates a simple voltage adder module. 
    <p>The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
@@ -912,7 +919,8 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
     <p>The module has the following outputs:
     <ul>
 	<li>:output The output consisting of the sum of the inputs.</li>
-    </ul></p></p><h3 id="Mixer-37"  >Mixer</h3><p><b>cl-synthesizer-modules-mixer:make-module</b> name environment &key channel-count (channel-cv-max 5.0) (channel-cv-gain 5.0) (main-cv-max 5.0) (main-cv-gain 5.0) </p><p>Creates a mixer module. The mixer provides an attenuator for each input and a main
+    </ul></p></p><h3 id="Mixer-37"  >Mixer</h3><b>make-module</b>&nbsp;(name environment &key channel-count (channel-cv-max 5.0) (channel-cv-gain 5.0)
+ (main-cv-max 5.0) (main-cv-gain 5.0))<p>Creates a mixer module. The mixer provides an attenuator for each input and a main
    attenuator for the mixer output. All attenuators have linear amplification
    characteristic. <p>The function has the following arguments:
     <ul>
@@ -964,7 +972,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
     (cl-synthesizer:add-patch rack "VOICE-2" :audio "MIXER" :channel-2)
     (cl-synthesizer:add-patch rack "MIXER" :output "OUTPUT" :line-out)
     
-    rack))</code></pre></p><h3 id="Trigger-38"  >Trigger</h3><p><b>cl-synthesizer-modules-trigger:make-module</b> name environment &key trigger-threshold pulse-voltage </p><p>Creates a Voltage to Trigger Converter module. 
+    rack))</code></pre></p><h3 id="Trigger-38"  >Trigger</h3><b>make-module</b>&nbsp;(name environment &key trigger-threshold pulse-voltage)<p>Creates a Voltage to Trigger Converter module. 
    The module fires a one clock cycle long pulse when input voltage >= trigger-threshold
    and then waits that the input voltage descends below trigger-threshold before the next
    pulse can be triggered. The module can for example be used to generate a trigger
@@ -1017,7 +1025,9 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds 2)))
 
-;; (run-example)</code></pre></p><h3 id="Ramp-39"  >Ramp</h3><p><b>cl-synthesizer-modules-ramp:make-module</b> name environment &key time-ms target-output (gate-state nil) (trigger-threshold 2.5) (gate-threshold 2.5) (time-cv-to-time-ms nil) (exponential nil) </p><p>Creates a module whose output climbs from a given input value to a given output value
+;; (run-example)</code></pre></p><h3 id="Ramp-39"  >Ramp</h3><b>make-module</b>&nbsp;(name environment &key time-ms target-output (gate-state nil)
+ (trigger-threshold 2.5) (gate-threshold 2.5) (time-cv-to-time-ms nil)
+ (exponential nil))<p>Creates a module whose output climbs from a given input value to a given output value
     in a given time. Main purpose of this module is to create envelope generators by chaining
     multiple ramp and sustain modules. <p>The function has the following arguments:
     <ul>
@@ -1132,7 +1142,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 (defun run-example ()
   (let ((rack (example))) (cl-synthesizer:play-rack rack :duration-seconds 5)))
 
-;; (run-example)</code></pre></p><h3 id="Sustain-40"  >Sustain</h3><p><b>cl-synthesizer-modules-sustain:make-module</b> name environment &key (trigger-threshold 2.5) (gate-threshold 2.5) </p><p>Creates a module which holds a given input as long as its gate input is "on".
+;; (run-example)</code></pre></p><h3 id="Sustain-40"  >Sustain</h3><b>make-module</b>&nbsp;(name environment &key (trigger-threshold 2.5) (gate-threshold 2.5))<p>Creates a module which holds a given input as long as its gate input is "on".
     Main purpose of this module is to create envelope generators by chaining
     multiple ramp and sustain modules. <p>The function has the following arguments:
     <ul>
@@ -1231,7 +1241,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 (defun run-example ()
   (let ((rack (example))) (cl-synthesizer:play-rack rack :duration-seconds 3)))
 
-;; (run-example)</code></pre></p><h3 id="Wave File Writer-41"  >Wave File Writer</h3><p><b>cl-synthesizer-modules-wave-file-writer:make-module</b> name environment &key channel-count filename (v-peak 5.0) (sample-width :16bit) </p><p>Creates a Wave File Writer module. Writes files in "Waveform Audio File" ("WAV") format.
+;; (run-example)</code></pre></p><h3 id="Wave File Writer-41"  >Wave File Writer</h3><b>make-module</b>&nbsp;(name environment &key channel-count filename (v-peak 5.0) (sample-width 16bit))<p>Creates a Wave File Writer module. Writes files in "Waveform Audio File" ("WAV") format.
     <p>The function has the following arguments:
   <ul>
     <li>name Name of the writer.</li>
@@ -1253,7 +1263,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 	  are written in order :channel-1 ... :channel-n</li>
   </ul></p>
   The module has no outputs.
-  <p>The recommended way of Wave file generation is to use a Monitor.</p></p><h3 id="CSV File Writer-42"  >CSV File Writer</h3><p><b>cl-synthesizer-modules-csv-file-writer:make-module</b> name environment &key columns filename (column-separator ",") (add-header t) </p><p>Creates a CSV File Writer module.
+  <p>The recommended way of Wave file generation is to use a Monitor.</p></p><h3 id="CSV File Writer-42"  >CSV File Writer</h3><b>make-module</b>&nbsp;(name environment &key columns filename (column-separator ,) (add-header t))<p>Creates a CSV File Writer module.
     <p>The function has the following arguments:
   <ul>
     <li>name Name of the writer.</li>
@@ -1279,7 +1289,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
      call of the update function and closed by the shutdown handler.
   </p>
   The module has no outputs.
-  <p>The recommended way of CSV file generation is to use a Monitor.</p></p><h2 id="Monitor-43"  >Monitor</h2><h3 id="add-monitor-44"  >add-monitor</h3><p><b>cl-synthesizer-monitor:add-monitor</b> rack monitor-handler socket-mappings &rest additional-handler-args </p><p>Adds a monitor to a rack. <p>The function has the following arguments:
+  <p>The recommended way of CSV file generation is to use a Monitor.</p></p><h2 id="Monitor-43"  >Monitor</h2><h3 id="add-monitor-44"  >add-monitor</h3><b>add-monitor</b>&nbsp;(rack monitor-handler socket-mappings &rest additional-handler-args)<p>Adds a monitor to a rack. <p>The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
 	<li>monitor-handler A function that instantiates the monitor backend.
@@ -1325,7 +1335,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 	</li>
 	<li>&rest additional-handler-args Optional keyword arguments to be passed to
 	    the handler instantiation function.</li>
-    </ul></p></p><h3 id="wave-handler-45"  >wave-handler</h3><p><b>cl-synthesizer-monitor-wave-handler:make-backend</b> name environment inputs &rest rest &key filename &allow-other-keys </p><p>Creates a monitor backend which writes its inputs into a Wave file.
+    </ul></p></p><h3 id="wave-handler-45"  >wave-handler</h3><b>make-backend</b>&nbsp;(name environment inputs &rest rest &key filename &allow-other-keys)<p>Creates a monitor backend which writes its inputs into a Wave file.
     <p>The function has the following arguments:
     <ul>
 	<li>name A name.</li>
@@ -1338,7 +1348,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
        <li>A property list that implements a module (this is the Monitor-Backend).</li>
        <li>An ordered list of input sockets of the module.</li>
     </ul></p>
-    <p>See also cl-synthesizer-modules:wave-file-writer.</p></p><h3 id="csv-handler-46"  >csv-handler</h3><p><b>cl-synthesizer-monitor-csv-handler:make-backend</b> name environment inputs &rest rest &key filename &allow-other-keys </p><p>Creates a monitor backend which writes its inputs into a CSV file.
+    <p>See also cl-synthesizer-modules:wave-file-writer.</p></p><h3 id="csv-handler-46"  >csv-handler</h3><b>make-backend</b>&nbsp;(name environment inputs &rest rest &key filename &allow-other-keys)<p>Creates a monitor backend which writes its inputs into a CSV file.
     <p>The function has the following arguments:
     <ul>
 	<li>name A name.</li>
@@ -1351,11 +1361,11 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
        <li>A property list that implements a module (this is the Monitor-Backend).</li>
        <li>An ordered list of input sockets of the module.</li>
     </ul></p>
-    <p>See also cl-synthesizer-modules:csv-file-writer.</p></p><h2 id="MIDI-47"  >MIDI</h2><h3 id="MIDI Event-48"  >MIDI Event</h3><p><b>cl-synthesizer-midi-event:make-control-change-event</b> channel controller-number value </p><p>Creates a MIDI control change event.</p><p><b>cl-synthesizer-midi-event:make-note-on-event</b> channel note-number velocity </p><p>Creates a MIDI Note-On event.</p><p><b>cl-synthesizer-midi-event:make-note-off-event</b> channel note-number velocity </p><p>Creates a MIDI Note-Off event.</p><p><b>cl-synthesizer-midi-event:control-change-eventp</b> event </p><p>Returns t if the given MIDI event is a Control-Change event.</p><p><b>cl-synthesizer-midi-event:note-on-eventp</b> event </p><p>Returns t if the given MIDI event is a Note-On event.</p><p><b>cl-synthesizer-midi-event:note-off-eventp</b> event </p><p>Returns t if the given MIDI event is a Note-Off event.</p><p><b>cl-synthesizer-midi-event:get-channel</b> event </p><p>Returns the MIDI channel number to which the event belongs.</p><p><b>cl-synthesizer-midi-event:get-controller-number</b> event </p><p>Returns the controller number of a Control-Change MIDI event.</p><p><b>cl-synthesizer-midi-event:get-controller-value</b> event </p><p>Returns the controller value of a Control-Change MIDI event.</p><p><b>cl-synthesizer-midi-event:get-note-number</b> event </p><p>Returns the note number of Note-On/Off MIDI event.</p><p><b>cl-synthesizer-midi-event:get-velocity</b> event </p><p>Returns the velocity of a Note-On/Off MIDI event.</p><h3 id="MIDI Utilities-49"  >MIDI Utilities</h3><p><b>cl-synthesizer-midi:get-note-number-frequency</b> note-number </p><p>Returns the frequency of a given note number. Note number 69 results in a frequency of 440Hz.
+    <p>See also cl-synthesizer-modules:csv-file-writer.</p></p><h2 id="MIDI-47"  >MIDI</h2><h3 id="MIDI Event-48"  >MIDI Event</h3><b>make-control-change-event</b>&nbsp;(channel controller-number value)<p>Creates a MIDI control change event.</p><b>make-note-on-event</b>&nbsp;(channel note-number velocity)<p>Creates a MIDI Note-On event.</p><b>make-note-off-event</b>&nbsp;(channel note-number velocity)<p>Creates a MIDI Note-Off event.</p><b>control-change-eventp</b>&nbsp;(event)<p>Returns t if the given MIDI event is a Control-Change event.</p><b>note-on-eventp</b>&nbsp;(event)<p>Returns t if the given MIDI event is a Note-On event.</p><b>note-off-eventp</b>&nbsp;(event)<p>Returns t if the given MIDI event is a Note-Off event.</p><b>get-channel</b>&nbsp;(event)<p>Returns the MIDI channel number to which the event belongs.</p><b>get-controller-number</b>&nbsp;(event)<p>Returns the controller number of a Control-Change MIDI event.</p><b>get-controller-value</b>&nbsp;(event)<p>Returns the controller value of a Control-Change MIDI event.</p><b>get-note-number</b>&nbsp;(event)<p>Returns the note number of Note-On/Off MIDI event.</p><b>get-velocity</b>&nbsp;(event)<p>Returns the velocity of a Note-On/Off MIDI event.</p><h3 id="MIDI Utilities-49"  >MIDI Utilities</h3><b>get-note-number-frequency</b>&nbsp;(note-number)<p>Returns the frequency of a given note number. Note number 69 results in a frequency of 440Hz.
    This function implements a mapping according to 
    <a href="http://subsynth.sourceforge.net/midinote2freq.html">midinote2freq</a></p><h2 id="Conditions-50"  >Conditions</h2><b>assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
    because for example a module name is not unique, a patch is added for
    a non-existing module, a patch is added to an already patched socket
    and so on.</p><h1 id="Acknowledgements-51"  >Acknowledgements</h1><ul>
 <li>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></li>
-</ul></section><footer  ><p><small>Generated 2020-09-22  19:48:01</small></p></footer></body></html>
+</ul></section><footer  ><p><small>Generated 2020-10-10  00:28:57</small></p></footer></body></html>
