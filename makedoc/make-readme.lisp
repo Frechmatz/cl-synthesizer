@@ -1,52 +1,127 @@
 (in-package :cl-synthesizer-makedoc)
 
+;;
+;; Helper functions
+;;
 
-(defun get-readme (lib-index)
-  `("<html>"
-    "<head>"
-    ;; "<link rel=\"stylesheet\" href=\"//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic\">"
-    ;; "<link rel=\"stylesheet\" href=\"//cdn.rawgit.com/necolas/normalize.css/master/normalize.css\">"
-    ;; "<link rel=\"stylesheet\" href=\"//cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css\">"
-    "</head>"
-    "<body>"
+(defun make-index (system)
+  (docparser:parse system))
+
+(defun get-node (index package-name symbol-name)
+  (aref (docparser:query
+	     index
+	     :package-name (string-upcase package-name)
+	     :symbol-name (string-upcase symbol-name))
+	0))
+
+(defun get-package-docstring (index package-name)
+  (let ((docstring nil))
+    (docparser:do-packages (package index)
+      (if (string= (string-upcase package-name) (docparser:package-index-name package))
+	  (setf docstring (docparser:package-index-docstring package))))
+    (if (not docstring)
+	(error "Package ~a not found" package-name))
+    docstring))
+
+(defun make-function-string (index package-name symbol-name)
+  (let* ((node (get-node index package-name symbol-name))
+	 (lambda-list (docparser:operator-lambda-list node)))
+    (concatenate
+     'string
+     "<b>" (string-downcase symbol-name) "</b>&nbsp;"
+     (string-downcase (format nil "~a" (if lambda-list lambda-list "()")))
+     "<p>" (docparser:node-docstring node) "</p>")))
+
+(defun make-package-string (index package-name)
+  (concatenate
+   'string
+   "<p>" (get-package-docstring index package-name) "</p>"))
+
+(defun make-condition-string (index package-name symbol-name)
+  (let* ((node (get-node index package-name symbol-name)))
+ (concatenate
+  'string
+  "<b>" (string-downcase symbol-name) "</b>"
+  "<p>"  (docparser:node-docstring node) "</p>")))
+
+(defun make-code-string (path)
+  (concatenate
+   'string
+   "<p><pre><code>"
+   (cl-html-readme:read-file path :replace-tabs t :escape t)
+   "</code></pre></p>"))
+
+(defun make-example-header (&key (title nil))
+  (concatenate
+   'string
+   "<p><b>" (if title title "Example") "</b></p>"))
+      
+(defun make-audio-element (filename)
+  (concatenate
+   'string
+   "<p><audio controls preload=\"none\">" ;; loop=\"false\">"
+   "Your browser does not support the <code>audio</code> element."
+   "<source src=\""
+   ;; Add query parameter with timestamp as a cache buster
+   (format nil "~a?cb=~a" filename (get-universal-time))
+   "\" type=\"audio/wav\">"
+   "</audio></p>"))
+
+(defun make-patch (index &key package path wave-file (show-code nil))
+  (let ((link-id (gensym)) (source-code-id (gensym)))
+    (list 'heading (list :name (make-package-string index package) :toc t)
+	  (make-audio-element wave-file)
+	  (format nil "<p><a href=\"#\" id=\"~a\"" link-id)
+	  (format nil "onclick=\"return toggleDisplay('~a', '~a', '~a', '~a')\">~a</a></p>"
+		  "Show patch"
+		  "Hide patch"
+		  link-id source-code-id (if show-code "Hide patch" "Show patch"))
+	  (format nil
+		  "<div style=\"display: ~a\" id='~a'>~a</div>"
+		  (if show-code "block" "none")
+		  source-code-id
+		  (make-code-string path)))))
+
+(defun now ()
+  (multiple-value-bind (sec min hr day mon yr dow dst-p tz)
+      (get-decoded-time)
+    (declare (ignore dow dst-p tz))
+    ;; 2018-09-19 21:28:16
+    (let ((str (format nil "~4,'0d-~2,'0d-~2,'0d  ~2,'0d:~2,'0d:~2,'0d" yr mon day hr min sec)))
+      str)))
+
+
+;;
+;; Readme
+;;
+
+(defun get-readme (lib-index readme-index)
+  `("<html><body>"
     (semantic (:name "header")
 	      (heading
 	       (:name "cl-synthesizer")
-	       ,(cl-html-readme:read-file "makedoc/introduction.html")
-	       ,(cl-html-readme:read-file "makedoc/principles.html"))
-	      "<p>The source code of cl-synthesizer can be found <a href=\"https://github.com/Frechmatz/cl-synthesizer\">here</a>.</p>")
+	       ,(cl-html-readme:read-file "makedoc/introduction.html")))
     (semantic (:name "nav")
 	      (heading (:name "Table of contents") (toc)))
     (semantic (:name "section")
 	      (heading (:name "Installation" :toc t)
 		       ,(cl-html-readme:read-file "makedoc/installation.html"))
 	      (heading (:name "Examples" :toc t)
-		       (heading (:toc t :name ,(documentation (find-package 'cl-synthesizer-patches-sine) t))
-				,(make-code-string "patches/sine.lisp")
-				,(make-audio-element "sine.wav"))
-		       (heading (:toc t :name ,(documentation (find-package 'cl-synthesizer-patches-siren) t))
-				,(make-code-string "patches/siren.lisp")
-				,(make-audio-element "siren.wav")))
+		       (heading (:toc t
+				 :name ,(get-package-docstring readme-index "cl-synthesizer-patches-sine")))
+		       ,(make-code-string "patches/sine.lisp")
+		       ,(make-audio-element "sine.wav")
+		       (heading (:toc t
+				 :name ,(get-package-docstring readme-index "cl-synthesizer-patches-siren")))
+		       ,(make-code-string "patches/siren.lisp")
+		       ,(make-audio-element "siren.wav"))
 	      (heading (:name "Concepts" :toc t)
 		       (heading (:name "Environment" :toc t)
-				"<p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p>"
+				,(cl-html-readme:read-file "makedoc/environment-introduction.html")
 				,(make-code-string "makedoc/snippets/environment-make-environment.lisp"))
 		       (heading (:name "Module" :toc t)
-				"<p>Modules are the heart of cl-synthesizer because they are responsible for producing the actual audio data.</p>
-<p>Modules do have a name, inputs, outputs and a shutdown function. The inputs/outputs are represented by keywords and are so called sockets. The shutdown function can be used to release resources 
-that have been allocated by the module, for example opened files.</p>
-<p>Beside the input/output sockets a module can also provide \"state sockets\".
-State sockets expose internal states of the module. These sockets are not accessible when connecting modules with each other. They are meant 
-to be a debugging/analysis tool. For example to create a plot of the phase of an oscillator over time, a :phase state socket in conjunction with a Monitor is the way to go.</p>
-<p>A module is represented by a property list. This list provides functions such as to get the input sockets, to get the output sockets, to get the state sockets, 
-to set input values, to retrieve output values, to update the module, to shutdown the module and so on.</p>
-<p>A module must provide a factory/instantiation function. The typical name of this function is \"make-module\". When a module is added to the synthesizer then not the 
-    readily instantiated module is passed, but its factory function. This function is called by the synthesizer. The synthesizer passes the module name, 
-    the environment and any arbitrary initialization parameters to it.</p>
-<p>A module can implement all its logic on its own but it can also use other modules. An example of a module using other modules is the
-    <a href=\"https://github.com/Frechmatz/cl-synthesizer/blob/master/src/modules/mixer.lisp\">Mixer</a>.</p>
-<p>For each input/output socket that a module exposes, it must provide a corresponding setter/getter function. When processing an update, the synthesizer sets the inputs of the module via successive calls to the input setters. An input setter must not change the current output state of the module. When all inputs have been set, the synthesizer calls the update function of the module, which has no arguments. The update function must update the states of the output sockets by using the previously set input values.</p>
-<p>Lets create a module:</p>"
+				,(cl-html-readme:read-file "makedoc/module-introduction.html")
+				"<p>Lets create a module:</p>"
 				,(make-code-string "makedoc/snippets/module-blueprint.lisp")
 				"<p>Now lets add our module to a rack (Racks are explained in the following chapter):</p>"
 				,(make-code-string "makedoc/snippets/module-blueprint-add.lisp"))
@@ -65,17 +140,7 @@ to set input values, to retrieve output values, to update the module, to shutdow
 				,(make-code-string "makedoc/snippets/rack-expose-sockets.lisp")
 				"<p>A more comprehensive example can be found <a href=\"https://github.com/Frechmatz/cl-synthesizer/blob/master/patches/siren.lisp\">here</a>.</p>")
 		       (heading (:name "Monitor" :toc t)
-				"<p>Monitors are high-level Rack-Hooks. The purpose of a monitor
-is to collect module states and pass them to a \"Monitor-Backend\". A backend may
-for example generate a Wave file.</p> 
-<p>Monitors provide a simple syntax for declaring the module sockets to be tracked (input, output and state) as well as any other settings supported by specific backends.</p>
-<p>A backend is typically realized as a plain module, which declares
-input sockets, output sockets, a shutdown function and so on. Backends are 
-instantiated by a so called \"Monitor-Handler\".</p>
-<p>A Monitor-Handler is a factory function whose purpose is to prepare the initialization 
-parameters of a specific backend (e.g. a Wave-File-Writer module), to set up the 
-mapping of the values collected by the monitor to input sockets of the backend 
-and finally to instantiate it.</p>"
+				,(cl-html-readme:read-file "makedoc/monitor-introduction.html")
 				,(make-example-header)
 				,(make-code-string "src/monitor/monitor/example-1.lisp")))
 	      (heading (:name "API" :toc t)
@@ -107,8 +172,7 @@ and finally to instantiate it.</p>"
 					 ,(make-function-string lib-index "cl-synthesizer" "is-rack"))
 				(heading (:toc t :name "get-environment")
 					 ,(make-function-string lib-index "cl-synthesizer" "get-environment")))
-		       (heading
-			(:toc t :name "Modules")
+		       (heading	(:toc t :name "Modules")
 			(heading (:toc t :name "VCO")
 				 ,(make-function-string lib-index "cl-synthesizer-modules-vco" "make-module")
 				 ,(make-example-header)
@@ -190,45 +254,44 @@ and finally to instantiate it.</p>"
 	      (heading (:name "Acknowledgements" :toc t)
 		       ,(cl-html-readme:read-file "makedoc/acknowledge.html")))
     (semantic (:name "footer")
-	      "<p><small>Generated " ,(now) "</small></p>")
+	      "<hr/><p><small>Generated " ,(now) "</small></p>")
     "</body></html>"))
 
-(defun get-patches (lib-index examples-index)
-  (declare (ignore lib-index examples-index))
-  `("<html>"
-    "<head>"
-    ;;"<link rel=\"stylesheet\" href=\"//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic\">"
-    ;;"<link rel=\"stylesheet\" href=\"//cdn.rawgit.com/necolas/normalize.css/master/normalize.css\">"
-    ;;"<link rel=\"stylesheet\" href=\"//cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css\">"
-    "</head>"
+;;
+;; Patches
+;;
+
+(defun get-patches (readme-index)
+  `("<html><head>"
     "<script type=\"text/javascript\" src=\"toggledisplay.js\"></script>"
-    "<body>"
+    "</head><body>"
     (semantic (:name "header")
 	      (heading (:name "cl-synthesizer-patches")
-		       "Example patches for cl-synthesizer. Work in progress..."
-		       "<p>Back to the <a href=\"https://frechmatz.github.io/cl-synthesizer/\">project site.</a></p>"))
-    ;;(semantic (:name "nav")
-    ;;   (heading (:name "Patches") TOC))
+		       ,(cl-html-readme:read-file "makedoc/patches-introduction.html")))
     (semantic (:name "section")
-	      ,(make-patch :package 'cl-synthesizer-patches-sine
-			   :code "patches/sine.lisp"
+	      ,(make-patch readme-index
+			   :package "cl-synthesizer-patches-sine"
+			   :path "patches/sine.lisp"
 			   :wave-file "sine.wav")
-	      ,(make-patch :package 'cl-synthesizer-patches-siren
-			   :code "patches/siren.lisp"
+	      ,(make-patch readme-index
+			   :package "cl-synthesizer-patches-siren"
+			   :path "patches/siren.lisp"
 			   :wave-file "siren.wav"))
     (semantic (:name "footer")
-	      "<p><small>Generated " ,(now) "</small></p>")
+	      "<hr/><p><small>Generated " ,(now) "</small></p>")
     "</body></html>"))
 
+;;
+;; Generate index.html, patches.html
+;;
 
 (defun make-readme ()
   ;; Generate patches
   (cl-synthesizer-patches-siren::run-example)
   (cl-synthesizer-patches-sine::run-example)
   ;; Generate html files
-  (let ((lib-index (docparser:parse :cl-synthesizer))
-	(examples-index (docparser:parse :cl-synthesizer-examples)))
-    (docparser:dump lib-index)
+  (let ((lib-index (make-index :cl-synthesizer))
+	(readme-index (make-index :cl-synthesizer-makedoc)))
     (let ((cl-html-readme:*home-directory* "/Users/olli/src/lisp/cl-synthesizer/")
 	  (cl-html-readme:*tab-width* 8))
       (with-open-file (fh (cl-html-readme:make-path "docs/index.html")
@@ -236,13 +299,13 @@ and finally to instantiate it.</p>"
 			  :if-exists :supersede
 			  :if-does-not-exist :create
 			  :external-format :utf-8)
-	(cl-html-readme:doc-to-html fh (get-readme lib-index)))
+	(cl-html-readme:doc-to-html fh (get-readme lib-index readme-index)))
       (with-open-file (fh (cl-html-readme:make-path "docs/patches.html")
 			  :direction :output
 			  :if-exists :supersede
 			  :if-does-not-exist :create
 			  :external-format :utf-8)
-	(cl-html-readme:doc-to-html fh (get-patches lib-index examples-index)))))
+	(cl-html-readme:doc-to-html fh (get-patches readme-index)))))
     "DONE")
 
 ;;(make-readme)
