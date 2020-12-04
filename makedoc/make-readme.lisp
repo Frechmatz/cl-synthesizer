@@ -292,7 +292,7 @@
   ;; Generate html files
   (let ((lib-index (make-index :cl-synthesizer))
 	(readme-index (make-index :cl-synthesizer-makedoc)))
-    (let ((cl-html-readme:*home-directory* "/Users/olli/src/lisp/cl-synthesizer/")
+    (let ((cl-html-readme:*home-directory* (asdf:system-source-directory :cl-synthesizer-makedoc))
 	  (cl-html-readme:*tab-width* 8))
       (with-open-file (fh (cl-html-readme:make-path "docs/index.html")
 			  :direction :output
