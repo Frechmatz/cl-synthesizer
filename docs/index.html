@@ -1,4 +1,4 @@
-<html><body><header><h1>cl-synthesizer</h1><p>A Modular Audio Synthesizer Engine implemented in Common Lisp.
+<html><head><link href="styles.css" rel="stylesheet" type="text/css"/></head><body><header><h1>cl-synthesizer</h1><p>A Modular Audio Synthesizer Engine implemented in Common Lisp.
     <p>cl-synthesizer is an easy to use library which follows the approach of
       a classical hardware modular synthesizer, where modules are put into a rack and patched together with cables.</p>
 </p>
@@ -19,8 +19,8 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 
 (defun example ()
   (let ((rack (cl-synthesizer:make-rack
-               :environment (cl-synthesizer:make-environment)
-               :output-sockets '(:sine))))
+           :environment (cl-synthesizer:make-environment)
+           :output-sockets '(:sine))))
     
     (cl-synthesizer:add-module
      rack
@@ -48,7 +48,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds *duration-seconds*)))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3816102032" type="audio/wav"></audio></p><h2 id="Two frequency modulated saws">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3817218757" type="audio/wav"></audio></p><h2 id="Two frequency modulated saws">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation &quot;Two frequency modulated saws&quot;))
 
@@ -58,9 +58,9 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
   &quot;Frequency modulated saw&quot;
   (declare (ignore name))
   (let ((voice
-         (cl-synthesizer:make-rack
-          :environment environment
-          :output-sockets '(:audio))))
+     (cl-synthesizer:make-rack
+      :environment environment
+      :output-sockets '(:audio))))
     
     (cl-synthesizer:add-module
      voice &quot;LFO&quot;
@@ -79,8 +79,8 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
   
 (defun example ()
   (let ((rack (cl-synthesizer:make-rack
-               :environment (cl-synthesizer:make-environment)
-               :output-sockets '(:left :right))))
+           :environment (cl-synthesizer:make-environment)
+           :output-sockets '(:left :right))))
 
     (cl-synthesizer:add-module
      rack &quot;VOICE-1&quot; #'make-voice :lfo-frequency 1.0 :vco-frequency 440.0)
@@ -108,7 +108,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
    (example)
    :duration-seconds *duration-seconds*))
   
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3816102032" type="audio/wav"></audio></p><h1 id="Concepts">Concepts</h1><h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3817218757" type="audio/wav"></audio></p><h1 id="Concepts">Concepts</h1><h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
   ...)</code></pre></p><h2 id="Module">Module</h2>"<p>Modules are the heart of cl-synthesizer because they are responsible for producing the actual audio data.</p>
 <p>Modules do have a name, inputs, outputs and a shutdown function. The inputs/outputs are represented by keywords and are so called sockets. The shutdown function can be used to release resources 
 that have been allocated by the module, for example opened files.</p>
@@ -132,21 +132,21 @@ to set input values, to retrieve output values, to update the module, to shutdow
 (defun make-module (name environment &amp;key module-param)
   (let ((input-1 nil) (input-2 nil) (output-1 nil) (output-2 nil))
     (let ((inputs
-           (list
-            :input-1 (lambda(value) (setf input-1 value))
-            :input-2 (lambda(value) (setf input-2 value))))
-          (outputs
-           (list
-            :output-1 (lambda() output-1)
-            :output-2 (lambda() output-2))))
+       (list
+        :input-1 (lambda(value) (setf input-1 value))
+        :input-2 (lambda(value) (setf input-2 value))))
+      (outputs
+       (list
+        :output-1 (lambda() output-1)
+        :output-2 (lambda() output-2))))
       (list
        :inputs (lambda () inputs)
        :outputs (lambda () outputs)
        :update (lambda ()
-                 (setf output-1 input-1)
-                 (setf output-2 input-2))
+         (setf output-1 input-1)
+         (setf output-2 input-2))
        :state (lambda (key)
-                    (if (eq key :module-param) module-param nil))
+            (if (eq key :module-param) module-param nil))
        :shutdown (lambda ())))))</code></pre></p><p>Now lets add our module to a rack (Racks are explained in the following chapter):</p><p><pre><code>(let ((rack ...))
   (cl-synthesizer:add-module rack &quot;MODULE-1&quot; #'blueprint-module:make-module :module-param 1234))</code></pre></p><h2 id="Rack">Rack</h2><p>Racks contain modules and their connections which each other. The connections are so called "Patches". A rack is represented by a property list, which is fully compatible with a module. Beside the module functionality a rack provides Module and Patch management, Hooks and Compilation. Racks are instantiated via "cl-synthesizer:make-rack"</p><p><pre><code>(let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment)))) ... )</code></pre></p><p>After the rack has been created, modules and patches can be added to it.</p><p><pre><code>(let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
   (cl-synthesizer:add-module rack &quot;LFO&quot; ...)
@@ -156,9 +156,9 @@ to set input values, to retrieve output values, to update the module, to shutdow
     (let ((sine (funcall (getf module-outputs :sine))))
       (format t &quot;Sine: ~a&quot; sine))))</code></pre></p><p>When all things are done the rack should be shut down in order to release any resources that may have been allocated, such as opened files.</p><p><pre><code>(funcall (getf rack :shutdown))</code></pre></p><p>Racks may expose input and output sockets. When a rack exposes sockets it can be used like any other module when populating another rack. The inputs and outputs are accessible by the internal patching of the rack via so called "Bridge modules". "INPUT" provides the inputs, and "OUTPUT" the outputs of the rack.</p><p><pre><code>(let ((rack
        (cl-synthesizer:make-rack
-        :environment ...
-        :input-sockets '(:rack-input-1)
-        :output-sockets '(:rack-output-1))))
+    :environment ...
+    :input-sockets '(:rack-input-1)
+    :output-sockets '(:rack-output-1))))
 
   (cl-synthesizer:add-module rack &quot;SOME-MODULE&quot; ...)
   (cl-synthesizer:add-patch rack &quot;INPUT&quot; :rack-input-1 &quot;SOME-MODULE&quot; :module-input)
@@ -533,9 +533,9 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 (defun make-voice (name environment &amp;key exponential)
   (declare (ignore name))
   (let ((rack (cl-synthesizer:make-rack
-               :environment environment
-               :input-sockets '(:gate)
-               :output-sockets '(:adsr-out))))
+           :environment environment
+           :input-sockets '(:gate)
+           :output-sockets '(:adsr-out))))
 
     (cl-synthesizer:add-module
      rack &quot;ADSR&quot;
@@ -553,18 +553,18 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 (defun example ()
   &quot;ADSR example. Linear vs. Exponential&quot;
   (let ((rack (cl-synthesizer:make-rack
-               :environment (cl-synthesizer:make-environment))))
+           :environment (cl-synthesizer:make-environment))))
     
     (cl-synthesizer:add-module
      rack &quot;MIDI-SEQUENCER&quot;
      #'cl-synthesizer-modules-midi-sequencer:make-module :events
      (list 
       (list :timestamp-milli-seconds 0
-            :midi-events (list
-                          (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
       (list :timestamp-milli-seconds 1500
-            :midi-events (list
-                          (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))))
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))))
 
     (cl-synthesizer:add-module
      rack &quot;MIDI-IFC&quot;
@@ -624,8 +624,8 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 (defun example ()
   &quot;Multiple example&quot;
   (let ((rack (cl-synthesizer:make-rack
-               :environment (cl-synthesizer:make-environment)
-               :output-sockets '(:line-out-1 :line-out-2))))
+           :environment (cl-synthesizer:make-environment)
+           :output-sockets '(:line-out-1 :line-out-2))))
     
     (cl-synthesizer:add-module
      rack &quot;LFO&quot;
@@ -633,7 +633,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
      :base-frequency 1.0 :v-peak 1.0)
     
     (cl-synthesizer:add-module rack &quot;MULTIPLE&quot;
-                               #'cl-synthesizer-modules-multiple:make-module :output-count 5)
+                   #'cl-synthesizer-modules-multiple:make-module :output-count 5)
     (cl-synthesizer:add-patch rack &quot;LFO&quot; :sine &quot;MULTIPLE&quot; :input)
     (cl-synthesizer:add-patch rack &quot;MULTIPLE&quot; :output-1 &quot;OUTPUT&quot; :line-out-1)
     (cl-synthesizer:add-patch rack &quot;MULTIPLE&quot; :output-2 &quot;OUTPUT&quot; :line-out-2)
@@ -751,8 +751,8 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 (defun example ()
   &quot;MIDI CC-Interface Example&quot;
   (let ((rack (cl-synthesizer:make-rack
-               :environment (cl-synthesizer:make-environment)
-               :input-sockets '(:midi-events))))
+           :environment (cl-synthesizer:make-environment)
+           :input-sockets '(:midi-events))))
 
     (cl-synthesizer:add-module
      rack &quot;MIDI-CC-IFC&quot; #'cl-synthesizer-modules-midi-cc-interface:make-module
@@ -764,11 +764,11 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
      (lambda (cur-output controller-number control-value)
        (declare (ignore controller-number))
        (cond
-         ((= control-value 61)
-          (+ cur-output -0.5))
-         ((= control-value 67)
-          (+ cur-output 0.5))
-         (t cur-output)))
+     ((= control-value 61)
+      (+ cur-output -0.5))
+     ((= control-value 67)
+      (+ cur-output 0.5))
+     (t cur-output)))
      :channel nil)
     
     (cl-synthesizer:add-patch rack &quot;INPUT&quot; :midi-events &quot;MIDI-CC-IFC&quot; :midi-events)
@@ -802,8 +802,8 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 (defun example ()
   &quot;Midi-Sequencer example&quot;
   (let ((rack (cl-synthesizer:make-rack
-               :environment (cl-synthesizer:make-environment)
-               :output-sockets '(:line-out))))
+           :environment (cl-synthesizer:make-environment)
+           :output-sockets '(:line-out))))
 
     ;; Add sequencer
     (cl-synthesizer:add-module
@@ -812,17 +812,17 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
      #'cl-synthesizer-modules-midi-sequencer:make-module :events
      (list 
       (list :timestamp-milli-seconds 0
-            :midi-events (list
-                          (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
       (list :timestamp-milli-seconds 1000
-            :midi-events (list
-                          (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
       (list :timestamp-milli-seconds 2000
-            :midi-events (list
-                          (cl-synthesizer-midi-event:make-note-on-event 1 75 100)))
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-note-on-event 1 75 100)))
       (list :timestamp-milli-seconds 2500
-            :midi-events (list
-                          (cl-synthesizer-midi-event:make-note-off-event 1 75 100)))))
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-note-off-event 1 75 100)))))
 
     ;; Add MIDI Interface and connect it with the MIDI Sequencer
     (cl-synthesizer:add-module
@@ -888,8 +888,8 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 (defun example ()
   &quot;Fixed-Output example&quot;
   (let ((rack (cl-synthesizer:make-rack
-               :environment (cl-synthesizer:make-environment)
-               :output-sockets '(:line-out))))
+           :environment (cl-synthesizer:make-environment)
+           :output-sockets '(:line-out))))
     
     (cl-synthesizer:add-module
      rack &quot;FIXED-OUTPUT&quot;
@@ -953,8 +953,8 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 (defun example ()
   &quot;Mixer example.&quot;
   (let ((rack (cl-synthesizer:make-rack
-               :environment (cl-synthesizer:make-environment)
-               :output-sockets '(:line-out))))
+           :environment (cl-synthesizer:make-environment)
+           :output-sockets '(:line-out))))
 
     ;;
     ;; add modules...
@@ -1076,8 +1076,8 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
   (let ((rack
          (cl-synthesizer:make-rack
           :environment environment
-          :input-sockets '(:trigger)
-          :output-sockets '(:output))))
+      :input-sockets '(:trigger)
+      :output-sockets '(:output))))
 
     (cl-synthesizer:add-module
      rack &quot;ATTACK&quot;
@@ -1101,7 +1101,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 (defun example ()
   &quot;Linear and Exponential Ramp&quot;
   (let ((rack (cl-synthesizer:make-rack
-               :environment (cl-synthesizer:make-environment))))
+           :environment (cl-synthesizer:make-environment))))
 
     (cl-synthesizer:add-module
      rack &quot;VCO&quot;
@@ -1177,7 +1177,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 (defun example ()
   &quot;Sustain example&quot;
   (let ((rack (cl-synthesizer:make-rack
-               :environment (cl-synthesizer:make-environment))))
+           :environment (cl-synthesizer:make-environment))))
     
     ;; Use MIDI sequencer for generation of Gate signals
     (cl-synthesizer:add-module
@@ -1185,17 +1185,17 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
      #'cl-synthesizer-modules-midi-sequencer:make-module :events
      (list 
       (list :timestamp-milli-seconds 300
-            :midi-events (list
-                          (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
       (list :timestamp-milli-seconds 700
-            :midi-events (list
-                          (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
       (list :timestamp-milli-seconds 1800
-            :midi-events (list
-                          (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
       (list :timestamp-milli-seconds 2100
-            :midi-events (list
-                          (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))))
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))))
 
     (cl-synthesizer:add-module
      rack &quot;MIDI-IFC&quot;
@@ -1366,4 +1366,4 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
    <a href="http://subsynth.sourceforge.net/midinote2freq.html">midinote2freq</a></p><h2 id="Conditions">Conditions</h2><b>assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
    because for example a module name is not unique, a patch is added for
    a non-existing module, a patch is added to an already patched socket
-   and so on.</p><h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section><footer><hr/><p><small>Generated 2020-12-04  21:20:32</small></p></footer></body></html>
+   and so on.</p><h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section><footer><hr/><p><small>Generated 2020-12-17  19:32:37</small></p></footer></body></html>

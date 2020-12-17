@@ -1,5 +1,5 @@
-<html><head><script type="text/javascript" src="toggledisplay.js"></script></head><body><header><h1>cl-synthesizer-patches</h1><p>Example patches for cl-synthesizer. Work in progress...</p>
-<p>Back to the <a href="https://frechmatz.github.io/cl-synthesizer/">project site.</a></p></header><section><h1 id="<p>440Hz sine</p>"><p>440Hz sine</p></h1><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3816102032" type="audio/wav"></audio></p><p><a href="#" id="G508"onclick="return toggleDisplay('Show patch', 'Hide patch', 'G508', 'G509')">Show patch</a></p><div style="display: none" id='G509'><p><pre><code>(defpackage :cl-synthesizer-patches-sine
+<html><head><script type="text/javascript" src="toggledisplay.js"></script><link href="styles.css" rel="stylesheet" type="text/css"/></head><body><header><h1>cl-synthesizer-patches</h1><p>Example patches for cl-synthesizer. Work in progress...</p>
+<p>Back to the <a href="https://frechmatz.github.io/cl-synthesizer/">project site.</a></p></header><section><h1 id="<p>440Hz sine</p>"><p>440Hz sine</p></h1><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3817218757" type="audio/wav"></audio></p><p><a href="#" id="G568"onclick="return toggleDisplay('Show patch', 'Hide patch', 'G568', 'G569')">Show patch</a></p><div style="display: none" id='G569'><p><pre><code>(defpackage :cl-synthesizer-patches-sine
   (:documentation &quot;440Hz sine&quot;)
   (:use :cl))
 
@@ -7,8 +7,8 @@
 
 (defun example ()
   (let ((rack (cl-synthesizer:make-rack
-               :environment (cl-synthesizer:make-environment)
-               :output-sockets '(:sine))))
+           :environment (cl-synthesizer:make-environment)
+           :output-sockets '(:sine))))
     
     (cl-synthesizer:add-module
      rack
@@ -36,7 +36,7 @@
   (let ((rack (example)))
     (cl-synthesizer:play-rack rack :duration-seconds *duration-seconds*)))
 
-;; (run-example)</code></pre></p></div><h1 id="<p>Two frequency modulated saws</p>"><p>Two frequency modulated saws</p></h1><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3816102032" type="audio/wav"></audio></p><p><a href="#" id="G510"onclick="return toggleDisplay('Show patch', 'Hide patch', 'G510', 'G511')">Show patch</a></p><div style="display: none" id='G511'><p><pre><code>(defpackage :cl-synthesizer-patches-siren
+;; (run-example)</code></pre></p></div><h1 id="<p>Two frequency modulated saws</p>"><p>Two frequency modulated saws</p></h1><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3817218757" type="audio/wav"></audio></p><p><a href="#" id="G570"onclick="return toggleDisplay('Show patch', 'Hide patch', 'G570', 'G571')">Show patch</a></p><div style="display: none" id='G571'><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation &quot;Two frequency modulated saws&quot;))
 
@@ -46,9 +46,9 @@
   &quot;Frequency modulated saw&quot;
   (declare (ignore name))
   (let ((voice
-         (cl-synthesizer:make-rack
-          :environment environment
-          :output-sockets '(:audio))))
+     (cl-synthesizer:make-rack
+      :environment environment
+      :output-sockets '(:audio))))
     
     (cl-synthesizer:add-module
      voice &quot;LFO&quot;
@@ -67,8 +67,8 @@
   
 (defun example ()
   (let ((rack (cl-synthesizer:make-rack
-               :environment (cl-synthesizer:make-environment)
-               :output-sockets '(:left :right))))
+           :environment (cl-synthesizer:make-environment)
+           :output-sockets '(:left :right))))
 
     (cl-synthesizer:add-module
      rack &quot;VOICE-1&quot; #'make-voice :lfo-frequency 1.0 :vco-frequency 440.0)
@@ -96,4 +96,4 @@
    (example)
    :duration-seconds *duration-seconds*))
   
-;;(run-example)</code></pre></p></div></section><footer><hr/><p><small>Generated 2020-12-04  21:20:32</small></p></footer></body></html>
+;;(run-example)</code></pre></p></div></section><footer><hr/><p><small>Generated 2020-12-17  19:32:37</small></p></footer></body></html>

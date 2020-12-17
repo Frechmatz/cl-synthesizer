@@ -96,7 +96,9 @@
 ;;
 
 (defun get-readme (lib-index readme-index)
-  `("<html><body>"
+  `("<html>"
+    "<head><link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\"/></head>"
+    "<body>"
     (semantic (:name "header")
 	      (heading
 	       (:name "cl-synthesizer")
@@ -264,6 +266,7 @@
 (defun get-patches (readme-index)
   `("<html><head>"
     "<script type=\"text/javascript\" src=\"toggledisplay.js\"></script>"
+    "<link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\"/>"
     "</head><body>"
     (semantic (:name "header")
 	      (heading (:name "cl-synthesizer-patches")
@@ -293,7 +296,7 @@
   (let ((lib-index (make-index :cl-synthesizer))
 	(readme-index (make-index :cl-synthesizer-makedoc)))
     (let ((cl-html-readme:*home-directory* (asdf:system-source-directory :cl-synthesizer-makedoc))
-	  (cl-html-readme:*tab-width* 8))
+	  (cl-html-readme:*tab-width* 4))
       (with-open-file (fh (cl-html-readme:make-path "docs/index.html")
 			  :direction :output
 			  :if-exists :supersede
