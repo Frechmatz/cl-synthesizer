@@ -19,8 +19,8 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 
 (defun example ()
   (let ((rack (cl-synthesizer:make-rack
-           :environment (cl-synthesizer:make-environment)
-           :output-sockets '(:sine))))
+               :environment (cl-synthesizer:make-environment)
+               :output-sockets '(:sine))))
     
     (cl-synthesizer:add-module
      rack
@@ -30,8 +30,6 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 
     (cl-synthesizer:add-patch rack &quot;VCO&quot; :sine &quot;OUTPUT&quot; :sine)
     
-    ;; We do not want to have a hard wired Wave-Writer module in our rack.
-    ;; Let the file writing stuff be handled by a monitor.
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:make-backend
@@ -40,15 +38,11 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 
     rack))
 
-(defparameter *duration-seconds* 3.0)
-;; parameter and corresponding OUTPUT patches only required for experimental audio output
-(defparameter *audio-output-sockets* '(:sine))
-
 (defun run-example ()
   (let ((rack (example)))
-    (cl-synthesizer:play-rack rack :duration-seconds *duration-seconds*)))
+    (cl-synthesizer:play-rack rack :duration-seconds 3.0)))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3817218757" type="audio/wav"></audio></p><h2 id="Two frequency modulated saws">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3817299098" type="audio/wav"></audio></p><h2 id="Two frequency modulated saws">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation &quot;Two frequency modulated saws&quot;))
 
@@ -58,9 +52,9 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
   &quot;Frequency modulated saw&quot;
   (declare (ignore name))
   (let ((voice
-     (cl-synthesizer:make-rack
-      :environment environment
-      :output-sockets '(:audio))))
+         (cl-synthesizer:make-rack
+          :environment environment
+          :output-sockets '(:audio))))
     
     (cl-synthesizer:add-module
      voice &quot;LFO&quot;
@@ -79,16 +73,13 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
   
 (defun example ()
   (let ((rack (cl-synthesizer:make-rack
-           :environment (cl-synthesizer:make-environment)
-           :output-sockets '(:left :right))))
+               :environment (cl-synthesizer:make-environment)
+               :output-sockets '(:left :right))))
 
     (cl-synthesizer:add-module
      rack &quot;VOICE-1&quot; #'make-voice :lfo-frequency 1.0 :vco-frequency 440.0)
     (cl-synthesizer:add-module
      rack &quot;VOICE-2&quot; #'make-voice :lfo-frequency 2.0 :vco-frequency 442.0)
-
-    (cl-synthesizer:add-patch rack &quot;VOICE-1&quot; :audio &quot;OUTPUT&quot; :left)
-    (cl-synthesizer:add-patch rack &quot;VOICE-2&quot; :audio &quot;OUTPUT&quot; :right)
 
     (cl-synthesizer-monitor:add-monitor
      rack
@@ -99,25 +90,21 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
     
     rack))
 
-(defparameter *duration-seconds* 2.0)
-;; parameter and corresponding OUTPUT patches only required for experimental audio output
-(defparameter *audio-output-sockets* '(:left :right))
-
 (defun run-example ()
   (cl-synthesizer:play-rack
    (example)
-   :duration-seconds *duration-seconds*))
+   :duration-seconds 2.0))
   
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3817218757" type="audio/wav"></audio></p><h1 id="Concepts">Concepts</h1><h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
-  ...)</code></pre></p><h2 id="Module">Module</h2>"<p>Modules are the heart of cl-synthesizer because they are responsible for producing the actual audio data.</p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3817299098" type="audio/wav"></audio></p><h1 id="Concepts">Concepts</h1><h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
+  ...)</code></pre></p><h2 id="Module">Module</h2><p>Modules are the heart of cl-synthesizer because they are responsible for producing the actual audio data.</p>
 <p>Modules do have a name, inputs, outputs and a shutdown function. The inputs/outputs are represented by keywords and are so called sockets. The shutdown function can be used to release resources 
 that have been allocated by the module, for example opened files.</p>
-<p>Beside the input/output sockets a module can also provide \"state sockets\".
+<p>Beside the input/output sockets a module can also provide "state sockets".
 State sockets expose internal states of the module. These sockets are not accessible when connecting modules with each other. They are meant 
 to be a debugging/analysis tool. For example to create a plot of the phase of an oscillator over time, a :phase state socket in conjunction with a Monitor is the way to go.</p>
 <p>A module is represented by a property list. This list provides functions such as to get the input sockets, to get the output sockets, to get the state sockets, 
 to set input values, to retrieve output values, to update the module, to shutdown the module and so on.</p>
-<p>A module must provide a factory/instantiation function. The typical name of this function is \"make-module\". When a module is added to the synthesizer then not the 
+<p>A module must provide a factory/instantiation function. The typical name of this function is "make-module". When a module is added to the synthesizer then not the 
     readily instantiated module is passed, but its factory function. This function is called by the synthesizer. The synthesizer passes the module name, 
     the environment and any arbitrary initialization parameters to it.</p>
 <p>A module can implement all its logic on its own but it can also use other modules. An example of a module using other modules is the
@@ -1366,4 +1353,4 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
    <a href="http://subsynth.sourceforge.net/midinote2freq.html">midinote2freq</a></p><h2 id="Conditions">Conditions</h2><b>assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
    because for example a module name is not unique, a patch is added for
    a non-existing module, a patch is added to an already patched socket
-   and so on.</p><h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section><footer><hr/><p><small>Generated 2020-12-17  19:32:37</small></p></footer></body></html>
+   and so on.</p><h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section><footer><hr/><p><small>Generated 2020-12-18  17:51:38</small></p></footer></body></html>
