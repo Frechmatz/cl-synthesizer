@@ -31,14 +31,15 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
      rack
      #'cl-synthesizer-monitor-wave-handler:make-backend
      '((&quot;VCO&quot; :output-socket :sine))
-     :filename &quot;docs/sine.wav&quot;)
+     :filename &quot;docs/sine.wav&quot;
+     :v-peak 5.0)
 
     rack))
 
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3817310446" type="audio/wav"></audio></p><h2 id="Two frequency modulated saws">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3817314661" type="audio/wav"></audio></p><h2 id="Two frequency modulated saws">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation &quot;Two frequency modulated saws&quot;))
 
@@ -81,14 +82,15 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
      #'cl-synthesizer-monitor-wave-handler:make-backend
      '((&quot;VOICE-1&quot; :output-socket :audio)
        (&quot;VOICE-2&quot; :output-socket :audio))
-     :filename &quot;docs/siren.wav&quot;)
+     :filename &quot;docs/siren.wav&quot;
+     :v-peak 5.0)
     
     rack))
 
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 2.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3817310446" type="audio/wav"></audio></p><h1 id="Concepts">Concepts</h1><h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3817314661" type="audio/wav"></audio></p><h1 id="Concepts">Concepts</h1><h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
   ...)</code></pre></p><h2 id="Module">Module</h2><p>Modules are the heart of cl-synthesizer because they are responsible for producing the actual audio data.</p>
 <p>Modules do have a name, inputs, outputs and a shutdown function. The inputs/outputs are represented by keywords and are so called sockets. The shutdown function can be used to release resources 
 that have been allocated by the module, for example opened files.</p>
@@ -172,7 +174,8 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
      rack
      #'cl-synthesizer-monitor-wave-handler:make-backend
      '((&quot;VCO&quot; :output-socket :sine))
-     :filename &quot;cl-synthesizer-examples/monitor-example-1.wav&quot;)
+     :filename &quot;cl-synthesizer-examples/monitor-example-1.wav&quot;
+     :v-peak 5.0)
 
     ;; Write all waveforms and the phase into a CSV file
     (cl-synthesizer-monitor:add-monitor
@@ -387,7 +390,8 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
        (&quot;VCO&quot; :output-socket :triangle)
        (&quot;VCO&quot; :output-socket :saw)
        (&quot;VCO&quot; :output-socket :square))
-     :filename &quot;cl-synthesizer-examples/vco-example-1.wav&quot;)
+     :filename &quot;cl-synthesizer-examples/vco-example-1.wav&quot;
+     :v-peak 5.0)
 
     (cl-synthesizer-monitor:add-monitor
      rack
@@ -841,7 +845,8 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
      rack
      #'cl-synthesizer-monitor-wave-handler:make-backend
      '((&quot;OUTPUT&quot; :input-socket :line-out))
-     :filename &quot;cl-synthesizer-examples/midi-sequencer-example-1.wav&quot;)
+     :filename &quot;cl-synthesizer-examples/midi-sequencer-example-1.wav&quot;
+     :v-peak 5.0)
     
     rack))
 
@@ -996,7 +1001,8 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
      #'cl-synthesizer-monitor-wave-handler:make-backend
      '((&quot;TRIGGER&quot; :input-socket :input)
        (&quot;TRIGGER&quot; :output-socket :output))
-     :filename &quot;cl-synthesizer-examples/trigger-example-1.wav&quot;)
+     :filename &quot;cl-synthesizer-examples/trigger-example-1.wav&quot;
+     :v-peak 5.0)
 
     rack))
 
@@ -1220,7 +1226,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 (defun run-example ()
   (let ((rack (example))) (cl-synthesizer:play-rack rack :duration-seconds 3)))
 
-;; (run-example)</code></pre></p><h3 id="Wave File Writer">Wave File Writer</h3><b>make-module</b>&nbsp;(name environment &key channel-count filename (v-peak 5.0) (sample-width 16bit))<p>Creates a Wave File Writer module. Writes files in "Waveform Audio File" ("WAV") format.
+;; (run-example)</code></pre></p><h3 id="Wave File Writer">Wave File Writer</h3><b>make-module</b>&nbsp;(name environment &key channel-count filename v-peak (sample-width 16bit))<p>Creates a Wave File Writer module. Writes files in "Waveform Audio File" ("WAV") format.
     <p>The function has the following arguments:
   <ul>
     <li>name Name of the writer.</li>
@@ -1345,4 +1351,4 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
    <a href="http://subsynth.sourceforge.net/midinote2freq.html">midinote2freq</a></p><h2 id="Conditions">Conditions</h2><b>assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
    because for example a module name is not unique, a patch is added for
    a non-existing module, a patch is added to an already patched socket
-   and so on.</p><h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section><footer><hr/><p><small>Generated 2020-12-18  21:00:46</small></p></footer></body></html>
+   and so on.</p><h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section><footer><hr/><p><small>Generated 2020-12-18  22:11:01</small></p></footer></body></html>
