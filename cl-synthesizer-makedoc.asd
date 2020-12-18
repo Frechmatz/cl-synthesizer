@@ -8,7 +8,7 @@
   :description "An audio synthesizer"
   :long-description "An audio synthesizer"
   :depends-on (:cl-synthesizer :cl-html-readme :docparser)
-  :components ((:module "patches"
+  :components ((:module "makedoc/patches"
 			:serial t
 			:components ((:file "siren")
 				     (:file "sine")))

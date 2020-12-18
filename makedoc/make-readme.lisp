@@ -44,6 +44,14 @@
   "<b>" (string-downcase symbol-name) "</b>"
   "<p>"  (docparser:node-docstring node) "</p>")))
 
+(defun make-variable-string (index package-name symbol-name)
+  "Returns HTML representation of a variable"
+  (let ((node (get-node index package-name symbol-name)))
+    (concatenate
+     'string
+     "<b>" (string-downcase symbol-name) "</b>"
+     "<p>" (docparser:node-docstring node) "</p>")))
+
 (defun make-code-string (path)
   (concatenate
    'string
@@ -111,11 +119,11 @@
 	      (heading (:name "Examples" :toc t)
 		       (heading (:toc t
 				 :name ,(get-package-docstring readme-index "cl-synthesizer-patches-sine")))
-		       ,(make-code-string "patches/sine.lisp")
+		       ,(make-code-string "makedoc/patches/sine.lisp")
 		       ,(make-audio-element "sine.wav")
 		       (heading (:toc t
 				 :name ,(get-package-docstring readme-index "cl-synthesizer-patches-siren")))
-		       ,(make-code-string "patches/siren.lisp")
+		       ,(make-code-string "makedoc/patches/siren.lisp")
 		       ,(make-audio-element "siren.wav"))
 	      (heading (:name "Concepts" :toc t)
 		       (heading (:name "Environment" :toc t)
@@ -148,7 +156,9 @@
 	      (heading (:name "API" :toc t)
 		       (heading (:toc t :name "Environment")
 				(heading (:toc t :name "make-environment")
-					 ,(make-function-string lib-index "cl-synthesizer" "make-environment")))
+					 ,(make-function-string lib-index "cl-synthesizer" "make-environment"))
+				(heading (:toc t :name "*home-directory*")
+					 ,(make-variable-string lib-index "cl-synthesizer" "*home-directory*")))
 		       (heading (:toc t :name "Rack")
 				(heading (:toc t :name "make-rack")
 					 ,(make-function-string lib-index "cl-synthesizer" "make-rack"))
@@ -274,11 +284,11 @@
     (semantic (:name "section")
 	      ,(make-patch readme-index
 			   :package "cl-synthesizer-patches-sine"
-			   :path "patches/sine.lisp"
+			   :path "makedoc/patches/sine.lisp"
 			   :wave-file "sine.wav")
 	      ,(make-patch readme-index
 			   :package "cl-synthesizer-patches-siren"
-			   :path "patches/siren.lisp"
+			   :path "makedoc/patches/siren.lisp"
 			   :wave-file "siren.wav"))
     (semantic (:name "footer")
 	      "<hr/><p><small>Generated " ,(now) "</small></p>")
@@ -289,9 +299,10 @@
 ;;
 
 (defun make-readme ()
-  ;; Generate patches
-  (cl-synthesizer-patches-siren::run-example)
-  (cl-synthesizer-patches-sine::run-example)
+  (let ((cl-synthesizer:*home-directory* (asdf:system-source-directory :cl-synthesizer-makedoc)))
+    ;; Generate patches
+    (cl-synthesizer-patches-siren::run-example)
+    (cl-synthesizer-patches-sine::run-example))
   ;; Generate html files
   (let ((lib-index (make-index :cl-synthesizer))
 	(readme-index (make-index :cl-synthesizer-makedoc)))
