@@ -21,7 +21,11 @@
 	       :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module rack "MIXER"
 			       #'cl-synthesizer-modules-mixer:make-module
-			       :channel-count channel-count)
+			       :channel-count channel-count
+			       :channel-cv-max 5.0
+			       :channel-cv-gain 5.0
+			       :main-cv-max 5.0
+			       :main-cv-gain 5.0)
     (dotimes (i channel-count)
       (setup-channel rack i))
     rack))

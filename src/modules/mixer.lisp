@@ -4,8 +4,8 @@
 (defparameter *mixer-input-cv* "cv")
 (defparameter *mixer-input-cv-main* :cv-main)
 
-(defun make-module (name environment &key channel-count (channel-cv-max 5.0) (channel-cv-gain 5.0)
-				 (main-cv-max 5.0) (main-cv-gain 5.0))
+(defun make-module (name environment &key channel-count channel-cv-max channel-cv-gain
+				 main-cv-max main-cv-gain)
   "Creates a mixer module. The mixer provides an attenuator for each input and a main
    attenuator for the mixer output. All attenuators have linear amplification
    characteristic. <p>The function has the following arguments:
