@@ -5,6 +5,7 @@
    :signal-assembly-error
    :invalid-arguments-error
    :signal-invalid-arguments-error
+   :*home-directory*
    :make-environment
    :get-environment
    :make-rack
