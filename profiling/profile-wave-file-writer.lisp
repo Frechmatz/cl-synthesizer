@@ -18,7 +18,8 @@
        ("VCO" :output-socket :sine :name "Sine 2")
        ("VCO" :output-socket :sine :name "Sine 3")
        ("VCO" :output-socket :sine :name "Sine 4"))
-     :filename filename)
+     :filename filename
+     :v-peak 5.0)
 
     rack))
 
