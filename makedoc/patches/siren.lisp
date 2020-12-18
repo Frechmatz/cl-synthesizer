@@ -47,9 +47,6 @@
     rack))
 
 (defun run-example ()
-  (cl-synthesizer:play-rack
-   (example)
-   :duration-seconds 2.0))
+  (cl-synthesizer:play-rack (example) :duration-seconds 2.0))
   
 ;;(run-example)
-
