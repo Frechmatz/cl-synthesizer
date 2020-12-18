@@ -39,7 +39,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3817314661" type="audio/wav"></audio></p><h2 id="Two frequency modulated saws">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3817316561" type="audio/wav"></audio></p><h2 id="Two frequency modulated saws">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation &quot;Two frequency modulated saws&quot;))
 
@@ -90,7 +90,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 2.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3817314661" type="audio/wav"></audio></p><h1 id="Concepts">Concepts</h1><h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3817316561" type="audio/wav"></audio></p><h1 id="Concepts">Concepts</h1><h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
   ...)</code></pre></p><h2 id="Module">Module</h2><p>Modules are the heart of cl-synthesizer because they are responsible for producing the actual audio data.</p>
 <p>Modules do have a name, inputs, outputs and a shutdown function. The inputs/outputs are represented by keywords and are so called sockets. The shutdown function can be used to release resources 
 that have been allocated by the module, for example opened files.</p>
@@ -903,8 +903,8 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
     <p>The module has the following outputs:
     <ul>
 	<li>:output The output consisting of the sum of the inputs.</li>
-    </ul></p></p><h3 id="Mixer">Mixer</h3><b>make-module</b>&nbsp;(name environment &key channel-count (channel-cv-max 5.0) (channel-cv-gain 5.0)
- (main-cv-max 5.0) (main-cv-gain 5.0))<p>Creates a mixer module. The mixer provides an attenuator for each input and a main
+    </ul></p></p><h3 id="Mixer">Mixer</h3><b>make-module</b>&nbsp;(name environment &key channel-count channel-cv-max channel-cv-gain main-cv-max
+ main-cv-gain)<p>Creates a mixer module. The mixer provides an attenuator for each input and a main
    attenuator for the mixer output. All attenuators have linear amplification
    characteristic. <p>The function has the following arguments:
     <ul>
@@ -1351,4 +1351,4 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
    <a href="http://subsynth.sourceforge.net/midinote2freq.html">midinote2freq</a></p><h2 id="Conditions">Conditions</h2><b>assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
    because for example a module name is not unique, a patch is added for
    a non-existing module, a patch is added to an already patched socket
-   and so on.</p><h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section><footer><hr/><p><small>Generated 2020-12-18  22:11:01</small></p></footer></body></html>
+   and so on.</p><h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section><footer><hr/><p><small>Generated 2020-12-18  22:42:41</small></p></footer></body></html>
