@@ -18,7 +18,7 @@
      rack
      #'cl-synthesizer-monitor-wave-handler:make-backend
      '(("VCO" :output-socket :sine))
-     :filename "src/lisp/cl-synthesizer/docs/sine.wav")
+     :filename "docs/sine.wav")
 
     rack))
 
