@@ -8,9 +8,9 @@
   "Frequency modulated saw"
   (declare (ignore name))
   (let ((voice
-         (cl-synthesizer:make-rack
-          :environment environment
-          :output-sockets '(:audio))))
+	  (cl-synthesizer:make-rack
+	   :environment environment
+	   :output-sockets '(:audio))))
     
     (cl-synthesizer:add-module
      voice "LFO"
@@ -26,11 +26,10 @@
     (cl-synthesizer:add-patch voice "VCO" :saw "OUTPUT" :audio)
     
     voice))
-  
+
 (defun example ()
   (let ((rack (cl-synthesizer:make-rack
-               :environment (cl-synthesizer:make-environment)
-               :output-sockets '(:left :right))))
+               :environment (cl-synthesizer:make-environment))))
 
     (cl-synthesizer:add-module
      rack "VOICE-1" #'make-voice :lfo-frequency 1.0 :vco-frequency 440.0)
@@ -48,5 +47,5 @@
 
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 2.0))
-  
+
 ;;(run-example)
