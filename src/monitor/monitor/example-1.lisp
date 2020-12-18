@@ -18,7 +18,8 @@
      rack
      #'cl-synthesizer-monitor-wave-handler:make-backend
      '(("VCO" :output-socket :sine))
-     :filename "cl-synthesizer-examples/monitor-example-1.wav")
+     :filename "cl-synthesizer-examples/monitor-example-1.wav"
+     :v-peak 5.0)
 
     ;; Write all waveforms and the phase into a CSV file
     (cl-synthesizer-monitor:add-monitor

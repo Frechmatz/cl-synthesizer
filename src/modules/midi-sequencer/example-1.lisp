@@ -66,7 +66,8 @@
      rack
      #'cl-synthesizer-monitor-wave-handler:make-backend
      '(("OUTPUT" :input-socket :line-out))
-     :filename "cl-synthesizer-examples/midi-sequencer-example-1.wav")
+     :filename "cl-synthesizer-examples/midi-sequencer-example-1.wav"
+     :v-peak 5.0)
     
     rack))
 

@@ -52,7 +52,8 @@
      #'cl-synthesizer-monitor-wave-handler:make-backend
      '(("OUTPUT" :input-socket :left)
        ("OUTPUT" :input-socket :right))
-     :filename "cl-synthesizer-examples/rack-example-voice.wav")
+     :filename "cl-synthesizer-examples/rack-example-voice.wav"
+     :v-peak 5.0)
     
     rack))
 

@@ -19,7 +19,8 @@
        ("VCO" :output-socket :triangle)
        ("VCO" :output-socket :saw)
        ("VCO" :output-socket :square))
-     :filename "cl-synthesizer-examples/vco-example-1.wav")
+     :filename "cl-synthesizer-examples/vco-example-1.wav"
+     :v-peak 5.0)
 
     (cl-synthesizer-monitor:add-monitor
      rack

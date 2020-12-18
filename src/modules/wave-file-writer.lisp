@@ -10,7 +10,7 @@
   ;; convert to -1.0 ... +1.0
   (/ f v-peak))
 
-(defun make-module (name environment &key channel-count filename (v-peak 5.0) (sample-width :16bit))
+(defun make-module (name environment &key channel-count filename v-peak (sample-width :16bit))
   "Creates a Wave File Writer module. Writes files in \"Waveform Audio File\" (\"WAV\") format.
     <p>The function has the following arguments:
   <ul>

@@ -18,7 +18,8 @@
      rack
      #'cl-synthesizer-monitor-wave-handler:make-backend
      '(("VCO" :output-socket :sine))
-     :filename "docs/sine.wav")
+     :filename "docs/sine.wav"
+     :v-peak 5.0)
 
     rack))
 

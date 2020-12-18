@@ -25,7 +25,8 @@
      #'cl-synthesizer-monitor-wave-handler:make-backend
      '(("TRIGGER" :input-socket :input)
        ("TRIGGER" :output-socket :output))
-     :filename "cl-synthesizer-examples/trigger-example-1.wav")
+     :filename "cl-synthesizer-examples/trigger-example-1.wav"
+     :v-peak 5.0)
 
     rack))
 
