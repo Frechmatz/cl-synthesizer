@@ -6,8 +6,8 @@
 
 (defun example ()
   (let ((rack (cl-synthesizer:make-rack
-	       :environment (cl-synthesizer:make-environment)
-	       :output-sockets '(:sine))))
+               :environment (cl-synthesizer:make-environment)
+               :output-sockets '(:sine))))
     
     (cl-synthesizer:add-module
      rack
@@ -17,8 +17,6 @@
 
     (cl-synthesizer:add-patch rack "VCO" :sine "OUTPUT" :sine)
     
-    ;; We do not want to have a hard wired Wave-Writer module in our rack.
-    ;; Let the file writing stuff be handled by a monitor.
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:make-backend
@@ -27,12 +25,8 @@
 
     rack))
 
-(defparameter *duration-seconds* 3.0)
-;; parameter and corresponding OUTPUT patches only required for experimental audio output
-(defparameter *audio-output-sockets* '(:sine))
-
 (defun run-example ()
   (let ((rack (example)))
-    (cl-synthesizer:play-rack rack :duration-seconds *duration-seconds*)))
+    (cl-synthesizer:play-rack rack :duration-seconds 3.0)))
 
 ;; (run-example)
