@@ -6,8 +6,7 @@
 
 (defun example ()
   (let ((rack (cl-synthesizer:make-rack
-               :environment (cl-synthesizer:make-environment)
-               :output-sockets '(:sine))))
+               :environment (cl-synthesizer:make-environment))))
     
     (cl-synthesizer:add-module
      rack
@@ -15,8 +14,6 @@
      #'cl-synthesizer-modules-vco:make-module
      :base-frequency 440.0 :v-peak 5.0)
 
-    (cl-synthesizer:add-patch rack "VCO" :sine "OUTPUT" :sine)
-    
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-handler:make-backend
