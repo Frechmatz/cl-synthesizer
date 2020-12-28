@@ -16,8 +16,7 @@
 		(:module "src/synthesizer"
 			:serial t
 			:components ((:file "packages")
-				     (:file "invalid-arguments-error")
-;;				     (:file "assembly-error")
+				     (:file "conditions")
 				     (:file "environment")
 				     (:file "rack-compiler") 
 				     (:file "rack")))

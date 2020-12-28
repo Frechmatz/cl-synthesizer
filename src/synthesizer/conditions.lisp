@@ -1,5 +1,14 @@
 (in-package :cl-synthesizer)
 
+(define-condition invalid-arguments-error (error) () (:documentation "XX"))
+
+(defun signal-invalid-arguments-error (&key format-control format-arguments)
+  ;;(format t "~%Invalid arguments error: ~a ~a" format-control format-arguments)
+  (error (make-condition
+	  'invalid-arguments-error
+	  :format-control format-control
+	  :format-arguments format-arguments)))
+
 (define-condition assembly-error (error) ()
   (:documentation
    "This condition is signalled in cases where the assembly of a rack fails,
@@ -13,4 +22,3 @@
 	  'assembly-error
 	  :format-control format-control
 	  :format-arguments format-arguments)))
-
