@@ -1,4 +1,4 @@
-(defpackage :cl-synthesizer-makedoc
+(defpackage :cl-synthesizer-make-doc
   (:use :cl))
 
   

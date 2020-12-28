@@ -1,4 +1,4 @@
-(in-package :cl-synthesizer-makedoc)
+(in-package :cl-synthesizer-make-doc)
 
 ;;
 ;; Helper functions
@@ -261,8 +261,12 @@
 				,(make-function-string lib-index "cl-synthesizer-midi-event" "get-velocity")
 				(heading (:toc t :name "MIDI Utilities")
 					 ,(make-function-string lib-index "cl-synthesizer-midi" "get-note-number-frequency")))
-		       (heading (:toc t :name "Conditions"))
-		       ,(make-condition-string lib-index "cl-synthesizer" "assembly-error"))
+		       (heading (:toc t :name "Conditions")
+				,(make-condition-string lib-index "cl-synthesizer" "assembly-error")))
+	      (heading (:name "Run tests" :toc t)
+		       "<pre><code>(asdf:test-system :cl-synthesizer)</code></pre>")
+	      (heading (:name "Generate documentation" :toc t)
+		       ,(make-code-string "makedoc/generate-doc.lisp"))
 	      (heading (:name "Acknowledgements" :toc t)
 		       ,(cl-html-readme:read-file "makedoc/acknowledge.html")))
     (semantic (:name "footer")
@@ -298,15 +302,15 @@
 ;; Generate index.html, patches.html
 ;;
 
-(defun make-readme ()
-  (let ((cl-synthesizer:*home-directory* (asdf:system-source-directory :cl-synthesizer-makedoc)))
+(defun make-doc ()
+  (let ((cl-synthesizer:*home-directory* (asdf:system-source-directory :cl-synthesizer/doc)))
     ;; Generate patches
     (cl-synthesizer-patches-siren::run-example)
     (cl-synthesizer-patches-sine::run-example))
   ;; Generate html files
   (let ((lib-index (make-index :cl-synthesizer))
-	(readme-index (make-index :cl-synthesizer-makedoc)))
-    (let ((cl-html-readme:*home-directory* (asdf:system-source-directory :cl-synthesizer-makedoc))
+	(readme-index (make-index :cl-synthesizer/doc)))
+    (let ((cl-html-readme:*home-directory* (asdf:system-source-directory :cl-synthesizer/doc))
 	  (cl-html-readme:*tab-width* 4))
       (with-open-file (fh (cl-html-readme:make-path "docs/index.html")
 			  :direction :output
@@ -322,5 +326,5 @@
 	(cl-html-readme:doc-to-html fh (get-patches readme-index)))))
     "DONE")
 
-;;(make-readme)
+;;(make-doc)
 
