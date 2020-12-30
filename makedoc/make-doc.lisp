@@ -105,7 +105,10 @@
 
 (defun get-readme (lib-index readme-index)
   `("<html>"
-    "<head><link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\"/></head>"
+    "<head><link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\"/>"
+    "<link rel=\"stylesheet\" href=\"https://unpkg.com/purecss@2.0.3/build/pure-min.css\""
+    "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
+    "</head>"
     "<body>"
     (semantic (:name "header")
 	      (heading
