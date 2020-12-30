@@ -55,9 +55,9 @@
 (defun make-code-string (path)
   (concatenate
    'string
-   "<p><pre><code>"
+   "<p><pre>"
    (cl-html-readme:read-file path :replace-tabs t :escape t)
-   "</code></pre></p>"))
+   "</pre></p>"))
 
 (defun make-example-header (&key (title nil))
   (concatenate
@@ -105,7 +105,11 @@
 
 (defun get-readme (lib-index readme-index)
   `("<html>"
-    "<head><link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\"/></head>"
+    "<head>"
+    "<link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\"/>"
+    "<link rel=\"stylesheet\" href=\"https://cdn.rawgit.com/Chalarangelo/mini.css/v3.0.1/dist/mini-default.min.css\">"
+    "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
+    "</head>"
     "<body>"
     (semantic (:name "header")
 	      (heading
@@ -264,7 +268,7 @@
 		       (heading (:toc t :name "Conditions")
 				,(make-condition-string lib-index "cl-synthesizer" "assembly-error")))
 	      (heading (:name "Run tests" :toc t)
-		       "<pre><code>(asdf:test-system :cl-synthesizer)</code></pre>")
+		       "<pre>(asdf:test-system :cl-synthesizer)</pre>")
 	      (heading (:name "Generate documentation" :toc t)
 		       ,(make-code-string "makedoc/generate-doc.lisp"))
 	      (heading (:name "Acknowledgements" :toc t)
