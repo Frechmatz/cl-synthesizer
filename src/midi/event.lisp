@@ -3,45 +3,45 @@
 
 (defun make-control-change-event (channel controller-number value)
   "Creates a MIDI control change event."
-  (list :cc channel controller-number value))
+  (list :type :cc :channel channel :controller-number controller-number :controller-value value))
 
 (defun make-note-on-event (channel note-number velocity)
   "Creates a MIDI Note-On event."
-  (list :note-on channel note-number velocity))
+  (list :type :note-on :channel channel :note-number note-number :velocity velocity))
 
 (defun make-note-off-event (channel note-number velocity)
   "Creates a MIDI Note-Off event."
-  (list :note-off channel note-number velocity))
+  (list :type :note-off :channel channel :note-number note-number :velocity velocity))
 
 (defun control-change-eventp (event)
   "Returns t if the given MIDI event is a Control-Change event."
-  (eq (first event) :cc))
+  (eq (getf event :type) :cc))
 
 (defun note-on-eventp (event)
   "Returns t if the given MIDI event is a Note-On event."
-  (eq (first event) :note-on))
+  (eq (getf event :type) :note-on))
 
 (defun note-off-eventp (event)
   "Returns t if the given MIDI event is a Note-Off event."
-  (eq (first event) :note-off))
+  (eq (getf event :type) :note-off))
 
 (defun get-channel (event)
   "Returns the MIDI channel number to which the event belongs."
-  (second event))
+  (getf event :channel))
 
 (defun get-controller-number (event)
   "Returns the controller number of a Control-Change MIDI event."
-  (third event))
+  (getf event :controller-number))
 
 (defun get-controller-value (event)
   "Returns the controller value of a Control-Change MIDI event."
-  (fourth event))
+  (getf event :controller-value))
 
 (defun get-note-number (event)
   "Returns the note number of Note-On/Off MIDI event."
-  (third event))
+  (getf event :note-number))
 
 (defun get-velocity (event)
   "Returns the velocity of a Note-On/Off MIDI event."
-  (fourth event))
+  (getf event :velocity))
 
