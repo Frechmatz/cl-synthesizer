@@ -22,7 +22,10 @@
 	      :initial-output 100)))
     (update-module ifc (list :midi-events
 	     (list
-	      (cl-synthesizer-midi-event:make-note-on-event 1 64 0))))
+	      (cl-synthesizer-midi-event:make-note-on-event
+	       :channel 1
+	       :note-number 64
+	       :velocity 0))))
     (assert-equal 100 (get-module-output ifc :output))))
 
 (define-test test-midi-cc-interface-3 ()
@@ -36,7 +39,10 @@
 	      :initial-output 100)))
     (update-module ifc (list :midi-events
 	     (list
-	      (cl-synthesizer-midi-event:make-control-change-event 1 101 200))))
+	      (cl-synthesizer-midi-event:make-control-change-event
+	       :channel 1
+	       :controller-number 101
+	       :controller-value 200))))
     (assert-equal 100 (get-module-output ifc :output))))
 
 (define-test test-midi-cc-interface-4 ()
@@ -50,7 +56,10 @@
 	      :initial-output 100)))
     (update-module ifc (list :midi-events
 	     (list
-	      (cl-synthesizer-midi-event:make-control-change-event 1 100 200))))
+	      (cl-synthesizer-midi-event:make-control-change-event
+	       :channel 1
+	       :controller-number 100
+	       :controller-value 200))))
     (assert-equal 100 (get-module-output ifc :output))))
 
 (define-test test-midi-cc-interface-5 ()
@@ -69,7 +78,10 @@
 	      :initial-output 200)))
     (update-module ifc (list :midi-events
 	     (list
-	      (cl-synthesizer-midi-event:make-control-change-event 1 100 999))))
+	      (cl-synthesizer-midi-event:make-control-change-event
+	       :channel 1
+	       :controller-number 100
+	       :controller-value 999))))
     (assert-equal 999 (get-module-output ifc :output))))
 
 (define-test test-midi-cc-interface-6 ()
@@ -91,9 +103,18 @@
 	      :initial-output 200)))
     (update-module ifc (list :midi-events
 	     (list
-	      (cl-synthesizer-midi-event:make-control-change-event 1 100 500)
-	      (cl-synthesizer-midi-event:make-control-change-event 999 100 500)
-	      (cl-synthesizer-midi-event:make-control-change-event 1 101 1000))))
+	      (cl-synthesizer-midi-event:make-control-change-event
+	       :channel 1
+	       :controller-number 100
+	       :controller-value 500)
+	      (cl-synthesizer-midi-event:make-control-change-event
+	       :channel 999
+	       :controller-number 100
+	       :controller-value 500)
+	      (cl-synthesizer-midi-event:make-control-change-event
+	       :channel 1
+	       :controller-number 101
+	       :controller-value 1000))))
     (assert-equal 2700 (get-module-output ifc :output))))
 
 (define-test test-midi-cc-interface-7 ()
@@ -122,7 +143,10 @@
 	      :max-output 300)))
     (update-module ifc (list :midi-events
 	     (list
-	      (cl-synthesizer-midi-event:make-control-change-event 1 100 500))))
+	      (cl-synthesizer-midi-event:make-control-change-event
+	       :channel 1
+	       :controller-number 100
+	       :controller-value 500))))
     (assert-equal 300 (get-module-output ifc :output))))
 
 (define-test test-midi-cc-interface-9 ()
@@ -138,7 +162,10 @@
 	      :max-output 300)))
     (update-module ifc (list :midi-events
 	     (list
-	      (cl-synthesizer-midi-event:make-control-change-event 1 100 50))))
+	      (cl-synthesizer-midi-event:make-control-change-event
+	       :channel 1
+	       :controller-number 100
+	       :controller-value 50))))
     (assert-equal 200 (get-module-output ifc :output))))
 
 (define-test test-midi-cc-interface-10 ()
@@ -154,6 +181,9 @@
 	      :max-output 300.5)))
     (update-module ifc (list :midi-events
 	     (list
-	      (cl-synthesizer-midi-event:make-control-change-event 1 100 50))))
+	      (cl-synthesizer-midi-event:make-control-change-event
+	       :channel 1
+	       :controller-number 100
+	       :controller-value 50))))
     (assert-equal 200.5 (get-module-output ifc :output))))
 

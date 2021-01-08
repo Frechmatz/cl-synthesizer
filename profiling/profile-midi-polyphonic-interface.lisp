@@ -18,8 +18,8 @@
     ;; Add two times the amount of note events as supported by the Midi interface
     ;; to force it to steal voices and retrigger Gates.
     (dotimes (i (* 2 voice-count))
-      (push (funcall factory-fn 1 (+ 75 i) 100) events)
-      (push (funcall factory-fn 1 (+ 75 i) 100) events))
+      (push (funcall factory-fn :channel 1 :note-number (+ 75 i) :velocity 100) events)
+      (push (funcall factory-fn :channel 1 :note-number (+ 75 i) :velocity 100) events))
     events))
 
 (defun init (&key voice-count)

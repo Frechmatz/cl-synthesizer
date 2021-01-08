@@ -17,16 +17,28 @@
      (list 
       (list :timestamp-milli-seconds 0
 	    :midi-events (list
-			  (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+			  (cl-synthesizer-midi-event:make-note-on-event
+			   :channel 1
+			   :note-number 69
+			   :velocity 100)))
       (list :timestamp-milli-seconds 1000
 	    :midi-events (list
-			  (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
+			  (cl-synthesizer-midi-event:make-note-off-event
+			   :channel 1
+			   :note-number 69
+			   :velocity 100)))
       (list :timestamp-milli-seconds 2000
 	    :midi-events (list
-			  (cl-synthesizer-midi-event:make-note-on-event 1 75 100)))
+			  (cl-synthesizer-midi-event:make-note-on-event
+			   :channel 1
+			   :note-number 75
+			   :velocity 100)))
       (list :timestamp-milli-seconds 2500
 	    :midi-events (list
-			  (cl-synthesizer-midi-event:make-note-off-event 1 75 100)))))
+			  (cl-synthesizer-midi-event:make-note-off-event
+			   :channel 1
+			   :note-number 75
+			   :velocity 100)))))
 
     ;; Add MIDI Interface and connect it with the MIDI Sequencer
     (cl-synthesizer:add-module

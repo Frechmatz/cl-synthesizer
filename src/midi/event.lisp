@@ -1,15 +1,15 @@
 
 (in-package :cl-synthesizer-midi-event)
 
-(defun make-control-change-event (channel controller-number value)
+(defun make-control-change-event (&key channel controller-number controller-value)
   "Creates a MIDI control change event."
-  (list :type :cc :channel channel :controller-number controller-number :controller-value value))
+  (list :type :cc :channel channel :controller-number controller-number :controller-value controller-value))
 
-(defun make-note-on-event (channel note-number velocity)
+(defun make-note-on-event (&key channel note-number velocity)
   "Creates a MIDI Note-On event."
   (list :type :note-on :channel channel :note-number note-number :velocity velocity))
 
-(defun make-note-off-event (channel note-number velocity)
+(defun make-note-off-event (&key channel note-number velocity)
   "Creates a MIDI Note-Off event."
   (list :type :note-off :channel channel :note-number note-number :velocity velocity))
 

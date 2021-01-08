@@ -9,10 +9,16 @@
 		(list 
 		 (list :timestamp-milli-seconds 300
 		       :midi-events (list
-				     (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+				     (cl-synthesizer-midi-event:make-note-on-event
+				      :channel 1
+				      :note-number 69
+				      :velocity 100)))
 		 (list :timestamp-milli-seconds 700
 		       :midi-events (list
-				     (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))))
+				     (cl-synthesizer-midi-event:make-note-off-event
+				      :channel 1
+				      :note-number 69
+				      :velocity 100)))))
 	       (let ((midi-sequencer (cl-synthesizer:get-module rack "MIDI-SEQUENCER"))
 		     (event-count 0))
 		 (dotimes (i 44100)
@@ -31,10 +37,16 @@
 		(list 
 		 (list :timestamp-milli-seconds 3
 		       :midi-events (list
-				     (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+				     (cl-synthesizer-midi-event:make-note-on-event
+				      :channel 1
+				      :note-number 69
+				      :velocity 100)))
 		 (list :timestamp-milli-seconds 4
 		       :midi-events (list
-				     (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))))
+				     (cl-synthesizer-midi-event:make-note-off-event
+				      :channel 1
+				      :note-number 69
+				      :velocity 100)))))
 	       (let ((midi-sequencer (cl-synthesizer:get-module rack "MIDI-SEQUENCER"))
 		     (event-count 0))
 		 (dotimes (i 44100)
@@ -54,13 +66,22 @@
 		  (list 
 		   (list :timestamp-milli-seconds 3
 			 :midi-events (list
-				       (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+				       (cl-synthesizer-midi-event:make-note-on-event
+					:channel 1
+					:note-number 69
+					:velocity 100)))
 		   (list :timestamp-milli-seconds 4
 			 :midi-events (list
-				       (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
+				       (cl-synthesizer-midi-event:make-note-off-event
+					:channel 1
+					:note-number 69
+					:velocity 100)))
 		   (list :timestamp-milli-seconds 3
 			 :midi-events (list
-				       (cl-synthesizer-midi-event:make-note-off-event 1 69 100))))))))
+				       (cl-synthesizer-midi-event:make-note-off-event
+					:channel 1
+					:note-number 69
+					:velocity 100))))))))
 
 ;; Not sorted by timestamp
 (define-test test-midi-sequencer-4 ()
@@ -73,8 +94,14 @@
 		  (list 
 		   (list :timestamp-milli-seconds 3
 			 :midi-events (list
-				       (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+				       (cl-synthesizer-midi-event:make-note-on-event
+					:channel 1
+					:note-number 69
+					:velocity 100)))
 		   (list :timestamp-milli-seconds 2
 			 :midi-events (list
-				       (cl-synthesizer-midi-event:make-note-off-event 1 69 100))))))))
+				       (cl-synthesizer-midi-event:make-note-off-event
+					:channel 1
+					:note-number 69
+					:velocity 100))))))))
 

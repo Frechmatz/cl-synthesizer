@@ -16,8 +16,8 @@
 (defun make-note-events (factory-fn)
   (let ((events nil))
     (dotimes (i 5)
-      (push (funcall factory-fn 1 (+ 75 i) 100) events)
-      (push (funcall factory-fn 1 (+ 75 i) 100) events))
+      (push (funcall factory-fn :channel 1 :note-number (+ 75 i) :velocity 100) events)
+      (push (funcall factory-fn :channel 1 :note-number (+ 75 i) :velocity 100) events))
     events))
 
 (defun init ()

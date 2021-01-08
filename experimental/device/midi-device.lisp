@@ -28,21 +28,30 @@
      :cc ;; for now listen to all control change events
      (lambda (chan control value)
        (format t "[CC] Channel: ~d  Control: ~d  Value: ~d~%" chan control value)
-       (queues:qpush event-queue (cl-synthesizer-midi-event:make-control-change-event chan control value))))
+       (queues:qpush event-queue (cl-synthesizer-midi-event:make-control-change-event
+				  :channel chan
+				  :controller-number control
+				  :value value))))
     (midi:set-midi-callback
      (midi:get-source source-index)
      :note-on
      (lambda (chan note vel)
        ;; [NOTE-ON] Channel: 1  Notenum: 61  Velocity: 15
        (format t "[NOTE-ON ] Channel: ~d  Notenum: ~d  Velocity: ~d~%" chan note vel)
-       (queues:qpush event-queue (cl-synthesizer-midi-event:make-note-on-event chan note vel))))
+       (queues:qpush event-queue (cl-synthesizer-midi-event:make-note-on-event
+				  :channel chan
+				  :note-number note
+				  :velocity vel))))
     (midi:set-midi-callback
      (midi:get-source source-index)
      :note-off
      (lambda (chan note vel)
        ;; [NOTE-OFF] Channel: 1  Notenum: 61  Velocity: 0
        (format t "[NOTE-OFF] Channel: ~d  Notenum: ~d  Velocity: ~d~%" chan note vel)
-       (queues:qpush event-queue (cl-synthesizer-midi-event:make-note-off-event chan note vel))))
+       (queues:qpush event-queue (cl-synthesizer-midi-event:make-note-off-event
+				  :channel chan
+				  :note-number note
+				  :velocity vel))))
     (list
      :outputs (lambda() (list :midi-events (lambda() cur-midi-events)))
      :inputs (lambda() nil)

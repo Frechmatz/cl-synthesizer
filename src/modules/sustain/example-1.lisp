@@ -15,16 +15,28 @@
      (list 
       (list :timestamp-milli-seconds 300
 	    :midi-events (list
-			  (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+			  (cl-synthesizer-midi-event:make-note-on-event
+			   :channel 1
+			   :note-number 69
+			   :velocity 100)))
       (list :timestamp-milli-seconds 700
 	    :midi-events (list
-			  (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))
+			  (cl-synthesizer-midi-event:make-note-off-event
+			   :channel 1
+			   :note-number 69
+			   :velocity 100)))
       (list :timestamp-milli-seconds 1800
 	    :midi-events (list
-			  (cl-synthesizer-midi-event:make-note-on-event 1 69 100)))
+			  (cl-synthesizer-midi-event:make-note-on-event
+			   :channel 1
+			   :note-number 69
+			   :velocity 100)))
       (list :timestamp-milli-seconds 2100
 	    :midi-events (list
-			  (cl-synthesizer-midi-event:make-note-off-event 1 69 100)))))
+			  (cl-synthesizer-midi-event:make-note-off-event
+			   :channel 1
+			   :note-number 69
+			   :velocity 100)))))
 
     (cl-synthesizer:add-module
      rack "MIDI-IFC"
