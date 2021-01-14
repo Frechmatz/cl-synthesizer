@@ -1,22 +1,14 @@
-;;
-;; How to run:
-;;
-;; (asdf:load-system :cl-synthesizer-examples)
-;; (cl-synthesizer-examples::run-examples)
-;;
-
-(defpackage :cl-synthesizer-examples
-  (:use :cl))
-
 (in-package :cl-synthesizer-examples)
 
 (defun run-examples ()
+  "Run all examples of cl-synthesizer. Examples are defined as follows:
+   <ul>
+   <li>The package name begins with \"cl-synthesizer-\"</li>
+   <li>The package has a function \"run-example\"</li>
+   </ul>"
   (format t "~%Running examples....~%")
   (finish-output)
-  ;; For all packages whose name begin with "CL-SYNTHESIZER-" and
-  ;; that expose a function "run-example"
   (dolist (p (list-all-packages))
-    ;;(format t "~%Checking package ~a" (package-name p))
     (let ((pos (search "CL-SYNTHESIZER-" (package-name p))))
       (if (eql 0 pos)
 	  (let ((run-example-symbol (find-symbol "RUN-EXAMPLE" p)))

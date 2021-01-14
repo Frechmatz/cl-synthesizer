@@ -66,6 +66,7 @@
 <li><a href="#MIDI Utilities">MIDI Utilities</a></li></ul></li>
 <li><a href="#Conditions">Conditions</a></li></ul></li>
 <li><a href="#Run tests">Run tests</a></li>
+<li><a href="#Run examples">Run examples</a></li>
 <li><a href="#Generate documentation">Generate documentation</a></li>
 <li><a href="#Acknowledgements">Acknowledgements</a></li></ul></nav>
 <section>
@@ -102,7 +103,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3819124886" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3819640493" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated saws">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation &quot;Two frequency modulated saws&quot;))
@@ -154,7 +155,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 2.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3819124886" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3819640493" type="audio/wav"></audio></p>
 <h1 id="Concepts">Concepts</h1>
 <h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
   ...)</code></pre></p>
@@ -1488,7 +1489,10 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
    a non-existing module, a patch is added to an already patched socket
    and so on.</p>
 <h1 id="Run tests">Run tests</h1><pre><code>(asdf:test-system :cl-synthesizer)</code></pre>
+<h1 id="Run examples">Run examples</h1>Run all examples of cl-synthesizer and write the resulting files
+to <code>~/cl-synthesizer-examples/</code><p><pre><code>(asdf:load-system :cl-synthesizer/examples)
+(cl-synthesizer-examples::run-examples)</code></pre></p>
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2021-01-08  21:01:26</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2021-01-14  20:14:53</small></p></footer></body></html>

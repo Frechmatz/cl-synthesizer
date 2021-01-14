@@ -152,7 +152,7 @@
 		       (heading (:name "Monitor" :toc t)
 				,(cl-html-readme:read-file "makedoc/monitor-introduction.html")
 				,(make-example-header)
-				,(make-code-string "src/monitor/monitor/example-1.lisp")))
+				,(make-code-string "src/monitor/example-1.lisp")))
 	      (heading (:name "API" :toc t)
 		       (heading (:toc t :name "Environment")
 				(heading (:toc t :name "make-environment")
@@ -265,6 +265,10 @@
 				,(make-condition-string lib-index "cl-synthesizer" "assembly-error")))
 	      (heading (:name "Run tests" :toc t)
 		       "<pre><code>(asdf:test-system :cl-synthesizer)</code></pre>")
+	      (heading (:name "Run examples" :toc t)
+		       "Run all examples of cl-synthesizer and write the resulting files
+to <code>~/cl-synthesizer-examples/</code>" 
+		       ,(make-code-string "makedoc/run-examples.lisp"))
 	      (heading (:name "Generate documentation" :toc t)
 		       ,(make-code-string "makedoc/generate-doc.lisp"))
 	      (heading (:name "Acknowledgements" :toc t)
