@@ -266,9 +266,11 @@
 	      (heading (:name "Run tests" :toc t)
 		       "<pre><code>(asdf:test-system :cl-synthesizer)</code></pre>")
 	      (heading (:name "Run examples" :toc t)
-		       "Run all examples of cl-synthesizer and write the resulting files
-to <code>~/cl-synthesizer-examples/</code>" 
+		       "Run all examples of cl-synthesizer. Generated files are written into <code>~/cl-synthesizer-examples/</code>" 
 		       ,(make-code-string "makedoc/run-examples.lisp"))
+	      (heading (:name "Run profiler" :toc t)
+		       "Run the profiling suite. Generated files files are written into <code>~/cl-synthesizer-profiler/</code>" 
+		       ,(make-code-string "makedoc/run-profiler.lisp"))
 	      (heading (:name "Generate documentation" :toc t)
 		       ,(make-code-string "makedoc/generate-doc.lisp"))
 	      (heading (:name "Acknowledgements" :toc t)

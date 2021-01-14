@@ -1,6 +1,6 @@
 (defsystem :cl-synthesizer
   :serial t
-  :version "0.0.1"
+  :version "1.0.0"
   :licence "MIT"
   :author "Oliver <frechmatz@gmx.de>"
   :maintainer "Oliver <frechmatz@gmx.de>"
@@ -99,13 +99,12 @@
 
 (defsystem :cl-synthesizer/test
   :serial t
-  :version "0.0.1"
+  :version "1.0.0"
   :licence "MIT"
   :author "Oliver <frechmatz@gmx.de>"
   :maintainer "Oliver <frechmatz@gmx.de>"
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
-  :description "An audio synthesizer"
-  :long-description "An audio synthesizer"
+  :description "Test suite of cl-synthesizer"
   :depends-on (:lisp-unit :cl-synthesizer)
   :components ((:module "test"
 		:serial t
@@ -159,13 +158,12 @@
 
 (defsystem :cl-synthesizer/doc
   :serial t
-  :version "0.0.1"
+  :version "1.0.0"
   :licence "MIT"
   :author "Oliver <frechmatz@gmx.de>"
   :maintainer "Oliver <frechmatz@gmx.de>"
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
-  :description "An audio synthesizer"
-  :long-description "An audio synthesizer"
+  :description "Documentation generation for cl-synthesizer"
   :depends-on (:cl-synthesizer :cl-html-readme :docparser)
   :components ((:module "makedoc/patches"
 		:serial t
@@ -178,14 +176,12 @@
 
 (defsystem :cl-synthesizer/examples
   :serial t
-  :version "0.0.1"
+  :version "1.0.0"
   :licence "MIT"
   :author "Oliver <frechmatz@gmx.de>"
   :maintainer "Oliver <frechmatz@gmx.de>"
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
-  :description "An audio synthesizer"
-  :long-description "All examples of cl-synthesizer. The purpose of this system is to load 
-   and run all examples. See also script/*-run-examples.sh scripts."
+  :description "Examples of cl-synthesizer"
   :depends-on (:cl-synthesizer)
   :components ((:module "src/synthesizer"
 		:serial t
@@ -238,3 +234,32 @@
 		:serial t
 		:components ((:file "packages")
 			     (:file "run-examples")))))
+
+
+(defsystem :cl-synthesizer/profiling
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "Profiling suite of cl-synthesizer."
+  :depends-on (:cl-synthesizer)
+  :components ((:module "profiling"
+		:serial t
+		:components ((:file "packages")
+			     (:file "profile-rack")
+			     (:file "profile-vco")
+			     (:file "profile-phase-generator")
+			     (:file "profile-phase-waveform-converter")
+			     (:file "profile-monitor")
+			     (:file "profile-midi-sequencer")
+			     (:file "profile-csv-file-writer")
+			     (:file "profile-wave-file-writer")
+			     (:file "profile-midi-polyphonic-interface")
+			     (:file "profile-midi-monophonic-interface")
+			     (:file "profile-adsr")
+			     (:file "profile-mixer")
+			     (:file "profile-keyboard")
+			     (:file "profile")))))
+

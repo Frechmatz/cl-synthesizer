@@ -423,7 +423,7 @@
    :init nil
    :jobs '((:client-id :csv-writer :init
 	    (:duration-seconds 60
-	     :filename "cl-synthesizer-examples/csv-profiling.csv"
+	     :filename "cl-synthesizer-profiler/csv-profiling.csv"
 	     :sample-rate 44100
 	     )))))
 
@@ -437,10 +437,10 @@
    :jobs '(
 	   (:client-id :wave-writer :init
 	    (:duration-seconds 30 :sample-rate 44100
-	     :filename "cl-synthesizer-examples/wave-profiling-44100.wav"))
+	     :filename "cl-synthesizer-profiler/wave-profiling-44100.wav"))
 	   (:client-id :wave-writer :init
 	    (:duration-seconds 30 :sample-rate 96000
-	     :filename "cl-synthesizer-examples/wave-profiling-96000.wav")))))
+	     :filename "cl-synthesizer-profiler/wave-profiling-96000.wav")))))
 
 (defparameter *profiling-plan-midi-polyphonic-interface*
   (list
@@ -527,11 +527,11 @@
 	   (:client-id :csv-writer :init
 	    (:duration-seconds 60
 	     :sample-rate 44100
-	     :filename "cl-synthesizer-examples/csv-profiling.csv"))
+	     :filename "cl-synthesizer-profiler/csv-profiling.csv"))
 	   (:client-id :wave-writer :init
 	    (:duration-seconds 60
 	     :sample-rate 44100
-	     :filename "cl-synthesizer-examples/wave-profiling.wav"))
+	     :filename "cl-synthesizer-profiler/wave-profiling.wav"))
 	   (:client-id :midi-polyphonic-interface :init (:duration-seconds 60 :voice-count 5))
 	   (:client-id :midi-monophonic-interface :init (:duration-seconds 60))
 	   (:client-id :adsr :init (:duration-seconds 60 :exponential nil))
@@ -554,4 +554,9 @@
 ;; (run-plan *profiling-plan-adsr-exponential*)
 ;; (run-plan *profiling-plan-mixer*)
 ;; (run-plan *profiling-plan-keyboard*)
+
+(defun run-all ()
+  (run-plan *profiling-plan-all*))
+
+;; (run-all)
 
