@@ -1,5 +1,2 @@
-
 # Run tests with ccl
-ccl   -l run-tests.lisp -e "(quit)"
-
-
+ccl64 -l run-tests.lisp -e "(quit)"
