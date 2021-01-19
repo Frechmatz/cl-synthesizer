@@ -89,11 +89,7 @@
 		:components ((:file "packages")
 			     (:file "monitor")
 			     (:file "wave-file-handler")
-			     (:file "csv-file-handler")))
-	       (:module "src/vendor"
-		:serial t
-		:components ((:file "packages")
-			     (:file "arturiaminilabmk2"))))
+			     (:file "csv-file-handler"))))
   :in-order-to ((test-op (test-op "cl-synthesizer/test"))))
 
 

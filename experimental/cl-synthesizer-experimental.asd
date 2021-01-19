@@ -11,5 +11,9 @@
   :components ((:module "experimental"
 			:serial t
 			:components ((:file "packages")
-				     (:file "play-rack")))))
+				     (:file "play-rack")))
+	       (:module "experimental/vendor"
+		:serial t
+		:components ((:file "packages")
+			     (:file "arturiaminilabmk2")))))
 
