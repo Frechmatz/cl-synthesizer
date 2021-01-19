@@ -1,9 +1,5 @@
 (in-package :cl-synthesizer-modules-mixer)
 
-(defparameter *mixer-input-channel* "channel")
-(defparameter *mixer-input-cv* "cv")
-(defparameter *mixer-input-cv-main* :cv-main)
-
 (defun make-module (name environment &key channel-count channel-cv-max channel-cv-gain
 				 main-cv-max main-cv-gain)
   "Creates a mixer module. The mixer provides an attenuator for each input and a main
@@ -39,9 +35,9 @@
   (let ((input-sockets
 	 (concatenate
 	  'list
-	  (cl-synthesizer-macro-util:make-keyword-list *mixer-input-channel* channel-count)
-	  (cl-synthesizer-macro-util:make-keyword-list *mixer-input-cv* channel-count)
-	  (list *mixer-input-cv-main*))))
+	  (cl-synthesizer-macro-util:make-keyword-list "channel" channel-count)
+	  (cl-synthesizer-macro-util:make-keyword-list "cv" channel-count)
+	  (list :cv-main))))
     (let ((rack (cl-synthesizer:make-rack
 		 :environment environment
 		 :input-sockets input-sockets
@@ -54,7 +50,7 @@
       (cl-synthesizer:add-module rack "MAIN-VCA" #'cl-synthesizer-modules-vca:make-module
 				 :cv-max main-cv-max :initial-gain main-cv-gain)
       (cl-synthesizer:add-patch rack "ADDER" :output "MAIN-VCA" :input)
-      (cl-synthesizer:add-patch rack "INPUT" *mixer-input-cv-main* "MAIN-VCA" :cv)
+      (cl-synthesizer:add-patch rack "INPUT" :cv-main "MAIN-VCA" :cv)
       (cl-synthesizer:add-patch rack "MAIN-VCA" :output "OUTPUT" :output)
       
       ;; Add a VCA for each input and patch it with mixer input and adder
@@ -64,10 +60,10 @@
 				     #'cl-synthesizer-modules-vca:make-module
 				     :cv-max channel-cv-max :initial-gain channel-cv-gain)
 	  (cl-synthesizer:add-patch rack "INPUT"
-				    (cl-synthesizer-macro-util:make-keyword *mixer-input-channel* i)
+				    (cl-synthesizer-macro-util:make-keyword "channel" i)
 				    vca-name :input)
 	  (cl-synthesizer:add-patch rack "INPUT"
-				    (cl-synthesizer-macro-util:make-keyword *mixer-input-cv* i)
+				    (cl-synthesizer-macro-util:make-keyword "cv" i)
 				    vca-name :cv)
 	  (cl-synthesizer:add-patch rack vca-name :output "ADDER"
 				    (cl-synthesizer-macro-util:make-keyword "input" i))))
