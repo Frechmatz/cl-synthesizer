@@ -1,6 +1,6 @@
 (in-package :cl-synthesizer)
 
-(define-condition invalid-arguments-error (error) () (:documentation "XX"))
+(define-condition invalid-arguments-error (simple-error) () (:documentation "XX"))
 
 (defun signal-invalid-arguments-error (&key format-control format-arguments)
   ;;(format t "~%Invalid arguments error: ~a ~a" format-control format-arguments)
@@ -9,7 +9,7 @@
 	  :format-control format-control
 	  :format-arguments format-arguments)))
 
-(define-condition assembly-error (error) ()
+(define-condition assembly-error (simple-error) ()
   (:documentation
    "This condition is signalled in cases where the assembly of a rack fails,
    because for example a module name is not unique, a patch is added for
