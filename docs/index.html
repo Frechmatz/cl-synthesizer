@@ -104,7 +104,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3819645074" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3820346343" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated saws">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation &quot;Two frequency modulated saws&quot;))
@@ -156,7 +156,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 2.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3819645074" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3820346343" type="audio/wav"></audio></p>
 <h1 id="Concepts">Concepts</h1>
 <h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
   ...)</code></pre></p>
@@ -572,8 +572,8 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 
 ;; (run-example)</code></pre></p>
 <h3 id="ADSR">ADSR</h3><b>make-module</b>&nbsp;(name environment &key attack-time-ms attack-target-output decay-time-ms
- decay-target-output release-time-ms (time-cv-to-time-ms nil)
- (gate-threshold 2.5) (backward-coupled nil) (exponential nil))<p>Creates an envelope generator module with the phases Attack, Decay, Sustain and Release.
+ decay-target-output release-time-ms (gate-threshold 2.5)
+ (backward-coupled nil) (exponential nil))<p>Creates an envelope generator module with the phases Attack, Decay, Sustain and Release.
     <p>The function has the following arguments:
     <ul>
 	<li>name Name of the module.</li>
@@ -583,7 +583,6 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 	<li>:decay-time-ms Duration of the decay phase in milliseconds.</li>
 	<li>:decay-target-output Target value of the decay phase.</li>
 	<li>:release-time-ms Duration of the release phase in milliseconds. The release phase climbs to 0.0.</li>
-	<li>:time-cv-to-time-ms Optional function that converts a time control voltage to a duration in milliseconds. The default implementation is 1000ms/1V.</li>
 	<li>:gate-threshold Minimum value of the :gate input that indicates that the gate is on.</li>
         <li>:backward-coupled If t then the output signal of the envelope will be connected with 
             the input of the attack phase. This can be used to avoid sudden jumps of the envelope 
@@ -594,8 +593,8 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
     <ul>
 	<li>:gate The gate signal (see also :gate-threshold). The envelope starts working when the
 	gate input switches to "on" and enters into the release phase when it switches to "off".</li>
-	<li>:attack-cv-time Modulates the climbing time of the attack phase (see also :time-cv-to-time-ms).</li>
-	<li>:release-cv-time Modulates the climbing time of the release phase (see also :time-cv-to-time-ms).</li>
+	<li>:attack-cv-time Modulates the climbing time of the attack phase. The resulting time is 1000ms per Volt.</li>
+	<li>:release-cv-time Modulates the climbing time of the release phase. The resulting time is 1000ms per Volt.</li>
     </ul></p>
     <p>The module has the following outputs:
     <ul>
@@ -1125,8 +1124,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 
 ;; (run-example)</code></pre></p>
 <h3 id="Ramp">Ramp</h3><b>make-module</b>&nbsp;(name environment &key time-ms target-output (gate-state nil)
- (trigger-threshold 2.5) (gate-threshold 2.5) (time-cv-to-time-ms nil)
- (exponential nil))<p>Creates a module whose output climbs from a given input value to a given output value
+ (trigger-threshold 2.5) (gate-threshold 2.5) (exponential nil))<p>Creates a module whose output climbs from a given input value to a given output value
     in a given time. Main purpose of this module is to create envelope generators by chaining
     multiple ramp and sustain modules. <p>The function has the following arguments:
     <ul>
@@ -1139,8 +1137,6 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 	<li>:gate-state Required state of the Gate input. One of :on, :off, nil</li>
 	<li>:trigger-threshold Minimum value of the :trigger input that indicates that the trigger is active.</li>
 	<li>:gate-threshold Minimum value of the :gate input that indicates that the gate is on.</li>
-	<li>:time-cv-to-time-ms An optional function that converts a time control voltage to a duration in milliseconds.
-        The default implementation is 1000ms/1V (abs(cv-time) * 1000).</li>
         <li>:exponential If t then the ramp will climb with an exponential characteristic.</li>
     </ul></p>
     <p>The module has the following inputs:
@@ -1150,7 +1146,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 	<li>:input Input value.</li>
 	<li>:pass-through If value is >= 5.0 the module passes through its input value.</li>
 	<li>:gate A gate signal (see also :gate-threshold).</li>
-	<li>:cv-time NIL or climbing time (duration) of the ramp (see also :time-cv-to-time-ms).</li>
+	<li>:cv-time NIL or climbing time (duration) of the ramp. The resulting time is 1000ms per Volt.</li>
     </ul></p>
     <p>The module has the following outputs:
     <ul>
@@ -1497,4 +1493,4 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2021-01-14  21:31:14</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2021-01-23  00:19:03</small></p></footer></body></html>
