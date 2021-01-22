@@ -178,8 +178,7 @@
 		    (module (cl-synthesizer-modules-ramp:make-module
 			   "Ramp"
 			   (make-ramp-test-environment)
-			   :time-ms time-ms :target-output target-output :gate-state :on
-			   :time-cv-to-time-ms (lambda(time-cv) (* (abs time-cv) 1000))))
+			   :time-ms time-ms :target-output target-output :gate-state :on))
 		   (deltaTick (/ target-output (* time-ms *ramp-test-ticks-per-ms*))))
 	       (run-ramp-tests
 		module
@@ -201,8 +200,7 @@
 		    (module (cl-synthesizer-modules-ramp:make-module
 			   "Ramp"
 			   (make-ramp-test-environment)
-			   :time-ms time-ms :target-output target-output :gate-state :on
-			   :time-cv-to-time-ms (lambda(time-cv) (* (abs time-cv) 1000))))
+			   :time-ms time-ms :target-output target-output :gate-state :on))
 		   (deltaTick (/ target-output (* time-ms *ramp-test-ticks-per-ms*))))
 	       (run-ramp-tests
 		module

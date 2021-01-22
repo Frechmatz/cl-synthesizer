@@ -2,9 +2,11 @@
 
 
 (defun make-module (name environment
-		    &key time-ms target-output (gate-state nil)
-		      (trigger-threshold 2.5) (gate-threshold 2.5)
-		      (time-cv-to-time-ms nil)
+		    &key time-ms
+		      target-output
+		      (gate-state nil)
+		      (trigger-threshold 2.5)
+		      (gate-threshold 2.5)
 		      (exponential nil))
   "Creates a module whose output climbs from a given input value to a given output value
     in a given time. Main purpose of this module is to create envelope generators by chaining
@@ -19,8 +21,6 @@
 	<li>:gate-state Required state of the Gate input. One of :on, :off, nil</li>
 	<li>:trigger-threshold Minimum value of the :trigger input that indicates that the trigger is active.</li>
 	<li>:gate-threshold Minimum value of the :gate input that indicates that the gate is on.</li>
-	<li>:time-cv-to-time-ms An optional function that converts a time control voltage to a duration in milliseconds.
-        The default implementation is 1000ms/1V (abs(cv-time) * 1000).</li>
         <li>:exponential If t then the ramp will climb with an exponential characteristic.</li>
     </ul></p>
     <p>The module has the following inputs:
@@ -30,7 +30,7 @@
 	<li>:input Input value.</li>
 	<li>:pass-through If value is >= 5.0 the module passes through its input value.</li>
 	<li>:gate A gate signal (see also :gate-threshold).</li>
-	<li>:cv-time NIL or climbing time (duration) of the ramp (see also :time-cv-to-time-ms).</li>
+	<li>:cv-time NIL or climbing time (duration) of the ramp. The resulting time is 1000ms per Volt.</li>
     </ul></p>
     <p>The module has the following outputs:
     <ul>
@@ -51,9 +51,8 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "~a: Invalid gate-state ~a Must be one of nil, :on, :off"
        :format-arguments (list name gate-state)))
-  (if (not time-cv-to-time-ms)
-      (setf time-cv-to-time-ms (lambda(time-cv) (* (abs time-cv) 1000))))
-  (let* ((output 0.0) (busy 0.0) (done 0.0) (elapsed-time-ms 0.0)
+  (let* ((time-cv-to-time-ms (lambda(time-cv) (* (abs time-cv) 1000)))
+	 (output 0.0) (busy 0.0) (done 0.0) (elapsed-time-ms 0.0)
 	 (start 0.0) (passthrough-gate nil)
 	 (sample-rate (getf environment :sample-rate))
 	 (tick-delta-ms (/ 1 (/ sample-rate 1000.0)))

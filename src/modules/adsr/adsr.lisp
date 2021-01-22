@@ -2,10 +2,11 @@
 
 (defun make-module (name environment
 		    &key
-		      attack-time-ms attack-target-output
-		      decay-time-ms decay-target-output
+		      attack-time-ms
+		      attack-target-output
+		      decay-time-ms
+		      decay-target-output
 		      release-time-ms
-		      (time-cv-to-time-ms nil)
 		      (gate-threshold 2.5)
 		      (backward-coupled nil)
 		      (exponential nil))
@@ -19,7 +20,6 @@
 	<li>:decay-time-ms Duration of the decay phase in milliseconds.</li>
 	<li>:decay-target-output Target value of the decay phase.</li>
 	<li>:release-time-ms Duration of the release phase in milliseconds. The release phase climbs to 0.0.</li>
-	<li>:time-cv-to-time-ms Optional function that converts a time control voltage to a duration in milliseconds. The default implementation is 1000ms/1V.</li>
 	<li>:gate-threshold Minimum value of the :gate input that indicates that the gate is on.</li>
         <li>:backward-coupled If t then the output signal of the envelope will be connected with 
             the input of the attack phase. This can be used to avoid sudden jumps of the envelope 
@@ -30,8 +30,8 @@
     <ul>
 	<li>:gate The gate signal (see also :gate-threshold). The envelope starts working when the
 	gate input switches to \"on\" and enters into the release phase when it switches to \"off\".</li>
-	<li>:attack-cv-time Modulates the climbing time of the attack phase (see also :time-cv-to-time-ms).</li>
-	<li>:release-cv-time Modulates the climbing time of the release phase (see also :time-cv-to-time-ms).</li>
+	<li>:attack-cv-time Modulates the climbing time of the attack phase. The resulting time is 1000ms per Volt.</li>
+	<li>:release-cv-time Modulates the climbing time of the release phase. The resulting time is 1000ms per Volt.</li>
     </ul></p>
     <p>The module has the following outputs:
     <ul>
@@ -58,7 +58,6 @@
      #'cl-synthesizer-modules-ramp:make-module
      :time-ms attack-time-ms :target-output attack-target-output
      :gate-state :on
-     :time-cv-to-time-ms time-cv-to-time-ms
      :gate-threshold gate-threshold
      :exponential exponential)
     (cl-synthesizer:add-patch rack "INPUT" :attack-cv-time "ATTACK" :cv-time)
@@ -68,7 +67,6 @@
      #'cl-synthesizer-modules-ramp:make-module
      :time-ms decay-time-ms :target-output decay-target-output
      :gate-state :on
-     :time-cv-to-time-ms time-cv-to-time-ms
      :gate-threshold gate-threshold
      :exponential exponential)
     
@@ -80,7 +78,8 @@
     (cl-synthesizer:add-module
      rack "RELEASE"
      #'cl-synthesizer-modules-ramp:make-module
-     :time-ms release-time-ms :target-output 0.0 :time-cv-to-time-ms time-cv-to-time-ms
+     :time-ms release-time-ms
+     :target-output 0.0
      :gate-threshold gate-threshold
      :exponential exponential)
     (cl-synthesizer:add-patch rack "INPUT" :release-cv-time "RELEASE" :cv-time)
