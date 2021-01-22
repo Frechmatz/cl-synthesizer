@@ -1,6 +1,6 @@
 (in-package :cl-synthesizer)
 
-(define-condition invalid-arguments-error (simple-error) () (:documentation "XX"))
+(define-condition invalid-arguments-error (simple-error) ())
 
 (defun signal-invalid-arguments-error (&key format-control format-arguments)
   ;;(format t "~%Invalid arguments error: ~a ~a" format-control format-arguments)
