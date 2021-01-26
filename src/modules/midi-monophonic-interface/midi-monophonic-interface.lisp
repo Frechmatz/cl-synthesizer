@@ -31,7 +31,6 @@
 (defun make-module (name environment
 		    &key
 		      (channel nil)
-		      (note-number-to-cv nil)
 		      (cv-gate-on 5.0)
 		      (cv-gate-off 0.0)
 		      (force-gate-retrigger nil)
@@ -47,8 +46,6 @@
         <li>:stack-depth Maximum number of stacked notes.</li>
 	<li>:channel Optional MIDI channel to which note events must belong. By default the
 	    channel is ignored.</li>
-	<li>:note-number-to-cv An optional function that is called with a MIDI note number
-	    and returns a control-voltage. The default implementation is cv = note-number / 12.0</li>
 	<li>:cv-gate-on The \"Gate on\" control voltage.</li>
 	<li>:cv-gate-off The \"Gate off\" control voltage.</li>
 	<li>:force-gate-retrigger If t then each \"note on\" event will cause a retriggering 
@@ -67,15 +64,13 @@
     <p>The module has the following outputs:
     <ul>
 	<li>:gate The gate signal.</li>
-	<li>:cv Pitch control voltage representing the note which is on top of the note stack.</li>
+	<li>:cv Pitch control voltage representing the note which is on top of the note stack. cv = note-number / 12.0</li>
 	<li>:velocity Velocity control voltage. The velocity control voltage represents 
         the velocity of the initiating \"note on\" event (Gate goes up). Nested \"note on\" 
         events do not cause an update of this voltage. This behaviour can be overridden 
         by the :force-velocity-update argument.</li>
     </ul></p>"
   (declare (ignore environment))
-  (if (not note-number-to-cv)
-      (setf note-number-to-cv (lambda (note-number) (the single-float (/ note-number 12.0)))))
   (if (not cv-velocity-max)
       (cl-synthesizer:signal-assembly-error
        :format-control "cv-velocity-max of MIDI-Monophonic-Interface ~a must not be nil"
@@ -84,7 +79,8 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "cv-velocity-max of MIDI-Monophonic-Interface ~a must be greater than 0: ~a"
        :format-arguments (list name cv-velocity-max)))
-  (let* ((outputs nil)
+  (let* ((note-number-to-cv (lambda (note-number) (the single-float (/ note-number 12.0))))
+	 (outputs nil)
 	 (inputs nil)
 	 (input-midi-events nil)
 	 (voice-state (make-voice-state))

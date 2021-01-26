@@ -37,7 +37,6 @@
 		    &key
 		      (voice-count 1)
 		      (channel nil)
-		      (note-number-to-cv nil)
 		      (cv-gate-on 5.0)
 		      (cv-gate-off 0.0)
 		      (cv-velocity-max 5.0))
@@ -50,8 +49,6 @@
 	<li>:voice-count The number of voices to be exposed by the module.</li>
 	<li>:channel Optional MIDI channel to which note events must belong. By default the
 	    channel is ignored.</li>
-	<li>:note-number-to-cv An optional function that is called with a MIDI note number
-	    and returns a control-voltage. The default implementation is cv = note-number / 12.0</li>
 	<li>:cv-gate-on The \"Gate on\" control voltage.</li>
 	<li>:cv-gate-off The \"Gate off\" control voltage.</li>
 	<li>:cv-velocity-max Control voltage that represents the maximum velocity of 127.</li>
@@ -67,12 +64,10 @@
     <p>The module has the following outputs:
     <ul>
 	<li>:gate-1 ... :gate-n Gate signal.</li>
-	<li>:cv-1 ... :cv-n Pitch control voltage.</li>
+	<li>:cv-1 ... :cv-n Pitch control voltage. cv = note-number / 12.0</li>
 	<li>:velocity-1 ... :velocity-n Velocity control voltage.</li>
     </ul></p>"
   (declare (ignore environment))
-  (if (not note-number-to-cv)
-      (setf note-number-to-cv (lambda (note-number) (the single-float (/ note-number 12.0)))))
   (if (not cv-velocity-max)
       (cl-synthesizer:signal-assembly-error
        :format-control "cv-velocity-max of MIDI-Polyphonic-Interface ~a must not be nil"
@@ -81,8 +76,8 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "cv-velocity-max of MIDI-Polyphonic-Interface ~a must be greater than 0: ~a"
        :format-arguments (list name cv-velocity-max)))
-  
-  (let* ((outputs nil)
+  (let* ((note-number-to-cv (lambda (note-number) (the single-float (/ note-number 12.0))))
+	 (outputs nil)
 	 (inputs nil)
 	 (input-midi-events nil)
 	 (voice-states (make-array voice-count))

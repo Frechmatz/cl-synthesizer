@@ -15,7 +15,6 @@
    (cl-synthesizer:make-environment)
    :voice-count voice-count
    :channel channel
-   :note-number-to-cv (lambda (n) (* 1000 n))
    :cv-velocity-max 1270.0))
 
 (defun run-polyphonic-test-case-midi-ifc (test-case)
@@ -40,9 +39,9 @@
 				   :test-cases
 				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event
 						:channel 1
-						:note-number 64
+						:note-number 60
 						:velocity 0))
-					     :outputs ((:CV-1 64000)
+					     :outputs ((:CV-1 5.0)
 						       (:GATE-1 5.0)
 						       (:CV-2 0)
 						       (:GATE-2 0)))))))
@@ -55,35 +54,25 @@
 				   :test-cases
 				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event
 						:channel 1
-						:note-number 64
+						:note-number 60
 						:velocity 0))
-					     :outputs ((:CV-1 64000)
+					     :outputs ((:CV-1 5.0)
 						       (:GATE-1 5.0)
 						       (:CV-2 0)
 						       (:GATE-2 0)))
 				    (:events (,(cl-synthesizer-midi-event:make-note-on-event
 						:channel 1
-						:note-number 32
+						:note-number 36
 						:velocity 0))
-					     :outputs ((:CV-1 64000)
+					     :outputs ((:CV-1 5.0)
 						       (:GATE-1 5.0)
-						       (:CV-2 32000)
+						       (:CV-2 3.0)
 						       (:GATE-2 5.0)))))))
 	       (run-polyphonic-test-case-midi-ifc test)))
 
-;;
-;; Test default note to cv conversion
-;;
 
-(define-test test-polyphonic-midi-interface-default-note-to-cv ()
-	     (let ((ifc (cl-synthesizer-modules-midi-polyphonic-interface:make-module
-			 "MIDI-IFC"
-			 (cl-synthesizer:make-environment))))
-	       (update-module ifc (list :midi-events (list (cl-synthesizer-midi-event:make-note-on-event
-							    :channel 1
-							    :note-number 24
-							    :velocity 0))))
-	       (assert-equal 2.0 (get-module-output ifc :cv-1))))
+
+
 
 ;;
 ;; tests for update with multiple midi-events
@@ -94,13 +83,13 @@
 				   :test-cases
 				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event
 						:channel 1
-						:note-number 64
+						:note-number 60
 						:velocity 0)
 					       ,(cl-synthesizer-midi-event:make-note-off-event
 						 :channel 1
-						 :note-number 64
+						 :note-number 60
 						 :velocity 0))
-					     :outputs ((:CV-1 64000)
+					     :outputs ((:CV-1 5.0)
 						       (:GATE-1 0)
 						       (:CV-2 0)
 						       (:GATE-2 0)))))))
@@ -112,15 +101,15 @@
 				   :test-cases
 				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event
 						:channel 1
-						:note-number 64
+						:note-number 60
 						:velocity 0)
 					       ,(cl-synthesizer-midi-event:make-note-on-event
 						 :channel 1
-						 :note-number 32
+						 :note-number 36
 						 :velocity 0))
-					     :outputs ((:CV-1 64000)
+					     :outputs ((:CV-1 5.0)
 						       (:GATE-1 5.0)
-						       (:CV-2 32000)
+						       (:CV-2 3.0)
 						       (:GATE-2 5.0)))))))
 	       (run-polyphonic-test-case-midi-ifc test)))
 
@@ -130,19 +119,19 @@
 				   :test-cases
 				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event
 						:channel 1
-						:note-number 64
+						:note-number 60
 						:velocity 0)
 					       ,(cl-synthesizer-midi-event:make-note-on-event
 						 :channel 1
-						 :note-number 32
+						 :note-number 36
 						 :velocity 0)
 					       ,(cl-synthesizer-midi-event:make-note-off-event
 						 :channel 1
-						 :note-number 64
+						 :note-number 60
 						 :velocity 0))
-					     :outputs ((:CV-1 64000)
+					     :outputs ((:CV-1 5.0)
 						       (:GATE-1 0)
-						       (:CV-2 32000)
+						       (:CV-2 3.0)
 						       (:GATE-2 5.0)))))))
 	       (run-polyphonic-test-case-midi-ifc test)))
 
@@ -166,13 +155,11 @@
 				   :test-cases
 				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event
 						:channel 1
-						:note-number 64
+						:note-number 60
 						:velocity 0))
-					     :outputs ((:CV-1 64000)
+					     :outputs ((:CV-1 5.0)
 						       (:GATE-1 5.0)))))))
 	       (run-polyphonic-test-case-midi-ifc test)))
-
-
 
 ;;
 ;; Tests that check that gate goes down for one tick when a voice
@@ -185,9 +172,9 @@
 				   :test-cases
 				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event
 						:channel 1
-						:note-number 32
+						:note-number 36
 						:velocity 0))
-					     :outputs ((:CV-1 32000)
+					     :outputs ((:CV-1 3.0)
 						       (:GATE-1 5.0)
 						       (:CV-2 0)
 						       (:GATE-2 0.0)))
@@ -195,22 +182,22 @@
 						:channel 1
 						:note-number 48
 						:velocity 0))
-					     :outputs ((:CV-1 32000)
+					     :outputs ((:CV-1 3.0)
 						       (:GATE-1 5.0)
-						       (:CV-2 48000)
+						       (:CV-2 4.0)
 						       (:GATE-2 5.0)))
 				    (:events (,(cl-synthesizer-midi-event:make-note-on-event
 						:channel 1
-						:note-number 64
+						:note-number 60
 						:velocity 0))
-					     :outputs ((:CV-1 64000)
+					     :outputs ((:CV-1 5.0)
 						       (:GATE-1 0.0)
-						       (:CV-2 48000)
+						       (:CV-2 4.0)
 						       (:GATE-2 5.0)))
 				    (:events nil
-					     :outputs ((:CV-1 64000)
+					     :outputs ((:CV-1 5.0)
 						       (:GATE-1 5.0)
-						       (:CV-2 48000)
+						       (:CV-2 4.0)
 						       (:GATE-2 5.0)))))))
 	       (run-polyphonic-test-case-midi-ifc test)))
 
@@ -220,9 +207,9 @@
 				   :test-cases
 				   ((:events (,(cl-synthesizer-midi-event:make-note-on-event
 						:channel 1
-						:note-number 32
+						:note-number 36
 						:velocity 0))
-					     :outputs ((:CV-1 32000)
+					     :outputs ((:CV-1 3.0)
 						       (:GATE-1 5.0)
 						       (:CV-2 0)
 						       (:GATE-2 0)))
@@ -230,31 +217,31 @@
 						:channel 1
 						:note-number 48
 						:velocity 0))
-					     :outputs ((:CV-1 32000)
+					     :outputs ((:CV-1 3.0)
 						       (:GATE-1 5.0)
-						       (:CV-2 48000)
+						       (:CV-2 4.0)
 						       (:GATE-2 5.0)))
 				    ;; gate must go down for one tick
 				    (:events (,(cl-synthesizer-midi-event:make-note-on-event
 						:channel 1
-						:note-number 64
+						:note-number 60
 						:velocity 0))
-					     :outputs ((:CV-1 64000)
+					     :outputs ((:CV-1 5.0)
 						       (:GATE-1 0.0)
-						       (:CV-2 48000)
+						       (:CV-2 4.0)
 						       (:GATE-2 5.0)))
 				    (:events nil
-					     :outputs ((:CV-1 64000)
+					     :outputs ((:CV-1 5.0)
 						       (:GATE-1 5.0)
-						       (:CV-2 48000)
+						       (:CV-2 4.0)
 						       (:GATE-2 5.0)))
 				    (:events (,(cl-synthesizer-midi-event:make-note-off-event
 						:channel 1
 						:note-number 48
 						:velocity 0))
-					     :outputs ((:CV-1 64000)
+					     :outputs ((:CV-1 5.0)
 						       (:GATE-1 5.0)
-						       (:CV-2 48000) ;; CV keeps frequency but Gate goes down
+						       (:CV-2 4.0) ;; CV keeps frequency but Gate goes down
 						       (:GATE-2 0)))))))
 	       (run-polyphonic-test-case-midi-ifc test)))
 
@@ -372,7 +359,6 @@
 		       (setf event-count (+ 1 event-count))))
 		 (assert-equal 2 event-count))))
 
-
 (define-test test-polyphonic-midi-interface-velocity-1 ()
 	     (let ((test
 		    `(:voice-count 2 
@@ -388,3 +374,4 @@
 						:velocity 127))
 					     :outputs ((:VELOCITY-1 0) (:VELOCITY-2 1270)))))))
 	       (run-polyphonic-test-case-midi-ifc test)))
+

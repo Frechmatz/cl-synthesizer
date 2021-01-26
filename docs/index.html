@@ -104,7 +104,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3820346343" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3820679907" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated saws">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation &quot;Two frequency modulated saws&quot;))
@@ -156,7 +156,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 2.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3820346343" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3820679907" type="audio/wav"></audio></p>
 <h1 id="Concepts">Concepts</h1>
 <h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
   ...)</code></pre></p>
@@ -720,8 +720,8 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
     (cl-synthesizer:play-rack rack :duration-seconds 10)))
 
 ;; (run-example)</code></pre></p>
-<h3 id="MIDI Polyphonic Interface">MIDI Polyphonic Interface</h3><b>make-module</b>&nbsp;(name environment &key (voice-count 1) (channel nil) (note-number-to-cv nil)
- (cv-gate-on 5.0) (cv-gate-off 0.0) (cv-velocity-max 5.0))<p>Creates a polyphonic MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
+<h3 id="MIDI Polyphonic Interface">MIDI Polyphonic Interface</h3><b>make-module</b>&nbsp;(name environment &key (voice-count 1) (channel nil) (cv-gate-on 5.0)
+ (cv-gate-off 0.0) (cv-velocity-max 5.0))<p>Creates a polyphonic MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
     voice is represented by a pitch-control voltage, a velocity-control voltage and a gate signal.
     <p>The function has the following arguments:
     <ul>
@@ -730,8 +730,6 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 	<li>:voice-count The number of voices to be exposed by the module.</li>
 	<li>:channel Optional MIDI channel to which note events must belong. By default the
 	    channel is ignored.</li>
-	<li>:note-number-to-cv An optional function that is called with a MIDI note number
-	    and returns a control-voltage. The default implementation is cv = note-number / 12.0</li>
 	<li>:cv-gate-on The "Gate on" control voltage.</li>
 	<li>:cv-gate-off The "Gate off" control voltage.</li>
 	<li>:cv-velocity-max Control voltage that represents the maximum velocity of 127.</li>
@@ -747,12 +745,12 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
     <p>The module has the following outputs:
     <ul>
 	<li>:gate-1 ... :gate-n Gate signal.</li>
-	<li>:cv-1 ... :cv-n Pitch control voltage.</li>
+	<li>:cv-1 ... :cv-n Pitch control voltage. cv = note-number / 12.0</li>
 	<li>:velocity-1 ... :velocity-n Velocity control voltage.</li>
     </ul></p></p>
-<h3 id="MIDI Monophonic Interface">MIDI Monophonic Interface</h3><b>make-module</b>&nbsp;(name environment &key (channel nil) (note-number-to-cv nil) (cv-gate-on 5.0)
- (cv-gate-off 0.0) (force-gate-retrigger nil) (stack-depth 5)
- (cv-velocity-max 5.0) (force-velocity-update nil))<p>Creates a monophonic MIDI interface module. The module dispatches MIDI-Note events to a single voice. 
+<h3 id="MIDI Monophonic Interface">MIDI Monophonic Interface</h3><b>make-module</b>&nbsp;(name environment &key (channel nil) (cv-gate-on 5.0) (cv-gate-off 0.0)
+ (force-gate-retrigger nil) (stack-depth 5) (cv-velocity-max 5.0)
+ (force-velocity-update nil))<p>Creates a monophonic MIDI interface module. The module dispatches MIDI-Note events to a single voice. 
    If the voice is already assigned to a note, then the incoming note is pushed on top of the current note.
    <p>The function has the following arguments:
     <ul>
@@ -761,8 +759,6 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
         <li>:stack-depth Maximum number of stacked notes.</li>
 	<li>:channel Optional MIDI channel to which note events must belong. By default the
 	    channel is ignored.</li>
-	<li>:note-number-to-cv An optional function that is called with a MIDI note number
-	    and returns a control-voltage. The default implementation is cv = note-number / 12.0</li>
 	<li>:cv-gate-on The "Gate on" control voltage.</li>
 	<li>:cv-gate-off The "Gate off" control voltage.</li>
 	<li>:force-gate-retrigger If t then each "note on" event will cause a retriggering 
@@ -781,7 +777,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
     <p>The module has the following outputs:
     <ul>
 	<li>:gate The gate signal.</li>
-	<li>:cv Pitch control voltage representing the note which is on top of the note stack.</li>
+	<li>:cv Pitch control voltage representing the note which is on top of the note stack. cv = note-number / 12.0</li>
 	<li>:velocity Velocity control voltage. The velocity control voltage represents 
         the velocity of the initiating "note on" event (Gate goes up). Nested "note on" 
         events do not cause an update of this voltage. This behaviour can be overridden 
@@ -1493,4 +1489,4 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2021-01-23  00:19:03</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2021-01-26  20:58:27</small></p></footer></body></html>
