@@ -2,7 +2,8 @@
 (defpackage :cl-synthesizer-midi
   (:use :cl)
   (:export
-   :get-note-number-frequency))
+   :get-note-number-frequency
+   :cc-mapper))
 
 (defpackage :cl-synthesizer-midi-event
   (:use :cl)

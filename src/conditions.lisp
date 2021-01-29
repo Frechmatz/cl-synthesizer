@@ -3,7 +3,6 @@
 (define-condition invalid-arguments-error (simple-error) ())
 
 (defun signal-invalid-arguments-error (&key format-control format-arguments)
-  ;;(format t "~%Invalid arguments error: ~a ~a" format-control format-arguments)
   (error (make-condition
 	  'invalid-arguments-error
 	  :format-control format-control
@@ -17,7 +16,6 @@
    and so on."))
 
 (defun signal-assembly-error (&key format-control format-arguments)
-  ;;(format t "~%Assembly error: ~a ~a" format-control format-arguments)
   (error (make-condition
 	  'assembly-error
 	  :format-control format-control

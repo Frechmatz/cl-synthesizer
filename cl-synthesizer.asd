@@ -13,11 +13,13 @@
 		:components ((:file "packages")
 			     (:file "macro-util")
 			     (:file "lru-set")))
-	       (:module "src/synthesizer"
+	       (:module "src"
 		:serial t
 		:components ((:file "packages")
-			     (:file "conditions")
-			     (:file "environment")
+			     (:file "conditions")))
+	       (:module "src/synthesizer"
+		:serial t
+		:components ((:file "environment")
 			     (:file "rack-compiler") 
 			     (:file "rack")))
 	       (:module "src/core"
@@ -32,7 +34,8 @@
 		:serial t
 		:components ((:file "packages")
 			     (:file "tuning")
-			     (:file "event")))
+			     (:file "event")
+			     (:file "cc-mapper")))
 	       (:module "src/modules"
 		:serial t
 		:components ((:file "packages")))
