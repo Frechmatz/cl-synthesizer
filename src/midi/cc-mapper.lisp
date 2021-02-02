@@ -46,7 +46,7 @@
 	  (lambda(ctrl-number ctrl-value)
 	    (if (not (eql ctrl-number controller-number))
 		nil
-		(if (and (>= from ctrl-value) (<= ctrl-value to))
+		(if (and (<= from ctrl-value) (>= to ctrl-value))
 		    value
 		    nil)))
 	  map-fns))
