@@ -13,6 +13,10 @@
   (:use :cl)
   (:export :make-module))
 
+(defpackage :cl-synthesizer-modules-midi-relative-cc-interface
+  (:use :cl)
+  (:export :make-module))
+
 (defpackage :cl-synthesizer-modules-multiple
   (:use :cl)
   (:export :make-module))

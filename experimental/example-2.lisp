@@ -18,27 +18,26 @@
 	 (delta-1-hz 0.01))
     
     (cl-synthesizer:add-module
-     rack "MIDI-CC-IFC" #'cl-synthesizer-modules-midi-cc-interface:make-module
+     rack "MIDI-CC-IFC" #'cl-synthesizer-modules-midi-relative-cc-interface:make-module
      :controller-numbers (list msb-controller-number lsb-controller-number)
      :initial-output 0.0
      :min-output (* -5000.0 delta-1-hz)
      :max-output (* 5000.0 delta-1-hz)
      :channel nil
-     :transform-handler
-     (lambda (cur-output controller-number control-value)
-       (let ((offs 
-	      (cond
-		((= 61 control-value) (* -1.0 delta-1-hz))
-		((= 62 control-value) (* -2.0 delta-1-hz))
-		((= 63 control-value) (* -3.0 delta-1-hz))
-		((= 65 control-value) (* 1.0  delta-1-hz))
-		((= 66 control-value) (* 2.0 delta-1-hz))
-		((= 67 control-value) (* 3.0 delta-1-hz))
-		(t 0))))
-	 (if (= controller-number msb-controller-number)
-	     (setf offs (* 10.0 offs))) ;; Jump in 10Hz steps
-	 (+ cur-output offs))))
-    
+     :mappings (list
+		(list :controller-number lsb-controller-number :control-value 61 :offset (* -1.0 delta-1-hz))
+		(list :controller-number lsb-controller-number :control-value 62 :offset (* -2.0 delta-1-hz))
+		(list :controller-number lsb-controller-number :control-value 63 :offset (* -3.0 delta-1-hz))
+		(list :controller-number lsb-controller-number :control-value 65 :offset (* 1.0 delta-1-hz))
+		(list :controller-number lsb-controller-number :control-value 66 :offset (* 2.0 delta-1-hz))
+		(list :controller-number lsb-controller-number :control-value 67 :offset (* 3.0 delta-1-hz))
+		(list :controller-number msb-controller-number :control-value 61 :offset (* -10.0 delta-1-hz))
+		(list :controller-number msb-controller-number :control-value 62 :offset (* -20.0 delta-1-hz))
+		(list :controller-number msb-controller-number :control-value 63 :offset (* -30.0 delta-1-hz))
+		(list :controller-number msb-controller-number :control-value 65 :offset (* 10.0 delta-1-hz))
+		(list :controller-number msb-controller-number :control-value 66 :offset (* 20.0 delta-1-hz))
+		(list :controller-number msb-controller-number :control-value 67 :offset (* 30.0 delta-1-hz)))
+
     (cl-synthesizer:add-module
      rack "VCO"
      #'cl-synthesizer-modules-vco:make-module
