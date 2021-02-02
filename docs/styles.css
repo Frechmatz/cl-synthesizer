@@ -2,3 +2,8 @@ pre {
   white-space: pre-wrap;
   word-break: keep-all
 }
+
+table, th, td {
+  border-collapse: collapse;
+  border: 1px solid;
+}

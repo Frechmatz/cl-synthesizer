@@ -98,6 +98,20 @@
     (let ((str (format nil "~4,'0d-~2,'0d-~2,'0d  ~2,'0d:~2,'0d:~2,'0d" yr mon day hr min sec)))
       str)))
 
+(defun make-note-number-chart ()
+  (let ((chart (make-string-output-stream)))
+    (write-line "<table><thead><tr><th>Note number</th><th>Frequency</th></tr></thead><tbody>" chart) 
+    (dotimes (note-number 128)
+      (write-line 
+       (concatenate
+	'string
+	"<tr>"
+	"<td>" (format nil "~a" note-number) "</td>"
+	"<td>" (format nil "~a" (cl-synthesizer-midi:get-note-number-frequency note-number)) "</td>"
+	"</tr>")
+       chart))
+    (write-line "</tbody></table>" chart)
+    (get-output-stream-string chart)))
 
 ;;
 ;; Readme
@@ -260,7 +274,8 @@
 				,(make-function-string lib-index "cl-synthesizer-midi-event" "get-note-number")
 				,(make-function-string lib-index "cl-synthesizer-midi-event" "get-velocity")
 				(heading (:toc t :name "MIDI Utilities")
-					 ,(make-function-string lib-index "cl-synthesizer-midi" "get-note-number-frequency")))
+					 ,(make-function-string lib-index "cl-synthesizer-midi" "get-note-number-frequency")
+					 ,(make-note-number-chart)))
 		       (heading (:toc t :name "Conditions")
 				,(make-condition-string lib-index "cl-synthesizer" "assembly-error")))
 	      (heading (:name "Run tests" :toc t)

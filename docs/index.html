@@ -104,7 +104,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3821293144" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3821295733" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated saws">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation &quot;Two frequency modulated saws&quot;))
@@ -156,7 +156,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 2.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3821293144" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3821295733" type="audio/wav"></audio></p>
 <h1 id="Concepts">Concepts</h1>
 <h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
   ...)</code></pre></p>
@@ -1495,7 +1495,137 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 <h3 id="MIDI Event">MIDI Event</h3><b>make-control-change-event</b>&nbsp;(&key channel controller-number control-value)<p>Creates a MIDI control change event.</p><b>make-note-on-event</b>&nbsp;(&key channel note-number velocity)<p>Creates a MIDI Note-On event.</p><b>make-note-off-event</b>&nbsp;(&key channel note-number velocity)<p>Creates a MIDI Note-Off event.</p><b>control-change-eventp</b>&nbsp;(event)<p>Returns t if the given MIDI event is a Control-Change event.</p><b>note-on-eventp</b>&nbsp;(event)<p>Returns t if the given MIDI event is a Note-On event.</p><b>note-off-eventp</b>&nbsp;(event)<p>Returns t if the given MIDI event is a Note-Off event.</p><b>get-channel</b>&nbsp;(event)<p>Returns the MIDI channel number to which the event belongs.</p><b>get-controller-number</b>&nbsp;(event)<p>Returns the controller number of a Control-Change MIDI event.</p><b>get-control-value</b>&nbsp;(event)<p>Returns the control value of a Control-Change MIDI event.</p><b>get-note-number</b>&nbsp;(event)<p>Returns the note number of Note-On/Off MIDI event.</p><b>get-velocity</b>&nbsp;(event)<p>Returns the velocity of a Note-On/Off MIDI event.</p>
 <h3 id="MIDI Utilities">MIDI Utilities</h3><b>get-note-number-frequency</b>&nbsp;(note-number)<p>Returns the frequency of a given note number. Note number 69 results in a frequency of 440Hz.
    This function implements a mapping according to 
-   <a href="http://subsynth.sourceforge.net/midinote2freq.html">midinote2freq</a></p>
+   <a href="http://subsynth.sourceforge.net/midinote2freq.html">midinote2freq</a></p><table><thead><tr><th>Note number</th><th>Frequency</th></tr></thead><tbody>
+<tr><td>0</td><td>8.175798</td></tr>
+<tr><td>1</td><td>8.661958</td></tr>
+<tr><td>2</td><td>9.177024</td></tr>
+<tr><td>3</td><td>9.722718</td></tr>
+<tr><td>4</td><td>10.300861</td></tr>
+<tr><td>5</td><td>10.913383</td></tr>
+<tr><td>6</td><td>11.5623255</td></tr>
+<tr><td>7</td><td>12.249857</td></tr>
+<tr><td>8</td><td>12.9782715</td></tr>
+<tr><td>9</td><td>55/4</td></tr>
+<tr><td>10</td><td>14.567618</td></tr>
+<tr><td>11</td><td>15.433853</td></tr>
+<tr><td>12</td><td>16.351597</td></tr>
+<tr><td>13</td><td>17.323915</td></tr>
+<tr><td>14</td><td>18.354048</td></tr>
+<tr><td>15</td><td>19.445436</td></tr>
+<tr><td>16</td><td>20.601723</td></tr>
+<tr><td>17</td><td>21.826765</td></tr>
+<tr><td>18</td><td>23.124651</td></tr>
+<tr><td>19</td><td>24.499714</td></tr>
+<tr><td>20</td><td>25.956543</td></tr>
+<tr><td>21</td><td>55/2</td></tr>
+<tr><td>22</td><td>29.135237</td></tr>
+<tr><td>23</td><td>30.867706</td></tr>
+<tr><td>24</td><td>32.703194</td></tr>
+<tr><td>25</td><td>34.64783</td></tr>
+<tr><td>26</td><td>36.708096</td></tr>
+<tr><td>27</td><td>38.890873</td></tr>
+<tr><td>28</td><td>41.203445</td></tr>
+<tr><td>29</td><td>43.65353</td></tr>
+<tr><td>30</td><td>46.249302</td></tr>
+<tr><td>31</td><td>48.999428</td></tr>
+<tr><td>32</td><td>51.913086</td></tr>
+<tr><td>33</td><td>55</td></tr>
+<tr><td>34</td><td>58.270473</td></tr>
+<tr><td>35</td><td>61.735413</td></tr>
+<tr><td>36</td><td>65.40639</td></tr>
+<tr><td>37</td><td>69.29566</td></tr>
+<tr><td>38</td><td>73.41619</td></tr>
+<tr><td>39</td><td>77.781746</td></tr>
+<tr><td>40</td><td>82.40689</td></tr>
+<tr><td>41</td><td>87.30706</td></tr>
+<tr><td>42</td><td>92.498604</td></tr>
+<tr><td>43</td><td>97.998856</td></tr>
+<tr><td>44</td><td>103.82617</td></tr>
+<tr><td>45</td><td>110</td></tr>
+<tr><td>46</td><td>116.54095</td></tr>
+<tr><td>47</td><td>123.470825</td></tr>
+<tr><td>48</td><td>130.81277</td></tr>
+<tr><td>49</td><td>138.59132</td></tr>
+<tr><td>50</td><td>146.83238</td></tr>
+<tr><td>51</td><td>155.56349</td></tr>
+<tr><td>52</td><td>164.81378</td></tr>
+<tr><td>53</td><td>174.61412</td></tr>
+<tr><td>54</td><td>184.99721</td></tr>
+<tr><td>55</td><td>195.99771</td></tr>
+<tr><td>56</td><td>207.65234</td></tr>
+<tr><td>57</td><td>220</td></tr>
+<tr><td>58</td><td>233.0819</td></tr>
+<tr><td>59</td><td>246.94165</td></tr>
+<tr><td>60</td><td>261.62555</td></tr>
+<tr><td>61</td><td>277.18265</td></tr>
+<tr><td>62</td><td>293.66476</td></tr>
+<tr><td>63</td><td>311.12698</td></tr>
+<tr><td>64</td><td>329.62756</td></tr>
+<tr><td>65</td><td>349.22824</td></tr>
+<tr><td>66</td><td>369.99442</td></tr>
+<tr><td>67</td><td>391.99542</td></tr>
+<tr><td>68</td><td>415.3047</td></tr>
+<tr><td>69</td><td>440</td></tr>
+<tr><td>70</td><td>466.1638</td></tr>
+<tr><td>71</td><td>493.8833</td></tr>
+<tr><td>72</td><td>523.2511</td></tr>
+<tr><td>73</td><td>554.3653</td></tr>
+<tr><td>74</td><td>587.3295</td></tr>
+<tr><td>75</td><td>622.25397</td></tr>
+<tr><td>76</td><td>659.2551</td></tr>
+<tr><td>77</td><td>698.4565</td></tr>
+<tr><td>78</td><td>739.98883</td></tr>
+<tr><td>79</td><td>783.99084</td></tr>
+<tr><td>80</td><td>830.6094</td></tr>
+<tr><td>81</td><td>880</td></tr>
+<tr><td>82</td><td>932.3276</td></tr>
+<tr><td>83</td><td>987.7666</td></tr>
+<tr><td>84</td><td>1046.5022</td></tr>
+<tr><td>85</td><td>1108.7306</td></tr>
+<tr><td>86</td><td>1174.659</td></tr>
+<tr><td>87</td><td>1244.5079</td></tr>
+<tr><td>88</td><td>1318.5103</td></tr>
+<tr><td>89</td><td>1396.913</td></tr>
+<tr><td>90</td><td>1479.9777</td></tr>
+<tr><td>91</td><td>1567.9817</td></tr>
+<tr><td>92</td><td>1661.2188</td></tr>
+<tr><td>93</td><td>1760</td></tr>
+<tr><td>94</td><td>1864.6552</td></tr>
+<tr><td>95</td><td>1975.5332</td></tr>
+<tr><td>96</td><td>2093.0044</td></tr>
+<tr><td>97</td><td>2217.4612</td></tr>
+<tr><td>98</td><td>2349.318</td></tr>
+<tr><td>99</td><td>2489.0159</td></tr>
+<tr><td>100</td><td>2637.0205</td></tr>
+<tr><td>101</td><td>2793.826</td></tr>
+<tr><td>102</td><td>2959.9553</td></tr>
+<tr><td>103</td><td>3135.9634</td></tr>
+<tr><td>104</td><td>3322.4375</td></tr>
+<tr><td>105</td><td>3520</td></tr>
+<tr><td>106</td><td>3729.3103</td></tr>
+<tr><td>107</td><td>3951.0664</td></tr>
+<tr><td>108</td><td>4186.009</td></tr>
+<tr><td>109</td><td>4434.9224</td></tr>
+<tr><td>110</td><td>4698.636</td></tr>
+<tr><td>111</td><td>4978.0317</td></tr>
+<tr><td>112</td><td>5274.041</td></tr>
+<tr><td>113</td><td>5587.652</td></tr>
+<tr><td>114</td><td>5919.9106</td></tr>
+<tr><td>115</td><td>6271.927</td></tr>
+<tr><td>116</td><td>6644.875</td></tr>
+<tr><td>117</td><td>7040</td></tr>
+<tr><td>118</td><td>7458.6206</td></tr>
+<tr><td>119</td><td>7902.133</td></tr>
+<tr><td>120</td><td>8372.018</td></tr>
+<tr><td>121</td><td>8869.845</td></tr>
+<tr><td>122</td><td>9397.272</td></tr>
+<tr><td>123</td><td>9956.063</td></tr>
+<tr><td>124</td><td>10548.082</td></tr>
+<tr><td>125</td><td>11175.304</td></tr>
+<tr><td>126</td><td>11839.821</td></tr>
+<tr><td>127</td><td>12543.854</td></tr>
+</tbody></table>
+
 <h2 id="Conditions">Conditions</h2><b>assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
    because for example a module name is not unique, a patch is added for
    a non-existing module, a patch is added to an already patched socket
@@ -1508,4 +1638,4 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2021-02-02  23:19:04</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2021-02-03  00:02:13</small></p></footer></body></html>
