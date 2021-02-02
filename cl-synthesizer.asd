@@ -54,9 +54,6 @@
 	       (:module "src/modules/midi-monophonic-interface"
 		:serial t
 		:components ((:file "midi-monophonic-interface")))
-	       (:module "src/modules/midi-cc-interface"
-		:serial t
-		:components ((:file "midi-cc-interface")))
 	       (:module "src/modules/midi-relative-cc-interface"
 		:serial t
 		:components ((:file "midi-relative-cc-interface")))
@@ -137,7 +134,6 @@
 		:serial t
 		:components ((:file "test-adder")
 			     (:file "test-trigger")
-			     (:file "test-midi-cc-interface")
 			     (:file "test-midi-relative-cc-interface")
 			     (:file "test-midi-polyphonic-interface")
 			     (:file "test-midi-monophonic-interface")
@@ -202,9 +198,6 @@
 		:components ((:file "example-1")
 			     (:file "example-2")
 			     (:file "example-4")))
-	       (:module "src/modules/midi-cc-interface"
-		:serial t
-		:components ((:file "example-1")))
 	       (:module "src/modules/midi-relative-cc-interface"
 		:serial t
 		:components ((:file "example-1")))

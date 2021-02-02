@@ -1,7 +1,7 @@
 % Matlab Script
 % Plots all columns (y) of a csv file over time (x)
 % Input is a CSV file with n columns and a header row
-content = importdata('/Users/olli/cl-synthesizer-examples/ramp-example-1.csv');
+content = importdata('/Users/olli/cl-synthesizer-examples/midi-relative-cc-interface-example-1.csv');
 sampleRate = 44100;
 % Create X-Axis
 ticks = 0:1:size(content.data)-1;

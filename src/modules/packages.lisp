@@ -9,10 +9,6 @@
   (:export
    :make-module))
 
-(defpackage :cl-synthesizer-modules-midi-cc-interface
-  (:use :cl)
-  (:export :make-module))
-
 (defpackage :cl-synthesizer-modules-midi-relative-cc-interface
   (:use :cl)
   (:export :make-module))
