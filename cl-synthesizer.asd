@@ -127,6 +127,9 @@
 	       (:module "test/core"
 		:serial t
 		:components ((:file "test-waveform")))
+	       (:module "test/midi"
+		:serial t
+		:components ((:file "test-cc-mapper")))
 	       (:module "test/modules"
 		:serial t
 		:components ((:file "test-adder")
