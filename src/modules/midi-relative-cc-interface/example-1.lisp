@@ -22,28 +22,28 @@
      (list 
       (list :timestamp-milli-seconds 100
 	    :midi-events (list
-			  (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :controller-value 61)))
+			  (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
       (list :timestamp-milli-seconds 200
 	    :midi-events (list
-			  (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :controller-value 61)))
+			  (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
       (list :timestamp-milli-seconds 300
 	    :midi-events (list
-			  (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :controller-value 61)))
+			  (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
       (list :timestamp-milli-seconds 400
 	    :midi-events (list
-			  (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :controller-value 61)))
+			  (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
       (list :timestamp-milli-seconds 500
 	    :midi-events (list
-			  (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :controller-value 67)))
+			  (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))
       (list :timestamp-milli-seconds 600
 	    :midi-events (list
-			  (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :controller-value 67)))
+			  (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))
       (list :timestamp-milli-seconds 700
 	    :midi-events (list
-			  (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :controller-value 67)))
+			  (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))
       (list :timestamp-milli-seconds 800
 	    :midi-events (list
-			  (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :controller-value 67)))))
+			  (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))))
     
     (cl-synthesizer:add-patch rack "MIDI-SEQUENCER" :midi-events "MIDI-CC-IFC" :midi-events)
 

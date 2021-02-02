@@ -90,7 +90,7 @@
 				 (funcall
 				  map-fn
 				  (cl-synthesizer-midi-event:get-controller-number midi-event)
-				  (cl-synthesizer-midi-event:get-controller-value midi-event))))
+				  (cl-synthesizer-midi-event:get-control-value midi-event))))
 			   (if offset
 			       (setf cur-output (clip (+ cur-output offset)))))))))))))
 

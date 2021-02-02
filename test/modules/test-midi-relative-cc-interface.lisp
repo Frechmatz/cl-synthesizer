@@ -39,7 +39,7 @@
 	      (cl-synthesizer-midi-event:make-control-change-event
 	       :channel 1
 	       :controller-number 100
-	       :controller-value 200))))
+	       :control-value 200))))
     (assert-equal 100 (get-module-output ifc :output))))
 
 (define-test test-midi-relative-cc-interface-4 ()
@@ -56,15 +56,15 @@
 	      (cl-synthesizer-midi-event:make-control-change-event
 	       :channel 1
 	       :controller-number 100
-	       :controller-value 1)
+	       :control-value 1)
 	      (cl-synthesizer-midi-event:make-control-change-event
 	       :channel 999
 	       :controller-number 100
-	       :controller-value 1)
+	       :control-value 1)
 	      (cl-synthesizer-midi-event:make-control-change-event
 	       :channel 1
 	       :controller-number 101
-	       :controller-value 1))))
+	       :control-value 1))))
     (assert-equal 191 (get-module-output ifc :output))))
 
 (define-test test-midi-relative-cc-interface-5 ()
@@ -94,7 +94,7 @@
 	      (cl-synthesizer-midi-event:make-control-change-event
 	       :channel 1
 	       :controller-number 100
-	       :controller-value 1))))
+	       :control-value 1))))
     (assert-equal 300 (get-module-output ifc :output))))
 
 (define-test test-midi-cc-interface-7 ()
@@ -112,5 +112,5 @@
 	      (cl-synthesizer-midi-event:make-control-change-event
 	       :channel 1
 	       :controller-number 100
-	       :controller-value 1))))
+	       :control-value 1))))
     (assert-equal 200 (get-module-output ifc :output))))

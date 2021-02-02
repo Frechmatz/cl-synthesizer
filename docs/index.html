@@ -104,7 +104,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3821292305" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3821293144" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated saws">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation &quot;Two frequency modulated saws&quot;))
@@ -156,7 +156,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 2.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3821292305" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3821293144" type="audio/wav"></audio></p>
 <h1 id="Concepts">Concepts</h1>
 <h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
   ...)</code></pre></p>
@@ -835,28 +835,28 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
      (list 
       (list :timestamp-milli-seconds 100
         :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :controller-value 61)))
+              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
       (list :timestamp-milli-seconds 200
         :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :controller-value 61)))
+              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
       (list :timestamp-milli-seconds 300
         :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :controller-value 61)))
+              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
       (list :timestamp-milli-seconds 400
         :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :controller-value 61)))
+              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
       (list :timestamp-milli-seconds 500
         :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :controller-value 67)))
+              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))
       (list :timestamp-milli-seconds 600
         :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :controller-value 67)))
+              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))
       (list :timestamp-milli-seconds 700
         :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :controller-value 67)))
+              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))
       (list :timestamp-milli-seconds 800
         :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :controller-value 67)))))
+              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))))
     
     (cl-synthesizer:add-patch rack &quot;MIDI-SEQUENCER&quot; :midi-events &quot;MIDI-CC-IFC&quot; :midi-events)
 
@@ -1492,7 +1492,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
     </ul></p>
     <p>See also cl-synthesizer-modules:csv-file-writer.</p></p>
 <h2 id="MIDI">MIDI</h2>
-<h3 id="MIDI Event">MIDI Event</h3><b>make-control-change-event</b>&nbsp;(&key channel controller-number controller-value)<p>Creates a MIDI control change event.</p><b>make-note-on-event</b>&nbsp;(&key channel note-number velocity)<p>Creates a MIDI Note-On event.</p><b>make-note-off-event</b>&nbsp;(&key channel note-number velocity)<p>Creates a MIDI Note-Off event.</p><b>control-change-eventp</b>&nbsp;(event)<p>Returns t if the given MIDI event is a Control-Change event.</p><b>note-on-eventp</b>&nbsp;(event)<p>Returns t if the given MIDI event is a Note-On event.</p><b>note-off-eventp</b>&nbsp;(event)<p>Returns t if the given MIDI event is a Note-Off event.</p><b>get-channel</b>&nbsp;(event)<p>Returns the MIDI channel number to which the event belongs.</p><b>get-controller-number</b>&nbsp;(event)<p>Returns the controller number of a Control-Change MIDI event.</p><b>get-controller-value</b>&nbsp;(event)<p>Returns the controller value of a Control-Change MIDI event.</p><b>get-note-number</b>&nbsp;(event)<p>Returns the note number of Note-On/Off MIDI event.</p><b>get-velocity</b>&nbsp;(event)<p>Returns the velocity of a Note-On/Off MIDI event.</p>
+<h3 id="MIDI Event">MIDI Event</h3><b>make-control-change-event</b>&nbsp;(&key channel controller-number control-value)<p>Creates a MIDI control change event.</p><b>make-note-on-event</b>&nbsp;(&key channel note-number velocity)<p>Creates a MIDI Note-On event.</p><b>make-note-off-event</b>&nbsp;(&key channel note-number velocity)<p>Creates a MIDI Note-Off event.</p><b>control-change-eventp</b>&nbsp;(event)<p>Returns t if the given MIDI event is a Control-Change event.</p><b>note-on-eventp</b>&nbsp;(event)<p>Returns t if the given MIDI event is a Note-On event.</p><b>note-off-eventp</b>&nbsp;(event)<p>Returns t if the given MIDI event is a Note-Off event.</p><b>get-channel</b>&nbsp;(event)<p>Returns the MIDI channel number to which the event belongs.</p><b>get-controller-number</b>&nbsp;(event)<p>Returns the controller number of a Control-Change MIDI event.</p><b>get-control-value</b>&nbsp;(event)<p>Returns the control value of a Control-Change MIDI event.</p><b>get-note-number</b>&nbsp;(event)<p>Returns the note number of Note-On/Off MIDI event.</p><b>get-velocity</b>&nbsp;(event)<p>Returns the velocity of a Note-On/Off MIDI event.</p>
 <h3 id="MIDI Utilities">MIDI Utilities</h3><b>get-note-number-frequency</b>&nbsp;(note-number)<p>Returns the frequency of a given note number. Note number 69 results in a frequency of 440Hz.
    This function implements a mapping according to 
    <a href="http://subsynth.sourceforge.net/midinote2freq.html">midinote2freq</a></p>
@@ -1508,4 +1508,4 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2021-02-02  23:05:05</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2021-02-02  23:19:04</small></p></footer></body></html>

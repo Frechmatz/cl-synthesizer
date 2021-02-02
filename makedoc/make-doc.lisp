@@ -256,7 +256,7 @@
 				,(make-function-string lib-index "cl-synthesizer-midi-event" "note-off-eventp")
 				,(make-function-string lib-index "cl-synthesizer-midi-event" "get-channel")
 				,(make-function-string lib-index "cl-synthesizer-midi-event" "get-controller-number")
-				,(make-function-string lib-index "cl-synthesizer-midi-event" "get-controller-value")
+				,(make-function-string lib-index "cl-synthesizer-midi-event" "get-control-value")
 				,(make-function-string lib-index "cl-synthesizer-midi-event" "get-note-number")
 				,(make-function-string lib-index "cl-synthesizer-midi-event" "get-velocity")
 				(heading (:toc t :name "MIDI Utilities")

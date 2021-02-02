@@ -18,5 +18,5 @@
    :get-note-number
    :get-velocity
    :get-controller-number
-   :get-controller-value))
+   :get-control-value))
 
