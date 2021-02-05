@@ -62,7 +62,7 @@
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-backend
+     #'cl-synthesizer-monitor-csv-file-agent:make-backend
      '(("GATE-MULTIPLE" :input-socket :input :name "Gate")
        ("LINEAR" :output-socket :adsr-out :name "ADSR Linear")
        ("EXPONENTIAL" :output-socket :adsr-out :name "ADSR Exponential"))

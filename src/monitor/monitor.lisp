@@ -102,7 +102,7 @@
 	    :format-arguments (list socket-type))))
 	input-fetcher))))
 
-(defun add-monitor (rack monitor-handler socket-mappings &rest additional-handler-args)
+(defun add-monitor (rack monitor-agent socket-mappings &rest additional-handler-args)
    "Adds a monitor to a rack. <p>The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
@@ -157,7 +157,7 @@
      ;; Defining the positional mapping is job of the monitor handler.
    (multiple-value-bind (backend ordered-input-sockets)
        (apply
-	monitor-handler
+	monitor-agent
 	"Monitor-Backend"
 	(cl-synthesizer:get-environment rack)
 	(mapcar

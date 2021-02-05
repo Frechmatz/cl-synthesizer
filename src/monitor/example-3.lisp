@@ -4,7 +4,7 @@
 (in-package :cl-synthesizer-monitor-example-3)
 
 (defun example ()
-  "Wave-Handler example"
+  "Wave-File-Agent example"
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
     
     (cl-synthesizer:add-module
@@ -13,7 +13,7 @@
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:make-backend
+     #'cl-synthesizer-monitor-wave-file-agent:make-backend
      '(("VCO" :output-socket :sine))
      :filename "cl-synthesizer-examples/monitor-example-3.wav"
      :v-peak 5.0)

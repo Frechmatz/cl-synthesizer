@@ -10,8 +10,7 @@
 		"Counter" :out
 		"Multiplier" :in)
 	       (let ((handler-out nil) (handler-in nil) (handler-module-name nil) (shutdown-called nil))
-		 ;; Monitor-Handler instantiation function
-		 (flet ((instantiate-handler (name environment inputs)
+		 (flet ((monitor-agent (name environment inputs)
 			  (values 
 			   (list
 			    :inputs (lambda()
@@ -29,7 +28,7 @@
 			   '(:out :in :module-name))))
 		   (cl-synthesizer-monitor:add-monitor
 		    rack
-		    #'instantiate-handler
+		    #'monitor-agent
 		    '(("Multiplier" :output-socket :out)
 		      ("Multiplier" :input-socket :in)
 		      ("Counter" :state :module-name))))
@@ -44,7 +43,7 @@
 (define-test test-monitor-2 ()
 	     "Attach monitor to non-existing modules"
 	     (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
-	       (flet ((instantiate-handler (name environment inputs)
+	       (flet ((monitor-agent (name environment inputs)
 			(declare (ignore name environment inputs))
 			(values 
 			 (list
@@ -58,14 +57,14 @@
 		 (cl-synthesizer-test::expect-assembly-error
 		   (cl-synthesizer-monitor:add-monitor
 		    rack
-		    #'instantiate-handler
+		    #'monitor-agent
 		     '(("Multiplier" :output-socket :out)
 		       ("Multiplier" :input-socket :in)
 		       ("Counter" :state :module-name)))))))
 
 
 ;;
-;; Create a monitor-handler function that
+;; Create a monitor-agent function that
 ;; sits on a pre-instantiated backend implementation.
 ;; cl-synthesizer-monitor:add-monitor does not expose the
 ;; instantiated backend but we want to check its status.

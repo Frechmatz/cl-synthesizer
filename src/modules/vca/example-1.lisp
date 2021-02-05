@@ -35,7 +35,7 @@
     ;; Write VCA inputs/outputs into a CSV file
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-backend
+     #'cl-synthesizer-monitor-csv-file-agent:make-backend
      '(("VCA" :input-socket :cv :name "CV")
        ("VCA" :input-socket :input :name "Input")
        ("VCA" :output-socket :output :name "Output"))

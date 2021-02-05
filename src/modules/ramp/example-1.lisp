@@ -64,7 +64,7 @@
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-backend
+     #'cl-synthesizer-monitor-csv-file-agent:make-backend
      '(("LINEAR" :output-socket :output :name "Lin Out")
        ("EXPONENTIAL" :output-socket :output :name "Exp Out"))
      :filename "cl-synthesizer-examples/ramp-example-1.csv")

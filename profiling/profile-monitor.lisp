@@ -3,7 +3,7 @@
 
 (in-package :cl-synthesizer-profiling-monitor)
 
-(defun monitor-handler (name environment inputs &rest rest)
+(defun monitor-agent (name environment inputs &rest rest)
   (declare (ignore name environment inputs rest))
   (let ((input-sockets
 	 (list
@@ -34,7 +34,7 @@
     (cl-synthesizer:add-patch rack "INPUT" :input "MULTIPLE" :input)
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'monitor-handler
+     #'monitor-agent
      '(("MULTIPLE" :output-socket :output-1)
        ("MULTIPLE" :output-socket :output-2)
        ("MULTIPLE" :input-socket :input)))

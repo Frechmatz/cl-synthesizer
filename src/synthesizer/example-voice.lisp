@@ -49,7 +49,7 @@
     ;; Let a monitor write the Wave file.
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:make-backend
+     #'cl-synthesizer-monitor-wave-file-agent:make-backend
      '(("OUTPUT" :input-socket :left)
        ("OUTPUT" :input-socket :right))
      :filename "cl-synthesizer-examples/rack-example-voice.wav"

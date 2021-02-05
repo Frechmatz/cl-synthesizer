@@ -1,8 +1,4 @@
-;;
-;; Monitor handler for CSV files
-;;
-
-(in-package :cl-synthesizer-monitor-csv-handler)
+(in-package :cl-synthesizer-monitor-csv-file-agent)
 
 (defun make-backend (name environment inputs &rest rest &key filename &allow-other-keys)
   "Creates a monitor backend which writes its inputs into a CSV file.

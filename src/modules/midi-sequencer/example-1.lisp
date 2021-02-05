@@ -76,7 +76,7 @@
     ;; Record LINE-OUT into a wave file
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:make-backend
+     #'cl-synthesizer-monitor-wave-file-agent:make-backend
      '(("OUTPUT" :input-socket :line-out))
      :filename "cl-synthesizer-examples/midi-sequencer-example-1.wav"
      :v-peak 5.0)

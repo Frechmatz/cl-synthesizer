@@ -49,7 +49,7 @@
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-backend
+     #'cl-synthesizer-monitor-csv-file-agent:make-backend
      '(("MIDI-CC-IFC" :output-socket :output :name "CC-Out"))
      :filename "cl-synthesizer-examples/midi-relative-cc-interface-example-1.csv")
 

@@ -3,12 +3,12 @@
   (:export
    :add-monitor))
 
-(defpackage :cl-synthesizer-monitor-wave-handler
+(defpackage :cl-synthesizer-monitor-wave-file-agent
   (:use :cl)
   (:export
    :make-backend))
 
-(defpackage :cl-synthesizer-monitor-csv-handler
+(defpackage :cl-synthesizer-monitor-csv-file-agent
   (:use :cl)
   (:export
    :make-backend))

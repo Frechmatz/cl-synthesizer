@@ -16,7 +16,7 @@
     ;; Write the sine signal into a wave file
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:make-backend
+     #'cl-synthesizer-monitor-wave-file-agent:make-backend
      '(("VCO" :output-socket :sine))
      :filename "cl-synthesizer-examples/monitor-example-1.wav"
      :v-peak 5.0)
@@ -24,7 +24,7 @@
     ;; Write all waveforms and the phase into a CSV file
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-backend
+     #'cl-synthesizer-monitor-csv-file-agent:make-backend
      '(("VCO" :output-socket :sine :name "Sine")
        ("VCO" :output-socket :triangle :name "Triangle")
        ("VCO" :output-socket :saw :name "Saw")

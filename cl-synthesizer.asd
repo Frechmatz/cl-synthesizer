@@ -91,8 +91,8 @@
 		:serial t
 		:components ((:file "packages")
 			     (:file "monitor")
-			     (:file "wave-file-handler")
-			     (:file "csv-file-handler"))))
+			     (:file "wave-file-agent")
+			     (:file "csv-file-agent"))))
   :in-order-to ((test-op (test-op "cl-synthesizer/test"))))
 
 

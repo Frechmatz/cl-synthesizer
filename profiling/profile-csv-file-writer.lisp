@@ -13,7 +13,7 @@
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-backend
+     #'cl-synthesizer-monitor-csv-file-agent:make-backend
      '(("VCO" :output-socket :sine :name "Sine 1")
        ("VCO" :output-socket :sine :name "Sine 2")
        ("VCO" :output-socket :sine :name "Sine 3")

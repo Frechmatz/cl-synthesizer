@@ -1,5 +1,4 @@
-
-(in-package :cl-synthesizer-monitor-wave-handler)
+(in-package :cl-synthesizer-monitor-wave-file-agent)
 
 (defun make-backend (name environment inputs &rest rest &key filename &allow-other-keys)
   "Creates a monitor backend which writes its inputs into a Wave file.

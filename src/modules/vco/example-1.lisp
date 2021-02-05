@@ -14,7 +14,7 @@
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:make-backend
+     #'cl-synthesizer-monitor-wave-file-agent:make-backend
      '(("VCO" :output-socket :sine)
        ("VCO" :output-socket :triangle)
        ("VCO" :output-socket :saw)
@@ -24,7 +24,7 @@
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-backend
+     #'cl-synthesizer-monitor-csv-file-agent:make-backend
      '(("VCO" :output-socket :sine :name "Sine")
        ("VCO" :output-socket :triangle :name "Triangle")
        ("VCO" :output-socket :saw :name "Saw")

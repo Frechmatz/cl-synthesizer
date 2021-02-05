@@ -38,7 +38,7 @@
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:make-backend
+     #'cl-synthesizer-monitor-wave-file-agent:make-backend
      '(("VOICE-1" :output-socket :audio)
        ("VOICE-2" :output-socket :audio))
      :filename "docs/siren.wav"

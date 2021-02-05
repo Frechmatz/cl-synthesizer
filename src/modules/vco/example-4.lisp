@@ -23,7 +23,7 @@
     
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-backend
+     #'cl-synthesizer-monitor-csv-file-agent:make-backend
      '(("LFO" :output-socket :triangle :name "LFO-Triangle")
        ("VCO" :state :frequency :name "VCO-Frequency")
        ("VCO" :state :phase :name "VCO-Phase")

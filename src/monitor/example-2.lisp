@@ -4,7 +4,7 @@
 (in-package :cl-synthesizer-monitor-example-2)
 
 (defun example ()
-  "CSV-Handler example"
+  "CSV-Agent example"
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
     
     (cl-synthesizer:add-module
@@ -12,7 +12,7 @@
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-backend
+     #'cl-synthesizer-monitor-csv-file-agent:make-backend
      '(("VCO" :output-socket :sine :name "Sine"))
      :filename "cl-synthesizer-examples/monitor-example-2.csv"
      :add-header t
