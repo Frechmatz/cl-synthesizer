@@ -2,8 +2,7 @@
 is to collect module states and pass them to a "Monitor-Backend". A backend may
 for example generate a Wave file.</p> 
 <p>Monitors provide a simple syntax for declaring the module sockets to be tracked (input, output and state) as well as any other settings supported by specific backends.</p>
-<p>A backend is typically realized as a plain module, which declares
-input sockets, output sockets, a shutdown function and so on. Backends are 
+<p>A backend is a plain module, which declares input sockets, output sockets, a shutdown function and so on. Backends are 
 instantiated by a so called "Monitor-Agent".</p>
 <p>A Monitor-Agent is a factory function whose purpose is to prepare the initialization 
 parameters of a specific backend (e.g. a Wave-File-Writer module), to set up the 

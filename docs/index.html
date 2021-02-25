@@ -104,7 +104,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3823270444" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3823271777" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated saws">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation &quot;Two frequency modulated saws&quot;))
@@ -156,7 +156,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 2.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3823270444" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3823271777" type="audio/wav"></audio></p>
 <h1 id="Concepts">Concepts</h1>
 <h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
   ...)</code></pre></p>
@@ -173,7 +173,7 @@ to set input values, to retrieve output values, to update the module, to shutdow
     the environment and any arbitrary initialization parameters to it.</p>
 <p>A module can implement all its logic on its own but it can also use other modules. An example of a module using other modules is the
     <a href="https://github.com/Frechmatz/cl-synthesizer/blob/master/src/modules/mixer.lisp">Mixer</a>.</p>
-<p>For each input/output socket that a module exposes, it must provide a corresponding setter/getter function. When processing an update, the synthesizer sets the inputs of the module via successive calls to the input setters. An input setter must not change the current output state of the module. When all inputs have been set, the synthesizer calls the update function of the module, which has no arguments. The update function must update the states of the output sockets by using the previously set input values.</p><p>Lets create a module:</p><p><pre><code>(defpackage :blueprint-module
+<p>For each input/output socket that a module exposes, it must provide a corresponding setter/getter function. When processing an update, the synthesizer sets the inputs of the module via successive calls to the input setters. An input setter must not change the current output state of the module. When all inputs have been set, the synthesizer calls the update function of the module, which has no arguments. The update function must update the states of the output sockets by using the previously set input values.</p><p>Define a module:</p><p><pre><code>(defpackage :blueprint-module
   (:use :cl)
   (:export
    :make-module))
@@ -198,7 +198,7 @@ to set input values, to retrieve output values, to update the module, to shutdow
          (setf output-2 input-2))
        :state (lambda (key)
             (if (eq key :module-param) module-param nil))
-       :shutdown (lambda ())))))</code></pre></p><p>Now lets add our module to a rack (Racks are explained in the following chapter):</p><p><pre><code>(let ((rack ...))
+       :shutdown (lambda ())))))</code></pre></p><p>Add the module to a rack (Racks are explained in the following chapter):</p><p><pre><code>(let ((rack ...))
   (cl-synthesizer:add-module rack &quot;MODULE-1&quot; #'blueprint-module:make-module :module-param 1234))</code></pre></p>
 <h2 id="Rack">Rack</h2><p>Racks contain modules and their connections which each other. The connections are so called "Patches". A rack is represented by a property list, which is fully compatible with a module. Beside the module functionality a rack provides Module and Patch management, Hooks and Compilation. Racks are instantiated via "cl-synthesizer:make-rack"</p><p><pre><code>(let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment)))) ... )</code></pre></p><p>After the rack has been created, modules and patches can be added to it.</p><p><pre><code>(let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
   (cl-synthesizer:add-module rack &quot;LFO&quot; ...)
@@ -219,8 +219,7 @@ to set input values, to retrieve output values, to update the module, to shutdow
 is to collect module states and pass them to a "Monitor-Backend". A backend may
 for example generate a Wave file.</p> 
 <p>Monitors provide a simple syntax for declaring the module sockets to be tracked (input, output and state) as well as any other settings supported by specific backends.</p>
-<p>A backend is typically realized as a plain module, which declares
-input sockets, output sockets, a shutdown function and so on. Backends are 
+<p>A backend is a plain module, which declares input sockets, output sockets, a shutdown function and so on. Backends are 
 instantiated by a so called "Monitor-Agent".</p>
 <p>A Monitor-Agent is a factory function whose purpose is to prepare the initialization 
 parameters of a specific backend (e.g. a Wave-File-Writer module), to set up the 
@@ -1638,4 +1637,4 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2021-02-25  20:34:04</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2021-02-25  20:56:17</small></p></footer></body></html>

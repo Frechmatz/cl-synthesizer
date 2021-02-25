@@ -145,9 +145,9 @@
 				,(make-code-string "makedoc/snippets/environment-make-environment.lisp"))
 		       (heading (:name "Module" :toc t)
 				,(cl-html-readme:read-file "makedoc/module-introduction.html")
-				"<p>Lets create a module:</p>"
+				"<p>Define a module:</p>"
 				,(make-code-string "makedoc/snippets/module-blueprint.lisp")
-				"<p>Now lets add our module to a rack (Racks are explained in the following chapter):</p>"
+				"<p>Add the module to a rack (Racks are explained in the following chapter):</p>"
 				,(make-code-string "makedoc/snippets/module-blueprint-add.lisp"))
 		       (heading (:name "Rack" :toc t)
 				"<p>Racks contain modules and their connections which each other. The connections are so called \"Patches\". A rack is represented by a property list, which is fully compatible with a module. Beside the module functionality a rack provides Module and Patch management, Hooks and Compilation. Racks are instantiated via \"cl-synthesizer:make-rack\"</p>"
