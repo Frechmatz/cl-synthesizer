@@ -59,8 +59,8 @@
 <li><a href="#CSV File Writer">CSV File Writer</a></li></ul></li>
 <li><a href="#Monitor-1">Monitor</a><ul>
 <li><a href="#add-monitor">add-monitor</a></li>
-<li><a href="#wave-handler">wave-handler</a></li>
-<li><a href="#csv-handler">csv-handler</a></li></ul></li>
+<li><a href="#wave-file-agent">wave-file-agent</a></li>
+<li><a href="#csv-file-agent">csv-file-agent</a></li></ul></li>
 <li><a href="#MIDI">MIDI</a><ul>
 <li><a href="#MIDI Event">MIDI Event</a></li>
 <li><a href="#MIDI Utilities">MIDI Utilities</a></li></ul></li>
@@ -94,7 +94,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:make-backend
+     #'cl-synthesizer-monitor-wave-file-agent:make-backend
      '((&quot;VCO&quot; :output-socket :sine))
      :filename &quot;docs/sine.wav&quot;
      :v-peak 5.0)
@@ -104,7 +104,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3821295733" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3823270444" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated saws">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation &quot;Two frequency modulated saws&quot;))
@@ -145,7 +145,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:make-backend
+     #'cl-synthesizer-monitor-wave-file-agent:make-backend
      '((&quot;VOICE-1&quot; :output-socket :audio)
        (&quot;VOICE-2&quot; :output-socket :audio))
      :filename &quot;docs/siren.wav&quot;
@@ -156,7 +156,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 2.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3821295733" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3823270444" type="audio/wav"></audio></p>
 <h1 id="Concepts">Concepts</h1>
 <h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
   ...)</code></pre></p>
@@ -221,11 +221,11 @@ for example generate a Wave file.</p>
 <p>Monitors provide a simple syntax for declaring the module sockets to be tracked (input, output and state) as well as any other settings supported by specific backends.</p>
 <p>A backend is typically realized as a plain module, which declares
 input sockets, output sockets, a shutdown function and so on. Backends are 
-instantiated by a so called "Monitor-Handler".</p>
-<p>A Monitor-Handler is a factory function whose purpose is to prepare the initialization 
+instantiated by a so called "Monitor-Agent".</p>
+<p>A Monitor-Agent is a factory function whose purpose is to prepare the initialization 
 parameters of a specific backend (e.g. a Wave-File-Writer module), to set up the 
 mapping of the values collected by the monitor to input sockets of the backend 
-and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-monitor-example-1
+and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-monitor-example-1
   (:use :cl))
 
 (in-package :cl-synthesizer-monitor-example-1)
@@ -243,7 +243,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
     ;; Write the sine signal into a wave file
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:make-backend
+     #'cl-synthesizer-monitor-wave-file-agent:make-backend
      '((&quot;VCO&quot; :output-socket :sine))
      :filename &quot;cl-synthesizer-examples/monitor-example-1.wav&quot;
      :v-peak 5.0)
@@ -251,7 +251,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
     ;; Write all waveforms and the phase into a CSV file
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-backend
+     #'cl-synthesizer-monitor-csv-file-agent:make-backend
      '((&quot;VCO&quot; :output-socket :sine :name &quot;Sine&quot;)
        (&quot;VCO&quot; :output-socket :triangle :name &quot;Triangle&quot;)
        (&quot;VCO&quot; :output-socket :saw :name &quot;Saw&quot;)
@@ -475,7 +475,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:make-backend
+     #'cl-synthesizer-monitor-wave-file-agent:make-backend
      '((&quot;VCO&quot; :output-socket :sine)
        (&quot;VCO&quot; :output-socket :triangle)
        (&quot;VCO&quot; :output-socket :saw)
@@ -485,7 +485,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-backend
+     #'cl-synthesizer-monitor-csv-file-agent:make-backend
      '((&quot;VCO&quot; :output-socket :sine :name &quot;Sine&quot;)
        (&quot;VCO&quot; :output-socket :triangle :name &quot;Triangle&quot;)
        (&quot;VCO&quot; :output-socket :saw :name &quot;Saw&quot;)
@@ -558,7 +558,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
     ;; Write VCA inputs/outputs into a CSV file
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-backend
+     #'cl-synthesizer-monitor-csv-file-agent:make-backend
      '((&quot;VCA&quot; :input-socket :cv :name &quot;CV&quot;)
        (&quot;VCA&quot; :input-socket :input :name &quot;Input&quot;)
        (&quot;VCA&quot; :output-socket :output :name &quot;Output&quot;))
@@ -663,7 +663,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-backend
+     #'cl-synthesizer-monitor-csv-file-agent:make-backend
      '((&quot;GATE-MULTIPLE&quot; :input-socket :input :name &quot;Gate&quot;)
        (&quot;LINEAR&quot; :output-socket :adsr-out :name &quot;ADSR Linear&quot;)
        (&quot;EXPONENTIAL&quot; :output-socket :adsr-out :name &quot;ADSR Exponential&quot;))
@@ -862,7 +862,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-backend
+     #'cl-synthesizer-monitor-csv-file-agent:make-backend
      '((&quot;MIDI-CC-IFC&quot; :output-socket :output :name &quot;CC-Out&quot;))
      :filename &quot;cl-synthesizer-examples/midi-relative-cc-interface-example-1.csv&quot;)
 
@@ -966,7 +966,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
     ;; Record LINE-OUT into a wave file
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:make-backend
+     #'cl-synthesizer-monitor-wave-file-agent:make-backend
      '((&quot;OUTPUT&quot; :input-socket :line-out))
      :filename &quot;cl-synthesizer-examples/midi-sequencer-example-1.wav&quot;
      :v-peak 5.0)
@@ -1125,7 +1125,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
     
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-wave-handler:make-backend
+     #'cl-synthesizer-monitor-wave-file-agent:make-backend
      '((&quot;TRIGGER&quot; :input-socket :input)
        (&quot;TRIGGER&quot; :output-socket :output))
      :filename &quot;cl-synthesizer-examples/trigger-example-1.wav&quot;
@@ -1242,7 +1242,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-backend
+     #'cl-synthesizer-monitor-csv-file-agent:make-backend
      '((&quot;LINEAR&quot; :output-socket :output :name &quot;Lin Out&quot;)
        (&quot;EXPONENTIAL&quot; :output-socket :output :name &quot;Exp Out&quot;))
      :filename &quot;cl-synthesizer-examples/ramp-example-1.csv&quot;)
@@ -1351,7 +1351,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 
     (cl-synthesizer-monitor:add-monitor
      rack
-     #'cl-synthesizer-monitor-csv-handler:make-backend
+     #'cl-synthesizer-monitor-csv-file-agent:make-backend
      '((&quot;MIDI-IFC&quot; :output-socket :gate-1 :name &quot;Gate&quot;)
        (&quot;SUSTAIN&quot; :input-socket :trigger :name &quot;Sustain Trigger In&quot;)
        (&quot;SUSTAIN&quot; :input-socket :input :name &quot;Sustain In&quot;)
@@ -1416,10 +1416,10 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
   The module has no outputs.
   <p>The recommended way of CSV file generation is to use a Monitor.</p></p>
 <h2 id="Monitor-1">Monitor</h2>
-<h3 id="add-monitor">add-monitor</h3><b>add-monitor</b>&nbsp;(rack monitor-handler socket-mappings &rest additional-handler-args)<p>Adds a monitor to a rack. <p>The function has the following arguments:
+<h3 id="add-monitor">add-monitor</h3><b>add-monitor</b>&nbsp;(rack monitor-agent socket-mappings &rest additional-agent-args)<p>Adds a monitor to a rack. <p>The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
-	<li>monitor-handler A function that instantiates the monitor backend.
+	<li>monitor-agent A function that instantiates the monitor backend.
 	    This function is called with the following arguments:
 	    <ul>
 		<li>name A name.</li>
@@ -1427,10 +1427,10 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 		<li>inputs A list of inputs. Each entry consists of the additional
                     settings that have been set at a specific socket mapping, for example
                     the CSV formatting string.</li>
-		<li>additional-handler-args Any additional keyword parameters as
+		<li>additional-agent-args Any additional keyword parameters as
 		    passed to the monitor function. These parameters can be
-		    used to initialize handler specific properties such as
-		    a filename.</li>
+		    used to initialize agent specific properties such as
+		    the filename of a CSV file.</li>
 	    </ul>
 	    The function must return a values object with the following entries:
 	    <ul>
@@ -1456,14 +1456,14 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 		<li>socket A keyword that identifies one of the input/output sockets or internal states
 		    provided by the module, for example :cv</li>
                 <li>Any additional settings. Supported settings depend
-                    on the handler that is being used, for example a CSV writer may
-                    support a column formatting string.</li>
+                    on the agent that is being used, for example a CSV writer may
+                    support a column name.</li>
 	    </ul>
 	</li>
-	<li>&rest additional-handler-args Optional keyword arguments to be passed to
-	    the handler instantiation function.</li>
+	<li>&rest additional-agent-args Optional keyword arguments to be passed to
+	    the agent.</li>
     </ul></p></p>
-<h3 id="wave-handler">wave-handler</h3><b>make-backend</b>&nbsp;(name environment inputs &rest rest &key filename &allow-other-keys)<p>Creates a monitor backend which writes its inputs into a Wave file.
+<h3 id="wave-file-agent">wave-file-agent</h3><b>make-backend</b>&nbsp;(name environment inputs &rest rest &key filename &allow-other-keys)<p>Creates a monitor backend which writes its inputs into a Wave file.
     <p>The function has the following arguments:
     <ul>
 	<li>name A name.</li>
@@ -1477,7 +1477,7 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
        <li>An ordered list of input sockets of the module.</li>
     </ul></p>
     <p>See also cl-synthesizer-modules:wave-file-writer.</p></p>
-<h3 id="csv-handler">csv-handler</h3><b>make-backend</b>&nbsp;(name environment inputs &rest rest &key filename &allow-other-keys)<p>Creates a monitor backend which writes its inputs into a CSV file.
+<h3 id="csv-file-agent">csv-file-agent</h3><b>make-backend</b>&nbsp;(name environment inputs &rest rest &key filename &allow-other-keys)<p>Creates a monitor backend which writes its inputs into a CSV file.
     <p>The function has the following arguments:
     <ul>
 	<li>name A name.</li>
@@ -1638,4 +1638,4 @@ and finally to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2021-02-03  00:02:13</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2021-02-25  20:34:04</small></p></footer></body></html>
