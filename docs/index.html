@@ -104,7 +104,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3823271777" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3823272169" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated saws">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation &quot;Two frequency modulated saws&quot;))
@@ -156,7 +156,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 2.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3823271777" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3823272169" type="audio/wav"></audio></p>
 <h1 id="Concepts">Concepts</h1>
 <h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
   ...)</code></pre></p>
@@ -214,7 +214,7 @@ to set input values, to retrieve output values, to update the module, to shutdow
 
   (cl-synthesizer:add-module rack &quot;SOME-MODULE&quot; ...)
   (cl-synthesizer:add-patch rack &quot;INPUT&quot; :rack-input-1 &quot;SOME-MODULE&quot; :module-input)
-  (cl-synthesizer:add-patch rack &quot;SOME-MODULE&quot; :module-output &quot;OUTPUT&quot; :rack-output-1))</code></pre></p><p>A more comprehensive example can be found <a href="https://github.com/Frechmatz/cl-synthesizer/blob/master/patches/siren.lisp">here</a>.</p>
+  (cl-synthesizer:add-patch rack &quot;SOME-MODULE&quot; :module-output &quot;OUTPUT&quot; :rack-output-1))</code></pre></p><p>A more comprehensive example can be found <a href="https://github.com/Frechmatz/cl-synthesizer/blob/master/makedoc/patches/siren.lisp">here</a>.</p>
 <h2 id="Monitor">Monitor</h2><p>Monitors are high-level Rack-Hooks. The purpose of a monitor
 is to collect module states and pass them to a "Monitor-Backend". A backend may
 for example generate a Wave file.</p> 
@@ -1637,4 +1637,4 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2021-02-25  20:56:17</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2021-02-25  21:02:49</small></p></footer></body></html>
