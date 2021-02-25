@@ -102,11 +102,11 @@
 	    :format-arguments (list socket-type))))
 	input-fetcher))))
 
-(defun add-monitor (rack monitor-agent socket-mappings &rest additional-handler-args)
+(defun add-monitor (rack monitor-agent socket-mappings &rest additional-agent-args)
    "Adds a monitor to a rack. <p>The function has the following arguments:
     <ul>
 	<li>rack The rack.</li>
-	<li>monitor-handler A function that instantiates the monitor backend.
+	<li>monitor-agent A function that instantiates the monitor backend.
 	    This function is called with the following arguments:
 	    <ul>
 		<li>name A name.</li>
@@ -114,10 +114,10 @@
 		<li>inputs A list of inputs. Each entry consists of the additional
                     settings that have been set at a specific socket mapping, for example
                     the CSV formatting string.</li>
-		<li>additional-handler-args Any additional keyword parameters as
+		<li>additional-agent-args Any additional keyword parameters as
 		    passed to the monitor function. These parameters can be
-		    used to initialize handler specific properties such as
-		    a filename.</li>
+		    used to initialize agent specific properties such as
+		    the filename of a CSV file.</li>
 	    </ul>
 	    The function must return a values object with the following entries:
 	    <ul>
@@ -143,18 +143,18 @@
 		<li>socket A keyword that identifies one of the input/output sockets or internal states
 		    provided by the module, for example :cv</li>
                 <li>Any additional settings. Supported settings depend
-                    on the handler that is being used, for example a CSV writer may
-                    support a column formatting string.</li>
+                    on the agent that is being used, for example a CSV writer may
+                    support a column name.</li>
 	    </ul>
 	</li>
-	<li>&rest additional-handler-args Optional keyword arguments to be passed to
-	    the handler instantiation function.</li>
+	<li>&rest additional-agent-args Optional keyword arguments to be passed to
+	    the agent.</li>
     </ul></p>"
-     ;; Call the monitor handler to get a backend (which is a module) and an
+     ;; Call the monitor agent to get a backend (which is a module) and an
      ;; ordered list of input sockets of the backend. We cannot
      ;; depend here on the order of the input sockets that is exposed by the backend,
      ;; because modules are not required to expose their input sockets in any specific order.
-     ;; Defining the positional mapping is job of the monitor handler.
+     ;; Defining the positional mapping is job of the monitor agent.
    (multiple-value-bind (backend ordered-input-sockets)
        (apply
 	monitor-agent
@@ -165,11 +165,11 @@
 	   ;; ("OUTPUT" :input-socket :line-out :extra-1 "Extra") => (:extra-1 "Extra") 
 	   (cdr (cdr (cdr m))))
 	 socket-mappings)
-	additional-handler-args)
+	additional-agent-args)
 
      (if (not backend)
 	 (cl-synthesizer:signal-assembly-error
-	  :format-control "Monitor: Backend handler must not be nil"
+	  :format-control "Monitor: Backend must not be nil"
 	  :format-arguments nil))
 
      (if (not (functionp (getf backend :inputs)))
@@ -184,13 +184,13 @@
      
      (if (not ordered-input-sockets)
 	 (cl-synthesizer:signal-assembly-error
-	  :format-control "Monitor: Sockets returned by handler must not be nil"
+	  :format-control "Monitor: Sockets returned by agent must not be nil"
 	  :format-arguments nil))
 
      (if (not (= (length ordered-input-sockets) (length socket-mappings)))
 	 (cl-synthesizer:signal-assembly-error
 	  :format-control
-	  "Monitor: Number of sockets (~a) returned by handler must not differ from number of socket mappings: ~a"
+	  "Monitor: Number of sockets (~a) returned by agent must not differ from number of socket mappings: ~a"
 	  :format-arguments (list (length ordered-input-sockets) (length socket-mappings))))
 
      (let ((set-input-lambdas (make-array (length socket-mappings) :initial-element nil))
