@@ -60,7 +60,8 @@
 <li><a href="#Monitor-1">Monitor</a><ul>
 <li><a href="#add-monitor">add-monitor</a></li>
 <li><a href="#wave-file-agent">wave-file-agent</a></li>
-<li><a href="#csv-file-agent">csv-file-agent</a></li></ul></li>
+<li><a href="#csv-file-agent">csv-file-agent</a></li>
+<li><a href="#buffer-agent">buffer-agent</a></li></ul></li>
 <li><a href="#MIDI">MIDI</a><ul>
 <li><a href="#MIDI Event">MIDI Event</a></li>
 <li><a href="#MIDI Utilities">MIDI Utilities</a></li></ul></li>
@@ -104,7 +105,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3823272169" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3829752283" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated saws">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation &quot;Two frequency modulated saws&quot;))
@@ -156,7 +157,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 2.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3823272169" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3829752283" type="audio/wav"></audio></p>
 <h1 id="Concepts">Concepts</h1>
 <h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
   ...)</code></pre></p>
@@ -1490,6 +1491,19 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
        <li>An ordered list of input sockets of the module.</li>
     </ul></p>
     <p>See also cl-synthesizer-modules:csv-file-writer.</p></p>
+<h3 id="buffer-agent">buffer-agent</h3><b>make-backend</b>&nbsp;(name environment inputs &rest rest &key buffer &allow-other-keys)<p>Creates a monitor backend which writes its inputs into a buffer. 
+    <p>The function has the following arguments:
+    <ul>
+	<li>name A name.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>inputs The input settings as provided by the Monitor component.</li>
+	<li>:buffer An array with dimension (length inputs).</li>
+    </ul></p>
+    <p>The function returns a values object consisting of
+    <ul>
+       <li>A property list that implements a module (this is the Monitor-Backend).</li>
+       <li>An ordered list of input sockets of the module.</li>
+    </ul></p></p>
 <h2 id="MIDI">MIDI</h2>
 <h3 id="MIDI Event">MIDI Event</h3><b>make-control-change-event</b>&nbsp;(&key channel controller-number control-value)<p>Creates a MIDI control change event.</p><b>make-note-on-event</b>&nbsp;(&key channel note-number velocity)<p>Creates a MIDI Note-On event.</p><b>make-note-off-event</b>&nbsp;(&key channel note-number velocity)<p>Creates a MIDI Note-Off event.</p><b>control-change-eventp</b>&nbsp;(event)<p>Returns t if the given MIDI event is a Control-Change event.</p><b>note-on-eventp</b>&nbsp;(event)<p>Returns t if the given MIDI event is a Note-On event.</p><b>note-off-eventp</b>&nbsp;(event)<p>Returns t if the given MIDI event is a Note-Off event.</p><b>get-channel</b>&nbsp;(event)<p>Returns the MIDI channel number to which the event belongs.</p><b>get-controller-number</b>&nbsp;(event)<p>Returns the controller number of a Control-Change MIDI event.</p><b>get-control-value</b>&nbsp;(event)<p>Returns the control value of a Control-Change MIDI event.</p><b>get-note-number</b>&nbsp;(event)<p>Returns the note number of Note-On/Off MIDI event.</p><b>get-velocity</b>&nbsp;(event)<p>Returns the velocity of a Note-On/Off MIDI event.</p>
 <h3 id="MIDI Utilities">MIDI Utilities</h3><b>get-note-number-frequency</b>&nbsp;(note-number)<p>Returns the frequency of a given note number. Note number 69 results in a frequency of 440Hz.
@@ -1637,4 +1651,4 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2021-02-25  21:02:49</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2021-05-11  22:04:43</small></p></footer></body></html>
