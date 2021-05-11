@@ -155,7 +155,7 @@
      ;; depend here on the order of the input sockets that is exposed by the backend,
      ;; because modules are not required to expose their input sockets in any specific order.
      ;; Defining the positional mapping is job of the monitor agent.
-   (multiple-value-bind (backend ordered-input-sockets)
+  (multiple-value-bind (backend ordered-input-sockets)
        (apply
 	monitor-agent
 	"Monitor-Backend"
