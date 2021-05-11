@@ -9,27 +9,24 @@
 	 :format-control "~a: Length of buffer must be greater than 0: ~a"
 	 :format-arguments (list name count)))
     (let ((input-sockets (cl-synthesizer-macro-util:make-keyword-list
-			  "input" count))
-	  (input-values (make-array count :initial-element nil)))
+			  "input" count)))
       (let ((inputs nil) (index 0))
 	(dolist (input-socket input-sockets)
 	  (let ((cur-index index))
-	    (push (lambda(value) (setf (aref input-values cur-index) value)) inputs)
+	    (push (lambda(value) (setf (aref buffer cur-index) value)) inputs)
 	    (push input-socket inputs)
 	    (setf index (+ 1 index))))
 	(list
 	 :inputs (lambda () inputs)
 	 :outputs (lambda () nil)
-	 :update (lambda ()
-		   (dotimes (i count)
-		     (setf (elt buffer i) (elt input-values i)))))))))
+	 :update (lambda ()))))))
 
 ;;
 ;;
 ;;
 
 (defun make-backend (name environment inputs &rest rest &key buffer &allow-other-keys)
-  "Creates a monitor backend which writes its inputs into a buffer. 
+  "Creates a monitor backend which writes its inputs into a buffer.
     <p>The function has the following arguments:
     <ul>
 	<li>name A name.</li>
