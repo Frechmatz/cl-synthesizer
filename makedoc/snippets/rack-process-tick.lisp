@@ -1,1 +1,1 @@
-(funcall (cl-synthesizer:get-update-fn rack))
+(cl-synthesizer:update rack)

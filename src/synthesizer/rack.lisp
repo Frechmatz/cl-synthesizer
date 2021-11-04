@@ -185,10 +185,11 @@
 	    example the duration is 2 seconds and the sample rate of the rack as declared
 	    by its environment is 44100, then the update function of the rack will be called 88200 times.</li>
     </ul></p>"
-  (let ((sample-rate (floor (getf (getf rack :environment) :sample-rate))) (update-fn (cl-synthesizer:get-update-fn rack)))
+  (let ((sample-rate (floor (getf (getf rack :environment) :sample-rate)))
+	(update-fn (cl-synthesizer:get-update-fn rack)))
     (dotimes (i (floor (* duration-seconds sample-rate)))
       (funcall update-fn)))
-  (funcall (cl-synthesizer:get-shutdown-fn rack))
+  (cl-synthesizer:shutdown rack)
   "DONE")
 
 ;;
@@ -286,11 +287,9 @@
 			      (progn
 				(setf has-shut-down t)
 				(dolist (module modules)
-				  (let ((f (cl-synthesizer:get-shutdown-fn (getf module :module))))
-				    (if f (funcall f))))
+				  (cl-synthesizer:shutdown (getf module :module)))
 				(dolist (m hooks)
-				  (let ((h (cl-synthesizer:get-shutdown-fn m)))
-				    (if h (funcall h)))))))
+				  (cl-synthesizer:shutdown m)))))
 	      :environment environment
 	      :is-rack t
 	      :add-patch (lambda (output-name output-socket input-name input-socket)
@@ -304,11 +303,11 @@
 				 (signal-assembly-error
 				  :format-control "Cannot find input module ~a"
 				  :format-arguments (list input-name)))
-			     (if (not (find output-socket (funcall (cl-synthesizer:get-outputs-fn source-module))))
+			     (if (not (find output-socket (cl-synthesizer:get-outputs source-module)))
 				 (signal-assembly-error
 				  :format-control "Module ~a does not expose output socket ~a"
 				  :format-arguments (list output-name output-socket)))
-			     (if (not (find input-socket (funcall (get-inputs-fn destination-module))))
+			     (if (not (find input-socket (get-inputs destination-module)))
 				 (signal-assembly-error
 				  :format-control "Module ~a does not expose input socket ~a"
 				  :format-arguments (list input-name input-socket)))

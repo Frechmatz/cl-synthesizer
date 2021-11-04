@@ -36,7 +36,7 @@
 		 (assert-equal "Counter" handler-module-name)
 		 (assert-equal 1 handler-in)
 		 (assert-equal 2 handler-out)
-		 (funcall (cl-synthesizer:get-shutdown-fn rack))
+		 (cl-synthesizer:shutdown rack)
 		 (assert-true shutdown-called)
 		 )))
 
@@ -102,8 +102,8 @@
 		 (assert-equal 2 (get-module-output monitor-backend-module :output-1))
 		 (assert-equal 1 (get-module-output monitor-backend-module :output-2))
 		 (assert-equal "Counter" (get-module-output monitor-backend-module :output-3))
-		 (funcall (cl-synthesizer:get-shutdown-fn rack))
-		 (assert-true (funcall (cl-synthesizer:get-state-fn monitor-backend-module) :shutdown-called)))))
+		 (cl-synthesizer:shutdown rack)
+		 (assert-true (cl-synthesizer:get-state monitor-backend-module :shutdown-called)))))
 
 (define-test test-monitor-unpatched-input ()
 	     (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))

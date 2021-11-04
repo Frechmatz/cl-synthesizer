@@ -52,7 +52,7 @@
 		   (getf patch :input-socket))))))))
 
 (defun make-get-output-lambda (module output-socket)
-  (let ((l (getf (funcall (cl-synthesizer:get-outputs-fn module)) output-socket)))
+  (let ((l (getf (cl-synthesizer:get-outputs module) output-socket)))
     (lambda() (funcall l))))
 
 
@@ -71,13 +71,13 @@
       (let ((input-fetcher nil))
 	(cond
 	  ((eq :output-socket socket-type)
-	   (if (not (find socket-key (funcall (cl-synthesizer:get-outputs-fn module))))
+	   (if (not (find socket-key (cl-synthesizer:get-outputs module)))
 	       (cl-synthesizer:signal-assembly-error
 		:format-control "Monitor: Module ~a does not expose output socket ~a"
 		:format-arguments (list module-path socket-key)))
 	   (setf input-fetcher (make-get-output-lambda module socket-key)))
 	  ((eq :input-socket socket-type)
-	   (if (not (find socket-key (funcall (cl-synthesizer:get-inputs-fn module))))
+	   (if (not (find socket-key (cl-synthesizer:get-inputs module)))
 	       (cl-synthesizer:signal-assembly-error
 		:format-control "Monitor: Module ~a does not expose input socket ~a"
 		:format-arguments (list module-path socket-key)))
@@ -194,7 +194,7 @@
 	  :format-arguments (list (length ordered-input-sockets) (length socket-mappings))))
 
      (let ((set-input-lambdas (make-array (length socket-mappings) :initial-element nil))
-	   (backend-inputs (funcall (cl-synthesizer:get-inputs-fn backend)))
+	   (backend-inputs (cl-synthesizer:get-inputs backend))
 	   (backend-update (cl-synthesizer:get-update-fn backend))
 	   (socket-count (length socket-mappings)))
        ;; Set up lambdas for setting the inputs of the backend
@@ -218,6 +218,5 @@
 	  rack
 	  (list 
 	   :shutdown (lambda ()
-		       (if (cl-synthesizer:get-shutdown-fn backend)
-			   (funcall (cl-synthesizer:get-shutdown-fn backend))))
+		       (cl-synthesizer:shutdown backend))
 	   :update compiled-backend-update))))))

@@ -2,9 +2,9 @@
 
 (defun print-vco-state (vco)
   (format t "~%VCO: f-exp: ~a f-lin: ~a f: ~a~%"
-	  (funcall (cl-synthesizer:get-state-fn vco) :exponential-frequency)
-	  (funcall (cl-synthesizer:get-state-fn vco) :linear-frequency)
-	  (funcall (cl-synthesizer:get-state-fn vco) :frequency)))
+	  (cl-synthesizer:get-state vco :exponential-frequency)
+	  (cl-synthesizer:get-state vco :linear-frequency)
+	  (cl-synthesizer:get-state vco :frequency)))
 
 ;; Test that VCO emits base-frequency when cv inputs are 0.0
 (define-test vco-test-1-0 ()
@@ -171,7 +171,7 @@
 		 ;; Frequency calculated by frequency counter
 		 (assert-true (is-approximately 12000 f 0.5))
 		 ;; Internal frequency of module
-		 (assert-true (is-approximately -12000 (funcall (cl-synthesizer:get-state-fn vco) :frequency) 0.5)))))
+		 (assert-true (is-approximately -12000 (cl-synthesizer:get-state vco :frequency) 0.5)))))
 
 ;; Test lower clipping lin input
 (define-test vco-test-frequency-clipping-lin-bottom ()
@@ -190,7 +190,7 @@
 		 ;; Frequency calculated by frequency counter
 		 (assert-true (is-approximately 12000 f 0.5))
 		 ;; Internal frequency of module
-		 (assert-true (is-approximately -12000 (funcall (cl-synthesizer:get-state-fn vco) :frequency) 0.5)))))
+		 (assert-true (is-approximately -12000 (cl-synthesizer:get-state vco :frequency) 0.5)))))
 
 ;; Test updating both cv inputs
 (define-test vco-test-fm-1 ()
@@ -223,7 +223,7 @@
 		 ;;(print-vco-state vco)
 		 ;; 880 - (* 4.0 1000.0) = -3120
 		 (assert-true (is-approximately 3120 f 0.5))
-		 (assert-true (is-approximately -3120 (funcall (cl-synthesizer:get-state-fn vco) :frequency) 0.5)))))
+		 (assert-true (is-approximately -3120 (cl-synthesizer:get-state vco :frequency) 0.5)))))
 
 ;; This test assumes, that the square wave output is 5.0 for 0 <= Phi < PI
 ;; and -5.0 for PI < Phi < 2PI 

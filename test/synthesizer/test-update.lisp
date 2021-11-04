@@ -5,7 +5,7 @@
     (cl-synthesizer:add-module rack "Counter" #'cl-synthesizer-test::update-counter-module)
     (cl-synthesizer:add-module rack "Multiplier" #'cl-synthesizer-test::multiplier-module)
     ;; plus 2 default modules of the rack
-    (assert-eq 4 (length (funcall (cl-synthesizer:get-modules-fn rack))))
+    (assert-eq 4 (length (cl-synthesizer:get-modules rack)))
     (let ((found-module-1 (cl-synthesizer:get-module rack "Counter"))
 	  (found-module-2 (cl-synthesizer:get-module rack "Multiplier")))
       (assert-true found-module-1)
@@ -30,9 +30,8 @@
 		 (update-module rack nil)
 		 (assert-equal 2 (get-module-output counter :out))
 		 (assert-equal 4 (get-module-output multiplier :out))
-		 (funcall (cl-synthesizer:get-shutdown-fn rack))
-		 (assert-true (funcall (cl-synthesizer:get-state-fn counter) :shutdown-called))
-		 )))
+		 (cl-synthesizer:shutdown rack)
+		 (assert-true (cl-synthesizer:get-state counter :shutdown-called)))))
 
 (defun create-test-rack-adder ()
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
@@ -40,7 +39,7 @@
     (cl-synthesizer:add-module rack "Counter 2" #'cl-synthesizer-test::update-counter-module)
     (cl-synthesizer:add-module rack "Adder" #'cl-synthesizer-test::input-adder-module)
     ;; plus 2 default modules of the rack
-    (assert-eq 5 (length (funcall (cl-synthesizer:get-modules-fn rack))))
+    (assert-eq 5 (length (cl-synthesizer:get-modules rack)))
     (let ((found-module-1 (cl-synthesizer:get-module rack "Counter 1"))
 	  (found-module-2 (cl-synthesizer:get-module rack "Counter 2"))
 	  (found-module-3 (cl-synthesizer:get-module rack "Adder")))
@@ -83,7 +82,7 @@
     (cl-synthesizer:add-module rack "Counter" #'cl-synthesizer-test::update-counter-module)
     (cl-synthesizer:add-module rack "Adder" #'cl-synthesizer-test::input-adder-module)
     ;; plus 2 default modules of the rack
-    (assert-eq 4 (length (funcall (cl-synthesizer:get-modules-fn rack))))
+    (assert-eq 4 (length (cl-synthesizer:get-modules rack)))
     (let ((found-module-1 (cl-synthesizer:get-module rack "Counter"))
 	  (found-module-2 (cl-synthesizer:get-module rack "Adder")))
       (assert-true found-module-1)
@@ -125,33 +124,31 @@
   "Verify that unpatched inputs are set to nil during rack update"
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
     (let ((module (cl-synthesizer:add-module rack "Pass-Through" #'cl-synthesizer-test::pass-through-module)))
-      (let ((set-input-1-fn (getf (funcall (cl-synthesizer:get-inputs-fn module)) :input-1))
-	    (get-output-1-fn (getf (funcall (cl-synthesizer:get-outputs-fn module)) :output-1))
-	    (rack-update-fn (cl-synthesizer:get-update-fn rack))
-	    (module-update-fn (cl-synthesizer:get-update-fn module)))
+      (let ((set-input-1-fn (getf (cl-synthesizer:get-inputs module) :input-1))
+	    (get-output-1-fn (getf (cl-synthesizer:get-outputs module) :output-1)))
 
 	;; set unpatched input manually
 	(funcall set-input-1-fn nil)
 	;; update module manually
-	(funcall module-update-fn)
+	(cl-synthesizer:update module)
 	;; check output
 	(assert-false (funcall get-output-1-fn))
 
 	;; set unpatched input manually
 	(funcall set-input-1-fn "ABCD")
 	;; update module manually
-	(funcall module-update-fn)
+	(cl-synthesizer:update module)
 	;; check output
 	(assert-equal "ABCD" (funcall get-output-1-fn))
 	
 	;; Now update module implicitly by updating the rack
-	(funcall rack-update-fn)
+	(cl-synthesizer:update rack)
 	;; check output (should have been set to nil by rack update)
 	(assert-false (funcall get-output-1-fn))
 
 	;; Once more
 	(funcall set-input-1-fn "ABCD")
-	(funcall rack-update-fn)
+	(cl-synthesizer:update rack)
 	;; check output (should have been set to nil by rack update)
 	(assert-false (funcall get-output-1-fn))))))
 
