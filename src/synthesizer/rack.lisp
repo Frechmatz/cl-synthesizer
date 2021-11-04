@@ -176,37 +176,6 @@
     </ul></p>"
   (funcall (getf rack :add-patch) output-module-name output-socket input-module-name input-socket))
 
-(defun get-patches (rack)
-  "Get all patches of a rack. <p>The function has the following arguments:
-    <ul>
-	<li>rack The rack.</li>
-    </ul></p>
-   Returns a list of property lists with the following keys:
-   <ul>
-     <li>:output-name Name of the output module.</li>
-     <li>:output-socket Output socket. </li>
-     <li>:input-name Name of the input module. </li>
-     <li>:input-socket Input socket.</li>
-   </ul>"
-  (funcall (getf rack :patches)))
-
-(defun get-modules (rack)
-  "Get all modules of a rack. <p>The function has the following arguments:
-    <ul>
-	<li>rack The rack.</li>
-    </ul></p>
-    Returns a list of modules where each module consists of a property list with
-    the following keys:
-    <ul>
-       <li>:module The module</li>
-       <li>:name Name of the module</li>
-    </ul>"
-  (funcall (getf rack :modules)))
-
-(defun is-rack (module)
-  "Returns <b>t</b> if the given module represents a rack."
-  (getf module :is-rack))
-
 (defun play-rack (rack &key duration-seconds)
   "A utility function that \"plays\" the rack by consecutively calling its update function
     for a given number of \"ticks\". <p>The function has the following arguments:
@@ -295,11 +264,11 @@
 				 :format-control "A module with name ~a has already been added to the rack"
 				 :format-arguments (list module-name)))
 			    (let ((module (apply module-fn `(,module-name ,environment ,@args))))
-			      (if (not (functionp (get-inputs module)))
+			      (if (not (functionp (get-inputs-fn module)))
 				    (signal-assembly-error
 				     :format-control "Invalid module ~a: Property :input must be a function"
 				     :format-arguments (list module-name)))
-			      (if (not (functionp (get-outputs module)))
+			      (if (not (functionp (get-outputs-fn module)))
 				    (signal-assembly-error
 				     :format-control "Invalid module ~a: Property :output must be a function"
 				     :format-arguments (list module-name)))
@@ -335,11 +304,11 @@
 				 (signal-assembly-error
 				  :format-control "Cannot find input module ~a"
 				  :format-arguments (list input-name)))
-			     (if (not (find output-socket (funcall (cl-synthesizer:get-outputs source-module))))
+			     (if (not (find output-socket (funcall (cl-synthesizer:get-outputs-fn source-module))))
 				 (signal-assembly-error
 				  :format-control "Module ~a does not expose output socket ~a"
 				  :format-arguments (list output-name output-socket)))
-			     (if (not (find input-socket (funcall (get-inputs destination-module))))
+			     (if (not (find input-socket (funcall (get-inputs-fn destination-module))))
 				 (signal-assembly-error
 				  :format-control "Module ~a does not expose input socket ~a"
 				  :format-arguments (list input-name input-socket)))

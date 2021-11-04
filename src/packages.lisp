@@ -13,18 +13,18 @@
    :add-patch
    :add-hook
    :get-module
-   :get-patches
-   :get-modules
    :play-rack
-   :is-rack
    :find-module
    :get-module-name
    ;; Api
-   :get-inputs
-   :get-outputs
+   :is-rack
+   :get-inputs-fn
+   :get-outputs-fn
    :get-update-fn
    :get-state-fn
-   :get-shutdown-fn))
+   :get-shutdown-fn
+   :get-modules-fn
+   :get-patches-fn))
 
 (defpackage :cl-synthesizer-rack-compiler
   (:use :cl)

@@ -7,7 +7,7 @@
 		 (lambda (p)
 		   (and (string= name (getf p :input-name))
 			(eq input-socket (getf p :input-socket))))
-		 (cl-synthesizer:get-patches rack))))
+		 (funcall (cl-synthesizer:get-patches-fn rack)))))
 	 patch))
 
 (defun get-module-output-patch (rack module output-socket)
@@ -16,7 +16,7 @@
 		 (lambda (p)
 		   (and (string= name (getf p :output-name))
 			(eq output-socket (getf p :output-socket))))
-		 (cl-synthesizer:get-patches rack ))))
+		 (funcall (cl-synthesizer:get-patches-fn rack)))))
     patch))
 
 (defun get-patch (rack module-name socket-type socket)

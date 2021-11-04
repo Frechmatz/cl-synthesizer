@@ -6,7 +6,7 @@
     (cl-synthesizer:add-module rack "Module 1" #'cl-synthesizer-test::pass-through-module)
     (cl-synthesizer:add-module rack "Module 2" #'cl-synthesizer-test::pass-through-module)
     ;; plus 2 default modules of the rack
-    (assert-eq 4 (length (cl-synthesizer:get-modules rack)))
+    (assert-eq 4 (length (funcall (cl-synthesizer:get-modules-fn rack))))
     (let ((found-module-1 (cl-synthesizer:get-module rack "Module 1"))
 	  (found-module-2 (cl-synthesizer:get-module rack "Module 2")))
       (assert-true found-module-1)
