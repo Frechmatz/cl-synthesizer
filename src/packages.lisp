@@ -18,7 +18,13 @@
    :play-rack
    :is-rack
    :find-module
-   :get-module-name))
+   :get-module-name
+   ;; Api
+   :get-inputs
+   :get-outputs
+   :get-update-fn
+   :get-state-fn
+   :get-shutdown-fn))
 
 (defpackage :cl-synthesizer-rack-compiler
   (:use :cl)

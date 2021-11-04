@@ -52,7 +52,7 @@
 		   (getf patch :input-socket))))))))
 
 (defun make-get-output-lambda (module output-socket)
-  (let ((l (getf (funcall (getf module :outputs)) output-socket)))
+  (let ((l (getf (funcall (cl-synthesizer:get-outputs module)) output-socket)))
     (lambda() (funcall l))))
 
 
@@ -71,13 +71,13 @@
       (let ((input-fetcher nil))
 	(cond
 	  ((eq :output-socket socket-type)
-	   (if (not (find socket-key (funcall (getf module :outputs))))
+	   (if (not (find socket-key (funcall (cl-synthesizer:get-outputs module))))
 	       (cl-synthesizer:signal-assembly-error
 		:format-control "Monitor: Module ~a does not expose output socket ~a"
 		:format-arguments (list module-path socket-key)))
 	   (setf input-fetcher (make-get-output-lambda module socket-key)))
 	  ((eq :input-socket socket-type)
-	   (if (not (find socket-key (funcall (getf module :inputs))))
+	   (if (not (find socket-key (funcall (cl-synthesizer:get-inputs module))))
 	       (cl-synthesizer:signal-assembly-error
 		:format-control "Monitor: Module ~a does not expose input socket ~a"
 		:format-arguments (list module-path socket-key)))
@@ -92,8 +92,8 @@
 		   (make-get-output-lambda source-module source-socket)
 		   )))
 	  ((eq :state socket-type)
-	   (let ((get-state-fn (if (getf module :state)
-				   (getf module :state)
+	   (let ((get-state-fn (if (cl-synthesizer:get-state-fn module)
+				   (cl-synthesizer:get-state-fn module)
 				   (lambda(key) (declare (ignore key)) nil))))
 	     (setf input-fetcher (lambda() (funcall get-state-fn socket-key)))))
 	  (t
@@ -172,12 +172,12 @@
 	  :format-control "Monitor: Backend must not be nil"
 	  :format-arguments nil))
 
-     (if (not (functionp (getf backend :inputs)))
+     (if (not (functionp (cl-synthesizer:get-inputs backend)))
 	 (cl-synthesizer:signal-assembly-error
 	  :format-control "Monitor: Backend must provide an inputs function"
 	  :format-arguments nil))
      
-     (if (not (functionp (getf backend :update)))
+     (if (not (functionp (cl-synthesizer:get-update-fn backend)))
 	 (cl-synthesizer:signal-assembly-error
 	  :format-control "Monitor: Backend must provide an update function"
 	  :format-arguments nil))
@@ -194,8 +194,8 @@
 	  :format-arguments (list (length ordered-input-sockets) (length socket-mappings))))
 
      (let ((set-input-lambdas (make-array (length socket-mappings) :initial-element nil))
-	   (backend-inputs (funcall (getf backend :inputs)))
-	   (backend-update (getf backend :update))
+	   (backend-inputs (funcall (cl-synthesizer:get-inputs backend)))
+	   (backend-update (cl-synthesizer:get-update-fn backend))
 	   (socket-count (length socket-mappings)))
        ;; Set up lambdas for setting the inputs of the backend
        (dotimes (i socket-count)
@@ -218,6 +218,6 @@
 	  rack
 	  (list 
 	   :shutdown (lambda ()
-		       (if (getf backend :shutdown)
-			   (funcall (getf backend :shutdown))))
+		       (if (cl-synthesizer:get-shutdown-fn backend)
+			   (funcall (cl-synthesizer:get-shutdown-fn backend))))
 	   :update compiled-backend-update))))))

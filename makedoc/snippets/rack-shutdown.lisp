@@ -1,1 +1,1 @@
-(funcall (getf rack :shutdown))
+(funcall (cl-synthesizer:get-shutdown-fn rack))

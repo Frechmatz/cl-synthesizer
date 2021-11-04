@@ -21,7 +21,7 @@
 (defun get-input-sockets (module)
   "TODO Inefficient implementation, but for now live with it"
   (let ((sockets nil))
-    (cl-synthesizer-macro-util:with-property-list (funcall (getf module :inputs)) socket fn
+    (cl-synthesizer-macro-util:with-property-list (funcall (cl-synthesizer:get-inputs module)) socket fn
       (declare (ignore fn))
       (push socket sockets))
     sockets))
@@ -65,13 +65,13 @@
       (nreverse module-trace))))
 
 (defun make-get-output-lambda (module output-socket)
-  (let ((l (getf (funcall (getf module :outputs)) output-socket)))
+  (let ((l (getf (funcall (cl-synthesizer:get-outputs module)) output-socket)))
     (lambda() (funcall l))))
 
 (defun compile-module (rack module)
   (let ((input-setters nil)
-	(inputs (funcall (getf module :inputs)))
-	(module-update-fn (getf module :update)))
+	(inputs (funcall (cl-synthesizer:get-inputs module)))
+	(module-update-fn (cl-synthesizer:get-update-fn module)))
     ;; Push setters for all inputs
     (dolist (binding (get-module-input-patches rack module))
       (let ((cur-input-socket (first binding))
@@ -102,5 +102,5 @@
 	(funcall fn))
       ;; Call hooks
       (dolist (h (funcall (getf rack :hooks)))
-	(funcall (getf h :update))))))
+	(funcall (cl-synthesizer:get-update-fn h))))))
 

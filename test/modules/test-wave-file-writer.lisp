@@ -18,7 +18,7 @@
 				:channel-count 2 :filename "test" :v-peak 10.0)))
 		   (update-module module (list :channel-1 1.0 :channel-2 2.0))
 		   (update-module module (list :channel-1 3.0 :channel-2 4.0))
-		   (funcall (getf module :shutdown))
+		   (funcall (cl-synthesizer:get-shutdown-fn module))
 		   (setf recorded-samples (reverse recorded-samples))
 		   (assert-equal 4 (length recorded-samples))
 		   (assert-true (= 0.1 (first recorded-samples)))

@@ -8,7 +8,7 @@
     ;; fill in missing input arguments with nil
     (let ((update-args nil))
       (dolist (key (get-module-input-sockets module))
-	(push (getf (getf test-case :update) key) update-args)
+	(push (getf (cl-synthesizer:get-update-fn test-case) key) update-args)
 	(push key update-args))
       (update-module module update-args)
       (dolist (expected (getf test-case :expected-outputs))

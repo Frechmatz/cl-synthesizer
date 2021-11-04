@@ -216,10 +216,10 @@
 	    example the duration is 2 seconds and the sample rate of the rack as declared
 	    by its environment is 44100, then the update function of the rack will be called 88200 times.</li>
     </ul></p>"
-  (let ((sample-rate (floor (getf (getf rack :environment) :sample-rate))) (update-fn (getf rack :update)))
+  (let ((sample-rate (floor (getf (getf rack :environment) :sample-rate))) (update-fn (cl-synthesizer:get-update-fn rack)))
     (dotimes (i (floor (* duration-seconds sample-rate)))
       (funcall update-fn)))
-  (funcall (getf rack :shutdown))
+  (funcall (cl-synthesizer:get-shutdown-fn rack))
   "DONE")
 
 ;;
@@ -295,11 +295,18 @@
 				 :format-control "A module with name ~a has already been added to the rack"
 				 :format-arguments (list module-name)))
 			    (let ((module (apply module-fn `(,module-name ,environment ,@args))))
-			      (dolist (property '(:inputs :outputs :update))
-				(if (not (functionp (getf module property)))
+			      (if (not (functionp (get-inputs module)))
 				    (signal-assembly-error
-				     :format-control "Invalid module ~a: Property ~a must be a function but is ~a"
-				     :format-arguments (list module-name property (getf module property)))))
+				     :format-control "Invalid module ~a: Property :input must be a function"
+				     :format-arguments (list module-name)))
+			      (if (not (functionp (get-outputs module)))
+				    (signal-assembly-error
+				     :format-control "Invalid module ~a: Property :output must be a function"
+				     :format-arguments (list module-name)))
+			      (if (not (functionp (get-update-fn module)))
+				    (signal-assembly-error
+				     :format-control "Invalid module ~a: Property :update must be a function"
+				     :format-arguments (list module-name)))
 			      (add-module module-name module)
 			      module))
 	      :add-hook (lambda (hook)
@@ -310,10 +317,10 @@
 			      (progn
 				(setf has-shut-down t)
 				(dolist (module modules)
-				  (let ((f (getf (getf module :module) :shutdown)))
+				  (let ((f (cl-synthesizer:get-shutdown-fn (getf module :module))))
 				    (if f (funcall f))))
 				(dolist (m hooks)
-				  (let ((h (getf m :shutdown)))
+				  (let ((h (cl-synthesizer:get-shutdown-fn m)))
 				    (if h (funcall h)))))))
 	      :environment environment
 	      :is-rack t
@@ -328,11 +335,11 @@
 				 (signal-assembly-error
 				  :format-control "Cannot find input module ~a"
 				  :format-arguments (list input-name)))
-			     (if (not (find output-socket (funcall (getf source-module :outputs))))
+			     (if (not (find output-socket (funcall (cl-synthesizer:get-outputs source-module))))
 				 (signal-assembly-error
 				  :format-control "Module ~a does not expose output socket ~a"
 				  :format-arguments (list output-name output-socket)))
-			     (if (not (find input-socket (funcall (getf destination-module :inputs))))
+			     (if (not (find input-socket (funcall (get-inputs destination-module))))
 				 (signal-assembly-error
 				  :format-control "Module ~a does not expose input socket ~a"
 				  :format-arguments (list input-name input-socket)))

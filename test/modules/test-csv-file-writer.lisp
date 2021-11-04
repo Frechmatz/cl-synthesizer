@@ -39,7 +39,7 @@
 		   (update-module module (list :column-1 "2.1" :column-2 "2.2"))
 		   (update-module module (list :column-1 nil :column-2 "3.2"))
 		   (update-module module (list :column-1 "4.1" :column-2 nil))
-		   (funcall (getf module :shutdown))
+		   (funcall (cl-synthesizer:get-shutdown-fn module))
 		   (assert-true (< 0 (length written-string)))
 		   (assert-true open-stream-called)
 		   (assert-true close-stream-called)

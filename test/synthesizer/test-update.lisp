@@ -30,8 +30,8 @@
 		 (update-module rack nil)
 		 (assert-equal 2 (get-module-output counter :out))
 		 (assert-equal 4 (get-module-output multiplier :out))
-		 (funcall (getf rack :shutdown))
-		 (assert-true (funcall (getf counter :state) :shutdown-called))
+		 (funcall (cl-synthesizer:get-shutdown-fn rack))
+		 (assert-true (funcall (cl-synthesizer:get-state-fn counter) :shutdown-called))
 		 )))
 
 (defun create-test-rack-adder ()
@@ -125,10 +125,10 @@
   "Verify that unpatched inputs are set to nil during rack update"
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
     (let ((module (cl-synthesizer:add-module rack "Pass-Through" #'cl-synthesizer-test::pass-through-module)))
-      (let ((set-input-1-fn (getf (funcall (getf module :inputs)) :input-1))
-	    (get-output-1-fn (getf (funcall (getf module :outputs)) :output-1))
-	    (rack-update-fn (getf rack :update))
-	    (module-update-fn (getf module :update)))
+      (let ((set-input-1-fn (getf (funcall (cl-synthesizer:get-inputs module)) :input-1))
+	    (get-output-1-fn (getf (funcall (cl-synthesizer:get-outputs module)) :output-1))
+	    (rack-update-fn (cl-synthesizer:get-update-fn rack))
+	    (module-update-fn (cl-synthesizer:get-update-fn module)))
 
 	;; set unpatched input manually
 	(funcall set-input-1-fn nil)

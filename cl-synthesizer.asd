@@ -19,7 +19,8 @@
 			     (:file "conditions")))
 	       (:module "src/synthesizer"
 		:serial t
-		:components ((:file "environment")
+		:components ((:file "api")
+			     (:file "environment")
 			     (:file "rack-compiler") 
 			     (:file "rack")))
 	       (:module "src/core"
