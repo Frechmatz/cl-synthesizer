@@ -105,7 +105,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3829752283" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3845062385" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated saws">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation &quot;Two frequency modulated saws&quot;))
@@ -157,7 +157,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 2.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3829752283" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3845062385" type="audio/wav"></audio></p>
 <h1 id="Concepts">Concepts</h1>
 <h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
   ...)</code></pre></p>
@@ -204,10 +204,10 @@ to set input values, to retrieve output values, to update the module, to shutdow
 <h2 id="Rack">Rack</h2><p>Racks contain modules and their connections which each other. The connections are so called "Patches". A rack is represented by a property list, which is fully compatible with a module. Beside the module functionality a rack provides Module and Patch management, Hooks and Compilation. Racks are instantiated via "cl-synthesizer:make-rack"</p><p><pre><code>(let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment)))) ... )</code></pre></p><p>After the rack has been created, modules and patches can be added to it.</p><p><pre><code>(let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
   (cl-synthesizer:add-module rack &quot;LFO&quot; ...)
   (cl-synthesizer:add-module rack &quot;VCO&quot; ...)
-  (cl-synthesizer:add-patch rack &quot;LFO&quot; :sine &quot;VCO&quot; :cv-lin))</code></pre></p><p>The rack is now ready to use and a "tick" can be processed. When a tick is to be processed, the rack checks if it has been modified, and if yes, a compilation occurs. The compilation step processes the modules and patch table of the rack in order to eliminate/minimize any expensive property list lookups during the actual execution.</p><p><pre><code>(funcall (getf rack :update))</code></pre></p><p>Lets get the :sine output of the "VCO" module. The following snippet illustrates the low-level Api of the synthesizer. The recommended way to retrieve output values is to use a "Monitor”. Monitors are explained in the next chapter.</p><p><pre><code>(let ((module (cl-synthesizer:get-module rack &quot;VCO&quot;)))
-  (let ((module-outputs (funcall (getf module :outputs))))
+  (cl-synthesizer:add-patch rack &quot;LFO&quot; :sine &quot;VCO&quot; :cv-lin))</code></pre></p><p>The rack is now ready to use and a "tick" can be processed. When a tick is to be processed, the rack checks if it has been modified, and if yes, a compilation occurs. The compilation step processes the modules and patch table of the rack in order to eliminate/minimize any expensive property list lookups during the actual execution.</p><p><pre><code>(cl-synthesizer:update rack)</code></pre></p><p>Lets get the :sine output of the "VCO" module. The following snippet illustrates the low-level Api of the synthesizer. The recommended way to retrieve output values is to use a "Monitor”. Monitors are explained in the next chapter.</p><p><pre><code>(let ((module (cl-synthesizer:get-module rack &quot;VCO&quot;)))
+  (let ((module-outputs (cl-synthesizer:get-outputs module)))
     (let ((sine (funcall (getf module-outputs :sine))))
-      (format t &quot;Sine: ~a&quot; sine))))</code></pre></p><p>When all things are done the rack should be shut down in order to release any resources that may have been allocated, such as opened files.</p><p><pre><code>(funcall (getf rack :shutdown))</code></pre></p><p>Racks may expose input and output sockets. When a rack exposes sockets it can be used like any other module when populating another rack. The inputs and outputs are accessible by the internal patching of the rack via so called "Bridge modules". "INPUT" provides the inputs, and "OUTPUT" the outputs of the rack.</p><p><pre><code>(let ((rack
+      (format t &quot;Sine: ~a&quot; sine))))</code></pre></p><p>When all things are done the rack should be shut down in order to release any resources that may have been allocated, such as opened files.</p><p><pre><code>(cl-synthesizer:shutdown rack)</code></pre></p><p>Racks may expose input and output sockets. When a rack exposes sockets it can be used like any other module when populating another rack. The inputs and outputs are accessible by the internal patching of the rack via so called "Bridge modules". "INPUT" provides the inputs, and "OUTPUT" the outputs of the rack.</p><p><pre><code>(let ((rack
        (cl-synthesizer:make-rack
     :environment ...
     :input-sockets '(:rack-input-1)
@@ -1491,7 +1491,7 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
        <li>An ordered list of input sockets of the module.</li>
     </ul></p>
     <p>See also cl-synthesizer-modules:csv-file-writer.</p></p>
-<h3 id="buffer-agent">buffer-agent</h3><b>make-backend</b>&nbsp;(name environment inputs &rest rest &key buffer &allow-other-keys)<p>Creates a monitor backend which writes its inputs into a buffer. 
+<h3 id="buffer-agent">buffer-agent</h3><b>make-backend</b>&nbsp;(name environment inputs &rest rest &key buffer &allow-other-keys)<p>Creates a monitor backend which writes its inputs into a buffer.
     <p>The function has the following arguments:
     <ul>
 	<li>name A name.</li>
@@ -1651,4 +1651,4 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2021-05-11  22:04:43</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2021-11-05  01:53:05</small></p></footer></body></html>
