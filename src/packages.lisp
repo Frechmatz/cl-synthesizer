@@ -11,6 +11,7 @@
    :make-rack
    :add-module
    :add-patch
+   :get-hooks
    :add-hook
    :get-module
    :play-rack
@@ -27,10 +28,13 @@
    :update
    :get-state-fn
    :get-state
-   :get-modules-fn
    :get-modules
-   :get-patches-fn
-   :get-patches))
+   :get-patches
+   :make-patch
+   :get-patch-output-name
+   :get-patch-output-socket
+   :get-patch-input-name
+   :get-patch-input-socket))
 
 (defpackage :cl-synthesizer-rack-compiler
   (:use :cl)

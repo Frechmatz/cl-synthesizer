@@ -8,14 +8,14 @@
   (let ((match
 	    (find-if
 	     (lambda (cur-module) (eq module (getf cur-module :module)))
-	     (funcall (getf rack :modules)))))
+	     (cl-synthesizer:get-modules rack))))
     (if match (getf match :name) nil)))
 
 (defun get-module-by-name (rack name)
   (let ((module
 	 (find-if
 	  (lambda (m) (string= name (getf m :name)))
-	  (funcall (getf rack :modules)))))
+	  (cl-synthesizer:get-modules rack))))
     (if module (getf module :module) nil)))
 
 (defun get-input-sockets (module)
@@ -34,14 +34,14 @@
 	     (find-if
 	      (lambda (p)
 		(and
-		 (string= (getf p :input-name) name)
-		 (eq (getf p :input-socket) input-socket)))
-	      (funcall (getf rack :patches)))))
+		 (string= (cl-synthesizer:get-patch-input-name p) name)
+		 (eq (cl-synthesizer:get-patch-input-socket p) input-socket)))
+	      (cl-synthesizer:get-patches rack))))
 	(if patch
 	    (push (list
 		   input-socket
-		   (get-module-by-name rack (getf patch :output-name))
-		   (getf patch :output-socket)) result)
+		   (get-module-by-name rack (cl-synthesizer:get-patch-output-name patch))
+		   (cl-synthesizer:get-patch-output-socket patch)) result)
 	    (push (list input-socket nil nil) result))))
     result))
 
@@ -60,7 +60,7 @@
 			   (if output-module
 			       (traverse-module output-module))))
 		       (push module module-trace)))))
-      (dolist (module (funcall (getf rack :modules)))
+      (dolist (module (cl-synthesizer:get-modules rack))
 	(traverse-module (getf module :module)))
       (nreverse module-trace))))
 
@@ -101,6 +101,6 @@
       (dolist (fn lambdas)
 	(funcall fn))
       ;; Call hooks
-      (dolist (h (funcall (getf rack :hooks)))
+      (dolist (h (cl-synthesizer:get-hooks rack))
 	(cl-synthesizer:update h)))))
 
