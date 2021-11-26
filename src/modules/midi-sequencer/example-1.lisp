@@ -6,8 +6,7 @@
 (defun example ()
   "Midi-Sequencer example"
   (let ((rack (cl-synthesizer:make-rack
-	       :environment (cl-synthesizer:make-environment)
-	       :output-sockets '(:line-out))))
+	       :environment (cl-synthesizer:make-environment))))
 
     ;; Add sequencer
     (cl-synthesizer:add-module
@@ -64,8 +63,6 @@
     ;; Add VCA
     (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:make-module :cv-max 5.0 :exponential nil)
 
-    ;; Expose VCA output
-    (cl-synthesizer:expose-output-socket rack :line-out "VCA" :output)
     ;; Connect VCA with ADSR and VCO
     (cl-synthesizer:add-patch rack "ADSR" :cv "VCA" :cv)
     (cl-synthesizer:add-patch rack "VCO" :triangle "VCA" :input)
@@ -74,11 +71,11 @@
     (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv-exp)
     (cl-synthesizer:add-patch rack "MIDI-IFC" :gate-1 "ADSR" :gate)
 
-    ;; Record LINE-OUT into a wave file
+    ;; Record VCA output into a wave file
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-file-agent:make-backend
-     '(("OUTPUT" :input-socket :line-out))
+     '(("VCA" :output-socket :output))
      :filename "cl-synthesizer-examples/midi-sequencer-example-1.wav"
      :v-peak 5.0)
     
