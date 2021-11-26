@@ -134,6 +134,9 @@
 	  (get-modules rack))))
     (if module (getf module :module) nil)))
 
+(defun get-input-bridge-module (rack)
+  "Temporary helper function while getting rid of Bridge-Modules "
+  (get-module rack "INPUT"))
 
 (defun get-environment (rack)
   "Returns the environment of the rack."
