@@ -4,20 +4,6 @@
 
 (in-package :cl-synthesizer-rack-compiler)
 
-(defun get-module-name (rack module)
-  (let ((match
-	    (find-if
-	     (lambda (cur-module) (eq module (getf cur-module :module)))
-	     (cl-synthesizer:get-modules rack))))
-    (if match (getf match :name) nil)))
-
-(defun get-module-by-name (rack name)
-  (let ((module
-	 (find-if
-	  (lambda (m) (string= name (getf m :name)))
-	  (cl-synthesizer:get-modules rack))))
-    (if module (getf module :module) nil)))
-
 (defun get-input-sockets (module)
   "TODO Inefficient implementation, but for now live with it"
   (let ((sockets nil))
@@ -28,7 +14,7 @@
 
 (defun get-module-input-patches (rack module)
   "Returns a sparse list of (input-socket output-module output-socket)"
-  (let ((result nil) (name (get-module-name rack module)))
+  (let ((result nil) (name (cl-synthesizer:get-module-name rack module)))
     (dolist (input-socket (get-input-sockets module))
       (let ((patch
 	     (find-if
@@ -40,7 +26,7 @@
 	(if patch
 	    (push (list
 		   input-socket
-		   (get-module-by-name rack (cl-synthesizer:get-patch-output-name patch))
+		   (cl-synthesizer:get-module rack (cl-synthesizer:get-patch-output-name patch))
 		   (cl-synthesizer:get-patch-output-socket patch)) result)
 	    (push (list input-socket nil nil) result))))
     result))
@@ -50,7 +36,7 @@
   (let ((module-trace nil)
 	(visited-modules nil))
     ;; Mark INPUT bridge module as visited
-    (push (get-module-by-name rack "INPUT") visited-modules)
+    (push (cl-synthesizer:get-module rack "INPUT") visited-modules)
     (labels ((traverse-module (module)
 	       (if (not (find module visited-modules :test #'eq))
 		   (progn

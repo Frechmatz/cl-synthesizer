@@ -107,7 +107,34 @@
     </ul></p>
     Returns the module."
   (apply (getf rack :add-module) module-name module-fn args))
-  
+
+(defun get-module-name (rack module)
+  "Get the name of a module. <p>The function has the following arguments:
+    <ul>
+	<li>rack The rack.</li>
+	<li>module The module.</li>
+    </ul></p>
+   Returns the name or nil if the module does not belong to the rack"
+  (let ((match
+	    (find-if
+	     (lambda (cur-module) (eq module (getf cur-module :module)))
+	     (get-modules rack))))
+    (if match (getf match :name) nil)))
+
+(defun get-module (rack name)
+  "Get a module of a rack. <p>The function has the following arguments:
+    <ul>
+      <li>rack The rack.</li>
+      <li>name The name of the module.</li>
+    </ul></p>
+   Returns the module or nil."
+  (let ((module
+	 (find-if
+	  (lambda (m) (string= name (getf m :name)))
+	  (get-modules rack))))
+    (if module (getf module :module) nil)))
+
+
 (defun get-environment (rack)
   "Returns the environment of the rack."
   (getf rack :environment))
