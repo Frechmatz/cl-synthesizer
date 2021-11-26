@@ -27,8 +27,7 @@
      :base-frequency vco-frequency :v-peak 5.0 :cv-lin-hz-v 20.0)
 
     (cl-synthesizer:add-patch voice "LFO" :sine "VCO" :cv-lin)
-    ;; Patch the VCO saw output with the :audio socket that is exposed by the voice
-    (cl-synthesizer:add-patch voice "VCO" :saw "OUTPUT" :audio)
+    (cl-synthesizer:expose-output-socket voice :audio "VCO" :saw)
     
     voice))
   
@@ -43,8 +42,9 @@
     (cl-synthesizer:add-module
      rack "VOICE-2" #'make-voice :lfo-frequency 2.0 :vco-frequency 442.0)
 
-    (cl-synthesizer:add-patch rack "VOICE-1" :audio "OUTPUT" :left)
-    (cl-synthesizer:add-patch rack "VOICE-2" :audio "OUTPUT" :right)
+    (cl-synthesizer:expose-output-socket rack :left "VOICE-1" :audio)
+
+    (cl-synthesizer:expose-output-socket rack :right "VOICE-2" :audio)
 
     ;; Let a monitor write the Wave file.
     (cl-synthesizer-monitor:add-monitor

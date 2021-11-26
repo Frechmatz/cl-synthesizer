@@ -18,8 +18,8 @@
      :release-time-ms 1000
      :exponential exponential)
 
-    (cl-synthesizer:add-patch rack "INPUT" :gate "ADSR" :gate)
-    (cl-synthesizer:add-patch rack "ADSR" :cv "OUTPUT" :adsr-out)
+    (cl-synthesizer:expose-input-socket rack :gate "ADSR" :gate)
+    (cl-synthesizer:expose-output-socket rack :adsr-out "ADSR" :cv)
 
     rack))
 

@@ -23,7 +23,7 @@
      :base-frequency vco-frequency :v-peak 5.0 :cv-lin-hz-v 20.0)
 
     (cl-synthesizer:add-patch voice "LFO" :sine "VCO" :cv-lin)
-    (cl-synthesizer:add-patch voice "VCO" :saw "OUTPUT" :audio)
+    (cl-synthesizer:expose-output-socket voice :audio "VCO" :saw)
     
     voice))
 

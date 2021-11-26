@@ -5,6 +5,6 @@
 	:output-sockets '(:rack-output-1))))
 
   (cl-synthesizer:add-module rack "SOME-MODULE" ...)
-  (cl-synthesizer:add-patch rack "INPUT" :rack-input-1 "SOME-MODULE" :module-input)
-  (cl-synthesizer:add-patch rack "SOME-MODULE" :module-output "OUTPUT" :rack-output-1))
+  (cl-synthesizer:expose-input-socket rack :rack-input-1 "SOME-MODULE" :module-input)
+  (cl-synthesizer:expose-output-socket rack :rack-output-1 "SOME-MODULE" :module-output))
 

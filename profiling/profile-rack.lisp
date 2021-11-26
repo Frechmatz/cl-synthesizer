@@ -47,8 +47,7 @@
 (defun patch-input (rack target-module-name socket-count)
   "Patches the inputs of the INPUT bridge module with the inputs of another module"
   (dotimes (i socket-count)
-    (cl-synthesizer:add-patch rack
-			      "INPUT"
+    (cl-synthesizer:expose-input-socket rack
 			      (cl-synthesizer-macro-util:make-keyword "input" i)
 			      target-module-name
 			      (cl-synthesizer-macro-util:make-keyword "input" i))))
@@ -56,11 +55,11 @@
 (defun patch-output (rack source-module-name socket-count)
   "Patches the outputs of a module with the OUTPUT bridge module"
   (dotimes (i socket-count)
-    (cl-synthesizer:add-patch rack
-			      source-module-name
-			      (cl-synthesizer-macro-util:make-keyword "output" i)
-			      "OUTPUT"
-			      (cl-synthesizer-macro-util:make-keyword "output" i))))
+    (cl-synthesizer:expose-output-socket
+     rack
+     (cl-synthesizer-macro-util:make-keyword "output" i)
+     source-module-name
+     (cl-synthesizer-macro-util:make-keyword "output" i))))
 
 ;;
 ;; Profiling client: Nested rack

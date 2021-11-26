@@ -34,7 +34,9 @@
    :get-patch-output-name
    :get-patch-output-socket
    :get-patch-input-name
-   :get-patch-input-socket))
+   :get-patch-input-socket
+   :expose-input-socket
+   :expose-output-socket))
 
 (defpackage :cl-synthesizer-rack-compiler
   (:use :cl)

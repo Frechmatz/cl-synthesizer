@@ -23,7 +23,7 @@
     
     (cl-synthesizer:add-patch rack "VOICE-1" :audio "MIXER" :channel-1)
     (cl-synthesizer:add-patch rack "VOICE-2" :audio "MIXER" :channel-2)
-    (cl-synthesizer:add-patch rack "MIXER" :output "OUTPUT" :line-out)
+    (cl-synthesizer:expose-output-socket rack :line-out "MIXER" :output)
     
     rack))
 

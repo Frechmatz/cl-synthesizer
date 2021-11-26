@@ -64,8 +64,9 @@
     ;; Add VCA
     (cl-synthesizer:add-module rack "VCA" #'cl-synthesizer-modules-vca:make-module :cv-max 5.0 :exponential nil)
 
+    ;; Expose VCA output
+    (cl-synthesizer:expose-output-socket rack :line-out "VCA" :output)
     ;; Connect VCA with ADSR and VCO
-    (cl-synthesizer:add-patch rack "VCA" :output "OUTPUT" :line-out)
     (cl-synthesizer:add-patch rack "ADSR" :cv "VCA" :cv)
     (cl-synthesizer:add-patch rack "VCO" :triangle "VCA" :input)
     
