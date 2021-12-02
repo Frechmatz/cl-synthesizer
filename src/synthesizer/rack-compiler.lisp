@@ -35,10 +35,6 @@
   "Get list of modules in execution order"
   (let ((module-trace nil)
 	(visited-modules nil))
-    (let ((input-bridge-module (cl-synthesizer::get-input-bridge-module rack)))
-      (if input-bridge-module
-	  ;; Mark INPUT bridge module as visited
-	  (push input-bridge-module visited-modules)))
     (labels ((traverse-module (module)
 	       (if (not (find module visited-modules :test #'eq))
 		   (progn

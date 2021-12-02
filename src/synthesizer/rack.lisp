@@ -8,41 +8,57 @@
 ;;
 
 
-(defun make-bridge-accessors (sockets)
-  (let ((values (make-array (length sockets) :initial-element nil))
+(defun make-input-bridge-module (input-sockets)
+  "Exposes public output getters for patching. Exposes private input setters that are called by the rack." 
+  (let ((values (make-array (length input-sockets) :initial-element nil))
+	(outputs (make-array (length input-sockets) :initial-element nil))
+	(count (length input-sockets))
 	(getters nil)
 	(setters nil)
 	(index 0))
-    (dolist (socket sockets)
+    (dolist (socket input-sockets)
       (let ((cur-index index))
 	;; setter plist
 	(push (lambda (value) (setf (elt values cur-index) value)) setters)
 	(push socket setters)
 	;; getter plist
-	(push (lambda () (elt values cur-index)) getters)
+	(push (lambda () (elt outputs cur-index)) getters)
 	(push socket getters))
       (setf index (+ 1 index)))
-    (values getters setters)))
-
-(defun make-input-bridge-module (input-sockets)
-  "Exposes public output getters for patching. Exposes private input setters that are called by the rack." 
-  (multiple-value-bind (getters setters)
-      (make-bridge-accessors input-sockets)
     (list
      :inputs-private (lambda() setters)
      :inputs (lambda() nil) ;; no inputs that can be accessed via patching
      :outputs (lambda() getters)
-     :update (lambda() nil))))
+     :update (lambda()
+	       ;; copy values to outputs
+	       (dotimes (i count)
+		 (setf (elt outputs i) (elt values i)))))))
 
 (defun make-output-bridge-module (output-sockets)
   "Exposes public input setters for patching. Exposes private output getters that are called by the rack."
-  (multiple-value-bind (getters setters)
-      (make-bridge-accessors output-sockets)
+  (let ((values (make-array (length output-sockets) :initial-element nil))
+	(outputs (make-array (length output-sockets) :initial-element nil))
+	(count (length output-sockets))
+	(getters nil)
+	(setters nil)
+	(index 0))
+    (dolist (socket output-sockets)
+      (let ((cur-index index))
+	;; setter plist
+	(push (lambda (value) (setf (elt values cur-index) value)) setters)
+	(push socket setters)
+	;; getter plist
+	(push (lambda () (elt outputs cur-index)) getters)
+	(push socket getters))
+      (setf index (+ 1 index)))
     (list
      :inputs (lambda() setters)
      :outputs-private (lambda() getters)
      :outputs (lambda() nil) ;; no outputs that can be accessed via patching
-     :update (lambda () nil))))
+     :update (lambda()
+	       ;; copy values to outputs
+	       (dotimes (i count)
+		 (setf (elt outputs i) (elt values i)))))))
 
 ;;
 ;; Rack
