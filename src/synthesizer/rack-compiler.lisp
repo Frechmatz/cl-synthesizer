@@ -13,7 +13,6 @@
     sockets))
 
 (defun get-module-input-patches (rack module)
-  "Returns a sparse list of (input-socket output-module output-socket)"
   (let ((result nil) (name (cl-synthesizer:get-module-name rack module)))
     (dolist (input-socket (get-input-sockets module))
       (let ((patch
@@ -27,8 +26,7 @@
 	    (push (list
 		   input-socket
 		   (cl-synthesizer:get-module rack (cl-synthesizer:get-patch-output-name patch))
-		   (cl-synthesizer:get-patch-output-socket patch)) result)
-	    (push (list input-socket nil nil) result))))
+		   (cl-synthesizer:get-patch-output-socket patch)) result))))
     result))
 
 (defun get-module-trace (rack)
@@ -62,12 +60,10 @@
 	    (output-module (second binding))
 	    (output-socket (third binding)))
 	(let ((input-setter (getf inputs cur-input-socket)))
-	  (if output-module
-	      (let ((output-getter (make-get-output-lambda output-module output-socket)))
-		(push (lambda()
-			(funcall input-setter (funcall output-getter)))
-		      input-setters))
-	      (push (lambda() (funcall input-setter nil)) input-setters)))))
+	  (let ((output-getter (make-get-output-lambda output-module output-socket)))
+	    (push (lambda()
+		    (funcall input-setter (funcall output-getter)))
+		  input-setters)))))
     ;; The compiled update function
     (lambda ()
       ;; Set inputs
