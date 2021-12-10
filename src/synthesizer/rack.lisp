@@ -145,8 +145,10 @@
 	(exposed-input-sockets nil)
 	;; List of (:rack-socket s :module-name module :module-socket module-socket)
 	(exposed-output-sockets nil)
-	(exposed-inputs-dirty nil)
-	(exposed-outputs-dirty nil))
+	(exposed-inputs-dirty t)
+	(exposed-outputs-dirty t)
+	(rack-outputs nil)
+	(rack-inputs nil))
     
     (labels ((add-module (module-name module)
 	       (setf compiled-rack nil)
@@ -190,12 +192,24 @@
 		   (eq socket (getf entry :rack-socket))
 		   (string= module-name (getf entry :module-name))))
 		exposed-input-sockets))
+	     (update-rack-inputs ()
+	       ;; delegate to bridge module
+	       (setf rack-inputs (funcall (getf input-bridge-module :inputs-private))))
+	     (update-rack-outputs ()
+	       ;; delegate to bridge module
+	       (setf rack-outputs (funcall (getf output-bridge-module :outputs-private))))
 	     (get-rack-inputs ()
-	       ;; delegate to bridge module
-	       (funcall (getf input-bridge-module :inputs-private)))
+	       (if exposed-inputs-dirty
+		   (progn
+		     (setf exposed-inputs-dirty nil)
+		     (update-rack-inputs)))
+	       rack-inputs)
 	     (get-rack-outputs ()
-	       ;; delegate to bridge module
-	       (funcall (getf output-bridge-module :outputs-private))))
+	       (if exposed-outputs-dirty
+		   (progn
+		     (setf exposed-outputs-dirty nil)
+		     (update-rack-outputs)))
+	       rack-outputs))
       (let ((rack
 	      (list
 	       :get-exposed-input-socket
