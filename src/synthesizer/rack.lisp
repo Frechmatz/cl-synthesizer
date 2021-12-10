@@ -144,7 +144,9 @@
 	;; List of (:rack-socket s :module-name module :module-socket module-socket)
 	(exposed-input-sockets nil)
 	;; List of (:rack-socket s :module-name module :module-socket module-socket)
-	(exposed-output-sockets nil))
+	(exposed-output-sockets nil)
+	(exposed-inputs-dirty nil)
+	(exposed-outputs-dirty nil))
     
     (labels ((add-module (module-name module)
 	       (setf compiled-rack nil)
@@ -187,7 +189,13 @@
 		  (and
 		   (eq socket (getf entry :rack-socket))
 		   (string= module-name (getf entry :module-name))))
-		exposed-input-sockets)))
+		exposed-input-sockets))
+	     (get-rack-inputs ()
+	       ;; delegate to bridge module
+	       (funcall (getf input-bridge-module :inputs-private)))
+	     (get-rack-outputs ()
+	       ;; delegate to bridge module
+	       (funcall (getf output-bridge-module :outputs-private))))
       (let ((rack
 	      (list
 	       :get-exposed-input-socket
@@ -222,7 +230,8 @@
 			     :rack-socket rack-input-socket
 			     :module-name input-module-name
 			     :module-socket input-socket)
-			    exposed-input-sockets)))
+			    exposed-input-sockets))
+		(setf exposed-inputs-dirty t))
 	      :expose-output-socket
 	      (lambda(rack-output-socket output-module-name output-socket)
 		(if (get-exposed-output-socket rack-output-socket)
@@ -249,13 +258,14 @@
 			     :module-name output-module-name
 			     :module-socket output-socket)
 			    exposed-output-sockets))
-		(add-patch output-module-name output-socket "OUTPUT" rack-output-socket))
+		(add-patch output-module-name output-socket "OUTPUT" rack-output-socket)
+		(setf exposed-outputs-dirty t))
 	       
 	      :modules (lambda() modules)
 	      ;; delegate to bridge module
-	      :outputs (getf output-bridge-module :outputs-private)
+	      :outputs (lambda() (get-rack-outputs))
 	      ;; delegate to bridge module
-	      :inputs (getf input-bridge-module :inputs-private)
+	      :inputs (lambda() (get-rack-inputs))
 	      :patches (lambda() patches)
 	      :hooks (lambda () hooks)
 	      :update (lambda ()
