@@ -151,10 +151,6 @@
    Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>."
   (funcall (getf rack :add-hook) hook))
 
-(defun add-patch-impl (rack output-module-name output-socket input-module-name input-socket)
-  (funcall (getf rack :add-patch) output-module-name output-socket input-module-name input-socket))
-
-
 (defun add-patch (rack output-module-name output-socket input-module-name input-socket)
   "Adds a patch to the rack. A patch is an unidirectional connection between an output socket
     of a source module and an input socket of a destination module. The rack supports cycles 
@@ -178,33 +174,17 @@
 	<li>The given input-socket is already connected with a module.</li>
 	<li>The given input-socket is not exposed by the input module.</li>
     </ul></p>"
-  (if (string= "OUTPUT" output-module-name)
-      (signal-assembly-error
-       :format-control "add-patch: output-module-name must not be 'OUTPUT'"
-       :format-arguments nil))
-  (if (string= "INPUT" output-module-name)
-      (signal-assembly-error
-       :format-control "add-patch: output-module-name must not be 'INPUT'"
-       :format-arguments nil))
-  (if (string= "OUTPUT" input-module-name)
-      (signal-assembly-error
-       :format-control "add-patch: input-module-name must not be 'OUTPUT'"
-       :format-arguments nil))
-  (if (string= "INPUT" input-module-name)
-      (signal-assembly-error
-       :format-control "add-patch: input-module-name must not be 'INPUT'"
-       :format-arguments nil))
-  (add-patch-impl rack output-module-name output-socket input-module-name input-socket))
+  (funcall (getf rack :add-patch) output-module-name output-socket input-module-name input-socket))
 
 ;;
 ;;
 ;;
 
 (defun expose-input-socket (rack rack-input-socket input-module-name input-socket)
-  (add-patch-impl rack "INPUT" rack-input-socket input-module-name input-socket))
+  (funcall (getf rack :expose-input-socket) rack-input-socket input-module-name input-socket))
 
 (defun expose-output-socket (rack rack-output-socket output-module-name output-socket)
-  (add-patch-impl rack output-module-name output-socket "OUTPUT" rack-output-socket))
+  (funcall (getf rack :expose-output-socket) rack-output-socket output-module-name output-socket))
 
 ;;
 ;; Patches
@@ -225,3 +205,16 @@
   (getf patch :input-name))
 (defun get-patch-input-socket (patch)
   (getf patch :input-socket))
+
+;;
+;; Exposed sockets
+;;
+
+(defun get-exposed-input-socket (rack socket)
+  "Temporary helper function bridge-module removal"
+  (funcall (getf rack :get-exposed-input-socket) socket))
+
+(defun get-exposed-output-socket (rack socket)
+  "Temporary helper function bridge-module removal"
+  (funcall (getf rack :get-exposed-output-socket) socket))
+
