@@ -7,7 +7,7 @@
 
 (defun make-module (name environment &key value (output-socket :out))
   "Creates a module with a fixed output value.
-   <p>The function has the following arguments:
+   <p>The function has the following parameters:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
@@ -16,7 +16,7 @@
 	    identifier to be exposed by the module.</li>
     </ul></p>
     The module has no inputs.
-    The module has one output socket according to the :output-socket argument."
+    The module has one output socket according to the :output-socket parameter."
   (declare (ignore name environment))
   (let ((outputs (list output-socket (lambda() value))))
     (list

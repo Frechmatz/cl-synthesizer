@@ -2,7 +2,7 @@
 
 (defun make-module (name environment &key input-count)
   "Creates a simple voltage adder module. 
-   <p>The function has the following arguments:
+   <p>The function has the following parameters:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>

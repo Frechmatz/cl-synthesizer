@@ -31,7 +31,7 @@
 
 (defun make-module (name environment &key columns filename (column-separator ",") (add-header t))
   "Creates a CSV File Writer module.
-    <p>The function has the following arguments:
+    <p>The function has the following parameters:
   <ul>
     <li>name Name of the writer.</li>
     <li>environment The synthesizer environment.</li>

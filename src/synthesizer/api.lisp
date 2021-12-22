@@ -35,7 +35,7 @@
     (if fn (funcall fn))))
 
 (defun get-modules (rack)
-  "Get all modules of a rack. <p>The function has the following arguments:
+  "Get all modules of a rack. <p>The function has the following parameters:
     <ul>
 	<li>rack The rack.</li>
     </ul></p>
@@ -51,7 +51,7 @@
   (getf rack :patches))
 
 (defun get-patches (rack)
-  "Get all patches of a rack. <p>The function has the following arguments:
+  "Get all patches of a rack. <p>The function has the following parameters:
     <ul>
 	<li>rack The rack.</li>
     </ul></p>
@@ -69,13 +69,13 @@
   (getf module :is-rack))
 
 (defun add-module (rack module-name module-fn &rest args)
-  "Adds a module to a rack. <p>The function has the following arguments:
+  "Adds a module to a rack. <p>The function has the following parameters:
     <ul>
 	<li>rack The rack.</li>
 	<li>module-name Unique name of the module, for example \"VCO-1\". If the name
 	    is already used by another module an assembly-error is signalled.</li>
 	<li>module-fn A function that instantiates the module. This function is
-	    called by the rack with the following arguments:
+	    called by the rack with the following parameters:
 	    <ul>
 		<li>name Name of the module.</li>
 		<li>environment The synthesizer environment.</li>
@@ -83,22 +83,22 @@
 	    </ul>
 	    The module instantiation function must return a property list with the following keys:
 	    <ul>
-		<li>:inputs A function with no arguments that returns a property list representing the
+		<li>:inputs A function with no parameters that returns a property list representing the
                     input sockets and their corresponding setter functions that are exposed by the module.</br>
                     Example: <code>:inputs (lambda() (list :input-1 (lambda(value) (setf input-1 value))))</code>
                     </br>Modules are supposed to buffer this list as the inputs might be requested several times.
                 </li>
-		<li>:outputs A function with no arguments that returns a property list representing 
+		<li>:outputs A function with no parameters that returns a property list representing 
                     the  output sockets and their corresponding getter functions that exposed by the module.</br>
                     Example: <code>:outputs (lambda() (list :output-1 (lambda() output-1)))</code>
                     </br>Modules are supposed to buffer this list as the outputs might be requested several times.
                 </li>
-		<li>:update A function with no arguments that updates the outputs according to the previously set inputs.</li>
-		<li>:shutdown An optional function with no arguments that is called when the rack
+		<li>:update A function with no parameters that updates the outputs according to the previously set inputs.</li>
+		<li>:shutdown An optional function with no parameters that is called when the rack
 		    is shutting down.</li>
                 <li>:state An optional function that can be used to expose internal states 
                     of the module, for example a VCO may expose its frequency. The function has one 
-                    argument that consists of a keyword identifying the requested state, for 
+                    parameter that consists of a keyword identifying the requested state, for 
                     example :frequency.</li>
 	    </ul>
 	</li>
@@ -109,7 +109,7 @@
   (apply (getf rack :add-module) module-name module-fn args))
 
 (defun get-module-name (rack module)
-  "Get the name of a module. <p>The function has the following arguments:
+  "Get the name of a module. <p>The function has the following parameters:
     <ul>
 	<li>rack The rack.</li>
 	<li>module The module.</li>
@@ -122,7 +122,7 @@
     (if match (getf match :name) nil)))
 
 (defun get-module (rack name)
-  "Get a module of a rack. <p>The function has the following arguments:
+  "Get a module of a rack. <p>The function has the following parameters:
     <ul>
       <li>rack The rack.</li>
       <li>name The name of the module.</li>
@@ -145,8 +145,8 @@
   "Adds a hook to the rack. A hook is called each time after the rack has updated its state.
    <p>A hook consists a property list with the following keys:
    <ul>
-      <li>:update A function with no arguments that is called after the rack has updated its state.</li>
-      <li>:shutdown A function with no arguments that is called when the rack is shutting down.</li>
+      <li>:update A function with no parameters that is called after the rack has updated its state.</li>
+      <li>:shutdown A function with no parameters that is called when the rack is shutting down.</li>
    </ul></p>
    Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>."
   (funcall (getf rack :add-hook) hook))
@@ -155,7 +155,7 @@
   "Adds a patch to the rack. A patch is an unidirectional connection between an output socket
     of a source module and an input socket of a destination module. The rack supports cycles 
     which means that an output socket of a module can be patched with one of its inputs (typically via
-    multiple hops through other modules). <p>The function has the following arguments:
+    multiple hops through other modules). <p>The function has the following parameters:
     <ul>
 	<li>rack The rack.</li>
 	<li>output-module-name Name of the output (source) module.</li>
@@ -181,7 +181,7 @@
 ;;
 
 (defun expose-input-socket (rack rack-input-socket input-module-name input-socket)
-  "Exposes an input socket of a module as an input socket of the rack. <p>The function has the following arguments:
+  "Exposes an input socket of a module as an input socket of the rack. <p>The function has the following parameters:
    <ul>
     <li>rack The rack.</li>
     <li>rack-input-socket A keyword representing the input socket of the rack.</li>
@@ -191,7 +191,7 @@
   (funcall (getf rack :expose-input-socket) rack-input-socket input-module-name input-socket))
 
 (defun expose-output-socket (rack rack-output-socket output-module-name output-socket)
-  "Exposes an output socket of a module as an output socket of the rack. <p>The function has the following arguments:
+  "Exposes an output socket of a module as an output socket of the rack. <p>The function has the following parameters:
    <ul>
     <li>rack The rack.</li>
     <li>rack-output-socket A keyword representing the output socket of the rack.</li>

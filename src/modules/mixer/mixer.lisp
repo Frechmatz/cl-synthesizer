@@ -4,7 +4,7 @@
 				 main-cv-max main-cv-gain)
   "Creates a mixer module. The mixer provides an attenuator for each input and a main
    attenuator for the mixer output. All attenuators have linear amplification
-   characteristic. <p>The function has the following arguments:
+   characteristic. <p>The function has the following parameters:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>

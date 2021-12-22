@@ -3,7 +3,7 @@
 (defun make-module (name environment &key output-count)
   "Creates a Multiple module. A multiple passes the value of exactly one input socket
    to as many output sockets as defined by output-count.
-   <p>The function has the following arguments:
+   <p>The function has the following parameters:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>

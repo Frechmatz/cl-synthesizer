@@ -5,7 +5,7 @@
    The module fires a one clock cycle long pulse when input voltage >= trigger-threshold
    and then waits that the input voltage descends below trigger-threshold before the next
    pulse can be triggered. The module can for example be used to generate a trigger
-   out of a gate signal. <p>The function has the following arguments:
+   out of a gate signal. <p>The function has the following parameters:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>

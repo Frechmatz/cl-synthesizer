@@ -5,7 +5,7 @@
 ;;
 
 (defun find-module (rack module-path)
-  "Get a module of a rack. <p>The function has the following arguments:
+  "Get a module of a rack. <p>The function has the following parameters:
     <ul>
       <li>rack The root rack.</li>
       <li>module-path The path of the module within the rack (through multiple nested racks).</br>
@@ -29,7 +29,7 @@
 
 (defun play-rack (rack &key duration-seconds)
   "A utility function that \"plays\" the rack by consecutively calling its update function
-    for a given number of \"ticks\". <p>The function has the following arguments:
+    for a given number of \"ticks\". <p>The function has the following parameters:
     <ul>
 	<li>rack The rack.</li>
 	<li>:duration-seconds Duration in seconds of how long to play the rack. If for
@@ -48,7 +48,7 @@
 ;;
 
 (defun make-rack (&key environment)
-  "Creates a rack.<p>The function has the following arguments:
+  "Creates a rack.<p>The function has the following parameters:
     <ul>
 	<li>:environment The synthesizer environment.</li>
     </ul></p>

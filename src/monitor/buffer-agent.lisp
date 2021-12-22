@@ -27,7 +27,7 @@
 
 (defun make-backend (name environment inputs &rest rest &key buffer &allow-other-keys)
   "Creates a monitor backend which writes its inputs into a buffer.
-    <p>The function has the following arguments:
+    <p>The function has the following parameters:
     <ul>
 	<li>name A name.</li>
 	<li>environment The synthesizer environment.</li>

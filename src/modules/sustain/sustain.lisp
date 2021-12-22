@@ -4,7 +4,7 @@
 		    &key (trigger-threshold 2.5) (gate-threshold 2.5))
   "Creates a module which holds a given input as long as its gate input is \"on\".
     Main purpose of this module is to create envelope generators by chaining
-    multiple ramp and sustain modules. <p>The function has the following arguments:
+    multiple ramp and sustain modules. <p>The function has the following parameters:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>

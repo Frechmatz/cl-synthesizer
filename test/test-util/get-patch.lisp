@@ -22,7 +22,7 @@
 (defun get-patch (rack module-name socket-type socket)
   "Returns the destination module and input/output socket, to which a given
     source module and one if its input/output sockets is connected.
-    The function has the following arguments:
+    The function has the following parameters:
     <ul>
 	<li>rack The rack.</li>
 	<li>module-name Name of the source module.</li>

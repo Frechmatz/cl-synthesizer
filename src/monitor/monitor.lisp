@@ -105,11 +105,11 @@
 	input-fetcher))))
 
 (defun add-monitor (rack monitor-agent socket-mappings &rest additional-agent-args)
-   "Adds a monitor to a rack. <p>The function has the following arguments:
+   "Adds a monitor to a rack. <p>The function has the following parameters:
     <ul>
 	<li>rack The rack.</li>
 	<li>monitor-agent A function that instantiates the monitor backend.
-	    This function is called with the following arguments:
+	    This function is called with the following parameters:
 	    <ul>
 		<li>name A name.</li>
 		<li>environment The synthesizer environment.</li>

@@ -42,7 +42,7 @@
 		      (cv-velocity-max 5.0))
   "Creates a polyphonic MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
     voice is represented by a pitch-control voltage, a velocity-control voltage and a gate signal.
-    <p>The function has the following arguments:
+    <p>The function has the following parameters:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>

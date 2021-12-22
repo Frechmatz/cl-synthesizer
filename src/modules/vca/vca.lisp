@@ -13,7 +13,7 @@
 	      (initial-gain 0.0)
 	      (exponential nil))
   "Creates a Voltage Controlled Amplifier/Attenuator module. The VCA multiplies an
-    incoming signal with a factor of 0..1. <p>The function has the following arguments:
+    incoming signal with a factor of 0..1. <p>The function has the following parameters:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>

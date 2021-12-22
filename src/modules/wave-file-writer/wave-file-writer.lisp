@@ -12,7 +12,7 @@
 
 (defun make-module (name environment &key channel-count filename v-peak (sample-width :16bit))
   "Creates a Wave File Writer module. Writes files in \"Waveform Audio File\" (\"WAV\") format.
-    <p>The function has the following arguments:
+    <p>The function has the following parameters:
   <ul>
     <li>name Name of the writer.</li>
     <li>environment The synthesizer environment.</li>

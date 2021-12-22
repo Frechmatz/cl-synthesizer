@@ -11,7 +11,7 @@
 				       (sync-threshold 2.5))
   "Creates a Voltage Controlled Oscillator module with 1V/Octave and linear frequency modulation
    inputs. The oscillator has through-zero support.
-   <p>The function has the following arguments:
+   <p>The function has the following parameters:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
@@ -42,7 +42,7 @@
     </ul>
     The frequency of the oscillator is calculated by adding the frequencies resulting from the
     :cv-lin and :cv-exp inputs. The frequency is clipped according to the :f-max setting.</p>
-    <p>The module has the following outputs (depending on the :wave-forms argument):
+    <p>The module has the following outputs (depending on the :wave-forms parameter):
     <ul>
 	<li>:sine A sine wave.</li>
 	<li>:triangle A triangle wave.</li>

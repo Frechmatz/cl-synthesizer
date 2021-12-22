@@ -8,7 +8,7 @@
 		      (max-output nil))
   "Creates a MIDI CC Event interface module. CC events are interpreted as relative 
    changes to the current output value.
-   <p>The function has the following arguments:
+   <p>The function has the following parameters:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>

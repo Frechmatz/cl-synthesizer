@@ -8,7 +8,7 @@
 
 (defun make-module (name environment &key events)
   "Creates a Midi-Sequencer module.
-    <p>The function has the following arguments:
+    <p>The function has the following parameters:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>

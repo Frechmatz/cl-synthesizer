@@ -11,7 +11,7 @@
 		      (backward-coupled nil)
 		      (exponential nil))
   "Creates an envelope generator module with the phases Attack, Decay, Sustain and Release.
-    <p>The function has the following arguments:
+    <p>The function has the following parameters:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>

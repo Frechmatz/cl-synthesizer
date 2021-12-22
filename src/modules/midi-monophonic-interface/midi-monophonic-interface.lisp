@@ -39,7 +39,7 @@
 		      (force-velocity-update nil))
   "Creates a monophonic MIDI interface module. The module dispatches MIDI-Note events to a single voice. 
    If the voice is already assigned to a note, then the incoming note is pushed on top of the current note.
-   <p>The function has the following arguments:
+   <p>The function has the following parameters:
     <ul>
 	<li>name Name of the module.</li>
 	<li>environment The synthesizer environment.</li>
@@ -68,7 +68,7 @@
 	<li>:velocity Velocity control voltage. The velocity control voltage represents 
         the velocity of the initiating \"note on\" event (Gate goes up). Nested \"note on\" 
         events do not cause an update of this voltage. This behaviour can be overridden 
-        by the :force-velocity-update argument.</li>
+        by the :force-velocity-update parameter.</li>
     </ul></p>"
   (declare (ignore environment))
   (if (not cv-velocity-max)
