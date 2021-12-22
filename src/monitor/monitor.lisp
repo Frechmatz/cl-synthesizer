@@ -66,27 +66,29 @@
 	(cl-synthesizer:find-module rack module-path)
       (if (not module)
 	  (cl-synthesizer:signal-assembly-error
-	   :format-control "Monitor: Cannot find module ~a"
+	   :format-control "Monitor: Cannot find module '~a'"
 	   :format-arguments (list module-path)))
       (let ((input-fetcher nil))
 	(cond
 	  ((eq :output-socket socket-type)
 	   (if (not (find socket-key (cl-synthesizer:get-outputs module)))
 	       (cl-synthesizer:signal-assembly-error
-		:format-control "Monitor: Module ~a does not expose output socket ~a"
+		:format-control "Monitor: Module '~a' does not expose output socket '~a'"
 		:format-arguments (list module-path socket-key)))
 	   (setf input-fetcher (make-get-output-lambda module socket-key)))
 	  ((eq :input-socket socket-type)
 	   (if (not (find socket-key (cl-synthesizer:get-inputs module)))
 	       (cl-synthesizer:signal-assembly-error
-		:format-control "Monitor: Module ~a does not expose input socket ~a"
+		:format-control "Monitor: Module '~a' does not expose input socket '~a'"
 		:format-arguments (list module-path socket-key)))
+	   ;; Get output which is patched with input
 	   (multiple-value-bind (source-module-name source-module source-socket)
 	       (get-patch module-rack module-name :input-socket socket-key)
 	     (if (not source-module-name)
 		 (cl-synthesizer:signal-assembly-error
-		  :format-control "Monitor: Input socket exposed by module but it is not patched: ~a ~a ~a"
-		  :format-arguments (list module-name socket-type socket-key)))
+		  :format-control
+		  "Monitor: Can only monitor patched inputs. Module '~a' Socket '~a'"
+		  :format-arguments (list module-name socket-key)))
 	     (setf input-fetcher
 		   ;;(lambda () (funcall (getf source-module :get-output) source-socket))
 		   (make-get-output-lambda source-module source-socket)
