@@ -180,24 +180,58 @@
 		   (eq socket (getf p :output-socket))
 		   (string= module-name (getf p :output-name))))
 		patches))
+	     (get-input-setter-fn (module-name socket)
+	       (getf (get-inputs (get-module this module-name)) socket))
+	     (get-output-getter-fn (module-name socket)
+	       (getf (get-outputs (get-module this module-name)) socket))
 	     (get-exposed-output-socket (socket)
 	       (find-if
 		(lambda(entry)
 		  (eq socket (getf entry :rack-socket)))
 		exposed-output-sockets))
-	     (is-exposed-input-socket (module-name socket)
+	     (is-module-input-exposed-as-input-socket (module-name socket)
 	       (find-if
 		(lambda(entry)
 		  (and
-		   (eq socket (getf entry :rack-socket))
+		   (eq socket (getf entry :module-socket))
 		   (string= module-name (getf entry :module-name))))
 		exposed-input-sockets))
+	     (is-module-output-exposed-as-output-socket (module-name socket)
+	       (find-if
+		(lambda(entry)
+		  (and
+		   (eq socket (getf entry :module-socket))
+		   (string= module-name (getf entry :module-name))))
+		exposed-output-sockets))
 	     (update-rack-inputs ()
 	       ;; delegate to bridge module
-	       (setf rack-inputs (funcall (getf input-bridge-module :inputs-private))))
+	       ;; (setf rack-inputs (funcall (getf input-bridge-module :inputs-private)))
+	       (setf rack-inputs nil)
+	       (dolist (exposed-input-socket exposed-input-sockets)
+		 (setf rack-inputs
+		       (push
+			(get-input-setter-fn
+			 (getf exposed-input-socket :module-name)
+			 (getf exposed-input-socket :module-socket))
+			rack-inputs))
+		 (setf rack-inputs
+		       (push (getf exposed-input-socket :rack-socket) rack-inputs)))
+	       )
 	     (update-rack-outputs ()
 	       ;; delegate to bridge module
-	       (setf rack-outputs (funcall (getf output-bridge-module :outputs-private))))
+	       ;;(setf rack-outputs (funcall (getf output-bridge-module :outputs-private)))
+
+	       (setf rack-outputs nil)
+	       (dolist (exposed-output-socket exposed-output-sockets)
+		 (setf rack-outputs
+		       (push
+			(get-output-getter-fn
+			 (getf exposed-output-socket :module-name)
+			 (getf exposed-output-socket :module-socket))
+			rack-outputs))
+		 (setf rack-outputs
+		       (push (getf exposed-output-socket :rack-socket) rack-outputs)))
+	       )
 	     (get-rack-inputs ()
 	       (if exposed-inputs-dirty
 		   (progn
@@ -238,7 +272,7 @@
 		    (signal-assembly-error
 		     :format-control "expose-input-socket: Module '~a' Input Socket '~a' already patched"
 		     :format-arguments (list input-module-name input-socket)))
-		(add-patch "INPUT" rack-input-socket input-module-name input-socket)
+		;;(add-patch "INPUT" rack-input-socket input-module-name input-socket)
 		(setf exposed-input-sockets
 		      (push (list
 			     :rack-socket rack-input-socket
@@ -272,7 +306,7 @@
 			     :module-name output-module-name
 			     :module-socket output-socket)
 			    exposed-output-sockets))
-		(add-patch output-module-name output-socket "OUTPUT" rack-output-socket)
+		;;(add-patch output-module-name output-socket "OUTPUT" rack-output-socket)
 		(setf exposed-outputs-dirty t))
 	       
 	      :modules (lambda() modules)
@@ -343,12 +377,18 @@
 				  (signal-assembly-error
 				   :format-control "add-patch: Module '~a' does not expose input socket '~a'"
 				   :format-arguments (list input-name input-socket)))
-			     (if (is-exposed-input-socket input-name input-socket)
+			     (if (is-module-input-exposed-as-input-socket input-name input-socket)
 				   (signal-assembly-error
 				    :format-control
 				    "add-patch: Module '~a' Input socket '~a' is exposed as rack input"
 				    :format-arguments (list input-name input-socket)))
-			     (let ((p (find-if
+			     (if (is-module-output-exposed-as-output-socket output-name output-socket)
+				   (signal-assembly-error
+				    :format-control
+				    "add-patch: Module '~a' Output socket '~a' is exposed as rack output"
+				    :format-arguments (list input-name input-socket)))
+
+			      (let ((p (find-if
 				       (lambda (p)
 					 (and (string= input-name (get-patch-input-name p))
 					      (eq input-socket (get-patch-input-socket p))))

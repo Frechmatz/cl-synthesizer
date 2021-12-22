@@ -29,7 +29,7 @@
     (cl-synthesizer:add-module
      rack "MULTIPLE"
      #'cl-synthesizer-modules-multiple:make-module
-     :output-count 2)
+     :output-count 3)
     
     (cl-synthesizer:expose-input-socket rack :input "MULTIPLE" :input)
     (cl-synthesizer-monitor:add-monitor
@@ -37,7 +37,7 @@
      #'monitor-agent
      '(("MULTIPLE" :output-socket :output-1)
        ("MULTIPLE" :output-socket :output-2)
-       ("MULTIPLE" :input-socket :input)))
+       ("MULTIPLE" :output-socket :output-3)))
      
   rack))
 
