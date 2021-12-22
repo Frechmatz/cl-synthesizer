@@ -18,6 +18,7 @@
 <li><a href="#Examples">Examples</a><ul>
 <li><a href="#440Hz sine">440Hz sine</a></li>
 <li><a href="#Two frequency modulated saws">Two frequency modulated saws</a></li></ul></li>
+<li><a href="#Change-Log">Change-Log</a></li>
 <li><a href="#Concepts">Concepts</a><ul>
 <li><a href="#Environment">Environment</a></li>
 <li><a href="#Module">Module</a></li>
@@ -31,6 +32,8 @@
 <li><a href="#make-rack">make-rack</a></li>
 <li><a href="#add-module">add-module</a></li>
 <li><a href="#add-patch">add-patch</a></li>
+<li><a href="#expose-input-socket">expose-input-socket</a></li>
+<li><a href="#expose-output-socket">expose-output-socket</a></li>
 <li><a href="#get-module">get-module</a></li>
 <li><a href="#get-module-name">get-module-name</a></li>
 <li><a href="#find-module">find-module</a></li>
@@ -105,7 +108,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3849186634" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3849192341" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated saws">Two frequency modulated saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation &quot;Two frequency modulated saws&quot;))
@@ -155,16 +158,19 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 2.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3849186634" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3849192341" type="audio/wav"></audio></p>
+<h1 id="Change-Log">Change-Log</h1>
+<h2>Version 1.0.0</h2><p>Initial version. Not tagged.</p>
+<h2>Version 2.x</h2>Work in progress. Master branch.<ul><li>Removed bridge modules.</li><li>Added rack:expose-input-socket.</li><li>Added rack:expose-output-socket.</li></ul>
 <h1 id="Concepts">Concepts</h1>
 <h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
   ...)</code></pre></p>
-<h2 id="Module">Module</h2><p>Modules are the heart of cl-synthesizer because they are responsible for producing the actual audio data.</p>
+<h2 id="Module">Module</h2><p>Modules are the core components of cl-synthesizer. They generate the actual audio data.</p>
 <p>Modules do have a name, inputs, outputs and a shutdown function. The inputs/outputs are represented by keywords and are so called sockets. The shutdown function can be used to release resources 
 that have been allocated by the module, for example opened files.</p>
-<p>Beside the input/output sockets a module can also provide "state sockets".
-State sockets expose internal states of the module. These sockets are not accessible when connecting modules with each other. They are meant 
-to be a debugging/analysis tool. For example to create a plot of the phase of an oscillator over time, a :phase state socket in conjunction with a Monitor is the way to go.</p>
+<p>Beside the input/output sockets a module can also expose "state sockets".
+State sockets represent internal states of the module. These sockets are not accessible when connecting modules with each other. There purpose is 
+to support debugging/analyzation of a module. So called Monitors can be used to write states for example into a CSV file.</p>
 <p>A module is represented by a property list. This list provides functions such as to get the input sockets, to get the output sockets, to get the state sockets, 
 to set input values, to retrieve output values, to update the module, to shutdown the module and so on.</p>
 <p>A module must provide a factory/instantiation function. The typical name of this function is "make-module". When a module is added to the synthesizer then not the 
@@ -199,7 +205,7 @@ to set input values, to retrieve output values, to update the module, to shutdow
             (if (eq key :module-param) module-param nil))
        :shutdown (lambda ())))))</code></pre></p><p>Add the module to a rack (Racks are explained in the following chapter):</p><p><pre><code>(let ((rack ...))
   (cl-synthesizer:add-module rack &quot;MODULE-1&quot; #'blueprint-module:make-module :module-param 1234))</code></pre></p>
-<h2 id="Rack">Rack</h2><p>Racks contain modules and their connections which each other. The connections are so called "Patches". A rack is represented by a property list, which is fully compatible with a module. Beside the module functionality a rack provides Module and Patch management, Hooks and Compilation. Racks are instantiated via "cl-synthesizer:make-rack"</p><p><pre><code>(let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment)))))</code></pre></p><p>After the rack has been created, modules and patches can be added to it.</p><p><pre><code>(let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+<h2 id="Rack">Rack</h2><p>Racks contain modules and their connections which each other. The connections are so called "Patches". A rack is also a module. Beside the module functionality a rack provides Module and Patch management, Hooks and Compilation. Racks are instantiated via "cl-synthesizer:make-rack"</p><p><pre><code>(let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment)))))</code></pre></p><p>After the rack has been created, modules and patches can be added to it.</p><p><pre><code>(let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
   (cl-synthesizer:add-module rack &quot;LFO&quot; ...)
   (cl-synthesizer:add-module rack &quot;VCO&quot; ...)
   (cl-synthesizer:add-patch rack &quot;LFO&quot; :sine &quot;VCO&quot; :cv-lin))</code></pre></p><p>The rack is now ready to use and a "tick" can be processed. When a tick is to be processed, the rack checks if it has been modified, and if yes, a compilation occurs. The compilation step processes the modules and patch table of the rack in order to eliminate/minimize any expensive property list lookups during the actual execution.</p><p><pre><code>(cl-synthesizer:update rack)</code></pre></p><p>Lets get the :sine output of the "VCO" module. The following snippet illustrates the low-level Api of the synthesizer. The recommended way to retrieve output values is to use a "Monitor”. Monitors are explained in the next chapter.</p><p><pre><code>(let ((module (cl-synthesizer:get-module rack &quot;VCO&quot;)))
@@ -342,6 +348,20 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
 	<li>The given input-socket is already connected with a module.</li>
 	<li>The given input-socket is not exposed by the input module.</li>
     </ul></p></p>
+<h3 id="expose-input-socket">expose-input-socket</h3><b>expose-input-socket</b>&nbsp;(rack rack-input-socket input-module-name input-socket)<p>Exposes an input socket of a module as an input socket of the rack. <p>The function has the following arguments:
+   <ul>
+    <li>rack The rack.</li>
+    <li>rack-input-socket A keyword representing the input socket of the rack.</li>
+    <li>input-module-name Name of the module whose input is to be exposed.</li>
+    <li>input-socket A keyword representing one of the inputs of the module.</li>
+  </ul></p></p>
+<h3 id="expose-output-socket">expose-output-socket</h3><b>expose-output-socket</b>&nbsp;(rack rack-output-socket output-module-name output-socket)<p>Exposes an output socket of a module as an output socket of the rack. <p>The function has the following arguments:
+   <ul>
+    <li>rack The rack.</li>
+    <li>rack-output-socket A keyword representing the output socket of the rack.</li>
+    <li>output-module-name Name of the module whose output is to be exposed.</li>
+    <li>output-socket A keyword representing one of the outputs of the module.</li>
+  </ul></p></p>
 <h3 id="get-module">get-module</h3><b>get-module</b>&nbsp;(rack name)<p>Get a module of a rack. <p>The function has the following arguments:
     <ul>
       <li>rack The rack.</li>
@@ -1426,7 +1446,7 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
                     See also cl-synthesizer:find-module.</li>
 		<li>socket-type One of the following keywords: 
                     <ul>
-                        <li>:input-socket The value of an input socket of the module.</li>
+                        <li>:input-socket The value of an input socket of the module. The input must be patched.</li>
                         <li>:output-socket The value of an output socket of the module.</li>
                         <li>:state The value of an internal state of the module (see state function).</li>
                     </ul>
@@ -1626,7 +1646,7 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
 (cl-synthesizer-examples::run-examples)</code></pre></p>
 <h1 id="Run profiler">Run profiler</h1>Run the profiling suite. Generated files files are written into <code>~/cl-synthesizer-profiler/</code><p><pre><code>(asdf:load-system :cl-synthesizer/profiling)
 (cl-synthesizer-profiling::run-all)</code></pre></p>
-<h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-synthesizer/doc)
+<h1 id="Generate documentation">Generate documentation</h1>Depends on :cl-html-readme and :docparser which are available via Quicklisp.<p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2021-12-22  19:30:34</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2021-12-22  21:05:41</small></p></footer></body></html>

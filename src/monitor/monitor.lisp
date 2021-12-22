@@ -137,7 +137,7 @@
                     See also cl-synthesizer:find-module.</li>
 		<li>socket-type One of the following keywords: 
                     <ul>
-                        <li>:input-socket The value of an input socket of the module.</li>
+                        <li>:input-socket The value of an input socket of the module. The input must be patched.</li>
                         <li>:output-socket The value of an output socket of the module.</li>
                         <li>:state The value of an internal state of the module (see state function).</li>
                     </ul>

@@ -181,9 +181,23 @@
 ;;
 
 (defun expose-input-socket (rack rack-input-socket input-module-name input-socket)
+  "Exposes an input socket of a module as an input socket of the rack. <p>The function has the following arguments:
+   <ul>
+    <li>rack The rack.</li>
+    <li>rack-input-socket A keyword representing the input socket of the rack.</li>
+    <li>input-module-name Name of the module whose input is to be exposed.</li>
+    <li>input-socket A keyword representing one of the inputs of the module.</li>
+  </ul></p>"
   (funcall (getf rack :expose-input-socket) rack-input-socket input-module-name input-socket))
 
 (defun expose-output-socket (rack rack-output-socket output-module-name output-socket)
+  "Exposes an output socket of a module as an output socket of the rack. <p>The function has the following arguments:
+   <ul>
+    <li>rack The rack.</li>
+    <li>rack-output-socket A keyword representing the output socket of the rack.</li>
+    <li>output-module-name Name of the module whose output is to be exposed.</li>
+    <li>output-socket A keyword representing one of the outputs of the module.</li>
+  </ul></p>"
   (funcall (getf rack :expose-output-socket) rack-output-socket output-module-name output-socket))
 
 ;;

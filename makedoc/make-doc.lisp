@@ -139,6 +139,17 @@
 				 :name ,(get-package-docstring readme-index "cl-synthesizer-patches-siren")))
 		       ,(make-code-string "makedoc/patches/siren.lisp")
 		       ,(make-audio-element "siren.wav"))
+
+	      (heading (:name "Change-Log" :toc t)
+		       (heading (:name "Version 1.0.0")
+				"<p>Initial version. Not tagged.</p>")
+		       (heading (:name "Version 2.x")
+				"Work in progress. Master branch."
+				"<ul>"
+				"<li>Removed bridge modules.</li>"
+				"<li>Added rack:expose-input-socket.</li>"
+				"<li>Added rack:expose-output-socket.</li>"
+				"</ul>"))
 	      (heading (:name "Concepts" :toc t)
 		       (heading (:name "Environment" :toc t)
 				,(cl-html-readme:read-file "makedoc/environment-introduction.html")
@@ -150,7 +161,7 @@
 				"<p>Add the module to a rack (Racks are explained in the following chapter):</p>"
 				,(make-code-string "makedoc/snippets/module-blueprint-add.lisp"))
 		       (heading (:name "Rack" :toc t)
-				"<p>Racks contain modules and their connections which each other. The connections are so called \"Patches\". A rack is represented by a property list, which is fully compatible with a module. Beside the module functionality a rack provides Module and Patch management, Hooks and Compilation. Racks are instantiated via \"cl-synthesizer:make-rack\"</p>"
+				"<p>Racks contain modules and their connections which each other. The connections are so called \"Patches\". A rack is also a module. Beside the module functionality a rack provides Module and Patch management, Hooks and Compilation. Racks are instantiated via \"cl-synthesizer:make-rack\"</p>"
 				,(make-code-string "makedoc/snippets/rack-make-rack.lisp")
 				"<p>After the rack has been created, modules and patches can be added to it.</p>"
 				,(make-code-string "makedoc/snippets/rack-add-modules.lisp")
@@ -180,6 +191,10 @@
 					 ,(make-function-string lib-index "cl-synthesizer" "add-module"))
 				(heading (:toc t :name "add-patch")
 					 ,(make-function-string lib-index "cl-synthesizer" "add-patch"))
+				(heading (:toc t :name "expose-input-socket")
+					 ,(make-function-string lib-index "cl-synthesizer" "expose-input-socket"))
+				(heading (:toc t :name "expose-output-socket")
+					 ,(make-function-string lib-index "cl-synthesizer" "expose-output-socket"))
 				(heading (:toc t :name "get-module")
 					 ,(make-function-string lib-index "cl-synthesizer" "get-module"))
 				(heading (:toc t :name "get-module-name")
@@ -289,6 +304,7 @@
 		       "Run the profiling suite. Generated files files are written into <code>~/cl-synthesizer-profiler/</code>" 
 		       ,(make-code-string "makedoc/run-profiler.lisp"))
 	      (heading (:name "Generate documentation" :toc t)
+		       "Depends on :cl-html-readme and :docparser which are available via Quicklisp."
 		       ,(make-code-string "makedoc/generate-doc.lisp"))
 	      (heading (:name "Acknowledgements" :toc t)
 		       ,(cl-html-readme:read-file "makedoc/acknowledge.html")))
