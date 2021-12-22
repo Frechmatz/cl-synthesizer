@@ -5,8 +5,7 @@
 
 (defun make-test-rack ()
   (let ((rack (cl-synthesizer:make-rack
-	       :environment (cl-synthesizer:make-environment)
-	       :input-sockets '(:midi-events))))
+	       :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module
      rack "MIDI-IFC"
      #'cl-synthesizer-modules-midi-monophonic-interface:make-module :force-gate-retrigger t)

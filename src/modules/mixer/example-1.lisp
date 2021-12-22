@@ -6,8 +6,7 @@
 (defun example ()
   "Mixer example."
   (let ((rack (cl-synthesizer:make-rack
-	       :environment (cl-synthesizer:make-environment)
-	       :output-sockets '(:line-out))))
+	       :environment (cl-synthesizer:make-environment))))
 
     ;;
     ;; add modules...
@@ -26,6 +25,3 @@
     (cl-synthesizer:expose-output-socket rack :line-out "MIXER" :output)
     
     rack))
-
-
-

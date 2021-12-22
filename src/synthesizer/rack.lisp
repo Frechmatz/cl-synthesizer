@@ -47,14 +47,10 @@
 ;; The rack
 ;;
 
-(defun make-rack (&key environment (input-sockets nil) (output-sockets nil))
+(defun make-rack (&key environment)
   "Creates a rack.<p>The function has the following arguments:
     <ul>
 	<li>:environment The synthesizer environment.</li>
-        <li>:input-sockets The input sockets to be exposed by the rack. The inputs
-        can be patched with other modules via the bridge module \"INPUT\".</li>
-        <li>:output-sockets The output sockets to be exposed by the rack. The outputs
-        can be patched with other modules via the bridge module \"OUTPUT\".</li>
     </ul></p>
     <p>    
     The update function of the rack calls the update function of all embedded modules. If the 

@@ -6,9 +6,7 @@
 (defun make-voice (name environment &key exponential)
   (declare (ignore name))
   (let ((rack (cl-synthesizer:make-rack
-	       :environment environment
-	       :input-sockets '(:cv :gate)
-	       :output-sockets '(:audio))))
+	       :environment environment)))
     
     (cl-synthesizer:add-module
      rack "VCO"

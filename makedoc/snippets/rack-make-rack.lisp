@@ -1,1 +1,1 @@
-(let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment)))) ... )
+(let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment)))))

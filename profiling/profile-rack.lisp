@@ -44,16 +44,14 @@
 			      destination-module-name
 			      (cl-synthesizer-macro-util:make-keyword "input" i))))
 
-(defun patch-input (rack target-module-name socket-count)
-  "Patches the inputs of the INPUT bridge module with the inputs of another module"
+(defun expose-inputs (rack target-module-name socket-count)
   (dotimes (i socket-count)
     (cl-synthesizer:expose-input-socket rack
 			      (cl-synthesizer-macro-util:make-keyword "input" i)
 			      target-module-name
 			      (cl-synthesizer-macro-util:make-keyword "input" i))))
 
-(defun patch-output (rack source-module-name socket-count)
-  "Patches the outputs of a module with the OUTPUT bridge module"
+(defun expose-outputs (rack source-module-name socket-count)
   (dotimes (i socket-count)
     (cl-synthesizer:expose-output-socket
      rack
@@ -66,23 +64,19 @@
 ;;
 
 (defun make-complex-module (name environment)
-  "A module implemented as a rack that contains 4 test modules that are patched with each other
-   as well as the rack input/output bridge modules."
+  "A module implemented as a rack that contains 4 test modules that are patched with each other"
   (declare (ignore name))
-  (let ((rack (cl-synthesizer:make-rack
-	       :environment environment
-	       :input-sockets '(:input-1 :input-2 :input-3 :input-4)
-	       :output-sockets '(:output-1 :output-2 :output-3 :output-4)))
+  (let ((rack (cl-synthesizer:make-rack :environment environment))
 	(simple-module-ctor (make-simple-module-ctor 4 4)))
 
     (dotimes (i 4)
       (cl-synthesizer:add-module rack (format nil "MODULE-~a" (+ 1 i)) simple-module-ctor))
     
-    (patch-input rack "MODULE-1" 4)
+    (expose-inputs rack "MODULE-1" 4)
     (patch rack "MODULE-1" "MODULE-2" 4)
     (patch rack "MODULE-2" "MODULE-3" 4)
     (patch rack "MODULE-3" "MODULE-4" 4)
-    (patch-output rack "MODULE-4" 4)
+    (expose-outputs rack "MODULE-4" 4)
     
     rack))
 
@@ -123,10 +117,7 @@
   "Rack consisting of simple modules patched together in a chain."
   (let ((module-ctor (make-simple-module-ctor socket-count socket-count)))
     (let ((rack (cl-synthesizer:make-rack
-		 :environment (cl-synthesizer:make-environment)
-		 :input-sockets (cl-synthesizer-macro-util:make-keyword-list "input" socket-count)
-		 :output-sockets (cl-synthesizer-macro-util:make-keyword-list "output" socket-count)
-		 )))
+		 :environment (cl-synthesizer:make-environment))))
       (dotimes (i module-count)
 	(cl-synthesizer:add-module
 	 rack
@@ -139,7 +130,7 @@
 	       (format nil "MODULE-~a" (+ i 2))
 	       socket-count))
 
-      (patch-input rack "MODULE-1" socket-count)
-      (patch-output rack (format nil "MODULE-~a" module-count) socket-count)
+      (expose-inputs rack "MODULE-1" socket-count)
+      (expose-outputs rack (format nil "MODULE-~a" module-count) socket-count)
       
       rack)))

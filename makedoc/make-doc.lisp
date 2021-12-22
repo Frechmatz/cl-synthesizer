@@ -160,7 +160,7 @@
 				,(make-code-string "makedoc/snippets/rack-get-output.lisp")
 				"<p>When all things are done the rack should be shut down in order to release any resources that may have been allocated, such as opened files.</p>"
 				,(make-code-string "makedoc/snippets/rack-shutdown.lisp")
-				"<p>Racks may expose input and output sockets. When a rack exposes sockets it can be used like any other module when populating another rack. The inputs and outputs are accessible by the internal patching of the rack via so called \"Bridge modules\". \"INPUT\" provides the inputs, and \"OUTPUT\" the outputs of the rack.</p>"
+				"<p>Racks may expose input and output sockets. When a rack exposes sockets it can be used like any other module when populating another rack.</p>"
 				,(make-code-string "makedoc/snippets/rack-expose-sockets.lisp")
 				"<p>A more comprehensive example can be found <a href=\"https://github.com/Frechmatz/cl-synthesizer/blob/master/makedoc/patches/siren.lisp\">here</a>.</p>")
 		       (heading (:name "Monitor" :toc t)

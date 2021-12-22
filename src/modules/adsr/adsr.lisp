@@ -38,10 +38,7 @@
 	<li>:cv The envelope.</li>
     </ul></p>"
   (declare (ignore name))
-  (let ((rack (cl-synthesizer:make-rack
-	       :environment environment
-	       :input-sockets '(:gate :attack-cv-time :release-cv-time) 
-	       :output-sockets '(:cv))))
+  (let ((rack (cl-synthesizer:make-rack :environment environment)))
 
     (cl-synthesizer:add-module
      rack

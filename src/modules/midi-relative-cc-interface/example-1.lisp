@@ -6,8 +6,7 @@
 (defun example ()
   "MIDI Relative CC-Interface Example"
   (let ((rack (cl-synthesizer:make-rack
-	       :environment (cl-synthesizer:make-environment)
-	       :input-sockets '(:midi-events))))
+	       :environment (cl-synthesizer:make-environment))))
 
     (cl-synthesizer:add-module
      rack "MIDI-CC-IFC" #'cl-synthesizer-modules-midi-relative-cc-interface:make-module

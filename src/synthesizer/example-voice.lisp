@@ -10,9 +10,7 @@
   ;; The voice makes use of already available modules, so let it be a rack.
   (let ((voice
 	 (cl-synthesizer:make-rack
-	  :environment environment
-	  ;; Expose an :audio output socket
-	  :output-sockets '(:audio))))
+	  :environment environment)))
     ;;
     ;; Add LFO and VCO and patch them to create a frequency modulated saw wave
     ;;

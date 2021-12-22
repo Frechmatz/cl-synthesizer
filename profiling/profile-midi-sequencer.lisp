@@ -5,8 +5,7 @@
 
 (defun make-test-rack ()
   (let ((rack (cl-synthesizer:make-rack
-	       :environment (cl-synthesizer:make-environment)
-	       :input-sockets '(:input))))
+	       :environment (cl-synthesizer:make-environment))))
 
     (cl-synthesizer:add-module
      rack

@@ -3,7 +3,7 @@
 <h1>cl-synthesizer-patches</h1><p>Example patches for cl-synthesizer. Work in progress...</p>
 <p>Back to the <a href="https://frechmatz.github.io/cl-synthesizer/">project site.</a></p></header>
 <section>
-<h1 id="<p>440Hz sine</p>"><p>440Hz sine</p></h1><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3845062385" type="audio/wav"></audio></p><p><a href="#" id="G441"onclick="return toggleDisplay('Show patch', 'Hide patch', 'G441', 'G442')">Show patch</a></p><div style="display: none" id='G442'><p><pre><code>(defpackage :cl-synthesizer-patches-sine
+<h1 id="<p>440Hz sine</p>"><p>440Hz sine</p></h1><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="sine.wav?cb=3849186634" type="audio/wav"></audio></p><p><a href="#" id="G441"onclick="return toggleDisplay('Show patch', 'Hide patch', 'G441', 'G442')">Show patch</a></p><div style="display: none" id='G442'><p><pre><code>(defpackage :cl-synthesizer-patches-sine
   (:documentation &quot;440Hz sine&quot;)
   (:use :cl))
 
@@ -32,7 +32,7 @@
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
 ;; (run-example)</code></pre></p></div>
-<h1 id="<p>Two frequency modulated saws</p>"><p>Two frequency modulated saws</p></h1><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3845062385" type="audio/wav"></audio></p><p><a href="#" id="G443"onclick="return toggleDisplay('Show patch', 'Hide patch', 'G443', 'G444')">Show patch</a></p><div style="display: none" id='G444'><p><pre><code>(defpackage :cl-synthesizer-patches-siren
+<h1 id="<p>Two frequency modulated saws</p>"><p>Two frequency modulated saws</p></h1><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="siren.wav?cb=3849186634" type="audio/wav"></audio></p><p><a href="#" id="G443"onclick="return toggleDisplay('Show patch', 'Hide patch', 'G443', 'G444')">Show patch</a></p><div style="display: none" id='G444'><p><pre><code>(defpackage :cl-synthesizer-patches-siren
   (:use :cl)
   (:documentation &quot;Two frequency modulated saws&quot;))
 
@@ -42,9 +42,7 @@
   &quot;Frequency modulated saw&quot;
   (declare (ignore name))
   (let ((voice
-      (cl-synthesizer:make-rack
-       :environment environment
-       :output-sockets '(:audio))))
+      (cl-synthesizer:make-rack :environment environment)))
     
     (cl-synthesizer:add-module
      voice &quot;LFO&quot;
@@ -57,7 +55,7 @@
      :base-frequency vco-frequency :v-peak 5.0 :cv-lin-hz-v 20.0)
 
     (cl-synthesizer:add-patch voice &quot;LFO&quot; :sine &quot;VCO&quot; :cv-lin)
-    (cl-synthesizer:add-patch voice &quot;VCO&quot; :saw &quot;OUTPUT&quot; :audio)
+    (cl-synthesizer:expose-output-socket voice :audio &quot;VCO&quot; :saw)
     
     voice))
 
@@ -84,4 +82,4 @@
   (cl-synthesizer:play-rack (example) :duration-seconds 2.0))
 
 ;;(run-example)</code></pre></p></div></section>
-<footer><hr/><p><small>Generated 2021-11-05  01:53:05</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2021-12-22  19:30:34</small></p></footer></body></html>

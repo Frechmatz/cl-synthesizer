@@ -8,9 +8,7 @@
   "Frequency modulated saw"
   (declare (ignore name))
   (let ((voice
-	  (cl-synthesizer:make-rack
-	   :environment environment
-	   :output-sockets '(:audio))))
+	  (cl-synthesizer:make-rack :environment environment)))
     
     (cl-synthesizer:add-module
      voice "LFO"

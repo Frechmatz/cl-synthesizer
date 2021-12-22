@@ -6,8 +6,7 @@
 (defun example ()
   "Fixed-Output example"
   (let ((rack (cl-synthesizer:make-rack
-	       :environment (cl-synthesizer:make-environment)
-	       :output-sockets '(:line-out))))
+	       :environment (cl-synthesizer:make-environment))))
     
     (cl-synthesizer:add-module
      rack "FIXED-OUTPUT"

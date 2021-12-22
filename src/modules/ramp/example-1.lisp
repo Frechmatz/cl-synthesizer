@@ -6,10 +6,7 @@
 (defun make-voice (name environment &key (exponential nil))
   (declare (ignore name))
   (let ((rack
-         (cl-synthesizer:make-rack
-          :environment environment
-	  :input-sockets '(:trigger)
-	  :output-sockets '(:output))))
+         (cl-synthesizer:make-rack :environment environment)))
 
     (cl-synthesizer:add-module
      rack "ATTACK"

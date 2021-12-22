@@ -6,8 +6,7 @@
 (defun example ()
   "Multiple example"
   (let ((rack (cl-synthesizer:make-rack
-	       :environment (cl-synthesizer:make-environment)
-	       :output-sockets '(:line-out-1 :line-out-2))))
+	       :environment (cl-synthesizer:make-environment))))
     
     (cl-synthesizer:add-module
      rack "LFO"

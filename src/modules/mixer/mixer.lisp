@@ -38,10 +38,7 @@
 	  (cl-synthesizer-macro-util:make-keyword-list "channel" channel-count)
 	  (cl-synthesizer-macro-util:make-keyword-list "cv" channel-count)
 	  (list :cv-main))))
-    (let ((rack (cl-synthesizer:make-rack
-		 :environment environment
-		 :input-sockets input-sockets
-		 :output-sockets '(:output))))
+    (let ((rack (cl-synthesizer:make-rack :environment environment)))
 
       ;; Add adder and main VCA and patch them
       (cl-synthesizer:add-module
