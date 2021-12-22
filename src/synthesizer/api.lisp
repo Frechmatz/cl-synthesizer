@@ -211,10 +211,8 @@
 ;;
 
 (defun get-exposed-input-socket (rack socket)
-  "Temporary helper function bridge-module removal"
   (funcall (getf rack :get-exposed-input-socket) socket))
 
 (defun get-exposed-output-socket (rack socket)
-  "Temporary helper function bridge-module removal"
   (funcall (getf rack :get-exposed-output-socket) socket))
 

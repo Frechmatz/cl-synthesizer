@@ -1,66 +1,6 @@
 (in-package :cl-synthesizer)
 
 ;;
-;; Bridge Modules
-;;
-;; The inputs and outputs of a rack are represented
-;; by bridge modules INPUT and OUTPUT
-;;
-
-
-(defun make-input-bridge-module (input-sockets)
-  "Exposes public output getters for patching. Exposes private input setters that are called by the rack." 
-  (let ((values (make-array (length input-sockets) :initial-element nil))
-	(outputs (make-array (length input-sockets) :initial-element nil))
-	(count (length input-sockets))
-	(getters nil)
-	(setters nil)
-	(index 0))
-    (dolist (socket input-sockets)
-      (let ((cur-index index))
-	;; setter plist
-	(push (lambda (value) (setf (elt values cur-index) value)) setters)
-	(push socket setters)
-	;; getter plist
-	(push (lambda () (elt outputs cur-index)) getters)
-	(push socket getters))
-      (setf index (+ 1 index)))
-    (list
-     :inputs-private (lambda() setters)
-     :inputs (lambda() nil) ;; no inputs that can be accessed via patching
-     :outputs (lambda() getters)
-     :update (lambda()
-	       ;; copy values to outputs
-	       (dotimes (i count)
-		 (setf (elt outputs i) (elt values i)))))))
-
-(defun make-output-bridge-module (output-sockets)
-  "Exposes public input setters for patching. Exposes private output getters that are called by the rack."
-  (let ((values (make-array (length output-sockets) :initial-element nil))
-	(outputs (make-array (length output-sockets) :initial-element nil))
-	(count (length output-sockets))
-	(getters nil)
-	(setters nil)
-	(index 0))
-    (dolist (socket output-sockets)
-      (let ((cur-index index))
-	;; setter plist
-	(push (lambda (value) (setf (elt values cur-index) value)) setters)
-	(push socket setters)
-	;; getter plist
-	(push (lambda () (elt outputs cur-index)) getters)
-	(push socket getters))
-      (setf index (+ 1 index)))
-    (list
-     :inputs (lambda() setters)
-     :outputs-private (lambda() getters)
-     :outputs (lambda() nil) ;; no outputs that can be accessed via patching
-     :update (lambda()
-	       ;; copy values to outputs
-	       (dotimes (i count)
-		 (setf (elt outputs i) (elt values i)))))))
-
-;;
 ;; Rack
 ;;
 
@@ -139,8 +79,6 @@
 	;; list of (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
 	(patches nil)
 	(compiled-rack nil)
-	(input-bridge-module (make-input-bridge-module input-sockets))
-	(output-bridge-module (make-output-bridge-module output-sockets))
 	;; List of (:rack-socket s :module-name module :module-socket module-socket)
 	(exposed-input-sockets nil)
 	;; List of (:rack-socket s :module-name module :module-socket module-socket)
@@ -204,8 +142,6 @@
 		   (string= module-name (getf entry :module-name))))
 		exposed-output-sockets))
 	     (update-rack-inputs ()
-	       ;; delegate to bridge module
-	       ;; (setf rack-inputs (funcall (getf input-bridge-module :inputs-private)))
 	       (setf rack-inputs nil)
 	       (dolist (exposed-input-socket exposed-input-sockets)
 		 (setf rack-inputs
@@ -218,9 +154,6 @@
 		       (push (getf exposed-input-socket :rack-socket) rack-inputs)))
 	       )
 	     (update-rack-outputs ()
-	       ;; delegate to bridge module
-	       ;;(setf rack-outputs (funcall (getf output-bridge-module :outputs-private)))
-
 	       (setf rack-outputs nil)
 	       (dolist (exposed-output-socket exposed-output-sockets)
 		 (setf rack-outputs
@@ -310,9 +243,7 @@
 		(setf exposed-outputs-dirty t))
 	       
 	      :modules (lambda() modules)
-	      ;; delegate to bridge module
 	      :outputs (lambda() (get-rack-outputs))
-	      ;; delegate to bridge module
 	      :inputs (lambda() (get-rack-inputs))
 	      :patches (lambda() patches)
 	      :hooks (lambda () hooks)
@@ -417,11 +348,5 @@
 			     (add-patch output-name output-socket input-name input-socket))))))
 
 	(setf this rack)
-	;;
-	;; Add bridge modules
-	;;
-	(add-module "INPUT" input-bridge-module)
-	(add-module "OUTPUT" output-bridge-module)
-
 	rack))))
 
