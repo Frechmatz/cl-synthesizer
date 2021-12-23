@@ -8,7 +8,7 @@
 
 (defun input-to-wave (f v-peak)
   ;; convert to -1.0 ... +1.0
-  (/ f v-peak))
+  (* (/ (min (abs f) v-peak) v-peak) (signum f)))  
 
 (defun make-module (name environment &key channel-count filename v-peak (sample-width :16bit))
   "Creates a Wave File Writer module. Writes files in \"Waveform Audio File\" (\"WAV\") format.
@@ -19,12 +19,7 @@
     <li>:channel-count Number of channels.</li>
     <li>:filename The relative path of the file to be written. The filename will be concatenated
         with the base path as defined by the :home-directory property of the environment.</li>
-    <li>:v-peak Optional peak voltage. The inputs of the module will be scaled
-	to v-peak. If for example v-peak is set to 20.0 an incoming voltage
-	of 5.0 results in a sample value (which is written into the wave file)  
-        of 5.0 / 20.0 -> 0.25 and an incoming voltage of -5.0 results in a sample 
-        value of -0.25. The default value is 5.0. Incoming voltages will be clipped 
-        according to v-peak.</li>
+    <li>:v-peak Absolute value of peak voltage.</li>
     <li>:sample-width Resolution of samples. One of :8Bit, :16Bit, :24Bit</li> 
   </ul></p>
   <p>The module has the following inputs:
@@ -38,6 +33,14 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "~a: channel-count must be greater than 0: ~a"
        :format-arguments (list name channel-count)))
+  (if (not v-peak)
+      (cl-synthesizer:signal-assembly-error
+       :format-control "~a: v-peak must not be nil"
+       :format-arguments (list name)))
+  (if (> 0 v-peak)
+      (cl-synthesizer:signal-assembly-error
+       :format-control "~a: v-peak must not be negative: ~a"
+       :format-arguments (list name v-peak)))
   (let ((input-sockets (cl-synthesizer-macro-util:make-keyword-list "channel" channel-count))
 	(input-values (make-array channel-count :initial-element nil))
 	(opened-wave-writer nil)
