@@ -172,8 +172,9 @@
   :depends-on (:cl-synthesizer :cl-html-readme :docparser)
   :components ((:module "makedoc/patches"
 		:serial t
-		:components ((:file "siren")
-			     (:file "sine")))
+		:components ((:file "saw")
+			     (:file "frequency-modulated-saw")
+			     (:file "two-frequency-modulated-saws")))
 	       (:module "makedoc"
 		:serial t
 		:components ((:file "packages")

@@ -132,14 +132,17 @@
 		       ,(cl-html-readme:read-file "makedoc/installation.html"))
 	      (heading (:name "Examples" :toc t)
 		       (heading (:toc t
-				 :name ,(get-package-docstring readme-index "cl-synthesizer-patches-sine")))
-		       ,(make-code-string "makedoc/patches/sine.lisp")
-		       ,(make-audio-element "sine.wav")
+				 :name ,(get-package-docstring readme-index "cl-synthesizer-patches-saw")))
+		       ,(make-code-string "makedoc/patches/saw.lisp")
+		       ,(make-audio-element "saw.wav")
 		       (heading (:toc t
-				 :name ,(get-package-docstring readme-index "cl-synthesizer-patches-siren")))
-		       ,(make-code-string "makedoc/patches/siren.lisp")
-		       ,(make-audio-element "siren.wav"))
-
+				 :name ,(get-package-docstring readme-index "cl-synthesizer-patches-frequency-modulated-saw")))
+		       ,(make-code-string "makedoc/patches/frequency-modulated-saw.lisp")
+		       ,(make-audio-element "frequency-modulated-saw.wav")
+		       (heading (:toc t
+				 :name ,(get-package-docstring readme-index "cl-synthesizer-patches-two-frequency-modulated-saws")))
+		       ,(make-code-string "makedoc/patches/two-frequency-modulated-saws.lisp")
+		       ,(make-audio-element "two-frequency-modulated-saws.wav"))
 	      (heading (:name "Change-Log" :toc t)
 		       (heading (:name "Version 1.0.0")
 				"<p>Initial version. Not tagged.</p>")
@@ -171,9 +174,8 @@
 				,(make-code-string "makedoc/snippets/rack-get-output.lisp")
 				"<p>When all things are done the rack should be shut down in order to release any resources that may have been allocated, such as opened files.</p>"
 				,(make-code-string "makedoc/snippets/rack-shutdown.lisp")
-				"<p>Racks may expose input and output sockets. When a rack exposes sockets it can be used like any other module when populating another rack.</p>"
-				,(make-code-string "makedoc/snippets/rack-expose-sockets.lisp")
-				"<p>A more comprehensive example can be found <a href=\"https://github.com/Frechmatz/cl-synthesizer/blob/master/makedoc/patches/siren.lisp\">here</a>.</p>")
+				"<p>Racks may expose input and output sockets.</p>"
+				,(make-code-string "makedoc/snippets/rack-expose-sockets.lisp"))
 		       (heading (:name "Monitor" :toc t)
 				,(cl-html-readme:read-file "makedoc/monitor-introduction.html")
 				,(make-example-header)
@@ -326,13 +328,17 @@
 		       ,(cl-html-readme:read-file "makedoc/patches-introduction.html")))
     (semantic (:name "section")
 	      ,(make-patch readme-index
-			   :package "cl-synthesizer-patches-sine"
-			   :path "makedoc/patches/sine.lisp"
-			   :wave-file "sine.wav")
+			   :package "cl-synthesizer-patches-saw"
+			   :path "makedoc/patches/saw.lisp"
+			   :wave-file "saw.wav")
 	      ,(make-patch readme-index
-			   :package "cl-synthesizer-patches-siren"
-			   :path "makedoc/patches/siren.lisp"
-			   :wave-file "siren.wav"))
+			   :package "cl-synthesizer-patches-frequency-modulated-saw"
+			   :path "makedoc/patches/frequency-modulated-saw.lisp"
+			   :wave-file "frequency-modulated-saw.wav")
+	      ,(make-patch readme-index
+			   :package "cl-synthesizer-patches-two-frequency-modulated-saws"
+			   :path "makedoc/patches/two-frequency-modulated-saws.lisp"
+			   :wave-file "two-frequency-modulated-saws.wav"))
     (semantic (:name "footer")
 	      "<hr/><p><small>Generated " ,(now) "</small></p>")
     "</body></html>"))
@@ -344,8 +350,9 @@
 (defun make-doc ()
   (let ((cl-synthesizer:*home-directory* (asdf:system-source-directory :cl-synthesizer/doc)))
     ;; Generate patches
-    (cl-synthesizer-patches-siren::run-example)
-    (cl-synthesizer-patches-sine::run-example))
+    (cl-synthesizer-patches-saw::run-example)
+    (cl-synthesizer-patches-frequency-modulated-saw::run-example)
+    (cl-synthesizer-patches-two-frequency-modulated-saws::run-example))
   ;; Generate html files
   (let ((lib-index (make-index :cl-synthesizer))
 	(readme-index (make-index :cl-synthesizer/doc)))
