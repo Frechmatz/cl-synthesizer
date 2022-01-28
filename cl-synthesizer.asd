@@ -8,7 +8,11 @@
   :description "An audio synthesizer"
   :long-description "An audio synthesizer"
   :depends-on (:cl-wave-file-writer)
-  :components ((:module "src/util"
+  :components ((:module "src/graph"
+		:serial t
+		:components ((:file "packages")
+			     (:file "graph")))
+	       (:module "src/util"
 		:serial t
 		:components ((:file "packages")
 			     (:file "macro-util")
