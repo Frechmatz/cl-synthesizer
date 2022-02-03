@@ -24,6 +24,7 @@
 	       (:module "src/synthesizer"
 		:serial t
 		:components ((:file "api")
+			     (:file "api-impl")
 			     (:file "environment")
 			     (:file "rack-compiler") 
 			     (:file "rack")))

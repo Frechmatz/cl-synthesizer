@@ -1,35 +1,35 @@
+;;
+;; Interface of cl-synthesizer
+;;
+
 (in-package :cl-synthesizer)
 
 (defun get-inputs-fn (module)
-  (getf module :inputs))
+  (cl-synthesizer-graph:get-inputs-fn module))
 
 (defun get-inputs (module)
-  (funcall (getf module :inputs)))
+  (cl-synthesizer-graph:get-inputs module))
 
 (defun get-outputs-fn (module)
-  (getf module :outputs))
+  (cl-synthesizer-graph:get-outputs-fn module))
 
 (defun get-outputs (module)
-  (funcall (getf module :outputs)))
+  (cl-synthesizer-graph:get-outputs module))
 
 (defun get-update-fn (module)
-  (getf module :update))
+  (cl-synthesizer-graph:get-update-fn module))
 
 (defun update (module)
-  (funcall (getf module :update)))
+  (cl-synthesizer-graph:update module))
 
 (defun get-state-fn (module)
-  (getf module :state))
+  (cl-synthesizer-graph:get-state-fn module))
 
 (defun get-state (module key)
-  (let ((fn (get-state-fn module)))
-    (if fn
-	(funcall fn key)
-	nil)))
+  (cl-synthesizer-graph:get-state module key))
 
 (defun shutdown (module)
-  (let ((fn (getf module :shutdown)))
-    (if fn (funcall fn))))
+  (cl-synthesizer-graph:shutdown module))
 
 (defun get-modules (rack)
   "Get all modules of a rack. <p>The function has the following parameters:
@@ -42,7 +42,7 @@
        <li>:module The module</li>
        <li>:name Name of the module</li>
     </ul>"
-  (funcall (getf rack :modules)))
+  (cl-synthesizer-graph:get-modules rack))
 
 (defun get-patches (rack)
   "Get all patches of a rack. <p>The function has the following parameters:
@@ -56,11 +56,11 @@
      <li>:input-name Name of the input module. </li>
      <li>:input-socket Input socket.</li>
    </ul>"
-  (funcall (getf rack :patches)))
+  (cl-synthesizer-graph:get-patches rack))
 
 (defun is-rack (module)
   "Returns <b>t</b> if the given module represents a rack."
-  (getf module :is-rack))
+  (cl-synthesizer-graph:is-rack module))
 
 (defun add-module (rack module-name module-fn &rest args)
   "Adds a module to a rack. <p>The function has the following parameters:
@@ -100,7 +100,9 @@
 	    These arguments typically consist of keyword parameters.</li>
     </ul></p>
     Returns the module."
-  (apply (getf rack :add-module) module-name module-fn args))
+  (apply #'cl-synthesizer-graph:add-module rack module-name module-fn args))
+
+;;  (apply (getf rack :add-module) module-name module-fn args))
 
 (defun get-module-name (rack module)
   "Get the name of a module. <p>The function has the following parameters:
@@ -109,11 +111,7 @@
 	<li>module The module.</li>
     </ul></p>
    Returns the name or nil if the module does not belong to the rack"
-  (let ((match
-	    (find-if
-	     (lambda (cur-module) (eq module (getf cur-module :module)))
-	     (get-modules rack))))
-    (if match (getf match :name) nil)))
+  (cl-synthesizer-graph:get-module-name rack module))
 
 (defun get-module (rack name)
   "Get a module of a rack. <p>The function has the following parameters:
@@ -122,18 +120,14 @@
       <li>name The name of the module.</li>
     </ul></p>
    Returns the module or nil."
-  (let ((module
-	 (find-if
-	  (lambda (m) (string= name (getf m :name)))
-	  (get-modules rack))))
-    (if module (getf module :module) nil)))
+  (cl-synthesizer-graph:get-module rack name))
 
 (defun get-environment (rack)
   "Returns the environment of the rack."
-  (getf rack :environment))
+  (cl-synthesizer-graph:get-environment rack))
 
 (defun get-hooks (rack)
-  (funcall (getf rack :hooks)))
+  (cl-synthesizer-graph:get-hooks rack))
 
 (defun add-hook (rack hook)
   "Adds a hook to the rack. A hook is called each time after the rack has updated its state.
@@ -143,7 +137,7 @@
       <li>:shutdown A function with no parameters that is called when the rack is shutting down.</li>
    </ul></p>
    Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>."
-  (funcall (getf rack :add-hook) hook))
+  (cl-synthesizer-graph:add-hook rack hook))
 
 (defun add-patch (rack output-module-name output-socket input-module-name input-socket)
   "Adds a patch to the rack. A patch is an unidirectional connection between an output socket
@@ -168,7 +162,12 @@
 	<li>The given input-socket is already connected with a module.</li>
 	<li>The given input-socket is not exposed by the input module.</li>
     </ul></p>"
-  (funcall (getf rack :add-patch) output-module-name output-socket input-module-name input-socket))
+  (cl-synthesizer-graph:add-patch
+   rack
+   output-module-name
+   output-socket
+   input-module-name
+   input-socket))
 
 ;;
 ;;
@@ -182,7 +181,11 @@
     <li>input-module-name Name of the module whose input is to be exposed.</li>
     <li>input-socket A keyword representing one of the inputs of the module.</li>
   </ul></p>"
-  (funcall (getf rack :expose-input-socket) rack-input-socket input-module-name input-socket))
+  (cl-synthesizer-graph:expose-input-socket
+   rack
+   rack-input-socket
+   input-module-name
+   input-socket))
 
 (defun expose-output-socket (rack rack-output-socket output-module-name output-socket)
   "Exposes an output socket of a module as an output socket of the rack. <p>The function has the following parameters:
@@ -192,35 +195,39 @@
     <li>output-module-name Name of the module whose output is to be exposed.</li>
     <li>output-socket A keyword representing one of the outputs of the module.</li>
   </ul></p>"
-  (funcall (getf rack :expose-output-socket) rack-output-socket output-module-name output-socket))
+  (cl-synthesizer-graph:expose-output-socket
+   rack
+   rack-output-socket
+   output-module-name
+   output-socket))
 
 ;;
 ;; Patches
 ;;
 (defun make-patch (&key output-name output-socket input-name input-socket)
   "TODO Create class. Do not expose via cl-synthesizer."
-  (list
+  (cl-synthesizer-graph:make-patch
    :output-name output-name
    :output-socket output-socket
    :input-name input-name
    :input-socket input-socket))
 
 (defun get-patch-output-name (patch)
-  (getf patch :output-name))
+  (cl-synthesizer-graph:get-patch-output-name patch))
 (defun get-patch-output-socket (patch)
-  (getf patch :output-socket))
+  (cl-synthesizer-graph:get-patch-output-socket patch))
 (defun get-patch-input-name (patch)
-  (getf patch :input-name))
+  (cl-synthesizer-graph:get-patch-input-name patch))
 (defun get-patch-input-socket (patch)
-  (getf patch :input-socket))
+  (cl-synthesizer-graph:get-patch-input-socket patch))
 
 ;;
 ;; Exposed sockets
 ;;
 
 (defun get-exposed-input-socket (rack socket)
-  (funcall (getf rack :get-exposed-input-socket) socket))
+  (cl-synthesizer-graph:get-exposed-input-socket rack socket))
 
 (defun get-exposed-output-socket (rack socket)
-  (funcall (getf rack :get-exposed-output-socket) socket))
+  (cl-synthesizer-graph:get-exposed-output-socket rack socket))
 
