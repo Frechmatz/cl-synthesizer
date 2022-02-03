@@ -32,37 +32,30 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "~a: channel-count must be greater than 0: ~a"
        :format-arguments (list name channel-count)))
-  (let ((input-sockets
-	 (concatenate
-	  'list
-	  (cl-synthesizer-macro-util:make-keyword-list "channel" channel-count)
-	  (cl-synthesizer-macro-util:make-keyword-list "cv" channel-count)
-	  (list :cv-main))))
-    (let ((rack (cl-synthesizer:make-rack :environment environment)))
-
-      ;; Add adder and main VCA and patch them
-      (cl-synthesizer:add-module
-       rack "ADDER"
-       #'cl-synthesizer-modules-adder:make-module :input-count channel-count)
-      (cl-synthesizer:add-module rack "MAIN-VCA" #'cl-synthesizer-modules-vca:make-module
-				 :cv-max main-cv-max :initial-gain main-cv-gain)
-      (cl-synthesizer:add-patch rack "ADDER" :output "MAIN-VCA" :input)
-      (cl-synthesizer:expose-input-socket rack :cv-main "MAIN-VCA" :cv)
-      (cl-synthesizer:expose-output-socket rack :output "MAIN-VCA" :output)
-      
-      ;; Add a VCA for each input and patch it with mixer input and adder
-      (dotimes (i channel-count)
-	(let ((vca-name (format nil "VCA-~a" (+ 1 i))))
-	  (cl-synthesizer:add-module rack vca-name
-				     #'cl-synthesizer-modules-vca:make-module
-				     :cv-max channel-cv-max :initial-gain channel-cv-gain)
-	  (cl-synthesizer:expose-input-socket rack 
-				    (cl-synthesizer-macro-util:make-keyword "channel" i)
-				    vca-name :input)
-	  (cl-synthesizer:expose-input-socket rack
-				    (cl-synthesizer-macro-util:make-keyword "cv" i)
-				    vca-name :cv)
-	  (cl-synthesizer:add-patch rack vca-name :output "ADDER"
-				    (cl-synthesizer-macro-util:make-keyword "input" i))))
-	  
-      rack)))
+  (let ((rack (cl-synthesizer:make-rack :environment environment)))
+    ;; Add adder and main VCA and patch them
+    (cl-synthesizer:add-module
+     rack "ADDER"
+     #'cl-synthesizer-modules-adder:make-module :input-count channel-count)
+    (cl-synthesizer:add-module rack "MAIN-VCA" #'cl-synthesizer-modules-vca:make-module
+			       :cv-max main-cv-max :initial-gain main-cv-gain)
+    (cl-synthesizer:add-patch rack "ADDER" :output "MAIN-VCA" :input)
+    (cl-synthesizer:expose-input-socket rack :cv-main "MAIN-VCA" :cv)
+    (cl-synthesizer:expose-output-socket rack :output "MAIN-VCA" :output)
+    
+    ;; Add a VCA for each input and patch it with mixer input and adder
+    (dotimes (i channel-count)
+      (let ((vca-name (format nil "VCA-~a" (+ 1 i))))
+	(cl-synthesizer:add-module rack vca-name
+				   #'cl-synthesizer-modules-vca:make-module
+				   :cv-max channel-cv-max :initial-gain channel-cv-gain)
+	(cl-synthesizer:expose-input-socket rack 
+					    (cl-synthesizer-macro-util:make-keyword "channel" i)
+					    vca-name :input)
+	(cl-synthesizer:expose-input-socket rack
+					    (cl-synthesizer-macro-util:make-keyword "cv" i)
+					    vca-name :cv)
+	(cl-synthesizer:add-patch rack vca-name :output "ADDER"
+				  (cl-synthesizer-macro-util:make-keyword "input" i))))
+    
+    rack))
