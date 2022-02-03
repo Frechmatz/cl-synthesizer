@@ -102,8 +102,6 @@
     Returns the module."
   (apply #'cl-synthesizer-graph:add-module rack module-name module-fn args))
 
-;;  (apply (getf rack :add-module) module-name module-fn args))
-
 (defun get-module-name (rack module)
   "Get the name of a module. <p>The function has the following parameters:
     <ul>
