@@ -15,7 +15,9 @@
 (defgeneric get-state (vertex key))
 (defgeneric shutdown (vertex))
 (defgeneric get-vertices (graph))
-(defgeneric get-edges (graph))
+(defgeneric get-edges (graph)
+  (:documentation
+   "Returns list of (&key output-vertex-name output-socket input-vertex-name input-socket)"))
 (defgeneric is-graph (vertex))
 (defgeneric add-vertex (graph vertex-name vertex-ctor-fn &rest args))
 (defgeneric get-vertex-name (graph vertex))
