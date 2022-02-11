@@ -42,7 +42,7 @@
        <li>:module The module</li>
        <li>:name Name of the module</li>
     </ul>"
-  (cl-synthesizer-graph:get-modules rack))
+  (cl-synthesizer-graph:get-vertices rack))
 
 (defun get-patches (rack)
   "Get all patches of a rack. <p>The function has the following parameters:
@@ -56,11 +56,11 @@
      <li>:input-name Name of the input module. </li>
      <li>:input-socket Input socket.</li>
    </ul>"
-  (cl-synthesizer-graph:get-patches rack))
+  (cl-synthesizer-graph:get-edges rack))
 
 (defun is-rack (module)
   "Returns <b>t</b> if the given module represents a rack."
-  (cl-synthesizer-graph:is-rack module))
+  (cl-synthesizer-graph:is-graph module))
 
 (defun add-module (rack module-name module-fn &rest args)
   "Adds a module to a rack. <p>The function has the following parameters:
@@ -100,7 +100,7 @@
 	    These arguments typically consist of keyword parameters.</li>
     </ul></p>
     Returns the module."
-  (apply #'cl-synthesizer-graph:add-module rack module-name module-fn args))
+  (apply #'cl-synthesizer-graph:add-vertex rack module-name module-fn args))
 
 (defun get-module-name (rack module)
   "Get the name of a module. <p>The function has the following parameters:
@@ -109,7 +109,7 @@
 	<li>module The module.</li>
     </ul></p>
    Returns the name or nil if the module does not belong to the rack"
-  (cl-synthesizer-graph:get-module-name rack module))
+  (cl-synthesizer-graph:get-vertex-name rack module))
 
 (defun get-module (rack name)
   "Get a module of a rack. <p>The function has the following parameters:
@@ -118,7 +118,7 @@
       <li>name The name of the module.</li>
     </ul></p>
    Returns the module or nil."
-  (cl-synthesizer-graph:get-module rack name))
+  (cl-synthesizer-graph:get-vertex rack name))
 
 (defun get-environment (rack)
   "Returns the environment of the rack."
@@ -160,7 +160,7 @@
 	<li>The given input-socket is already connected with a module.</li>
 	<li>The given input-socket is not exposed by the input module.</li>
     </ul></p>"
-  (cl-synthesizer-graph:add-patch
+  (cl-synthesizer-graph:add-edge
    rack
    output-module-name
    output-socket
@@ -204,20 +204,20 @@
 ;;
 (defun make-patch (&key output-name output-socket input-name input-socket)
   "TODO Create class. Do not expose via cl-synthesizer."
-  (cl-synthesizer-graph:make-patch
-   :output-name output-name
+  (cl-synthesizer-graph:make-edge
+   :output-vertex-name output-name
    :output-socket output-socket
-   :input-name input-name
+   :input-vertex-name input-name
    :input-socket input-socket))
 
 (defun get-patch-output-name (patch)
-  (cl-synthesizer-graph:get-patch-output-name patch))
+  (cl-synthesizer-graph:get-edge-output-name patch))
 (defun get-patch-output-socket (patch)
-  (cl-synthesizer-graph:get-patch-output-socket patch))
+  (cl-synthesizer-graph:get-edge-output-socket patch))
 (defun get-patch-input-name (patch)
-  (cl-synthesizer-graph:get-patch-input-name patch))
+  (cl-synthesizer-graph:get-edge-input-name patch))
 (defun get-patch-input-socket (patch)
-  (cl-synthesizer-graph:get-patch-input-socket patch))
+  (cl-synthesizer-graph:get-edge-input-socket patch))
 
 ;;
 ;; Exposed sockets

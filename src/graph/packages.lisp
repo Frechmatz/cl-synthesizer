@@ -11,23 +11,23 @@
    :get-state-fn
    :get-state
    :shutdown
-   :get-modules
-   :get-patches
-   :is-rack
-   :add-module
-   :get-module-name
-   :get-module
+   :get-vertices
+   :get-edges
+   :is-graph
+   :add-vertex
+   :get-vertex-name
+   :get-vertex
    :get-environment
    :get-hooks
    :add-hook
-   :add-patch
+   :add-edge
    :expose-input-socket
    :expose-output-socket
-   :make-patch
-   :get-patch-output-name
-   :get-patch-output-socket
-   :get-patch-input-name
-   :get-patch-input-socket
+   :make-edge
+   :get-edge-output-name
+   :get-edge-output-socket
+   :get-edge-input-name
+   :get-edge-input-socket
    :get-exposed-input-socket
    :get-exposed-output-socket))
 
