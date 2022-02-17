@@ -3,7 +3,7 @@
 ;; cl-synthesizer based on property list approach
 ;;
 
-(in-package :cl-synthesizer)
+(in-package :cl-synthesizer-plist-graph-impl)
 
 (defmethod cl-synthesizer-graph:get-inputs-fn (vertex)
   (getf vertex :inputs))
@@ -27,7 +27,7 @@
   (getf vertex :state))
 
 (defmethod cl-synthesizer-graph:get-state (vertex key)
-  (let ((fn (get-state-fn vertex)))
+  (let ((fn (cl-synthesizer-graph:get-state-fn vertex)))
     (if fn
 	(funcall fn key)
 	nil)))

@@ -21,10 +21,13 @@
 		:serial t
 		:components ((:file "packages")
 			     (:file "conditions")))
+	       (:module "src/synthesizer/plist-graph"
+		:serial t
+		:components ((:file "packages")
+			     (:file "plist-graph-impl")))
 	       (:module "src/synthesizer"
 		:serial t
 		:components ((:file "api")
-			     (:file "api-impl")
 			     (:file "environment")
 			     (:file "rack-compiler") 
 			     (:file "rack")))
