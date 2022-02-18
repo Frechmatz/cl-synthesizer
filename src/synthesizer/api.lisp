@@ -5,130 +5,31 @@
 (in-package :cl-synthesizer)
 
 ;;
-;; Graph Impl
-;;
-
-(defmethod cl-synthesizer-graph:get-inputs-fn (vertex)
-  (getf vertex :inputs))
-
-(defmethod cl-synthesizer-graph:get-inputs (vertex)
-  (funcall (getf vertex :inputs)))
-
-(defmethod cl-synthesizer-graph:get-outputs-fn (vertex)
-  (getf vertex :outputs))
-
-(defmethod cl-synthesizer-graph:get-outputs (vertex)
-  (funcall (getf vertex :outputs)))
-
-(defmethod cl-synthesizer-graph:get-update-fn (vertex)
-  (getf vertex :update))
-
-(defmethod cl-synthesizer-graph:update (vertex)
-  (funcall (getf vertex :update)))
-
-(defmethod cl-synthesizer-graph:get-state-fn (vertex)
-  (getf vertex :state))
-
-(defmethod cl-synthesizer-graph:get-state (vertex key)
-  (let ((fn (cl-synthesizer-graph:get-state-fn vertex)))
-    (if fn
-	(funcall fn key)
-	nil)))
-
-(defmethod cl-synthesizer-graph:shutdown (vertex)
-  (let ((fn (getf vertex :shutdown)))
-    (if fn (funcall fn))))
-
-(defmethod cl-synthesizer-graph:get-vertices (graph)
-  (funcall (getf graph :modules)))
-
-(defmethod cl-synthesizer-graph:get-edges (graph edge-callback-fn)
-  (let ((patches (funcall (getf graph :patches))))
-    (dolist (patch patches)
-      (funcall
-       edge-callback-fn
-       (getf patch :output-name)
-       (getf patch :output-socket)
-       (getf patch :input-name)
-       (getf patch :input-socket)))))
-
-(defmethod cl-synthesizer-graph:is-graph (vertex)
-  (getf vertex :is-rack))
-
-(defmethod cl-synthesizer-graph:add-vertex
-    (graph
-     vertex-name vertex-ctor-fn
-     &rest args)
-  (apply (getf graph :add-module) vertex-name vertex-ctor-fn args))
-
-(defmethod cl-synthesizer-graph:get-vertex-name (graph vertex)
-  (let ((match
-	    (find-if
-	     (lambda (cur-module) (eq vertex (getf cur-module :module)))
-	     (cl-synthesizer:get-modules graph))))
-    (if match (getf match :name) nil)))
-
-(defmethod cl-synthesizer-graph:get-vertex (graph vertex-name)
-  (let ((module
-	 (find-if
-	  (lambda (m) (string= vertex-name (getf m :name)))
-	  (cl-synthesizer:get-modules graph))))
-    (if module (getf module :module) nil)))
-
-(defmethod cl-synthesizer-graph:get-environment (graph)
-  (getf graph :environment))
-
-(defmethod cl-synthesizer-graph:get-hooks (graph)
-  (funcall (getf graph :hooks)))
-
-(defmethod cl-synthesizer-graph:add-hook (graph hook)
-  (funcall (getf graph :add-hook) hook))
-
-(defmethod cl-synthesizer-graph:add-edge
-    (graph
-     output-vertex-name
-     output-socket
-     input-vertex-name
-     input-socket)
-  (funcall
-   (getf graph :add-patch)
-   output-vertex-name
-   output-socket
-   input-vertex-name
-   input-socket))
-
-(defmethod cl-synthesizer-graph:expose-input-socket
-    (graph
-     graph-input-socket
-     input-vertex-name
-     input-socket)
-  (funcall
-   (getf graph :expose-input-socket)
-   graph-input-socket
-   input-vertex-name
-   input-socket))
-
-(defmethod cl-synthesizer-graph:expose-output-socket
-    (graph
-     graph-output-socket
-     output-vertex-name
-     output-socket)
-  (funcall
-   (getf graph :expose-output-socket)
-   graph-output-socket
-   output-vertex-name
-   output-socket))
-
-(defmethod cl-synthesizer-graph:get-exposed-input-socket (graph socket)
-  (funcall (getf graph :get-exposed-input-socket) socket))
-
-(defmethod cl-synthesizer-graph:get-exposed-output-socket (graph socket)
-  (funcall (getf graph :get-exposed-output-socket) socket))
-
-
-;;
 ;; API
 ;;
+
+(defun get-module-name (rack module)
+  "Get the name of a module. <p>The function has the following parameters:
+    <ul>
+	<li>rack The rack.</li>
+	<li>module The module.</li>
+    </ul></p>
+   Returns the name or nil if the module does not belong to the rack"
+  (cl-synthesizer-graph:get-vertex-name rack module))
+
+(defun get-module (rack name)
+  "Get a module of a rack. <p>The function has the following parameters:
+    <ul>
+      <li>rack The rack.</li>
+      <li>name The name of the module.</li>
+    </ul></p>
+   Returns the module or nil."
+  (let ((module
+	 (find-if
+	  (lambda (m) (string= name (getf m :name)))
+	  (funcall (getf rack :modules)))))
+    (if module (getf module :module) nil)))
+  
 
 (defun get-inputs-fn (module)
   (cl-synthesizer-graph:get-inputs-fn module))
@@ -168,7 +69,17 @@
        <li>:module The module</li>
        <li>:name Name of the module</li>
     </ul>"
-  (cl-synthesizer-graph:get-vertices rack))
+  (let ((module-names nil))
+    (cl-synthesizer-graph:get-vertices
+     rack
+     (lambda (module-name)
+       (push module-name module-names)))
+    (mapcar
+     (lambda (module-name)
+       (list
+	:name module-name
+	:module (get-module rack module-name)))
+     module-names)))
 
 ;;
 ;; Patch stuff
@@ -259,24 +170,6 @@
     Returns the module."
   (apply #'cl-synthesizer-graph:add-vertex rack module-name module-fn args))
 
-(defun get-module-name (rack module)
-  "Get the name of a module. <p>The function has the following parameters:
-    <ul>
-	<li>rack The rack.</li>
-	<li>module The module.</li>
-    </ul></p>
-   Returns the name or nil if the module does not belong to the rack"
-  (cl-synthesizer-graph:get-vertex-name rack module))
-
-(defun get-module (rack name)
-  "Get a module of a rack. <p>The function has the following parameters:
-    <ul>
-      <li>rack The rack.</li>
-      <li>name The name of the module.</li>
-    </ul></p>
-   Returns the module or nil."
-  (cl-synthesizer-graph:get-vertex rack name))
-
 (defun get-environment (rack)
   "Returns the environment of the rack."
   (cl-synthesizer-graph:get-environment rack))
@@ -365,4 +258,129 @@
 
 (defun get-exposed-output-socket (rack socket)
   (cl-synthesizer-graph:get-exposed-output-socket rack socket))
+
+;;
+;; Graph Impl
+;;
+
+(defmethod cl-synthesizer-graph:get-inputs-fn (vertex)
+  (getf vertex :inputs))
+
+(defmethod cl-synthesizer-graph:get-inputs (vertex)
+  (funcall (getf vertex :inputs)))
+
+(defmethod cl-synthesizer-graph:get-outputs-fn (vertex)
+  (getf vertex :outputs))
+
+(defmethod cl-synthesizer-graph:get-outputs (vertex)
+  (funcall (getf vertex :outputs)))
+
+(defmethod cl-synthesizer-graph:get-update-fn (vertex)
+  (getf vertex :update))
+
+(defmethod cl-synthesizer-graph:update (vertex)
+  (funcall (getf vertex :update)))
+
+(defmethod cl-synthesizer-graph:get-state-fn (vertex)
+  (getf vertex :state))
+
+(defmethod cl-synthesizer-graph:get-state (vertex key)
+  (let ((fn (cl-synthesizer-graph:get-state-fn vertex)))
+    (if fn
+	(funcall fn key)
+	nil)))
+
+(defmethod cl-synthesizer-graph:shutdown (vertex)
+  (let ((fn (getf vertex :shutdown)))
+    (if fn (funcall fn))))
+
+(defmethod cl-synthesizer-graph:get-vertices (graph callback-fn)
+  (dolist (module (funcall (getf graph :modules)))
+    (funcall
+     callback-fn
+     (getf module :name)))) 
+
+(defmethod cl-synthesizer-graph:get-edges (graph edge-callback-fn)
+  (let ((patches (funcall (getf graph :patches))))
+    (dolist (patch patches)
+      (funcall
+       edge-callback-fn
+       (getf patch :output-name)
+       (getf patch :output-socket)
+       (getf patch :input-name)
+       (getf patch :input-socket)))))
+
+(defmethod cl-synthesizer-graph:is-graph (vertex)
+  (getf vertex :is-rack))
+
+(defmethod cl-synthesizer-graph:add-vertex
+    (graph
+     vertex-name vertex-ctor-fn
+     &rest args)
+  (apply (getf graph :add-module) vertex-name vertex-ctor-fn args))
+
+(defmethod cl-synthesizer-graph:get-vertex-name (graph vertex)
+  (let ((match
+	    (find-if
+	     (lambda (cur-module) (eq vertex (getf cur-module :module)))
+	     (cl-synthesizer:get-modules graph))))
+    (if match (getf match :name) nil)))
+
+(defmethod cl-synthesizer-graph:get-vertex (graph vertex-name)
+  (let ((module
+	 (find-if
+	  (lambda (m) (string= vertex-name (getf m :name)))
+	  (cl-synthesizer:get-modules graph))))
+    (if module (getf module :module) nil)))
+
+(defmethod cl-synthesizer-graph:get-environment (graph)
+  (getf graph :environment))
+
+(defmethod cl-synthesizer-graph:get-hooks (graph)
+  (funcall (getf graph :hooks)))
+
+(defmethod cl-synthesizer-graph:add-hook (graph hook)
+  (funcall (getf graph :add-hook) hook))
+
+(defmethod cl-synthesizer-graph:add-edge
+    (graph
+     output-vertex-name
+     output-socket
+     input-vertex-name
+     input-socket)
+  (funcall
+   (getf graph :add-patch)
+   output-vertex-name
+   output-socket
+   input-vertex-name
+   input-socket))
+
+(defmethod cl-synthesizer-graph:expose-input-socket
+    (graph
+     graph-input-socket
+     input-vertex-name
+     input-socket)
+  (funcall
+   (getf graph :expose-input-socket)
+   graph-input-socket
+   input-vertex-name
+   input-socket))
+
+(defmethod cl-synthesizer-graph:expose-output-socket
+    (graph
+     graph-output-socket
+     output-vertex-name
+     output-socket)
+  (funcall
+   (getf graph :expose-output-socket)
+   graph-output-socket
+   output-vertex-name
+   output-socket))
+
+(defmethod cl-synthesizer-graph:get-exposed-input-socket (graph socket)
+  (funcall (getf graph :get-exposed-input-socket) socket))
+
+(defmethod cl-synthesizer-graph:get-exposed-output-socket (graph socket)
+  (funcall (getf graph :get-exposed-output-socket) socket))
+
 
