@@ -39,8 +39,15 @@
 (defmethod cl-synthesizer-graph:get-vertices (graph)
   (funcall (getf graph :modules)))
 
-(defmethod cl-synthesizer-graph:get-edges (graph)
-  (funcall (getf graph :patches)))
+(defmethod cl-synthesizer-graph:get-edges (graph edge-callback-fn)
+  (let ((patches (funcall (getf graph :patches))))
+    (dolist (patch patches)
+      (funcall
+       edge-callback-fn
+       (getf patch :output-name)
+       (getf patch :output-socket)
+       (getf patch :input-name)
+       (getf patch :input-socket)))))
 
 (defmethod cl-synthesizer-graph:is-graph (vertex)
   (getf vertex :is-rack))
@@ -108,29 +115,6 @@
    graph-output-socket
    output-vertex-name
    output-socket))
-
-(defmethod cl-synthesizer-graph:make-edge
-    (&key output-vertex-name
-       output-socket
-       input-vertex-name
-       input-socket)
-  (list
-   :output-name output-vertex-name
-   :output-socket output-socket
-   :input-name input-vertex-name
-   :input-socket input-socket))
-
-(defmethod cl-synthesizer-graph:get-edge-output-name (edge)
-  (getf edge :output-name))
-
-(defmethod cl-synthesizer-graph:get-edge-output-socket (edge)
-  (getf edge :output-socket))
-
-(defmethod cl-synthesizer-graph:get-edge-input-name (edge)
-  (getf edge :input-name))
-
-(defmethod cl-synthesizer-graph:get-edge-input-socket (edge)
-  (getf edge :input-socket))
 
 (defmethod cl-synthesizer-graph:get-exposed-input-socket (graph socket)
   (funcall (getf graph :get-exposed-input-socket) socket))

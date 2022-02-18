@@ -30,7 +30,6 @@
    :get-state
    :get-modules
    :get-patches
-   :make-patch
    :get-patch-output-name
    :get-patch-output-socket
    :get-patch-input-name

@@ -23,11 +23,6 @@
    :add-edge
    :expose-input-socket
    :expose-output-socket
-   :make-edge
-   :get-edge-output-name
-   :get-edge-output-socket
-   :get-edge-input-name
-   :get-edge-input-socket
    :get-exposed-input-socket
    :get-exposed-output-socket))
 

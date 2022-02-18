@@ -89,7 +89,7 @@
 	       (push (list :module module :name module-name) modules))
 	     (add-patch (output-name output-socket input-name input-socket)
 	       (setf compiled-rack nil)
-	       (push (make-patch
+	       (push (list
 		      :output-name output-name
 		      :output-socket output-socket
 		      :input-name input-name

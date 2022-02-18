@@ -44,6 +44,22 @@
     </ul>"
   (cl-synthesizer-graph:get-vertices rack))
 
+;;
+;; Patch stuff
+;;
+
+(defun get-patch-output-name (edge)
+  (getf edge :output-name))
+
+(defun get-patch-output-socket (edge)
+  (getf edge :output-socket))
+
+(defun get-patch-input-name (edge)
+  (getf edge :input-name))
+
+(defun get-patch-input-socket (edge)
+  (getf edge :input-socket))
+
 (defun get-patches (rack)
   "Get all patches of a rack. <p>The function has the following parameters:
     <ul>
@@ -56,7 +72,22 @@
      <li>:input-name Name of the input module. </li>
      <li>:input-socket Input socket.</li>
    </ul>"
-  (cl-synthesizer-graph:get-edges rack))
+  (let ((patches nil))
+    (cl-synthesizer-graph:get-edges
+     rack
+     (lambda (output-vertex-name output-socket input-vertex-name input-socket)
+       (push
+	(list
+	 :output-name output-vertex-name
+	 :output-socket output-socket
+	 :input-name input-vertex-name
+	 :input-socket input-socket)
+	patches)))
+    patches))
+
+;;
+;;
+;;
 
 (defun is-rack (module)
   "Returns <b>t</b> if the given module represents a rack."
@@ -198,26 +229,6 @@
    rack-output-socket
    output-module-name
    output-socket))
-
-;;
-;; Patches
-;;
-(defun make-patch (&key output-name output-socket input-name input-socket)
-  "TODO Create class. Do not expose via cl-synthesizer."
-  (cl-synthesizer-graph:make-edge
-   :output-vertex-name output-name
-   :output-socket output-socket
-   :input-vertex-name input-name
-   :input-socket input-socket))
-
-(defun get-patch-output-name (patch)
-  (cl-synthesizer-graph:get-edge-output-name patch))
-(defun get-patch-output-socket (patch)
-  (cl-synthesizer-graph:get-edge-output-socket patch))
-(defun get-patch-input-name (patch)
-  (cl-synthesizer-graph:get-edge-input-name patch))
-(defun get-patch-input-socket (patch)
-  (cl-synthesizer-graph:get-edge-input-socket patch))
 
 ;;
 ;; Exposed sockets
