@@ -2,8 +2,7 @@
 (defpackage :cl-synthesizer-midi
   (:use :cl)
   (:export
-   :get-note-number-frequency
-   :cc-mapper))
+   :get-note-number-frequency))
 
 (defpackage :cl-synthesizer-midi-event
   (:use :cl)
@@ -21,12 +20,4 @@
    :get-control-value))
 
 (defpackage :cl-synthesizer-midi-lru-set
-  (:use :cl)
-  (:export
-   :lru-set
-   :remove-value
-   :push-value
-   :get-value
-   :current-value
-   :entry-count
-   :empty-p))
+  (:use :cl))

@@ -5,7 +5,7 @@
 ;;
 
 (defun run-lru-set-test-case (test-case)
-  (let ((mgr (make-instance 'cl-synthesizer-midi-lru-set:lru-set :capacity (getf test-case :capacity))))
+  (let ((mgr (make-instance 'cl-synthesizer-midi-lru-set::lru-set :capacity (getf test-case :capacity))))
     (dolist (test-case (getf test-case :test-cases))
       (let ((cmd (first test-case))
 	    (cmd-arg (second test-case))
@@ -16,23 +16,23 @@
 	(cond
 	  ((eq cmd :push)
 	   (multiple-value-bind (resulting-index stolen)
-	       (cl-synthesizer-midi-lru-set:push-value mgr cmd-arg)
+	       (cl-synthesizer-midi-lru-set::push-value mgr cmd-arg)
 	     (assert-equal expected-entry-index resulting-index)
 	     (assert-equal expected-stolen stolen)
 	     (if expected-entry-count
-		 (assert-equal expected-entry-count (cl-synthesizer-midi-lru-set:entry-count mgr)))
+		 (assert-equal expected-entry-count (cl-synthesizer-midi-lru-set::entry-count mgr)))
 	     (let ((current-value (cl-synthesizer-midi-lru-set::current-value mgr)))
 	       (assert-equal expected-current-value current-value))))
 	  ((eq cmd :remove)
-	   (let ((resulting-index (cl-synthesizer-midi-lru-set:remove-value mgr cmd-arg)))
+	   (let ((resulting-index (cl-synthesizer-midi-lru-set::remove-value mgr cmd-arg)))
 	     (assert-equal expected-entry-index resulting-index))
 	   (let ((current-value (cl-synthesizer-midi-lru-set::current-value mgr)))
 	     (assert-equal expected-current-value current-value))
 	   (if expected-entry-count
 	       (progn 
-		 (assert-equal expected-entry-count (cl-synthesizer-midi-lru-set:entry-count mgr))
+		 (assert-equal expected-entry-count (cl-synthesizer-midi-lru-set::entry-count mgr))
 		 (if (= 0 expected-entry-count)
-		     (assert-true (cl-synthesizer-midi-lru-set:empty-p mgr))))))
+		     (assert-true (cl-synthesizer-midi-lru-set::empty-p mgr))))))
 	  (t
 	   (error "Invalid test case")))))))
 

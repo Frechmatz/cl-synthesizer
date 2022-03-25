@@ -39,7 +39,7 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "Mappings must not be nil ~a"
        :format-arguments (list name)))
-  (let ((cc-mapper (cl-synthesizer-midi:cc-mapper)))
+  (let ((cc-mapper (cl-synthesizer-midi::cc-mapper)))
     (dolist (mapping mappings)
       (if (not (listp mapping))
 	    (cl-synthesizer:signal-assembly-error
