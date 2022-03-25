@@ -84,7 +84,7 @@
 	 (inputs nil)
 	 (input-midi-events nil)
 	 (voice-state (make-voice-state))
-	 (voice-manager (make-instance 'cl-synthesizer-lru-set:lru-set :capacity stack-depth)))
+	 (voice-manager (make-instance 'cl-synthesizer-midi-lru-set:lru-set :capacity stack-depth)))
 
     ;; Set up outputs
     (push (lambda () (get-voice-state-cv voice-state)) outputs)
@@ -133,8 +133,8 @@
 			 ;; Note on
 			 ((cl-synthesizer-midi-event:note-on-eventp midi-event)
 			  (let ((note-number (cl-synthesizer-midi-event:get-note-number midi-event))
-				(first-note-p (cl-synthesizer-lru-set:empty-p voice-manager)))
-			    (cl-synthesizer-lru-set:push-value voice-manager note-number)
+				(first-note-p (cl-synthesizer-midi-lru-set:empty-p voice-manager)))
+			    (cl-synthesizer-midi-lru-set:push-value voice-manager note-number)
 			    (activate-gate)
 			    (set-voice-state-cv voice-state  (funcall note-number-to-cv note-number))
 			    (if (or first-note-p force-velocity-update)
@@ -143,10 +143,10 @@
 				 (velocity-to-cv (cl-synthesizer-midi-event:get-velocity midi-event))))))
 			 ;; Note off
 			 ((cl-synthesizer-midi-event:note-off-eventp midi-event)
-			  (cl-synthesizer-lru-set:remove-value
+			  (cl-synthesizer-midi-lru-set:remove-value
 			   voice-manager
 			   (cl-synthesizer-midi-event:get-note-number midi-event))
-			  (let ((voice-note (cl-synthesizer-lru-set:current-value voice-manager)))
+			  (let ((voice-note (cl-synthesizer-midi-lru-set:current-value voice-manager)))
 			    ;; if no note left then set gate to off
 			    (if (not voice-note)
 				(set-voice-state-gate voice-state cv-gate-off)

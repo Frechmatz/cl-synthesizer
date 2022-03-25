@@ -11,8 +11,7 @@
   :components ((:module "src/util"
 		:serial t
 		:components ((:file "packages")
-			     (:file "macro-util")
-			     (:file "lru-set")))
+			     (:file "macro-util")))
 	       (:module "src"
 		:serial t
 		:components ((:file "packages")
@@ -31,12 +30,6 @@
 			     (:file "phase-generator")
 			     (:file "normalized-exp")
 			     (:file "round-time")))
-	       (:module "src/midi"
-		:serial t
-		:components ((:file "packages")
-			     (:file "tuning")
-			     (:file "event")
-			     (:file "cc-mapper")))
 	       (:module "src/modules"
 		:serial t
 		:components ((:file "packages")))
@@ -49,16 +42,23 @@
 	       (:module "src/modules/vca"
 		:serial t
 		:components ((:file "vca")))
-	       (:module "src/modules/midi-polyphonic-interface"
+	       (:module "src/modules/midi"
+		:serial t
+		:components ((:file "packages")
+			     (:file "tuning")
+			     (:file "event")
+			     (:file "cc-mapper")
+                             (:file "lru-set")))
+	       (:module "src/modules/midi/modules/midi-polyphonic-interface"
 		:serial t
 		:components ((:file "midi-polyphonic-interface")))
-	       (:module "src/modules/midi-monophonic-interface"
+	       (:module "src/modules/midi/modules/midi-monophonic-interface"
 		:serial t
 		:components ((:file "midi-monophonic-interface")))
-	       (:module "src/modules/midi-relative-cc-interface"
+	       (:module "src/modules/midi/modules/midi-relative-cc-interface"
 		:serial t
 		:components ((:file "midi-relative-cc-interface")))
-	       (:module "src/modules/midi-sequencer"
+	       (:module "src/modules/midi/modules/midi-sequencer"
 		:serial t
 		:components ((:file "midi-sequencer")))
 	       (:module "src/modules/fixed-output"
@@ -123,23 +123,13 @@
 			     (:file "frequency-counter")
 			     (:file "is-approximately")
 			     (:file "get-patch")))
-	       (:module "test/util"
-		:serial t
-		:components ((:file "test-lru-set")))
 	       (:module "test/core"
 		:serial t
 		:components ((:file "test-waveform")))
-	       (:module "test/midi"
-		:serial t
-		:components ((:file "test-cc-mapper")))
 	       (:module "test/modules"
 		:serial t
 		:components ((:file "test-adder")
 			     (:file "test-trigger")
-			     (:file "test-midi-relative-cc-interface")
-			     (:file "test-midi-polyphonic-interface")
-			     (:file "test-midi-monophonic-interface")
-			     (:file "test-midi-sequencer")
 			     (:file "test-mixer")
 			     (:file "test-ramp")
 			     (:file "test-sustain")
@@ -147,6 +137,14 @@
 			     (:file "test-vco")
 			     (:file "test-wave-file-writer")
 			     (:file "test-csv-file-writer")))
+	       (:module "test/modules/midi"
+		:serial t
+		:components ((:file "test-cc-mapper")
+                             (:file "test-lru-set")
+			     (:file "test-midi-relative-cc-interface")
+			     (:file "test-midi-polyphonic-interface")
+			     (:file "test-midi-monophonic-interface")
+			     (:file "test-midi-sequencer")))
 	       (:module "test/monitor"
 		:serial t
 		:components ((:file "test-monitor")))
@@ -202,10 +200,10 @@
 		:components ((:file "example-1")
 			     (:file "example-2")
 			     (:file "example-4")))
-	       (:module "src/modules/midi-relative-cc-interface"
+	       (:module "src/modules/midi/modules/midi-relative-cc-interface"
 		:serial t
 		:components ((:file "example-1")))
-	       (:module "src/modules/midi-sequencer"
+	       (:module "src/modules/midi/modules/midi-sequencer"
 		:serial t
 		:components ((:file "example-1")))
 	       (:module "src/modules/multiple"

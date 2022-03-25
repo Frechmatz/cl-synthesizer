@@ -1,4 +1,4 @@
-(in-package :cl-synthesizer-lru-set)
+(in-package :cl-synthesizer-midi-lru-set)
 
 ;;
 ;; Entry

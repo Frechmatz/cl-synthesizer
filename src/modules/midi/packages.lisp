@@ -20,3 +20,13 @@
    :get-controller-number
    :get-control-value))
 
+(defpackage :cl-synthesizer-midi-lru-set
+  (:use :cl)
+  (:export
+   :lru-set
+   :remove-value
+   :push-value
+   :get-value
+   :current-value
+   :entry-count
+   :empty-p))

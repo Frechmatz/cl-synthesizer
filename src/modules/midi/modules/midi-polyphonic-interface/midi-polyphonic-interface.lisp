@@ -82,7 +82,7 @@
 	 (input-midi-events nil)
 	 (voice-states (make-array voice-count))
 	 (pending-gates nil)
-	 (voice-manager (make-instance 'cl-synthesizer-lru-set:lru-set :capacity voice-count )))
+	 (voice-manager (make-instance 'cl-synthesizer-midi-lru-set:lru-set :capacity voice-count )))
 
     ;; Set up voice states
     (dotimes (i voice-count)
@@ -146,7 +146,7 @@
 			 ;; Note on
 			 ((cl-synthesizer-midi-event:note-on-eventp midi-event)
 			  (let ((voice-index
-				 (cl-synthesizer-lru-set:push-value
+				 (cl-synthesizer-midi-lru-set:push-value
 				  voice-manager
 				  (cl-synthesizer-midi-event:get-note-number midi-event))))
 			    (let ((voice-state (elt voice-states voice-index)))
@@ -162,7 +162,7 @@
 			 ;; Note off
 			 ((cl-synthesizer-midi-event:note-off-eventp midi-event)
 			  (multiple-value-bind (voice-index voice-note)
-			      (cl-synthesizer-lru-set:remove-value
+			      (cl-synthesizer-midi-lru-set:remove-value
 			       voice-manager
 			       (cl-synthesizer-midi-event:get-note-number midi-event))
 			    (if voice-index
