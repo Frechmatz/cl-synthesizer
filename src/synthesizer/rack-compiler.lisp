@@ -6,10 +6,12 @@
 
 (defun get-input-sockets (module)
   "TODO Inefficient implementation, but for now live with it"
-  (let ((sockets nil))
-    (cl-synthesizer-macro-util:with-property-list (cl-synthesizer:get-inputs module) socket fn
-      (declare (ignore fn))
-      (push socket sockets))
+  (let ((sockets nil) (counter 0))
+    (dolist (input (cl-synthesizer:get-inputs module))
+      ;; Property list. Sockets are at indices 0, 2, 4, 6, ...
+      (if (= (rem counter 2) 0)
+	  (push input sockets))
+      (setf counter (+ counter 1)))
     sockets))
 
 (defun get-module-input-patches (rack module)

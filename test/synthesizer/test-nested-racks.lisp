@@ -23,5 +23,5 @@
     (cl-synthesizer:add-patch rack "RACK-2" :out "RACK-3" :in)
     (cl-synthesizer:expose-output-socket rack :out "RACK-3" :out)
 
-    (update-module rack (list :in 5))
+    (update-module rack (list (list :in 5)))
     (assert-equal 40 (get-module-output rack :out))))

@@ -35,10 +35,10 @@
 				:filename "test"
 				:column-separator ","
 				:add-header t)))
-		   (update-module module (list :column-1 "1.1" :column-2 "1.2"))
-		   (update-module module (list :column-1 "2.1" :column-2 "2.2"))
-		   (update-module module (list :column-1 nil :column-2 "3.2"))
-		   (update-module module (list :column-1 "4.1" :column-2 nil))
+		   (update-module module (list (list :column-1 "1.1") (list :column-2 "1.2")))
+		   (update-module module (list (list :column-1 "2.1") (list :column-2 "2.2")))
+		   (update-module module (list (list :column-1 nil) (list :column-2 "3.2")))
+		   (update-module module (list (list :column-1 "4.1") (list  :column-2 nil)))
 		   (cl-synthesizer:shutdown module)
 		   (assert-true (< 0 (length written-string)))
 		   (assert-true open-stream-called)

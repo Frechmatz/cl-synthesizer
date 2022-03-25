@@ -3,9 +3,7 @@
   (:export
    :make-package-symbol
    :make-keyword
-   :make-keyword-list
-   :with-property-list
-   ))
+   :make-keyword-list))
 
 (defpackage :cl-synthesizer-lru-set
   (:use :cl)

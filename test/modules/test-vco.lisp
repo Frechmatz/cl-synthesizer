@@ -16,7 +16,9 @@
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda()
-				      (update-module vco (list :cv-lin 0.0 :cv-exp 0.0)))
+				      (update-module vco (list
+							  (list :cv-lin 0.0)
+							  (list :cv-exp 0.0))))
 			 :get-output-fn (lambda ()
 					  (get-module-output vco :sine)))))
 		 ;;(print-vco-state vco)
@@ -31,7 +33,10 @@
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
-			 :update-fn (lambda() (update-module vco (list :cv-lin 0.0 :cv-exp 0.0)))
+			 :update-fn (lambda() (update-module vco
+							     (list
+							      (list :cv-lin 0.0)
+							      (list :cv-exp 0.0))))
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
 		 ;;(print-vco-state vco)
 		 (assert-true (is-approximately 440.0 f 0.5)))))
@@ -46,7 +51,10 @@
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
-			 :update-fn (lambda() (update-module vco (list :cv-exp 1.0 :cv-lin 0.0)  ;; one octave up
+			 :update-fn (lambda() (update-module vco
+							     (list
+							      (list :cv-exp 1.0)
+							      (list :cv-lin 0.0))  ;; one octave up
 							     ))
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
 		 (assert-true (is-approximately 880.0 f 0.5)))))
@@ -61,7 +69,9 @@
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda()
-				      (update-module vco (list :cv-exp 2.0))) ;; two octaves up
+				      (update-module vco
+						     (list
+						      (list :cv-exp 2.0)))) ;; two octaves up
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
 		 (assert-true (is-approximately 1760.0 f 0.5)))))
 
@@ -75,7 +85,10 @@
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda()
-				      (update-module vco (list :cv-exp -1.0 :cv-lin 0.0))) ;; one octave down
+				      (update-module vco
+						     (list
+						      (list :cv-exp -1.0)
+						      (list :cv-lin 0.0)))) ;; one octave down
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
 		 (assert-true (is-approximately 220.0 f 0.5)))))
 
@@ -89,7 +102,10 @@
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
 			 :update-fn (lambda()
-				      (update-module vco (list :cv-exp -2.0 :cv-lin 0.0))) ;; two octaves down
+				      (update-module vco
+						     (list
+						      (list :cv-exp -2.0)
+						      (list :cv-lin 0.0)))) ;; two octaves down
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
 		 (assert-true (is-approximately 110.0 f 0.5)))))
 
@@ -103,7 +119,10 @@
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
-			 :update-fn (lambda() (update-module vco (list :cv-lin 2.5 :cv-exp 0.0)))
+			 :update-fn (lambda() (update-module vco
+							     (list
+							      (list :cv-lin 2.5)
+							      (list :cv-exp 0.0))))
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
 		 ;;(print-vco-state vco)
 		 (assert-true (is-approximately 6000 f 0.5)))))
@@ -118,7 +137,10 @@
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
-			 :update-fn (lambda() (update-module vco (list :cv-lin 2.5 :cv-exp 0.0)))
+			 :update-fn (lambda() (update-module vco
+							     (list
+							      (list :cv-lin 2.5)
+							      (list :cv-exp 0.0))))
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
 		 ;;(print-vco-state vco)
 		 (assert-true (is-approximately 6440 f 0.5)))))
@@ -133,7 +155,10 @@
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
-			 :update-fn (lambda() (update-module vco (list :cv-exp 20.0 :cv-lin 0.0)))
+			 :update-fn (lambda() (update-module vco
+							     (list
+							      (list :cv-exp 20.0)
+							      (list :cv-lin 0.0))))
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
 		 ;;(print-vco-state vco)
 		 (assert-true (is-approximately 12000 f 0.5)))))
@@ -149,7 +174,10 @@
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
-			 :update-fn (lambda() (update-module vco (list :cv-exp 0.0 :cv-lin 5.0)))
+			 :update-fn (lambda() (update-module vco
+							     (list
+							      (list :cv-exp 0.0)
+							      (list :cv-lin 5.0))))
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
 		 ;;(print-vco-state vco)
 		 (assert-true (is-approximately 12000 f 0.5)))))
@@ -165,7 +193,10 @@
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
-			 :update-fn (lambda() (update-module vco (list :cv-exp 10.0 :cv-lin 0.0)) )
+			 :update-fn (lambda() (update-module vco
+							     (list
+							      (list :cv-exp 10.0)
+							      (list :cv-lin 0.0))))
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
 		 ;;(print-vco-state vco)
 		 ;; Frequency calculated by frequency counter
@@ -184,7 +215,10 @@
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
-			 :update-fn (lambda() (update-module vco (list :cv-lin -20.0 :cv-exp 0.0)) )
+			 :update-fn (lambda() (update-module vco
+							     (list
+							      (list :cv-lin -20.0)
+							      (list :cv-exp 0.0))))
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
 		 ;;(print-vco-state vco)
 		 ;; Frequency calculated by frequency counter
@@ -202,7 +236,10 @@
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
-			 :update-fn (lambda() (update-module vco (list :cv-exp 1.0 :cv-lin 1.0)))
+			 :update-fn (lambda() (update-module vco
+							     (list
+							      (list :cv-exp 1.0)
+							      (list :cv-lin 1.0))))
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
 		 ;;(print-vco-state vco)
 		 ;; (+ 880 1000) = 1880
@@ -218,7 +255,10 @@
 			 :v-peak 5.0)))
 	       (let ((f (cl-synthesizer-test::frequency-counter
 			 :sample-rate 44100
-			 :update-fn (lambda() (update-module vco (list :cv-exp 1.0 :cv-lin -4.0)))
+			 :update-fn (lambda() (update-module vco
+							     (list
+							      (list :cv-exp 1.0)
+							      (list :cv-lin -4.0))))
 			 :get-output-fn (lambda () (get-module-output vco :sine)))))
 		 ;;(print-vco-state vco)
 		 ;; 880 - (* 4.0 1000.0) = -3120
@@ -235,13 +275,13 @@
 			 :base-frequency 0.0
 			 :v-peak 5.0
 			 :duty-cycle 0.5)))
-	       (update-module vco (list :cv-lin 0.5 :cv-exp 0.0))
+	       (update-module vco (list (list :cv-lin 0.5) (list :cv-exp 0.0)))
 	       ;;(print-vco-state vco)
 	       (assert-equality #'= 5.0 (get-module-output vco :square))
 	       ;; Back to zero
-	       (update-module vco (list :cv-lin -0.5 :cv-exp 0.0))
+	       (update-module vco (list (list :cv-lin -0.5) (list :cv-exp 0.0)))
 	       ;; One more step back
-	       (update-module vco (list :cv-lin -0.5 :cv-exp 0.0))
+	       (update-module vco (list (list :cv-lin -0.5) (list :cv-exp 0.0)))
 	       ;;(print-vco-state vco)
 	       (assert-equality #'= -5.0 (get-module-output vco :square))))
 
@@ -257,6 +297,6 @@
 	       (let ((initial-sine (get-module-output vco :sine)))
 		 (dotimes (i 100)
 		   (update-module vco nil))
-		 (update-module vco (list :sync 5.0))
+		 (update-module vco (list (list :sync 5.0)))
 		 (let ((cur-sine (get-module-output vco :sine)))
 		   (assert-equality #'= initial-sine cur-sine)))))

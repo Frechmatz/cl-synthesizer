@@ -11,7 +11,7 @@
 			   :main-cv-max 5.0
 			   :main-cv-gain 5.0)
 		     ))
-	       (update-module mixer (list :channel-1 1.0))
+	       (update-module mixer (list (list :channel-1 1.0)))
 	       (assert-equal 1.0 (get-module-output mixer :output))))
 
 (define-test test-mixer-2 ()
@@ -24,7 +24,7 @@
 			   :channel-cv-gain 5.0
 			   :main-cv-max 5.0
 			   :main-cv-gain 5.0)))
-	       (update-module mixer (list :channel-1 1.0 :channel-2 3.0))
+	       (update-module mixer (list (list :channel-1 1.0) (list :channel-2 3.0)))
 	       (assert-equal 4.0 (get-module-output mixer :output))))
 
 (define-test test-mixer-3 ()
@@ -38,7 +38,7 @@
 			   :main-cv-max 5.0
 			   :main-cv-gain 2.5) ;; divide by 2
 		     ))
-	       (update-module mixer (list :channel-1 1.0 :channel-2 3.0))
+	       (update-module mixer (list (list :channel-1 1.0) (list :channel-2 3.0)))
 	       (assert-equal 2.0 (get-module-output mixer :output))))
 
 (define-test test-mixer-4 ()
@@ -51,7 +51,7 @@
 			   :channel-cv-gain 2.5
 			   :main-cv-max 5.0
 			   :main-cv-gain 5.0)))
-	       (update-module mixer (list :channel-1 10.0))
+	       (update-module mixer (list (list :channel-1 10.0)))
 	       (assert-equal 5.0 (get-module-output mixer :output))))
 
 (define-test test-mixer-5 ()
@@ -64,7 +64,7 @@
 			   :channel-cv-gain 2.5
 			   :main-cv-max 5.0
 			   :main-cv-gain 5.0)))
-	       (update-module mixer (list :channel-1 10.0 :channel-2 100.0))
+	       (update-module mixer (list (list :channel-1 10.0) (list :channel-2 100.0)))
 	       (assert-equal 55.0 (get-module-output mixer :output))))
 
 (define-test test-mixer-6 ()
@@ -77,7 +77,10 @@
 			   :channel-cv-gain 5.0
 			   :main-cv-max 5.0
 			   :main-cv-gain 0.0)))
-	       (update-module mixer (list :channel-1 1.0 :channel-2 3.0 :cv-main 2.5))
+	       (update-module mixer (list
+				     (list :channel-1 1.0)
+				     (list :channel-2 3.0)
+				     (list :cv-main 2.5)))
 	       (assert-equal 2.0 (get-module-output mixer :output))))
 
 (define-test test-mixer-7 ()
@@ -90,7 +93,7 @@
 			   :channel-cv-gain 0.0
 			   :main-cv-max 5.0
 			   :main-cv-gain 5.0)))
-	       (update-module mixer (list :channel-1 10.0 :cv-1 2.5))
+	       (update-module mixer (list (list :channel-1 10.0) (list :cv-1 2.5)))
 	       (assert-equal 5.0 (get-module-output mixer :output))))
 
 (define-test test-mixer-8 ()
@@ -103,7 +106,11 @@
 			   :channel-cv-gain 0.0
 			   :main-cv-max 5.0
 			   :main-cv-gain 5.0)))
-	       (update-module mixer (list :channel-1 10.0 :channel-2 100.0 :cv-1 2.5 :cv-2 2.5))
+	       (update-module mixer (list
+				     (list :channel-1 10.0)
+				     (list :channel-2 100.0)
+				     (list :cv-1 2.5)
+				     (list :cv-2 2.5)))
 	       (assert-equal 55.0 (get-module-output mixer :output))))
 
 (define-test test-mixer-9 ()
@@ -116,7 +123,10 @@
 			   :channel-cv-gain 5.0
 			   :main-cv-max 5.0
 			   :main-cv-gain 2.5)))
-	       (update-module mixer (list :channel-1 1.0 :channel-2 3.0 :cv-main 2.5))
+	       (update-module mixer (list
+				     (list :channel-1 1.0)
+				     (list :channel-2 3.0)
+				     (list :cv-main 2.5)))
 	       (assert-equal 4.0 (get-module-output mixer :output))))
 
 (define-test test-mixer-10 ()
@@ -129,7 +139,10 @@
 			   :channel-cv-gain 5.0
 			   :main-cv-max 5.0
 			   :main-cv-gain 2.5)))
-	       (update-module mixer (list :channel-1 1.0 :channel-2 3.0 :cv-main -2.5))
+	       (update-module mixer (list
+				     (list :channel-1 1.0)
+				     (list :channel-2 3.0)
+				     (list :cv-main -2.5)))
 	       (assert-equal 0.0 (get-module-output mixer :output))))
 
 (define-test test-mixer-11 ()
@@ -142,7 +155,11 @@
 			   :channel-cv-gain 2.5
 			   :main-cv-max 5.0
 			   :main-cv-gain 5.0)))
-	       (update-module mixer (list :channel-1 1.0 :channel-2 3.0 :cv-1 2.5 :cv-2 2.5))
+	       (update-module mixer (list
+				     (list :channel-1 1.0)
+				     (list :channel-2 3.0)
+				     (list :cv-1 2.5)
+				     (list :cv-2 2.5)))
 	       (assert-equal 4.0 (get-module-output mixer :output))))
 
 (define-test test-mixer-12 ()
@@ -155,6 +172,10 @@
 			   :channel-cv-gain 2.5
 			   :main-cv-max 5.0
 			   :main-cv-gain 5.0)))
-	       (update-module mixer (list :channel-1 1.0 :channel-2 3.0 :cv-1 -2.5 :cv-2 2.5))
+	       (update-module mixer (list
+				     (list :channel-1 1.0)
+				     (list :channel-2 3.0)
+				     (list :cv-1 -2.5)
+				     (list :cv-2 2.5)))
 	       (assert-equal 3.0 (get-module-output mixer :output))))
 

@@ -20,7 +20,7 @@
 	      :channel (getf test-case :channel)
 	      :force-velocity-update (getf test-case :force-velocity-update))))
     (dolist (cur-test-case (getf test-case :test-cases))
-      (update-module ifc (list :midi-events (getf cur-test-case :events)))
+      (update-module ifc (list (list :midi-events (getf cur-test-case :events))))
       (dolist (cur-output (getf cur-test-case :outputs))
 	(assert-equal (float (second cur-output)) (float (get-module-output ifc (first cur-output))))))))
 

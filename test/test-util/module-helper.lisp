@@ -4,32 +4,27 @@
   (funcall (getf (cl-synthesizer:get-outputs module) socket)))
 
 (defun update-module (module input-args)
-  (let ((sockets nil) (module-inputs (cl-synthesizer:get-inputs module)))
-    (cl-synthesizer-macro-util:with-property-list input-args socket value
-      (push socket sockets)
-      (funcall (getf module-inputs socket) value))
-    ;; Set missing inputs to nil
-    (cl-synthesizer-macro-util:with-property-list module-inputs socket value
-      (declare (ignore value))
-      (if (not (find socket sockets))
-	  (funcall (getf module-inputs socket) nil))))
+  "input-args: List of (key value)"
+  (let ((module-inputs (cl-synthesizer:get-inputs module)))
+    (dolist (input input-args)
+      (funcall
+       (getf module-inputs (first input)) (second input))))
   (cl-synthesizer:update module))
 
 (defun get-module-input-sockets (module)
-  "TODO Inefficient implementation, but for now live with it"
-  (let ((sockets nil))
-    (cl-synthesizer-macro-util:with-property-list (cl-synthesizer:get-inputs module) socket fn
-      (declare (ignore fn))
-      (push socket sockets))
+  (let ((sockets nil) (counter 0))
+    (dolist (input (cl-synthesizer:get-inputs module))
+      ;; Property list. Sockets are at indices 0, 2, 4, 6, ...
+      (if (= (rem counter 2) 0)
+	  (push input sockets))
+      (setf counter (+ counter 1)))
     sockets))
-  
+
 (defun get-module-output-sockets (module)
-  "TODO Inefficient implementation, but for now live with it"
-  (let ((sockets nil))
-    (cl-synthesizer-macro-util:with-property-list (cl-synthesizer:get-outputs module) socket fn
-      (declare (ignore fn))
-      (push socket sockets))
+  (let ((sockets nil) (counter 0))
+    (dolist (input (cl-synthesizer:get-outputs module))
+      ;; Property list. Sockets are at indices 0, 2, 4, 6, ...
+      (if (= (rem counter 2) 0)
+	  (push input sockets))
+      (setf counter (+ counter 1)))
     sockets))
-  
-
-

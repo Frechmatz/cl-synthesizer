@@ -16,8 +16,8 @@
 				"Wave-File-Writer"
 				(cl-synthesizer:make-environment)
 				:channel-count 2 :filename "test" :v-peak 10.0)))
-		   (update-module module (list :channel-1 1.0 :channel-2 2.0))
-		   (update-module module (list :channel-1 3.0 :channel-2 4.0))
+		   (update-module module (list (list :channel-1 1.0) (list :channel-2 2.0)))
+		   (update-module module (list (list :channel-1 3.0) (list :channel-2 4.0)))
 		   (cl-synthesizer:shutdown module)
 		   (setf recorded-samples (reverse recorded-samples))
 		   (assert-equal 4 (length recorded-samples))
