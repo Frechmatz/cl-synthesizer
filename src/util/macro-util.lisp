@@ -8,9 +8,6 @@
       (intern (format nil "~a-~a" (string-upcase name) (get-socket-number num)) package)
       (intern (string-upcase name) package)))
 
-(defun make-package-symbol (name num)
-  (make-symbol-impl name num *PACKAGE*))
-
 (defun make-keyword (name num)
   (make-symbol-impl name num "KEYWORD"))
 
