@@ -1,11 +1,8 @@
 (in-package :cl-synthesizer-macro-util)
 
-(defun get-socket-number (i)
-  (+ i 1))
-
 (defun make-symbol-impl (name num package)
   (if num
-      (intern (format nil "~a-~a" (string-upcase name) (get-socket-number num)) package)
+      (intern (format nil "~a-~a" (string-upcase name) num) package)
       (intern (string-upcase name) package)))
 
 (defun make-keyword (name num)
@@ -16,6 +13,6 @@
    The numbering starts by one."
   (let ((l nil))
     (dotimes (i count)
-      (push (make-keyword name i) l))
+      (push (make-keyword name (+ i 1)) l))
     (nreverse l)))
 

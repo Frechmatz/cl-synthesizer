@@ -40,24 +40,24 @@
   (dotimes (i socket-count)
     (cl-synthesizer:add-patch rack
 			      source-module-name
-			      (cl-synthesizer-macro-util:make-keyword "output" i)
+			      (cl-synthesizer-macro-util:make-keyword "output" (+ i 1))
 			      destination-module-name
-			      (cl-synthesizer-macro-util:make-keyword "input" i))))
+			      (cl-synthesizer-macro-util:make-keyword "input" (+ i 1)))))
 
 (defun expose-inputs (rack target-module-name socket-count)
   (dotimes (i socket-count)
     (cl-synthesizer:expose-input-socket rack
-			      (cl-synthesizer-macro-util:make-keyword "input" i)
+			      (cl-synthesizer-macro-util:make-keyword "input" (+ i 1))
 			      target-module-name
-			      (cl-synthesizer-macro-util:make-keyword "input" i))))
+			      (cl-synthesizer-macro-util:make-keyword "input" (+ i 1)))))
 
 (defun expose-outputs (rack source-module-name socket-count)
   (dotimes (i socket-count)
     (cl-synthesizer:expose-output-socket
      rack
-     (cl-synthesizer-macro-util:make-keyword "output" i)
+     (cl-synthesizer-macro-util:make-keyword "output" (+ i 1))
      source-module-name
-     (cl-synthesizer-macro-util:make-keyword "output" i))))
+     (cl-synthesizer-macro-util:make-keyword "output" (+ i 1)))))
 
 ;;
 ;; Profiling client: Nested rack

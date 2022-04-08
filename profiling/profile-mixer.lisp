@@ -13,7 +13,7 @@
     (cl-synthesizer:add-patch
      rack
      fixed-output-module-name :out
-     "MIXER" (cl-synthesizer-macro-util:make-keyword "CHANNEL" channel-number))))
+     "MIXER" (cl-synthesizer-macro-util:make-keyword "CHANNEL" (+ channel-number 1)))))
 
     
 (defun make-test-rack (&key channel-count)
