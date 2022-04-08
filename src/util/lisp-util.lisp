@@ -1,4 +1,4 @@
-(in-package :cl-synthesizer-macro-util)
+(in-package :cl-synthesizer-lisp-util)
 
 (defun make-symbol-impl (name num package)
   (if num

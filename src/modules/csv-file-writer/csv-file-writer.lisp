@@ -61,7 +61,7 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "~a: Columns must not be empty."
        :format-arguments (list name)))
-  (let ((column-keys (cl-synthesizer-macro-util:make-keyword-list "column" (length columns)))
+  (let ((column-keys (cl-synthesizer-lisp-util:make-keyword-list "column" (length columns)))
 	(column-values (make-array (length columns) :initial-element nil))
 	(column-properties (make-array (length columns) :initial-element nil))
 	(filename (merge-pathnames filename (getf environment :home-directory)))

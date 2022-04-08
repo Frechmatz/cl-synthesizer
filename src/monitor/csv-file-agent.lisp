@@ -26,5 +26,5 @@
      handler
      ;; Ordered list of channels (we do not want to depend on order of input keys
      ;; provided by the :inputs function of the csv file writer module.)
-     (cl-synthesizer-macro-util:make-keyword-list "column" (length inputs)))))
+     (cl-synthesizer-lisp-util:make-keyword-list "column" (length inputs)))))
 

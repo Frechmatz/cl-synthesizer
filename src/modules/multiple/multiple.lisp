@@ -22,7 +22,7 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "~a: output-count must be greater than 0: ~a"
        :format-arguments (list name output-count)))
-  (let ((cur-input nil) (output-value nil) (output-sockets (cl-synthesizer-macro-util:make-keyword-list "output" output-count)))
+  (let ((cur-input nil) (output-value nil) (output-sockets (cl-synthesizer-lisp-util:make-keyword-list "output" output-count)))
     (let ((inputs
 	   (list :input (lambda(value) (setf cur-input value))))
 	  (outputs nil))

@@ -1,4 +1,4 @@
-(defpackage :cl-synthesizer-macro-util
+(defpackage :cl-synthesizer-lisp-util
   (:use :cl)
   (:export
    :make-keyword

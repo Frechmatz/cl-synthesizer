@@ -41,7 +41,7 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "~a: v-peak must not be negative: ~a"
        :format-arguments (list name v-peak)))
-  (let ((input-sockets (cl-synthesizer-macro-util:make-keyword-list "channel" channel-count))
+  (let ((input-sockets (cl-synthesizer-lisp-util:make-keyword-list "channel" channel-count))
 	(input-values (make-array channel-count :initial-element nil))
 	(opened-wave-writer nil)
 	(wave-writer (funcall *make-writer*

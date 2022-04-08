@@ -8,7 +8,7 @@
 	(cl-synthesizer:signal-assembly-error
 	 :format-control "~a: Length of buffer must be greater than 0: ~a"
 	 :format-arguments (list name count)))
-    (let ((input-sockets (cl-synthesizer-macro-util:make-keyword-list
+    (let ((input-sockets (cl-synthesizer-lisp-util:make-keyword-list
 			  "input" count)))
       (let ((inputs nil) (index 0))
 	(dolist (input-socket input-sockets)
@@ -43,5 +43,5 @@
   (let ((handler (make-buffer-module name environment :buffer buffer)))
     (values 
      handler
-     (cl-synthesizer-macro-util:make-keyword-list "input" (length inputs)))))
+     (cl-synthesizer-lisp-util:make-keyword-list "input" (length inputs)))))
 

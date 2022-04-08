@@ -102,11 +102,11 @@
       (cl-synthesizer:add-patch
        rack
        "MIDI-IFC"
-       (cl-synthesizer-macro-util:make-keyword "CV" (+ i 1)) (format nil "VOICE-~a" i) :cv)
+       (cl-synthesizer-lisp-util:make-keyword "CV" (+ i 1)) (format nil "VOICE-~a" i) :cv)
       (cl-synthesizer:add-patch
        rack
        "MIDI-IFC"
-       (cl-synthesizer-macro-util:make-keyword "GATE" (+ i 1)) (format nil "VOICE-~a" i) :gate))
+       (cl-synthesizer-lisp-util:make-keyword "GATE" (+ i 1)) (format nil "VOICE-~a" i) :gate))
 
     (cl-synthesizer:add-module
      rack
@@ -122,7 +122,7 @@
       (cl-synthesizer:add-patch
        rack
        (format nil "VOICE-~a" i) :audio
-       "MIXER" (cl-synthesizer-macro-util:make-keyword "channel" (+ i 1))))
+       "MIXER" (cl-synthesizer-lisp-util:make-keyword "channel" (+ i 1))))
 
     rack))
 

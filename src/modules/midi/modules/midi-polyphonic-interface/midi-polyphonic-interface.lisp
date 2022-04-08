@@ -90,9 +90,9 @@
 
     ;; Set up outputs
     (dotimes (i voice-count)
-      (let ((cv-socket (cl-synthesizer-macro-util:make-keyword "CV" (+ i 1)))
-	    (gate-socket (cl-synthesizer-macro-util:make-keyword "GATE" (+ i 1)))
-	    (velocity-socket (cl-synthesizer-macro-util:make-keyword "VELOCITY" (+ i 1))))
+      (let ((cv-socket (cl-synthesizer-lisp-util:make-keyword "CV" (+ i 1)))
+	    (gate-socket (cl-synthesizer-lisp-util:make-keyword "GATE" (+ i 1)))
+	    (velocity-socket (cl-synthesizer-lisp-util:make-keyword "VELOCITY" (+ i 1))))
 	(let ((cur-i i)) ;; new context
 	  (push (lambda () (get-voice-state-cv (elt voice-states cur-i))) outputs)
 	  (push cv-socket outputs)

@@ -35,8 +35,8 @@
   (let ((input-sockets
 	 (concatenate
 	  'list
-	  (cl-synthesizer-macro-util:make-keyword-list "channel" channel-count)
-	  (cl-synthesizer-macro-util:make-keyword-list "cv" channel-count)
+	  (cl-synthesizer-lisp-util:make-keyword-list "channel" channel-count)
+	  (cl-synthesizer-lisp-util:make-keyword-list "cv" channel-count)
 	  (list :cv-main))))
     (let ((rack (cl-synthesizer:make-rack :environment environment)))
 
@@ -57,12 +57,12 @@
 				     #'cl-synthesizer-modules-vca:make-module
 				     :cv-max channel-cv-max :initial-gain channel-cv-gain)
 	  (cl-synthesizer:expose-input-socket rack 
-				    (cl-synthesizer-macro-util:make-keyword "channel" (+ i 1))
+				    (cl-synthesizer-lisp-util:make-keyword "channel" (+ i 1))
 				    vca-name :input)
 	  (cl-synthesizer:expose-input-socket rack
-				    (cl-synthesizer-macro-util:make-keyword "cv" (+ i 1))
+				    (cl-synthesizer-lisp-util:make-keyword "cv" (+ i 1))
 				    vca-name :cv)
 	  (cl-synthesizer:add-patch rack vca-name :output "ADDER"
-				    (cl-synthesizer-macro-util:make-keyword "input" (+ i 1)))))
+				    (cl-synthesizer-lisp-util:make-keyword "input" (+ i 1)))))
 	  
       rack)))

@@ -11,7 +11,7 @@
   :components ((:module "src/util"
 		:serial t
 		:components ((:file "packages")
-			     (:file "macro-util")))
+			     (:file "lisp-util")))
 	       (:module "src"
 		:serial t
 		:components ((:file "packages")
