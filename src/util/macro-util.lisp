@@ -14,12 +14,6 @@
 (defun make-keyword (name num)
   (make-symbol-impl name num "KEYWORD"))
 
-(defun make-param-list (name count)
-  (let ((l nil))
-    (dotimes (i count)
-      (push (make-package-symbol name i) l))
-    (nreverse l)))
-
 (defun make-keyword-list (name count)
   "Returns list of keywords ordered by number of keyword: (:<name>-1, :<name>-2, ..., <name>-<count>.
    The numbering starts by one."
