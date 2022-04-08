@@ -30,7 +30,7 @@
     </ul></p>"
   (if (<= channel-count 0)
       (cl-synthesizer:signal-assembly-error
-       :format-control "~a: channel-count must be greater than 0: ~a"
+       :format-control "~a: channel-count must be greater than 0: '~a'"
        :format-arguments (list name channel-count)))
   (let ((input-sockets
 	 (concatenate

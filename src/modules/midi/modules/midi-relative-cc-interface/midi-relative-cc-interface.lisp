@@ -37,28 +37,28 @@
   (declare (ignore environment))
   (if (not mappings)
       (cl-synthesizer:signal-assembly-error
-       :format-control "Mappings must not be nil ~a"
+       :format-control "Mappings must not be nil '~a'"
        :format-arguments (list name)))
   (let ((cc-mapper (cl-synthesizer-midi::cc-mapper)))
     (dolist (mapping mappings)
       (if (not (listp mapping))
 	    (cl-synthesizer:signal-assembly-error
-	     :format-control "Mapping is not a list ~a"
+	     :format-control "Mapping is not a list '~a'"
 	     :format-arguments (list mapping)))
       (let ((controller-number (getf mapping :controller-number))
 	    (control-value (getf mapping :control-value))
 	    (offset (getf mapping :offset)))
 	(if (not controller-number)
 	    (cl-synthesizer:signal-assembly-error
-	     :format-control "No controller-number set at mapping ~a"
+	     :format-control "No controller-number set at mapping '~a'"
 	     :format-arguments (list mapping)))
 	(if (not offset)
 	    (cl-synthesizer:signal-assembly-error
-	     :format-control "No offset set at mapping ~a"
+	     :format-control "No offset set at mapping '~a'"
 	     :format-arguments (list mapping)))
 	(if (not control-value)
 	    (cl-synthesizer:signal-assembly-error
-	     :format-control "No control-value(s) set at mapping ~a"
+	     :format-control "No control-value(s) set at mapping '~a'"
 	     :format-arguments (list mapping)))
 	(cond
 	  ((not (listp control-value))

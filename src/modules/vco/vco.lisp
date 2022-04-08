@@ -69,19 +69,19 @@
 	(setf wave-forms (list :sine :saw :square :triangle)))
     (if (> 0.0 f-max)
 	(cl-synthesizer:signal-assembly-error
-	 :format-control "f-max of VCO ~a must be greater than 0: ~a"
+	 :format-control "f-max of VCO '~a' must be greater than 0: '~a'"
 	 :format-arguments (list name f-max)))
     (if (>= 0.0 v-peak)
 	(cl-synthesizer:signal-assembly-error
-	 :format-control "v-peak of VCO ~a must be greater than 0: ~a"
+	 :format-control "v-peak of VCO '~a' must be greater than 0: '~a'"
 	 :format-arguments (list name v-peak)))
     (if (< duty-cycle 0)
 	(cl-synthesizer:signal-assembly-error
-	 :format-control "duty-cycle of VCO ~a must not be negative: ~a"
+	 :format-control "duty-cycle of VCO '~a' must not be negative: '~a'"
 	 :format-arguments (list name duty-cycle)))
     (if (< 1.0 duty-cycle)
 	(cl-synthesizer:signal-assembly-error
-	 :format-control "duty-cycle of VCO ~a must not be greater than 1: ~a"
+	 :format-control "duty-cycle of VCO '~a' must not be greater than 1: '~a'"
 	 :format-arguments (list name duty-cycle)))
 
     (let* ((sample-rate (getf environment :sample-rate))
@@ -128,7 +128,7 @@
 		(setf index (if (not index) 0 (+ index 1)))
 		(if (find wave-form added-wave-forms)
 		    (cl-synthesizer:signal-assembly-error
-		     :format-control "VCO ~a: wave-forms must be unique :~a"
+		     :format-control "VCO '~a': wave-forms must be unique: '~a'"
 		     :format-arguments (list name wave-forms)))
 		(push wave-form added-wave-forms)
 		(cond
@@ -171,7 +171,7 @@
 					    cur-phi :phase-offset phase-offset))))))
 		  (t
 		   (cl-synthesizer:signal-assembly-error
-		    :format-control "Invalid wave-form identifier ~a passed to VCO ~a"
+		    :format-control "Invalid wave-form identifier '~a' passed to VCO '~a'"
 		    :format-arguments (list wave-form name))))))
 	    (list
 	     :inputs (lambda () inputs)

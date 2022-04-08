@@ -6,7 +6,7 @@
   (let ((count (length buffer)))
     (if (<= count 0)
 	(cl-synthesizer:signal-assembly-error
-	 :format-control "~a: Length of buffer must be greater than 0: ~a"
+	 :format-control "'~a': Length of buffer must be greater than 0: '~a'"
 	 :format-arguments (list name count)))
     (let ((input-sockets (cl-synthesizer-lisp-util:make-keyword-list
 			  "input" count)))

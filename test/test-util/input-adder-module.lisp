@@ -8,7 +8,7 @@
      :state (lambda(state)
 		  (if (eq state :module-name)
 		      name
-		      (error (format nil "Unknown state ~a requested frm module input-adder-module" state))))
+		      (error (format nil "Unknown state '~a' requested frm module input-adder-module" state))))
      :inputs (lambda ()
 	       (list
 		:in-1 (lambda(value) (setf in-1 value))

@@ -20,7 +20,7 @@
   (declare (ignore environment))
   (if (<= output-count 0)
       (cl-synthesizer:signal-assembly-error
-       :format-control "~a: output-count must be greater than 0: ~a"
+       :format-control "'~a': output-count must be greater than 0: '~a'"
        :format-arguments (list name output-count)))
   (let ((cur-input nil) (output-value nil) (output-sockets (cl-synthesizer-lisp-util:make-keyword-list "output" output-count)))
     (let ((inputs

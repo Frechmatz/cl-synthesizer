@@ -342,7 +342,7 @@
       (dolist (job (getf profiling-plan :jobs))
 	(let ((client (find-if (lambda (c) (eq (getf job :client-id) (getf c :id))) *clients*)))
 	  (if (not client)
-	      (error (format nil "Client not found: ~a" (getf job :client-id))))
+	      (error (format nil "Client not found: '~a'" (getf job :client-id))))
 
 	  (let ((lambdalist (concatenate 'list (getf profiling-plan :init) (getf job :init))))
 	    (if (getf profiling-plan :profile-time)

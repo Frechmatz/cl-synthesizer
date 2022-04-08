@@ -12,7 +12,7 @@
 		    ((eq state :shutdown-called)
 		     shutdown-called)
 		    (t 
-		      (error (format nil "Unknown state ~a requested frm module update-counter-module" state)))))
+		      (error (format nil "Unknown state '~a' requested frm module update-counter-module" state)))))
      :inputs (lambda () nil)
      :outputs (lambda () (list :out (lambda() out)))
      :update (lambda ()

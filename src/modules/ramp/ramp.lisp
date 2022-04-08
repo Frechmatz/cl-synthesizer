@@ -49,7 +49,7 @@
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (if (and gate-state (not (eq gate-state :on)) (not (eq gate-state :off)))
       (cl-synthesizer:signal-assembly-error
-       :format-control "~a: Invalid gate-state ~a Must be one of nil, :on, :off"
+       :format-control "~a: Invalid gate-state '~a' Must be one of nil, :on, :off"
        :format-arguments (list name gate-state)))
   (let* ((time-cv-to-time-ms (lambda(time-cv) (* (abs time-cv) 1000)))
 	 (output 0.0) (busy 0.0) (done 0.0) (elapsed-time-ms 0.0)

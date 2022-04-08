@@ -100,7 +100,7 @@
 	     (setf input-fetcher (lambda() (funcall get-state-fn socket-key)))))
 	  (t
 	   (cl-synthesizer:signal-assembly-error
-	    :format-control "Monitor: Socket-Type not supported: ~a. Must be one of :input-socket, :output-socket, :state"
+	    :format-control "Monitor: Socket-Type not supported: '~a'. Must be one of :input-socket, :output-socket, :state"
 	    :format-arguments (list socket-type))))
 	input-fetcher))))
 
@@ -192,7 +192,7 @@
      (if (not (= (length ordered-input-sockets) (length socket-mappings)))
 	 (cl-synthesizer:signal-assembly-error
 	  :format-control
-	  "Monitor: Number of sockets (~a) returned by agent must not differ from number of socket mappings: ~a"
+	  "Monitor: Number of sockets ('~a') returned by agent must not differ from number of socket mappings: ~a"
 	  :format-arguments (list (length ordered-input-sockets) (length socket-mappings))))
 
      (let ((set-input-lambdas (make-array (length socket-mappings) :initial-element nil))

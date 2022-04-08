@@ -37,11 +37,11 @@
 	  (let ((timestamp (get-event-timestamp evt)))
 	    (if (< timestamp cur-timestamp)
 		(cl-synthesizer:signal-invalid-arguments-error
-		 :format-control "Events must be ordered by timestamp: ~a"
+		 :format-control "Events must be ordered by timestamp: '~a'"
 		 :format-arguments (list name)))
 	    (if (find-if (lambda (item) (= item timestamp)) occupied-time-slots)
 		(cl-synthesizer:signal-invalid-arguments-error
-		 :format-control "Timestamps not unique: ~a"
+		 :format-control "Timestamps not unique: '~a'"
 		 :format-arguments (list name)))
 	    (setf cur-timestamp timestamp)
 	    (push timestamp occupied-time-slots)

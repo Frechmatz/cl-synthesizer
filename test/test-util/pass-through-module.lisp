@@ -12,7 +12,7 @@
 		    ((eq state :shutdown-called)
 		     shutdown-called)
 		    (t
-		      (error (format nil "Unknown state ~a requested frm module pass-through-module" state)))))
+		      (error (format nil "Unknown state '~a' requested frm module pass-through-module" state)))))
      :inputs (lambda ()
 	       (list
 		:input-1 (lambda(value) (setf input-1 value))

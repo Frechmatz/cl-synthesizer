@@ -8,7 +8,7 @@
      :state (lambda(state)
 		  (if (eq state :module-name)
 		      name
-		      (error (format nil "Unknown state ~a requested frm module multiplier-module" state))))
+		      (error (format nil "Unknown state '~a' requested frm module multiplier-module" state))))
      :inputs (lambda () (list :in (lambda(value) (setf in value))))
      :outputs (lambda () (list :out (lambda() out)))
      :update (lambda ()

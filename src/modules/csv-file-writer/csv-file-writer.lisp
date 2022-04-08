@@ -59,7 +59,7 @@
   <p>The recommended way of CSV file generation is to use a Monitor.</p>"
   (if (<= (length columns) 0)
       (cl-synthesizer:signal-assembly-error
-       :format-control "~a: Columns must not be empty."
+       :format-control "'~a': Columns must not be empty."
        :format-arguments (list name)))
   (let ((column-keys (cl-synthesizer-lisp-util:make-keyword-list "column" (length columns)))
 	(column-values (make-array (length columns) :initial-element nil))

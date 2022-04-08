@@ -70,11 +70,12 @@
   (declare (ignore environment))
   (if (not cv-velocity-max)
       (cl-synthesizer:signal-assembly-error
-       :format-control "cv-velocity-max of MIDI-Polyphonic-Interface ~a must not be nil"
+       :format-control "cv-velocity-max of MIDI-Polyphonic-Interface '~a' must not be nil"
        :format-arguments (list name)))
   (if (<= cv-velocity-max 0.0)
       (cl-synthesizer:signal-assembly-error
-       :format-control "cv-velocity-max of MIDI-Polyphonic-Interface ~a must be greater than 0: ~a"
+       :format-control
+       "cv-velocity-max of MIDI-Polyphonic-Interface '~a' must be greater than 0: '~a'"
        :format-arguments (list name cv-velocity-max)))
   (let* ((note-number-to-cv (lambda (note-number) (the single-float (/ note-number 12.0))))
 	 (outputs nil)
