@@ -24,7 +24,6 @@
 	       (:module "src/core"
 		:serial t
 		:components ((:file "packages")
-			     (:file "linear-converter")
 			     (:file "phase-waveform-converter")
 			     (:file "phase-generator")
 			     (:file "normalized-exp")
