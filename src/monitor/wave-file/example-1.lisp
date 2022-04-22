@@ -1,7 +1,7 @@
-(defpackage :cl-synthesizer-monitor-example-3
+(defpackage :cl-synthesizer-monitor-wave-file-example-1
   (:use :cl))
 
-(in-package :cl-synthesizer-monitor-example-3)
+(in-package :cl-synthesizer-monitor-wave-file-example-1)
 
 (defun example ()
   "Wave-File-Agent example"
@@ -15,7 +15,7 @@
      rack
      #'cl-synthesizer-monitor-wave-file-agent:make-backend
      '(("VCO" :output-socket :sine))
-     :filename "cl-synthesizer-examples/monitor-example-3.wav"
+     :filename "cl-synthesizer-examples/monitor-wave-file-example-1.wav"
      :v-peak 5.0)
     
     rack))

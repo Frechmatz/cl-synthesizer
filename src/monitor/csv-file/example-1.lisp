@@ -1,7 +1,7 @@
-(defpackage :cl-synthesizer-monitor-example-2
+(defpackage :cl-synthesizer-monitor-csv-file-example-1
   (:use :cl))
 
-(in-package :cl-synthesizer-monitor-example-2)
+(in-package :cl-synthesizer-monitor-csv-file-example-1)
 
 (defun example ()
   "CSV-Agent example"
@@ -14,7 +14,7 @@
      rack
      #'cl-synthesizer-monitor-csv-file-agent:make-backend
      '(("VCO" :output-socket :sine :name "Sine"))
-     :filename "cl-synthesizer-examples/monitor-example-2.csv"
+     :filename "cl-synthesizer-examples/monitor-csv-file-example-1.csv"
      :add-header t
      :column-separator ",")
     

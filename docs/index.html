@@ -105,7 +105,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3857229120" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3859640567" type="audio/wav"></audio></p>
 <h2 id="Frequency modulated Saw">Frequency modulated Saw</h2><p><pre><code>(defpackage :cl-synthesizer-patches-frequency-modulated-saw
   (:use :cl)
   (:documentation &quot;Frequency modulated Saw&quot;))
@@ -139,7 +139,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3857229120" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3859640567" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated Saws">Two frequency modulated Saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-two-frequency-modulated-saws
   (:use :cl)
   (:documentation &quot;Two frequency modulated Saws&quot;))
@@ -181,7 +181,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3857229120" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3859640567" type="audio/wav"></audio></p>
 <h1 id="Change-Log">Change-Log</h1>
 <h2>Version 1.0.0</h2><p>Initial version. Not tagged.</p>
 <h2>Version 2.x</h2>Work in progress. Master branch.<ul><li>Removed bridge modules.</li><li>Added rack:expose-input-socket.</li><li>Added rack:expose-output-socket.</li></ul>
@@ -248,41 +248,25 @@ instantiated by a so called "Monitor-Agent".</p>
 <p>A Monitor-Agent is a factory function whose purpose is to prepare the initialization 
 parameters of a specific backend (e.g. a Wave-File-Writer module), to set up the 
 mapping of the values collected by the monitor to input sockets of the backend 
-and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-monitor-example-1
+and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-monitor-wave-file-example-1
   (:use :cl))
 
-(in-package :cl-synthesizer-monitor-example-1)
+(in-package :cl-synthesizer-monitor-wave-file-example-1)
 
 (defun example ()
-  &quot;Monitor example&quot;
+  &quot;Wave-File-Agent example&quot;
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
     
     (cl-synthesizer:add-module
-     rack
-     &quot;VCO&quot;
-     #'cl-synthesizer-modules-vco:make-module
+     rack &quot;VCO&quot; #'cl-synthesizer-modules-vco:make-module
      :base-frequency 5.0 :v-peak 5.0)
 
-    ;; Write the sine signal into a wave file
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-file-agent:make-backend
      '((&quot;VCO&quot; :output-socket :sine))
-     :filename &quot;cl-synthesizer-examples/monitor-example-1.wav&quot;
+     :filename &quot;cl-synthesizer-examples/monitor-wave-file-example-1.wav&quot;
      :v-peak 5.0)
-
-    ;; Write all waveforms and the phase into a CSV file
-    (cl-synthesizer-monitor:add-monitor
-     rack
-     #'cl-synthesizer-monitor-csv-file-agent:make-backend
-     '((&quot;VCO&quot; :output-socket :sine :name &quot;Sine&quot;)
-       (&quot;VCO&quot; :output-socket :triangle :name &quot;Triangle&quot;)
-       (&quot;VCO&quot; :output-socket :saw :name &quot;Saw&quot;)
-       (&quot;VCO&quot; :output-socket :square :name &quot;Square&quot;)
-       (&quot;VCO&quot; :state :phase :name &quot;Phase&quot;))
-     :filename &quot;cl-synthesizer-examples/monitor-example-1.csv&quot;
-     :add-header t
-     :column-separator &quot;,&quot;)
     
     rack))
 
@@ -1492,7 +1476,33 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
        <li>A property list that implements a module (this is the Monitor-Backend).</li>
        <li>An ordered list of input sockets of the module.</li>
     </ul></p>
-    <p>See also cl-synthesizer-modules:wave-file-writer.</p></p>
+    <p>See also cl-synthesizer-modules:wave-file-writer.</p></p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-monitor-wave-file-example-1
+  (:use :cl))
+
+(in-package :cl-synthesizer-monitor-wave-file-example-1)
+
+(defun example ()
+  &quot;Wave-File-Agent example&quot;
+  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+    
+    (cl-synthesizer:add-module
+     rack &quot;VCO&quot; #'cl-synthesizer-modules-vco:make-module
+     :base-frequency 5.0 :v-peak 5.0)
+
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-wave-file-agent:make-backend
+     '((&quot;VCO&quot; :output-socket :sine))
+     :filename &quot;cl-synthesizer-examples/monitor-wave-file-example-1.wav&quot;
+     :v-peak 5.0)
+    
+    rack))
+
+(defun run-example ()
+  (let ((rack (example)))
+    (cl-synthesizer:play-rack rack :duration-seconds 2)))
+
+;; (run-example)</code></pre></p>
 <h3 id="csv-file-agent">csv-file-agent</h3><b>make-backend</b>&nbsp;(name environment inputs &rest rest &key filename &allow-other-keys)<p>Creates a monitor backend which writes its inputs into a CSV file.
     <p>The function has the following parameters:
     <ul>
@@ -1506,7 +1516,33 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
        <li>A property list that implements a module (this is the Monitor-Backend).</li>
        <li>An ordered list of input sockets of the module.</li>
     </ul></p>
-    <p>See also cl-synthesizer-modules:csv-file-writer.</p></p>
+    <p>See also cl-synthesizer-modules:csv-file-writer.</p></p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-monitor-csv-file-example-1
+  (:use :cl))
+
+(in-package :cl-synthesizer-monitor-csv-file-example-1)
+
+(defun example ()
+  &quot;CSV-Agent example&quot;
+  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+    
+    (cl-synthesizer:add-module
+     rack &quot;VCO&quot; #'cl-synthesizer-modules-vco:make-module :base-frequency 5.0 :v-peak 5.0)
+
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-csv-file-agent:make-backend
+     '((&quot;VCO&quot; :output-socket :sine :name &quot;Sine&quot;))
+     :filename &quot;cl-synthesizer-examples/monitor-csv-file-example-1.csv&quot;
+     :add-header t
+     :column-separator &quot;,&quot;)
+    
+    rack))
+
+(defun run-example ()
+  (let ((rack (example)))
+    (cl-synthesizer:play-rack rack :duration-seconds 2)))
+
+;; (run-example)</code></pre></p>
 <h3 id="buffer-agent">buffer-agent</h3><b>make-backend</b>&nbsp;(name environment inputs &rest rest &key buffer &allow-other-keys)<p>Creates a monitor backend which writes its inputs into a buffer.
     <p>The function has the following parameters:
     <ul>
@@ -1667,4 +1703,4 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
 <h1 id="Generate documentation">Generate documentation</h1>Depends on :cl-html-readme and :docparser which are available via Quicklisp.<p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2022-03-25  21:32:00</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2022-04-22  20:22:47</small></p></footer></body></html>

@@ -7,7 +7,6 @@
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "An audio synthesizer"
   :long-description "An audio synthesizer"
-  :depends-on (:cl-wave-file-writer)
   :components ((:module "src/util"
 		:serial t
 		:components ((:file "packages")
@@ -41,7 +40,9 @@
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "An audio synthesizer"
   :long-description "An audio synthesizer"
-  :depends-on (:cl-synthesizer)
+  :depends-on (:cl-synthesizer
+	       ;; cl-wave-file-writer dependency to be removed after split into dedicated module systems
+	       :cl-wave-file-writer)
   :components ((:module "src/modules/vco"
 		:serial t
 		:components ((:file "packages")
@@ -108,15 +109,9 @@
 	       (:module "src/modules/adsr"
 		:serial t
 		:components ((:file "packages")
-			     (:file "adsr")))
-	       (:module "src/monitor"
-		:serial t
-		:components ((:file "packages")
-			     (:file "monitor")
-			     (:file "buffer-agent")
-			     (:file "wave-file-agent")
-			     (:file "csv-file-agent"))))
+			     (:file "adsr"))))
   :in-order-to ((test-op (test-op "cl-synthesizer/test"))))
+
 
 (defsystem :cl-synthesizer/monitor
   :serial t
@@ -127,14 +122,60 @@
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "An audio synthesizer"
   :long-description "An audio synthesizer"
-  :depends-on (:cl-synthesizer :cl-synthesizer/modules)
+  :depends-on (:cl-synthesizer)
   :components ((:module "src/monitor"
 		:serial t
 		:components ((:file "packages")
-			     (:file "monitor")
-			     (:file "buffer-agent")
-			     (:file "wave-file-agent")
-			     (:file "csv-file-agent"))))
+			     (:file "monitor"))))
+  :in-order-to ((test-op (test-op "cl-synthesizer/test"))))
+
+
+(defsystem :cl-synthesizer/monitor-buffer
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "An audio synthesizer"
+  :long-description "An audio synthesizer"
+  :depends-on (:cl-synthesizer/monitor)
+  :components ((:module "src/monitor/buffer"
+		:serial t
+		:components ((:file "packages")
+			     (:file "agent"))))
+  :in-order-to ((test-op (test-op "cl-synthesizer/test"))))
+
+(defsystem :cl-synthesizer/monitor-wave-file
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "An audio synthesizer"
+  :long-description "An audio synthesizer"
+  :depends-on (:cl-synthesizer/monitor :cl-wave-file-writer)
+  :components ((:module "src/monitor/wave-file"
+		:serial t
+		:components ((:file "packages")
+			     (:file "agent"))))
+  :in-order-to ((test-op (test-op "cl-synthesizer/test"))))
+
+(defsystem :cl-synthesizer/monitor-csv-file
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "An audio synthesizer"
+  :long-description "An audio synthesizer"
+  :depends-on (:cl-synthesizer/monitor)
+  :components ((:module "src/monitor/csv-file"
+		:serial t
+		:components ((:file "packages")
+			     (:file "agent"))))
   :in-order-to ((test-op (test-op "cl-synthesizer/test"))))
 
 (defsystem :cl-synthesizer/test
@@ -145,7 +186,13 @@
   :maintainer "Oliver <frechmatz@gmx.de>"
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "Test suite of cl-synthesizer"
-  :depends-on (:lisp-unit :cl-synthesizer :cl-synthesizer/modules :cl-synthesizer/monitor)
+  :depends-on (:lisp-unit
+	       :cl-synthesizer
+	       :cl-synthesizer/modules
+	       :cl-synthesizer/monitor
+	       :cl-synthesizer/monitor-buffer
+	       :cl-synthesizer/monitor-csv-file
+	       :cl-synthesizer/monitor-wave-file)
   :components ((:module "test"
 		:serial t
 		:components ((:file "packages")))
@@ -209,6 +256,9 @@
   :depends-on (:cl-synthesizer
 	       :cl-synthesizer/modules
 	       :cl-synthesizer/monitor
+	       :cl-synthesizer/monitor-buffer
+	       :cl-synthesizer/monitor-csv-file
+	       :cl-synthesizer/monitor-wave-file	       
 	       :cl-html-readme
 	       :docparser)
   :components ((:module "makedoc/patches"
@@ -229,7 +279,12 @@
   :maintainer "Oliver <frechmatz@gmx.de>"
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "Examples of cl-synthesizer"
-  :depends-on (:cl-synthesizer :cl-synthesizer/modules :cl-synthesizer/monitor)
+  :depends-on (:cl-synthesizer
+	       :cl-synthesizer/modules
+	       :cl-synthesizer/monitor
+	       :cl-synthesizer/monitor-buffer
+	       :cl-synthesizer/monitor-csv-file
+	       :cl-synthesizer/monitor-wave-file)
   :components ((:module "src/synthesizer"
 		:serial t
 		:components ((:file "example-sine")
@@ -272,11 +327,12 @@
 		:components ((:file "example-1")
 			     (:file "example-2")
 			     (:file "example-3")))
-	       (:module "src/monitor"
+	       (:module "src/monitor/csv-file"
 		:serial t
-		:components ((:file "example-1")
-			     (:file "example-2")
-			     (:file "example-3")))
+		:components ((:file "example-1")))
+	       (:module "src/monitor/wave-file"
+		:serial t
+		:components ((:file "example-1")))
 	       (:module "src/run-examples"
 		:serial t
 		:components ((:file "packages")
@@ -291,7 +347,12 @@
   :maintainer "Oliver <frechmatz@gmx.de>"
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "Profiling suite of cl-synthesizer."
-  :depends-on (:cl-synthesizer :cl-synthesizer/modules :cl-synthesizer/monitor)
+  :depends-on (:cl-synthesizer
+	       :cl-synthesizer/modules
+	       :cl-synthesizer/monitor
+	       :cl-synthesizer/monitor-buffer
+	       :cl-synthesizer/monitor-csv-file
+	       :cl-synthesizer/monitor-wave-file)
   :components ((:module "profiling"
 		:serial t
 		:components ((:file "packages")

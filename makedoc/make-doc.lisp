@@ -117,7 +117,13 @@
 ;; Readme
 ;;
 
-(defun get-readme (lib-index modules-index readme-index)
+(defun get-readme (lib-index
+		   modules-index
+		   monitor-index
+		   monitor-buffer-index
+		   monitor-csv-file-index
+		   monitor-wave-file-index
+		   readme-index)
   `("<html>"
     "<head><link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\"/></head>"
     "<body>"
@@ -179,7 +185,7 @@
 		       (heading (:name "Monitor" :toc t)
 				,(cl-html-readme:read-file "makedoc/monitor-introduction.html")
 				,(make-example-header)
-				,(make-code-string "src/monitor/example-1.lisp")))
+				,(make-code-string "src/monitor/wave-file/example-1.lisp")))
 	      (heading (:name "API" :toc t)
 		       (heading (:toc t :name "Environment")
 				(heading (:toc t :name "make-environment")
@@ -272,13 +278,17 @@
 				 ,(make-function-string modules-index "cl-synthesizer-modules-csv-file-writer" "make-module")))
 		       (heading (:toc t :name "Monitor")
 				(heading (:toc t :name "add-monitor")
-					 ,(make-function-string modules-index "cl-synthesizer-monitor" "add-monitor"))
+					 ,(make-function-string monitor-index "cl-synthesizer-monitor" "add-monitor"))
 				(heading (:toc t :name "wave-file-agent")
-					 ,(make-function-string modules-index "cl-synthesizer-monitor-wave-file-agent" "make-backend"))
+					 ,(make-function-string monitor-wave-file-index "cl-synthesizer-monitor-wave-file-agent" "make-backend")
+					 ,(make-example-header)
+					 ,(make-code-string "src/monitor/wave-file/example-1.lisp"))
 				(heading (:toc t :name "csv-file-agent")
-					 ,(make-function-string modules-index "cl-synthesizer-monitor-csv-file-agent" "make-backend"))
+					 ,(make-function-string monitor-csv-file-index "cl-synthesizer-monitor-csv-file-agent" "make-backend")
+					 ,(make-example-header)
+					 ,(make-code-string "src/monitor/csv-file/example-1.lisp"))
 				(heading (:toc t :name "buffer-agent")
-					 ,(make-function-string modules-index "cl-synthesizer-monitor-buffer-agent" "make-backend")))
+					 ,(make-function-string monitor-buffer-index "cl-synthesizer-monitor-buffer-agent" "make-backend")))
 		       (heading (:toc t :name "MIDI")
 				(heading (:toc t :name "MIDI Event"))
 				,(make-function-string modules-index "cl-synthesizer-midi-event" "make-control-change-event")
@@ -356,6 +366,10 @@
   ;; Generate html files
   (let ((lib-index (make-index :cl-synthesizer))
 	(lib-modules-index (make-index :cl-synthesizer/modules))
+	(lib-monitor-index (make-index :cl-synthesizer/monitor))
+	(lib-monitor-wave-file-index (make-index :cl-synthesizer/monitor-wave-file))
+	(lib-monitor-csv-file-index (make-index :cl-synthesizer/monitor-csv-file))
+	(lib-monitor-buffer-index (make-index :cl-synthesizer/monitor-buffer))
 	(readme-index (make-index :cl-synthesizer/doc)))
     (let ((cl-html-readme:*home-directory* (asdf:system-source-directory :cl-synthesizer/doc))
 	  (cl-html-readme:*tab-width* 4))
@@ -364,7 +378,14 @@
 			  :if-exists :supersede
 			  :if-does-not-exist :create
 			  :external-format :utf-8)
-	(cl-html-readme:doc-to-html fh (get-readme lib-index lib-modules-index readme-index)))
+	(cl-html-readme:doc-to-html fh (get-readme
+					lib-index
+					lib-modules-index
+					lib-monitor-index
+					lib-monitor-buffer-index
+					lib-monitor-csv-file-index
+					lib-monitor-wave-file-index
+					readme-index)))
       (with-open-file (fh (cl-html-readme:make-path "docs/patches.html")
 			  :direction :output
 			  :if-exists :supersede
