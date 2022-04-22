@@ -29,19 +29,31 @@
 			     (:file "phase-waveform-converter")
 			     (:file "phase-generator")
 			     (:file "normalized-exp")
-			     (:file "round-time")))
-	       (:module "src/modules"
+			     (:file "round-time"))))
+  :in-order-to ((test-op (test-op "cl-synthesizer/test"))))
+
+(defsystem :cl-synthesizer/modules
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "An audio synthesizer"
+  :long-description "An audio synthesizer"
+  :depends-on (:cl-synthesizer)
+  :components ((:module "src/modules/vco"
 		:serial t
-		:components ((:file "packages")))
-	       (:module "src/modules/vco"
-		:serial t
-		:components ((:file "vco")))
+		:components ((:file "packages")
+			     (:file "vco")))
 	       (:module "src/modules/multiple"
 		:serial t
-		:components ((:file "multiple")))
+		:components ((:file "packages")
+			     (:file "multiple")))
 	       (:module "src/modules/vca"
 		:serial t
-		:components ((:file "vca")))
+		:components ((:file "packages")
+			     (:file "vca")))
 	       (:module "src/modules/midi"
 		:serial t
 		:components ((:file "packages")
@@ -63,31 +75,40 @@
 		:components ((:file "midi-sequencer")))
 	       (:module "src/modules/fixed-output"
 		:serial t
-		:components ((:file "fixed-output")))
+		:components ((:file "packages")
+			     (:file "fixed-output")))
 	       (:module "src/modules/adder"
 		:serial t
-		:components ((:file "adder")))
+		:components ((:file "packages")
+			     (:file "adder")))
 	       (:module "src/modules/mixer"
 		:serial t
-		:components ((:file "mixer")))
+		:components ((:file "packages")
+			     (:file "mixer")))
 	       (:module "src/modules/trigger"
 		:serial t
-		:components ((:file "trigger")))
+		:components ((:file "packages")
+			     (:file "trigger")))
 	       (:module "src/modules/wave-file-writer"
 		:serial t
-		:components ((:file "wave-file-writer")))
+		:components ((:file "packages")
+			     (:file "wave-file-writer")))
 	       (:module "src/modules/csv-file-writer"
 		:serial t
-		:components ((:file "csv-file-writer")))
+		:components ((:file "packages")
+			     (:file "csv-file-writer")))
 	       (:module "src/modules/ramp"
 		:serial t
-		:components ((:file "ramp")))
+		:components ((:file "packages")
+			     (:file "ramp")))
 	       (:module "src/modules/sustain"
 		:serial t
-		:components ((:file "sustain")))
+		:components ((:file "packages")
+			     (:file "sustain")))
 	       (:module "src/modules/adsr"
 		:serial t
-		:components ((:file "adsr")))
+		:components ((:file "packages")
+			     (:file "adsr")))
 	       (:module "src/monitor"
 		:serial t
 		:components ((:file "packages")
@@ -97,6 +118,24 @@
 			     (:file "csv-file-agent"))))
   :in-order-to ((test-op (test-op "cl-synthesizer/test"))))
 
+(defsystem :cl-synthesizer/monitor
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "An audio synthesizer"
+  :long-description "An audio synthesizer"
+  :depends-on (:cl-synthesizer :cl-synthesizer/modules)
+  :components ((:module "src/monitor"
+		:serial t
+		:components ((:file "packages")
+			     (:file "monitor")
+			     (:file "buffer-agent")
+			     (:file "wave-file-agent")
+			     (:file "csv-file-agent"))))
+  :in-order-to ((test-op (test-op "cl-synthesizer/test"))))
 
 (defsystem :cl-synthesizer/test
   :serial t
@@ -106,7 +145,7 @@
   :maintainer "Oliver <frechmatz@gmx.de>"
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "Test suite of cl-synthesizer"
-  :depends-on (:lisp-unit :cl-synthesizer)
+  :depends-on (:lisp-unit :cl-synthesizer :cl-synthesizer/modules :cl-synthesizer/monitor)
   :components ((:module "test"
 		:serial t
 		:components ((:file "packages")))
@@ -167,7 +206,11 @@
   :maintainer "Oliver <frechmatz@gmx.de>"
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "Documentation generation for cl-synthesizer"
-  :depends-on (:cl-synthesizer :cl-html-readme :docparser)
+  :depends-on (:cl-synthesizer
+	       :cl-synthesizer/modules
+	       :cl-synthesizer/monitor
+	       :cl-html-readme
+	       :docparser)
   :components ((:module "makedoc/patches"
 		:serial t
 		:components ((:file "saw")
@@ -186,7 +229,7 @@
   :maintainer "Oliver <frechmatz@gmx.de>"
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "Examples of cl-synthesizer"
-  :depends-on (:cl-synthesizer)
+  :depends-on (:cl-synthesizer :cl-synthesizer/modules :cl-synthesizer/monitor)
   :components ((:module "src/synthesizer"
 		:serial t
 		:components ((:file "example-sine")
@@ -248,7 +291,7 @@
   :maintainer "Oliver <frechmatz@gmx.de>"
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "Profiling suite of cl-synthesizer."
-  :depends-on (:cl-synthesizer)
+  :depends-on (:cl-synthesizer :cl-synthesizer/modules :cl-synthesizer/monitor)
   :components ((:module "profiling"
 		:serial t
 		:components ((:file "packages")

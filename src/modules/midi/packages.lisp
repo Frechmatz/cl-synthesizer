@@ -21,3 +21,21 @@
 
 (defpackage :cl-synthesizer-midi-lru-set
   (:use :cl))
+
+(defpackage :cl-synthesizer-modules-midi-sequencer
+  (:use :cl)
+  (:export :make-module))
+
+(defpackage :cl-synthesizer-modules-midi-polyphonic-interface
+  (:use :cl)
+  (:export
+   :make-module))
+
+(defpackage :cl-synthesizer-modules-midi-monophonic-interface
+  (:use :cl)
+  (:export
+   :make-module))
+
+(defpackage :cl-synthesizer-modules-midi-relative-cc-interface
+  (:use :cl)
+  (:export :make-module))
