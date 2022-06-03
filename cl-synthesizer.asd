@@ -26,8 +26,7 @@
 		:components ((:file "packages")
 			     (:file "phase-waveform-converter")
 			     (:file "phase-generator")
-			     (:file "normalized-exp")
-			     (:file "round-time"))))
+			     (:file "normalized-exp"))))
   :in-order-to ((test-op (test-op "cl-synthesizer/test"))))
 
 (defsystem :cl-synthesizer/modules
