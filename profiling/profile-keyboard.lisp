@@ -3,6 +3,14 @@
 
 (in-package :cl-synthesizer-profiling-keyboard)
 
+(defun make-symbol-impl (name num package)
+  (if num
+      (intern (format nil "~a-~a" (string-upcase name) num) package)
+      (intern (string-upcase name) package)))
+
+(defun make-keyword (name num)
+  (make-symbol-impl name num "KEYWORD"))
+
 (defun make-voice (name environment &key exponential)
   (declare (ignore name))
   (let ((rack (cl-synthesizer:make-rack
@@ -102,11 +110,11 @@
       (cl-synthesizer:add-patch
        rack
        "MIDI-IFC"
-       (cl-synthesizer-lisp-util:make-keyword "CV" (+ i 1)) (format nil "VOICE-~a" i) :cv)
+       (make-keyword "CV" (+ i 1)) (format nil "VOICE-~a" i) :cv)
       (cl-synthesizer:add-patch
        rack
        "MIDI-IFC"
-       (cl-synthesizer-lisp-util:make-keyword "GATE" (+ i 1)) (format nil "VOICE-~a" i) :gate))
+       (make-keyword "GATE" (+ i 1)) (format nil "VOICE-~a" i) :gate))
 
     (cl-synthesizer:add-module
      rack
@@ -122,7 +130,7 @@
       (cl-synthesizer:add-patch
        rack
        (format nil "VOICE-~a" i) :audio
-       "MIXER" (cl-synthesizer-lisp-util:make-keyword "channel" (+ i 1))))
+       "MIXER" (make-keyword "channel" (+ i 1))))
 
     rack))
 

@@ -8,12 +8,28 @@
 
 (in-package :cl-synthesizer-profiling-rack)
 
+(defun make-symbol-impl (name num package)
+  (if num
+      (intern (format nil "~a-~a" (string-upcase name) num) package)
+      (intern (string-upcase name) package)))
+
+(defun make-keyword (name num)
+  (make-symbol-impl name num "KEYWORD"))
+
+(defun make-keyword-list (name count)
+  "Returns list of keywords ordered by number of keyword: (:<name>-1, :<name>-2, ..., <name>-<count>.
+   The numbering starts by one."
+  (let ((l nil))
+    (dotimes (i count)
+      (push (make-keyword name (+ i 1)) l))
+    (nreverse l)))
+
 (defmacro make-simple-module-ctor (input-count output-count)
   "Generates a module instantiation function
    TODO: :update function should access / do something with its inputs
    TODO: :get-output function should do a switch over the socket"
-  `(let ((input-sockets (cl-synthesizer-lisp-util:make-keyword-list "input" ,input-count))
-	 (output-sockets (cl-synthesizer-lisp-util:make-keyword-list "output" ,output-count))
+  `(let ((input-sockets (make-keyword-list "input" ,input-count))
+	 (output-sockets (make-keyword-list "output" ,output-count))
 	 (output-values (make-array ,output-count))
 	 (input-values (make-array ,input-count)))
      (let ((inputs nil) (outputs nil))
@@ -40,24 +56,24 @@
   (dotimes (i socket-count)
     (cl-synthesizer:add-patch rack
 			      source-module-name
-			      (cl-synthesizer-lisp-util:make-keyword "output" (+ i 1))
+			      (make-keyword "output" (+ i 1))
 			      destination-module-name
-			      (cl-synthesizer-lisp-util:make-keyword "input" (+ i 1)))))
+			      (make-keyword "input" (+ i 1)))))
 
 (defun expose-inputs (rack target-module-name socket-count)
   (dotimes (i socket-count)
     (cl-synthesizer:expose-input-socket rack
-			      (cl-synthesizer-lisp-util:make-keyword "input" (+ i 1))
+			      (make-keyword "input" (+ i 1))
 			      target-module-name
-			      (cl-synthesizer-lisp-util:make-keyword "input" (+ i 1)))))
+			      (make-keyword "input" (+ i 1)))))
 
 (defun expose-outputs (rack source-module-name socket-count)
   (dotimes (i socket-count)
     (cl-synthesizer:expose-output-socket
      rack
-     (cl-synthesizer-lisp-util:make-keyword "output" (+ i 1))
+     (make-keyword "output" (+ i 1))
      source-module-name
-     (cl-synthesizer-lisp-util:make-keyword "output" (+ i 1)))))
+     (make-keyword "output" (+ i 1)))))
 
 ;;
 ;; Profiling client: Nested rack

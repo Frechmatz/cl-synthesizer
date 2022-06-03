@@ -1,5 +1,21 @@
 (in-package :cl-synthesizer-modules-csv-file-writer)
 
+(defun make-symbol-impl (name num package)
+  (if num
+      (intern (format nil "~a-~a" (string-upcase name) num) package)
+      (intern (string-upcase name) package)))
+
+(defun make-keyword (name num)
+  (make-symbol-impl name num "KEYWORD"))
+
+(defun make-keyword-list (name count)
+  "Returns list of keywords ordered by number of keyword: (:<name>-1, :<name>-2, ..., <name>-<count>.
+   The numbering starts by one."
+  (let ((l nil))
+    (dotimes (i count)
+      (push (make-keyword name (+ i 1)) l))
+    (nreverse l)))
+
 (defun quote-str (str str-to-quote)
   (declare (ignore str-to-quote))
   str)
@@ -61,7 +77,7 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "'~a': Columns must not be empty."
        :format-arguments (list name)))
-  (let ((column-keys (cl-synthesizer-lisp-util:make-keyword-list "column" (length columns)))
+  (let ((column-keys (make-keyword-list "column" (length columns)))
 	(column-values (make-array (length columns) :initial-element nil))
 	(column-properties (make-array (length columns) :initial-element nil))
 	(filename (merge-pathnames filename (getf environment :home-directory)))

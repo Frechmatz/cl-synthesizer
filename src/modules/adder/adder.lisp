@@ -1,5 +1,21 @@
 (in-package :cl-synthesizer-modules-adder)
 
+(defun make-symbol-impl (name num package)
+  (if num
+      (intern (format nil "~a-~a" (string-upcase name) num) package)
+      (intern (string-upcase name) package)))
+
+(defun make-keyword (name num)
+  (make-symbol-impl name num "KEYWORD"))
+
+(defun make-keyword-list (name count)
+  "Returns list of keywords ordered by number of keyword: (:<name>-1, :<name>-2, ..., <name>-<count>.
+   The numbering starts by one."
+  (let ((l nil))
+    (dotimes (i count)
+      (push (make-keyword name (+ i 1)) l))
+    (nreverse l)))
+
 (defun make-module (name environment &key input-count)
   "Creates a simple voltage adder module. 
    <p>The function has the following parameters:
@@ -22,7 +38,7 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "'~a': input-count must be greater than 0: '~a'"
        :format-arguments (list name input-count)))
-  (let ((cur-output nil) (input-sockets (cl-synthesizer-lisp-util:make-keyword-list "input" input-count)))
+  (let ((cur-output nil) (input-sockets (make-keyword-list "input" input-count)))
     (let ((input-values (make-array (length input-sockets) :initial-element nil))
 	  (inputs nil)
 	  (outputs (list :output (lambda() cur-output))))

@@ -1,5 +1,20 @@
 (in-package :cl-synthesizer-monitor-buffer-agent)
 
+(defun make-symbol-impl (name num package)
+  (if num
+      (intern (format nil "~a-~a" (string-upcase name) num) package)
+      (intern (string-upcase name) package)))
+
+(defun make-keyword (name num)
+  (make-symbol-impl name num "KEYWORD"))
+
+(defun make-keyword-list (name count)
+  "Returns list of keywords ordered by number of keyword: (:<name>-1, :<name>-2, ..., <name>-<count>.
+   The numbering starts by one."
+  (let ((l nil))
+    (dotimes (i count)
+      (push (make-keyword name (+ i 1)) l))
+    (nreverse l)))
 
 (defun make-buffer-module (name environment &key buffer)
   (declare (ignore environment))
@@ -8,7 +23,7 @@
 	(cl-synthesizer:signal-assembly-error
 	 :format-control "'~a': Length of buffer must be greater than 0: '~a'"
 	 :format-arguments (list name count)))
-    (let ((input-sockets (cl-synthesizer-lisp-util:make-keyword-list
+    (let ((input-sockets (make-keyword-list
 			  "input" count)))
       (let ((inputs nil) (index 0))
 	(dolist (input-socket input-sockets)
@@ -43,5 +58,5 @@
   (let ((handler (make-buffer-module name environment :buffer buffer)))
     (values 
      handler
-     (cl-synthesizer-lisp-util:make-keyword-list "input" (length inputs)))))
+     (make-keyword-list "input" (length inputs)))))
 

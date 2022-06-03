@@ -1,5 +1,21 @@
 (in-package :cl-synthesizer-modules-wave-file-writer)
 
+(defun make-symbol-impl (name num package)
+  (if num
+      (intern (format nil "~a-~a" (string-upcase name) num) package)
+      (intern (string-upcase name) package)))
+
+(defun make-keyword (name num)
+  (make-symbol-impl name num "KEYWORD"))
+
+(defun make-keyword-list (name count)
+  "Returns list of keywords ordered by number of keyword: (:<name>-1, :<name>-2, ..., <name>-<count>.
+   The numbering starts by one."
+  (let ((l nil))
+    (dotimes (i count)
+      (push (make-keyword name (+ i 1)) l))
+    (nreverse l)))
+
 ;;
 ;; Factory function to be overridden by tests
 ;;
@@ -41,7 +57,7 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "'~a': v-peak must not be negative: '~a'"
        :format-arguments (list name v-peak)))
-  (let ((input-sockets (cl-synthesizer-lisp-util:make-keyword-list "channel" channel-count))
+  (let ((input-sockets (make-keyword-list "channel" channel-count))
 	(input-values (make-array channel-count :initial-element nil))
 	(opened-wave-writer nil)
 	(wave-writer (funcall *make-writer*

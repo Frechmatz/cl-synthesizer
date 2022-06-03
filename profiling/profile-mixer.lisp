@@ -3,6 +3,14 @@
 
 (in-package :cl-synthesizer-profiling-mixer)
 
+(defun make-symbol-impl (name num package)
+  (if num
+      (intern (format nil "~a-~a" (string-upcase name) num) package)
+      (intern (string-upcase name) package)))
+
+(defun make-keyword (name num)
+  (make-symbol-impl name num "KEYWORD"))
+
 (defun setup-channel (rack channel-number)
   (let ((fixed-output-module-name (format nil "CH-~a" channel-number)))
     (cl-synthesizer:add-module
@@ -13,7 +21,7 @@
     (cl-synthesizer:add-patch
      rack
      fixed-output-module-name :out
-     "MIXER" (cl-synthesizer-lisp-util:make-keyword "CHANNEL" (+ channel-number 1)))))
+     "MIXER" (make-keyword "CHANNEL" (+ channel-number 1)))))
 
     
 (defun make-test-rack (&key channel-count)

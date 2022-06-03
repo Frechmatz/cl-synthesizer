@@ -1,5 +1,21 @@
 (in-package :cl-synthesizer-modules-mixer)
 
+(defun make-symbol-impl (name num package)
+  (if num
+      (intern (format nil "~a-~a" (string-upcase name) num) package)
+      (intern (string-upcase name) package)))
+
+(defun make-keyword (name num)
+  (make-symbol-impl name num "KEYWORD"))
+
+(defun make-keyword-list (name count)
+  "Returns list of keywords ordered by number of keyword: (:<name>-1, :<name>-2, ..., <name>-<count>.
+   The numbering starts by one."
+  (let ((l nil))
+    (dotimes (i count)
+      (push (make-keyword name (+ i 1)) l))
+    (nreverse l)))
+
 (defun make-module (name environment &key channel-count channel-cv-max channel-cv-gain
 				 main-cv-max main-cv-gain)
   "Creates a mixer module. The mixer provides an attenuator for each input and a main
@@ -35,8 +51,8 @@
   (let ((input-sockets
 	 (concatenate
 	  'list
-	  (cl-synthesizer-lisp-util:make-keyword-list "channel" channel-count)
-	  (cl-synthesizer-lisp-util:make-keyword-list "cv" channel-count)
+	  (make-keyword-list "channel" channel-count)
+	  (make-keyword-list "cv" channel-count)
 	  (list :cv-main))))
     (let ((rack (cl-synthesizer:make-rack :environment environment)))
 
@@ -57,12 +73,12 @@
 				     #'cl-synthesizer-modules-vca:make-module
 				     :cv-max channel-cv-max :initial-gain channel-cv-gain)
 	  (cl-synthesizer:expose-input-socket rack 
-				    (cl-synthesizer-lisp-util:make-keyword "channel" (+ i 1))
+				    (make-keyword "channel" (+ i 1))
 				    vca-name :input)
 	  (cl-synthesizer:expose-input-socket rack
-				    (cl-synthesizer-lisp-util:make-keyword "cv" (+ i 1))
+				    (make-keyword "cv" (+ i 1))
 				    vca-name :cv)
 	  (cl-synthesizer:add-patch rack vca-name :output "ADDER"
-				    (cl-synthesizer-lisp-util:make-keyword "input" (+ i 1)))))
+				    (make-keyword "input" (+ i 1)))))
 	  
       rack)))

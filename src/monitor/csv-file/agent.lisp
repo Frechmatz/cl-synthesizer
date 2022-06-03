@@ -1,5 +1,21 @@
 (in-package :cl-synthesizer-monitor-csv-file-agent)
 
+(defun make-symbol-impl (name num package)
+  (if num
+      (intern (format nil "~a-~a" (string-upcase name) num) package)
+      (intern (string-upcase name) package)))
+
+(defun make-keyword (name num)
+  (make-symbol-impl name num "KEYWORD"))
+
+(defun make-keyword-list (name count)
+  "Returns list of keywords ordered by number of keyword: (:<name>-1, :<name>-2, ..., <name>-<count>.
+   The numbering starts by one."
+  (let ((l nil))
+    (dotimes (i count)
+      (push (make-keyword name (+ i 1)) l))
+    (nreverse l)))
+
 (defun make-backend (name environment inputs &rest rest &key filename &allow-other-keys)
   "Creates a monitor backend which writes its inputs into a CSV file.
     <p>The function has the following parameters:
@@ -26,5 +42,5 @@
      handler
      ;; Ordered list of channels (we do not want to depend on order of input keys
      ;; provided by the :inputs function of the csv file writer module.)
-     (cl-synthesizer-lisp-util:make-keyword-list "column" (length inputs)))))
+     (make-keyword-list "column" (length inputs)))))
 

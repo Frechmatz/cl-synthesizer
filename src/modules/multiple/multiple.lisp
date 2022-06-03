@@ -1,5 +1,21 @@
 (in-package :cl-synthesizer-modules-multiple)
 
+(defun make-symbol-impl (name num package)
+  (if num
+      (intern (format nil "~a-~a" (string-upcase name) num) package)
+      (intern (string-upcase name) package)))
+
+(defun make-keyword (name num)
+  (make-symbol-impl name num "KEYWORD"))
+
+(defun make-keyword-list (name count)
+  "Returns list of keywords ordered by number of keyword: (:<name>-1, :<name>-2, ..., <name>-<count>.
+   The numbering starts by one."
+  (let ((l nil))
+    (dotimes (i count)
+      (push (make-keyword name (+ i 1)) l))
+    (nreverse l)))
+
 (defun make-module (name environment &key output-count)
   "Creates a Multiple module. A multiple passes the value of exactly one input socket
    to as many output sockets as defined by output-count.
@@ -22,7 +38,7 @@
       (cl-synthesizer:signal-assembly-error
        :format-control "'~a': output-count must be greater than 0: '~a'"
        :format-arguments (list name output-count)))
-  (let ((cur-input nil) (output-value nil) (output-sockets (cl-synthesizer-lisp-util:make-keyword-list "output" output-count)))
+  (let ((cur-input nil) (output-value nil) (output-sockets (make-keyword-list "output" output-count)))
     (let ((inputs
 	   (list :input (lambda(value) (setf cur-input value))))
 	  (outputs nil))

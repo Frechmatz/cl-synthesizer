@@ -5,6 +5,23 @@
 ;; A Midi Rack Module
 ;;
 
+(defun make-symbol-impl (name num package)
+  (if num
+      (intern (format nil "~a-~a" (string-upcase name) num) package)
+      (intern (string-upcase name) package)))
+
+(defun make-keyword (name num)
+  (make-symbol-impl name num "KEYWORD"))
+
+(defun make-keyword-list (name count)
+  "Returns list of keywords ordered by number of keyword: (:<name>-1, :<name>-2, ..., <name>-<count>.
+   The numbering starts by one."
+  (let ((l nil))
+    (dotimes (i count)
+      (push (make-keyword name (+ i 1)) l))
+    (nreverse l)))
+
+
 (defconstant +voice-state-cv+ 0)
 (defconstant +voice-state-gate+ 1)
 (defconstant +voice-state-gate-pending+ 2)
@@ -91,9 +108,9 @@
 
     ;; Set up outputs
     (dotimes (i voice-count)
-      (let ((cv-socket (cl-synthesizer-lisp-util:make-keyword "CV" (+ i 1)))
-	    (gate-socket (cl-synthesizer-lisp-util:make-keyword "GATE" (+ i 1)))
-	    (velocity-socket (cl-synthesizer-lisp-util:make-keyword "VELOCITY" (+ i 1))))
+      (let ((cv-socket (make-keyword "CV" (+ i 1)))
+	    (gate-socket (make-keyword "GATE" (+ i 1)))
+	    (velocity-socket (make-keyword "VELOCITY" (+ i 1))))
 	(let ((cur-i i)) ;; new context
 	  (push (lambda () (get-voice-state-cv (elt voice-states cur-i))) outputs)
 	  (push cv-socket outputs)
