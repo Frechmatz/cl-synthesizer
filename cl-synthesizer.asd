@@ -7,17 +7,26 @@
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "An audio synthesizer"
   :long-description "An audio synthesizer"
-  :components ((:module "src"
+  :components ((:module "src/synthesizer"
 		:serial t
 		:components ((:file "packages")
-			     (:file "conditions")))
-	       (:module "src/synthesizer"
-		:serial t
-		:components ((:file "api")
+			     (:file "conditions")
+			     (:file "api")
 			     (:file "environment")
 			     (:file "rack-compiler") 
-			     (:file "rack")))
-	       (:module "src/util"
+			     (:file "rack"))))
+  :in-order-to ((test-op (test-op "cl-synthesizer/test"))))
+
+(defsystem :cl-synthesizer/util
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "An audio synthesizer"
+  :long-description "An audio synthesizer"
+  :components ((:module "src/util"
 		:serial t
 		:components ((:file "packages")
 			     (:file "phase-waveform-converter")
@@ -36,7 +45,8 @@
   :long-description "An audio synthesizer"
   :depends-on (:cl-synthesizer
 	       ;; cl-wave-file-writer dependency to be removed after split into dedicated module systems
-	       :cl-wave-file-writer)
+	       :cl-wave-file-writer
+	       :cl-synthesizer/util)
   :components ((:module "src/modules/vco"
 		:serial t
 		:components ((:file "packages")
@@ -182,6 +192,7 @@
   :description "Test suite of cl-synthesizer"
   :depends-on (:lisp-unit
 	       :cl-synthesizer
+	       :cl-synthesizer/util
 	       :cl-synthesizer/modules
 	       :cl-synthesizer/monitor
 	       :cl-synthesizer/monitor-buffer
@@ -279,11 +290,7 @@
 	       :cl-synthesizer/monitor-buffer
 	       :cl-synthesizer/monitor-csv-file
 	       :cl-synthesizer/monitor-wave-file)
-  :components ((:module "src/synthesizer"
-		:serial t
-		:components ((:file "example-sine")
-			     (:file "example-voice")))
-	       (:module "src/modules/vca"
+  :components ((:module "src/modules/vca"
 		:serial t
 		:components ((:file "example-1")
 			     (:file "example-2")))
