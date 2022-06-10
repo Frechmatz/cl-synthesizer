@@ -1,4 +1,4 @@
-(defpackage :cl-synthesizer-core
+(defpackage :cl-synthesizer-util
   (:use :cl)
   (:export
    :phase-generator

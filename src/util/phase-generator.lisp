@@ -1,4 +1,4 @@
-(in-package :cl-synthesizer-core)
+(in-package :cl-synthesizer-util)
 
 (defconstant 2PI (coerce (* 2 PI) 'single-float))
 

@@ -105,7 +105,7 @@
 	      (* base-frequency (expt 2.0 cv)))))
 
       (multiple-value-bind (phase-generator phase-reset)
-	  (cl-synthesizer-core:phase-generator sample-rate)
+	  (cl-synthesizer-util:phase-generator sample-rate)
 	
 	(flet ((clip-frequency (f)
 		 (declare (type single-float f))
@@ -137,37 +137,37 @@
 		   (push :sine outputs)
 		   (setf (elt update-functions index)
 			 (lambda()
-			   (declare (inline cl-synthesizer-core:phase-sine-converter))
+			   (declare (inline cl-synthesizer-util:phase-sine-converter))
 			   (setf cur-sine-output
 				 (* v-peak
-				    (cl-synthesizer-core:phase-sine-converter
+				    (cl-synthesizer-util:phase-sine-converter
 				     cur-phi :phase-offset phase-offset))))))
 		  ((eq wave-form :saw)
 		   (push (lambda() cur-saw-output) outputs)
 		   (push :saw outputs)
 		   (setf (elt update-functions index)
 			 (lambda()
-			   (declare (inline cl-synthesizer-core:phase-saw-converter))
+			   (declare (inline cl-synthesizer-util:phase-saw-converter))
 			   (setf cur-saw-output
-				 (* v-peak (cl-synthesizer-core:phase-saw-converter
+				 (* v-peak (cl-synthesizer-util:phase-saw-converter
 					    cur-phi :phase-offset phase-offset))))))
 		  ((eq wave-form :square)
 		   (push (lambda() cur-square-output) outputs)
 		   (push :square outputs)
 		   (setf (elt update-functions index)
 			 (lambda()
-			   (declare (inline cl-synthesizer-core:phase-square-converter))
+			   (declare (inline cl-synthesizer-util:phase-square-converter))
 			   (setf cur-square-output
-				 (* v-peak (cl-synthesizer-core:phase-square-converter
+				 (* v-peak (cl-synthesizer-util:phase-square-converter
 					    cur-phi :duty-cycle duty-cycle :phase-offset phase-offset))))))
 		  ((eq wave-form :triangle)
 		   (push (lambda() cur-triangle-output) outputs)
 		   (push :triangle outputs)
 		   (setf (elt update-functions index)
 			 (lambda()
-			   (declare (inline cl-synthesizer-core:phase-triangle-converter))
+			   (declare (inline cl-synthesizer-util:phase-triangle-converter))
 			   (setf cur-triangle-output
-				 (* v-peak (cl-synthesizer-core:phase-triangle-converter
+				 (* v-peak (cl-synthesizer-util:phase-triangle-converter
 					    cur-phi :phase-offset phase-offset))))))
 		  (t
 		   (cl-synthesizer:signal-assembly-error

@@ -53,7 +53,7 @@
 	  ;; Exponential transfer
 	  (setf transfer-fn (lambda(cv)
 			      (declare (type single-float cv))
-			      (cl-synthesizer-core:normalized-exp (/ cv cv-max)))))
+			      (cl-synthesizer-util:normalized-exp (/ cv cv-max)))))
       (let ((inputs (list
 		     :input (lambda(value) (setf input-signal value))
 		     :cv (lambda(value) (setf input-cv value))

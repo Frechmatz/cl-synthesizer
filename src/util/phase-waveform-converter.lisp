@@ -5,7 +5,7 @@
 ;; with the amplitude of sine.
 ;;
 
-(in-package :cl-synthesizer-core)
+(in-package :cl-synthesizer-util)
 
 (defconstant +SHORT-PI+ (coerce PI 'single-float))
 

@@ -78,7 +78,7 @@
 	;; Exponential transfer
 	(setf transfer-fn (lambda()
 			    (let* ((ramp-progress-percent (/ elapsed-time-ms time-ms))
-				   (normalized-delta (cl-synthesizer-core:normalized-exp ramp-progress-percent)))
+				   (normalized-delta (cl-synthesizer-util:normalized-exp ramp-progress-percent)))
 			      (+ start (* (- target-output start) normalized-delta))))))
     (let ((inputs (list
 		   :trigger (lambda(value) (setf input-trigger value))

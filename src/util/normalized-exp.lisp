@@ -1,4 +1,4 @@
-(in-package :cl-synthesizer-core)
+(in-package :cl-synthesizer-util)
 
 (defun normalized-exp (value)
   "Normalized exponential function.

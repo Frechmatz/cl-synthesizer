@@ -17,7 +17,7 @@
 			     (:file "environment")
 			     (:file "rack-compiler") 
 			     (:file "rack")))
-	       (:module "src/core"
+	       (:module "src/util"
 		:serial t
 		:components ((:file "packages")
 			     (:file "phase-waveform-converter")
@@ -203,7 +203,7 @@
 			     (:file "frequency-counter")
 			     (:file "is-approximately")
 			     (:file "get-patch")))
-	       (:module "test/core"
+	       (:module "test/util"
 		:serial t
 		:components ((:file "test-waveform")))
 	       (:module "test/modules"
