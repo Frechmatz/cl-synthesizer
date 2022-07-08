@@ -31,8 +31,7 @@
 		:components ((:file "packages")
 			     (:file "phase-waveform-converter")
 			     (:file "phase-generator")
-			     (:file "normalized-exp"))))
-  :in-order-to ((test-op (test-op "cl-synthesizer/test"))))
+			     (:file "normalized-exp")))))
 
 (defsystem :cl-synthesizer/modules
   :serial t
@@ -113,8 +112,7 @@
 	       (:module "src/modules/adsr"
 		:serial t
 		:components ((:file "packages")
-			     (:file "adsr"))))
-  :in-order-to ((test-op (test-op "cl-synthesizer/test"))))
+			     (:file "adsr")))))
 
 
 (defsystem :cl-synthesizer/monitor
@@ -130,8 +128,7 @@
   :components ((:module "src/monitor"
 		:serial t
 		:components ((:file "packages")
-			     (:file "monitor"))))
-  :in-order-to ((test-op (test-op "cl-synthesizer/test"))))
+			     (:file "monitor")))))
 
 
 (defsystem :cl-synthesizer/monitor-buffer
@@ -147,8 +144,7 @@
   :components ((:module "src/monitor/buffer"
 		:serial t
 		:components ((:file "packages")
-			     (:file "agent"))))
-  :in-order-to ((test-op (test-op "cl-synthesizer/test"))))
+			     (:file "agent")))))
 
 (defsystem :cl-synthesizer/monitor-wave-file
   :serial t
@@ -163,8 +159,7 @@
   :components ((:module "src/monitor/wave-file"
 		:serial t
 		:components ((:file "packages")
-			     (:file "agent"))))
-  :in-order-to ((test-op (test-op "cl-synthesizer/test"))))
+			     (:file "agent")))))
 
 (defsystem :cl-synthesizer/monitor-csv-file
   :serial t
@@ -179,8 +174,7 @@
   :components ((:module "src/monitor/csv-file"
 		:serial t
 		:components ((:file "packages")
-			     (:file "agent"))))
-  :in-order-to ((test-op (test-op "cl-synthesizer/test"))))
+			     (:file "agent")))))
 
 (defsystem :cl-synthesizer/test
   :serial t
