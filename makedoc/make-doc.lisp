@@ -28,7 +28,7 @@
 	 (lambda-list (docparser:operator-lambda-list node)))
     (concatenate
      'string
-     "<b>" (string-downcase symbol-name) "</b>&nbsp;"
+     "<b>" package-name ":" (string-downcase symbol-name) "</b>&nbsp;"
      (string-downcase (format nil "~a" (if lambda-list lambda-list "()")))
      "<p>" (docparser:node-docstring node) "</p>")))
 
@@ -41,7 +41,7 @@
   (let* ((node (get-node index package-name symbol-name)))
  (concatenate
   'string
-  "<b>" (string-downcase symbol-name) "</b>"
+  "<b>" package-name ":" (string-downcase symbol-name) "</b>"
   "<p>"  (docparser:node-docstring node) "</p>")))
 
 (defun make-variable-string (index package-name symbol-name)
@@ -49,7 +49,7 @@
   (let ((node (get-node index package-name symbol-name)))
     (concatenate
      'string
-     "<b>" (string-downcase symbol-name) "</b>"
+     "<b>" package-name ":" (string-downcase symbol-name) "</b>"
      "<p>" (docparser:node-docstring node) "</p>")))
 
 (defun make-code-string (path)
