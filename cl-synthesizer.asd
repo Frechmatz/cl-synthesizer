@@ -12,9 +12,8 @@
 	       :cl-synthesizer/monitor
 	       :cl-synthesizer/monitor-buffer
 	       :cl-synthesizer/monitor-csv-file
-	       :cl-synthesizer/monitor-wave-file)
+	       :cl-synthesizer/addons)
   :in-order-to ((test-op (test-op "cl-synthesizer/test"))))
-
 
 (defsystem :cl-synthesizer/core
   :serial t
@@ -60,8 +59,6 @@
   :description "Module implementations"
   :long-description "Module implementations"
   :depends-on (:cl-synthesizer/core
-	       ;; cl-wave-file-writer dependency to be removed after split into dedicated module systems
-	       :cl-wave-file-writer
 	       :cl-synthesizer/util)
   :components ((:module "src/modules/vco"
 		:serial t
@@ -110,10 +107,6 @@
 		:serial t
 		:components ((:file "packages")
 			     (:file "trigger")))
-	       (:module "src/modules/wave-file-writer"
-		:serial t
-		:components ((:file "packages")
-			     (:file "wave-file-writer")))
 	       (:module "src/modules/csv-file-writer"
 		:serial t
 		:components ((:file "packages")
@@ -159,21 +152,6 @@
   :long-description "A memory buffer based monitor backend"
   :depends-on (:cl-synthesizer/monitor)
   :components ((:module "src/monitor/buffer"
-		:serial t
-		:components ((:file "packages")
-			     (:file "agent")))))
-
-(defsystem :cl-synthesizer/monitor-wave-file
-  :serial t
-  :version "1.0.0"
-  :licence "MIT"
-  :author "Oliver <frechmatz@gmx.de>"
-  :maintainer "Oliver <frechmatz@gmx.de>"
-  :homepage "https://github.com/Frechmatz/cl-synthesizer"
-  :description "A wave file based monitor backend"
-  :long-description "A wave file based monitor backend"
-  :depends-on (:cl-synthesizer/monitor :cl-wave-file-writer)
-  :components ((:module "src/monitor/wave-file"
 		:serial t
 		:components ((:file "packages")
 			     (:file "agent")))))
@@ -230,8 +208,10 @@
 			     (:file "test-sustain")
 			     (:file "test-vca")
 			     (:file "test-vco")
-			     (:file "test-wave-file-writer")
 			     (:file "test-csv-file-writer")))
+	       (:module "addons/wave-file/test"
+		:serial t
+		:components ((:file "test-module")))
 	       (:module "test/modules/midi"
 		:serial t
 		:components ((:file "test-cc-mapper")
@@ -325,14 +305,13 @@
 	       (:module "src/monitor/csv-file"
 		:serial t
 		:components ((:file "example-1")))
-	       (:module "src/monitor/wave-file"
+	       (:module "addons/wave-file"
 		:serial t
 		:components ((:file "example-1")))
 	       (:module "src/run-examples"
 		:serial t
 		:components ((:file "packages")
 			     (:file "run-examples")))))
-
 
 (defsystem :cl-synthesizer/profiling
   :serial t
@@ -360,4 +339,22 @@
 			     (:file "profile-mixer")
 			     (:file "profile-keyboard")
 			     (:file "profile")))))
+
+(defsystem :cl-synthesizer/addons
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "cl-synthesizer add-ons"
+  :long-description "cl-synthesizer add-ons"
+  :depends-on (:cl-synthesizer/core
+	       :cl-wave-file-writer)
+  :components ((:module "addons/wave-file"
+		:serial t
+		:components ((:file "packages")
+			     (:file "module")
+			     (:file "monitor-agent")))))
+
 
