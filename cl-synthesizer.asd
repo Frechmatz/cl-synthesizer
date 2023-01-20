@@ -8,11 +8,23 @@
   :description "An audio synthesizer"
   :long-description "An audio synthesizer"
   :depends-on (:cl-synthesizer/core
-	       :cl-synthesizer/modules
+	       :cl-synthesizer/vco
+	       :cl-synthesizer/multiple
+	       :cl-synthesizer/vca
+	       :cl-synthesizer/midi
+	       :cl-synthesizer/fixed-output
+	       :cl-synthesizer/adder
+	       :cl-synthesizer/mixer
+	       :cl-synthesizer/trigger
+	       :cl-synthesizer/csv-file-writer
+	       :cl-synthesizer/wave-file-writer
+	       :cl-synthesizer/ramp
+	       :cl-synthesizer/sustain
+	       :cl-synthesizer/adsr
 	       :cl-synthesizer/monitor
 	       :cl-synthesizer/monitor-buffer
 	       :cl-synthesizer/monitor-csv-file
-	       :cl-synthesizer/addons)
+	       :cl-synthesizer/monitor-wave-file)
   :in-order-to ((test-op (test-op "cl-synthesizer/test"))))
 
 (defsystem :cl-synthesizer/core
@@ -49,30 +61,66 @@
 			     (:file "phase-generator")
 			     (:file "normalized-exp")))))
 
-(defsystem :cl-synthesizer/modules
+(defsystem :cl-synthesizer/vco
   :serial t
   :version "1.0.0"
   :licence "MIT"
   :author "Oliver <frechmatz@gmx.de>"
   :maintainer "Oliver <frechmatz@gmx.de>"
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
-  :description "Module implementations"
-  :long-description "Module implementations"
+  :description "VCO module"
+  :long-description "VCO module"
   :depends-on (:cl-synthesizer/core
 	       :cl-synthesizer/util)
   :components ((:module "src/modules/vco"
 		:serial t
 		:components ((:file "packages")
-			     (:file "vco")))
-	       (:module "src/modules/multiple"
+			     (:file "vco")))))
+
+(defsystem :cl-synthesizer/multiple
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "Multiple module"
+  :long-description "Multiple module"
+  :depends-on (:cl-synthesizer/core
+	       :cl-synthesizer/util)
+  :components ((:module "src/modules/multiple"
 		:serial t
 		:components ((:file "packages")
-			     (:file "multiple")))
-	       (:module "src/modules/vca"
+			     (:file "multiple")))))
+
+(defsystem :cl-synthesizer/vca
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "VCA module"
+  :long-description "VCA module"
+  :depends-on (:cl-synthesizer/core
+	       :cl-synthesizer/util)
+  :components ((:module "src/modules/vca"
 		:serial t
 		:components ((:file "packages")
-			     (:file "vca")))
-	       (:module "src/modules/midi"
+			     (:file "vca")))))
+
+(defsystem :cl-synthesizer/midi
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "Midi modules"
+  :long-description "Midi modules"
+  :depends-on (:cl-synthesizer/core
+	       :cl-synthesizer/util)
+  :components ((:module "src/modules/midi"
 		:serial t
 		:components ((:file "packages")
 			     (:file "tuning")
@@ -90,40 +138,154 @@
 		:components ((:file "midi-relative-cc-interface")))
 	       (:module "src/modules/midi/modules/midi-sequencer"
 		:serial t
-		:components ((:file "midi-sequencer")))
-	       (:module "src/modules/fixed-output"
+		:components ((:file "midi-sequencer")))))
+
+(defsystem :cl-synthesizer/fixed-output
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "fixed-output module"
+  :long-description "fixed-output module"
+  :depends-on (:cl-synthesizer/core
+	       :cl-synthesizer/util)
+  :components ((:module "src/modules/fixed-output"
 		:serial t
 		:components ((:file "packages")
-			     (:file "fixed-output")))
-	       (:module "src/modules/adder"
+			     (:file "fixed-output")))))
+
+(defsystem :cl-synthesizer/adder
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "Adder module"
+  :long-description "Adder module"
+  :depends-on (:cl-synthesizer/core
+	       :cl-synthesizer/util)
+  :components ((:module "src/modules/adder"
 		:serial t
 		:components ((:file "packages")
-			     (:file "adder")))
-	       (:module "src/modules/mixer"
+			     (:file "adder")))))
+
+(defsystem :cl-synthesizer/mixer
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "Mixer module"
+  :long-description "Mixer module"
+  :depends-on (:cl-synthesizer/core
+	       :cl-synthesizer/util)
+  :components ((:module "src/modules/mixer"
 		:serial t
 		:components ((:file "packages")
-			     (:file "mixer")))
-	       (:module "src/modules/trigger"
+			     (:file "mixer")))))
+
+(defsystem :cl-synthesizer/trigger
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "Trigger module"
+  :long-description "Trigger module"
+  :depends-on (:cl-synthesizer/core
+	       :cl-synthesizer/util)
+  :components ((:module "src/modules/trigger"
 		:serial t
 		:components ((:file "packages")
-			     (:file "trigger")))
-	       (:module "src/modules/csv-file-writer"
+			     (:file "trigger")))))
+
+(defsystem :cl-synthesizer/csv-file-writer
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "CSV file writer module"
+  :long-description "CSV file writer module"
+  :depends-on (:cl-synthesizer/core
+	       :cl-synthesizer/util)
+  :components ((:module "src/modules/csv-file-writer"
 		:serial t
 		:components ((:file "packages")
-			     (:file "csv-file-writer")))
-	       (:module "src/modules/ramp"
+			     (:file "csv-file-writer")))))
+
+(defsystem :cl-synthesizer/wave-file-writer
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "Wave file writer module"
+  :long-description "Wave file writer module"
+  :depends-on (:cl-synthesizer/core
+	       :cl-synthesizer/util
+	       :cl-wave-file-writer)
+  :components ((:module "src/modules/wave-file-writer"
 		:serial t
 		:components ((:file "packages")
-			     (:file "ramp")))
-	       (:module "src/modules/sustain"
+			     (:file "wave-file-writer")))))
+
+(defsystem :cl-synthesizer/ramp
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "Ramp module"
+  :long-description "Ramp module"
+  :depends-on (:cl-synthesizer/core
+	       :cl-synthesizer/util)
+  :components ((:module "src/modules/ramp"
 		:serial t
 		:components ((:file "packages")
-			     (:file "sustain")))
-	       (:module "src/modules/adsr"
+			     (:file "ramp")))))
+
+(defsystem :cl-synthesizer/sustain
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "Sustain module"
+  :long-description "Sustain module"
+  :depends-on (:cl-synthesizer/core
+	       :cl-synthesizer/util)
+  :components ((:module "src/modules/sustain"
+		:serial t
+		:components ((:file "packages")
+			     (:file "sustain")))))
+
+(defsystem :cl-synthesizer/adsr
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "ADSR module"
+  :long-description "ADSR module"
+  :depends-on (:cl-synthesizer/core
+	       :cl-synthesizer/util
+	       :cl-synthesizer/ramp
+	       :cl-synthesizer/sustain)
+  :components ((:module "src/modules/adsr"
 		:serial t
 		:components ((:file "packages")
 			     (:file "adsr")))))
-
 
 (defsystem :cl-synthesizer/monitor
   :serial t
@@ -163,10 +325,25 @@
   :author "Oliver <frechmatz@gmx.de>"
   :maintainer "Oliver <frechmatz@gmx.de>"
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
-  :description "A csv file based monitor backend"
-  :long-description "A csv file based monitor backend"
+  :description "A CSV file based monitor backend"
+  :long-description "A CSV file based monitor backend"
   :depends-on (:cl-synthesizer/monitor)
   :components ((:module "src/monitor/csv-file"
+		:serial t
+		:components ((:file "packages")
+			     (:file "agent")))))
+
+(defsystem :cl-synthesizer/monitor-wave-file
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "A Wave file based monitor backend"
+  :long-description "A Wave file based monitor backend"
+  :depends-on (:cl-synthesizer/monitor)
+  :components ((:module "src/monitor/wave-file"
 		:serial t
 		:components ((:file "packages")
 			     (:file "agent")))))
@@ -208,10 +385,8 @@
 			     (:file "test-sustain")
 			     (:file "test-vca")
 			     (:file "test-vco")
-			     (:file "test-csv-file-writer")))
-	       (:module "addons/wave-file/test"
-		:serial t
-		:components ((:file "test-module")))
+			     (:file "test-csv-file-writer")
+			     (:file "test-wave-file-writer")))
 	       (:module "test/modules/midi"
 		:serial t
 		:components ((:file "test-cc-mapper")
@@ -305,7 +480,7 @@
 	       (:module "src/monitor/csv-file"
 		:serial t
 		:components ((:file "example-1")))
-	       (:module "addons/wave-file"
+	       (:module "src/monitor/wave-file"
 		:serial t
 		:components ((:file "example-1")))
 	       (:module "src/run-examples"
@@ -339,22 +514,4 @@
 			     (:file "profile-mixer")
 			     (:file "profile-keyboard")
 			     (:file "profile")))))
-
-(defsystem :cl-synthesizer/addons
-  :serial t
-  :version "1.0.0"
-  :licence "MIT"
-  :author "Oliver <frechmatz@gmx.de>"
-  :maintainer "Oliver <frechmatz@gmx.de>"
-  :homepage "https://github.com/Frechmatz/cl-synthesizer"
-  :description "cl-synthesizer add-ons"
-  :long-description "cl-synthesizer add-ons"
-  :depends-on (:cl-synthesizer/core
-	       :cl-wave-file-writer)
-  :components ((:module "addons/wave-file"
-		:serial t
-		:components ((:file "packages")
-			     (:file "module")
-			     (:file "monitor-agent")))))
-
 

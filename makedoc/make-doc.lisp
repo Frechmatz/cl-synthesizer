@@ -4,9 +4,37 @@
 ;; Helper functions
 ;;
 
-(defun make-index (system)
-  (docparser:parse system))
+(defparameter *system-indexes* nil)
 
+(defun get-system-index (system)
+  (if (not *system-indexes*)
+      (setf *system-indexes* 
+	    (list
+	     :cl-synthesizer (docparser:parse :cl-synthesizer)
+	     :cl-synthesizer/modules (docparser:parse :cl-synthesizer/modules)
+	     :cl-synthesizer/vco (docparser:parse :cl-synthesizer/vco)
+	     :cl-synthesizer/multiple (docparser:parse :cl-synthesizer/multiple)
+	     :cl-synthesizer/vca (docparser:parse :cl-synthesizer/vca)
+	     :cl-synthesizer/midi (docparser:parse :cl-synthesizer/midi)
+	     :cl-synthesizer/fixed-output (docparser:parse :cl-synthesizer/fixed-output)
+	     :cl-synthesizer/adder (docparser:parse :cl-synthesizer/adder)
+	     :cl-synthesizer/mixer (docparser:parse :cl-synthesizer/mixer)
+	     :cl-synthesizer/trigger (docparser:parse :cl-synthesizer/trigger)
+	     :cl-synthesizer/csv-file-writer (docparser:parse :cl-synthesizer/csv-file-writer)
+	     :cl-synthesizer/wave-file-writer (docparser:parse :cl-synthesizer/wave-file-writer)
+	     :cl-synthesizer/ramp (docparser:parse :cl-synthesizer/ramp)
+	     :cl-synthesizer/sustain (docparser:parse :cl-synthesizer/sustain)
+	     :cl-synthesizer/adsr (docparser:parse :cl-synthesizer/adsr)
+	     :cl-synthesizer/monitor (docparser:parse :cl-synthesizer/monitor)
+	     :cl-synthesizer/monitor-wave-file (docparser:parse :cl-synthesizer/monitor-wave-file)
+	     :cl-synthesizer/monitor-csv-file (docparser:parse :cl-synthesizer/monitor-csv-file)
+	     :cl-synthesizer/monitor-buffer (docparser:parse :cl-synthesizer/monitor-buffer)
+	     :cl-synthesizer/doc (docparser:parse :cl-synthesizer/doc))))
+  (let ((system-index (getf *system-indexes* system)))
+    (if (not system-index)
+	(error "Index for system ~a not found" system))
+    system-index))
+		  
 (defun get-node (index package-name symbol-name)
   (aref (docparser:query
 	     index
@@ -14,8 +42,8 @@
 	     :symbol-name (string-upcase symbol-name))
 	0))
 
-(defun get-package-docstring (index package-name)
-  (let ((docstring nil))
+(defun get-package-docstring (system package-name)
+  (let ((docstring nil) (index (get-system-index system)))
     (docparser:do-packages (package index)
       (if (string= (string-upcase package-name) (docparser:package-index-name package))
 	  (setf docstring (docparser:package-index-docstring package))))
@@ -23,8 +51,9 @@
 	(error "Package ~a not found" package-name))
     docstring))
 
-(defun make-function-string (index package-name symbol-name)
-  (let* ((node (get-node index package-name symbol-name))
+(defun make-function-string (system package-name symbol-name)
+  (let* ((index (get-system-index system))
+	 (node (get-node index package-name symbol-name))
 	 (lambda-list (docparser:operator-lambda-list node)))
     (concatenate
      'string
@@ -32,21 +61,22 @@
      (string-downcase (format nil "~a" (if lambda-list lambda-list "()")))
      "<p>" (docparser:node-docstring node) "</p>")))
 
-(defun make-package-string (index package-name)
+(defun make-package-string (system package-name)
   (concatenate
    'string
-   "<p>" (get-package-docstring index package-name) "</p>"))
-
-(defun make-condition-string (index package-name symbol-name)
-  (let* ((node (get-node index package-name symbol-name)))
+   "<p>" (get-package-docstring system package-name) "</p>"))
+    
+(defun make-condition-string (system package-name symbol-name)
+  (let* ((index (get-system-index system))
+	 (node (get-node index package-name symbol-name)))
  (concatenate
   'string
   "<b>" package-name ":" (string-downcase symbol-name) "</b>"
   "<p>"  (docparser:node-docstring node) "</p>")))
 
-(defun make-variable-string (index package-name symbol-name)
+(defun make-variable-string (system package-name symbol-name)
   "Returns HTML representation of a variable"
-  (let ((node (get-node index package-name symbol-name)))
+  (let* ((index (get-system-index system)) (node (get-node index package-name symbol-name)))
     (concatenate
      'string
      "<b>" package-name ":" (string-downcase symbol-name) "</b>"
@@ -75,9 +105,9 @@
    "\" type=\"audio/wav\">"
    "</audio></p>"))
 
-(defun make-patch (index &key package path wave-file (show-code nil))
+(defun make-patch (system &key package path wave-file (show-code nil))
   (let ((link-id (gensym)) (source-code-id (gensym)))
-    (list 'heading (list :name (make-package-string index package) :toc t)
+    (list 'heading (list :name (make-package-string system package) :toc t)
 	  (make-audio-element wave-file)
 	  (format nil "<p><a href=\"#\" id=\"~a\"" link-id)
 	  (format nil "onclick=\"return toggleDisplay('~a', '~a', '~a', '~a')\">~a</a></p>"
@@ -117,14 +147,7 @@
 ;; Readme
 ;;
 
-(defun get-readme (lib-index
-		   modules-index
-		   monitor-index
-		   monitor-buffer-index
-		   monitor-csv-file-index
-		   monitor-wave-file-index
-		   readme-index
-		   addons-index)
+(defun get-readme ()
   `("<html>"
     "<head><link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\"/></head>"
     "<body>"
@@ -139,15 +162,15 @@
 		       ,(cl-html-readme:read-file "makedoc/installation.html"))
 	      (heading (:name "Examples" :toc t)
 		       (heading (:toc t
-				 :name ,(get-package-docstring readme-index "cl-synthesizer-patches-saw")))
+				 :name ,(get-package-docstring :cl-synthesizer/doc "cl-synthesizer-patches-saw")))
 		       ,(make-code-string "makedoc/patches/saw.lisp")
 		       ,(make-audio-element "saw.wav")
 		       (heading (:toc t
-				 :name ,(get-package-docstring readme-index "cl-synthesizer-patches-frequency-modulated-saw")))
+				 :name ,(get-package-docstring :cl-synthesizer/doc "cl-synthesizer-patches-frequency-modulated-saw")))
 		       ,(make-code-string "makedoc/patches/frequency-modulated-saw.lisp")
 		       ,(make-audio-element "frequency-modulated-saw.wav")
 		       (heading (:toc t
-				 :name ,(get-package-docstring readme-index "cl-synthesizer-patches-two-frequency-modulated-saws")))
+				 :name ,(get-package-docstring :cl-synthesizer/doc "cl-synthesizer-patches-two-frequency-modulated-saws")))
 		       ,(make-code-string "makedoc/patches/two-frequency-modulated-saws.lisp")
 		       ,(make-audio-element "two-frequency-modulated-saws.wav"))
 	      (heading (:name "Change-Log" :toc t)
@@ -186,128 +209,127 @@
 		       (heading (:name "Monitor" :toc t)
 				,(cl-html-readme:read-file "makedoc/monitor-introduction.html")
 				,(make-example-header)
-				,(make-code-string "addons/wave-file/example-1.lisp")))
+				,(make-code-string "src/monitor/wave-file/example-1.lisp")))
 	      (heading (:name "API" :toc t)
 		       (heading (:toc t :name "Environment")
 				(heading (:toc t :name "make-environment")
-					 ,(make-function-string lib-index "cl-synthesizer" "make-environment"))
+					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "make-environment"))
 				(heading (:toc t :name "*home-directory*")
-					 ,(make-variable-string lib-index "cl-synthesizer" "*home-directory*")))
+					 ,(make-variable-string :cl-synthesizer "cl-synthesizer" "*home-directory*")))
 		       (heading (:toc t :name "Rack")
 				(heading (:toc t :name "make-rack")
-					 ,(make-function-string lib-index "cl-synthesizer" "make-rack"))
+					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "make-rack"))
 				(heading (:toc t :name "add-module")
-					 ,(make-function-string lib-index "cl-synthesizer" "add-module"))
+					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "add-module"))
 				(heading (:toc t :name "add-patch")
-					 ,(make-function-string lib-index "cl-synthesizer" "add-patch"))
+					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "add-patch"))
 				(heading (:toc t :name "expose-input-socket")
-					 ,(make-function-string lib-index "cl-synthesizer" "expose-input-socket"))
+					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "expose-input-socket"))
 				(heading (:toc t :name "expose-output-socket")
-					 ,(make-function-string lib-index "cl-synthesizer" "expose-output-socket"))
+					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "expose-output-socket"))
 				(heading (:toc t :name "get-module")
-					 ,(make-function-string lib-index "cl-synthesizer" "get-module"))
+					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "get-module"))
 				(heading (:toc t :name "get-module-name")
-					 ,(make-function-string lib-index "cl-synthesizer" "get-module-name"))
+					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "get-module-name"))
 				(heading (:toc t :name "find-module")
-					 ,(make-function-string lib-index "cl-synthesizer" "find-module"))
+					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "find-module"))
 				(heading (:toc t :name "get-patches")
-					 ,(make-function-string lib-index "cl-synthesizer" "get-patches"))
+					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "get-patches"))
 				(heading (:toc t :name "get-modules")
-					 ,(make-function-string lib-index "cl-synthesizer" "get-modules"))
+					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "get-modules"))
 				(heading (:toc t :name "add-hook")
-					 ,(make-function-string lib-index "cl-synthesizer" "add-hook"))
+					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "add-hook"))
 				(heading (:toc t :name "play-rack")
-					 ,(make-function-string lib-index "cl-synthesizer" "play-rack"))
+					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "play-rack"))
 				(heading (:toc t :name "is-rack")
-					 ,(make-function-string lib-index "cl-synthesizer" "is-rack"))
+					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "is-rack"))
 				(heading (:toc t :name "get-environment")
-					 ,(make-function-string lib-index "cl-synthesizer" "get-environment")))
+					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "get-environment")))
 		       (heading	(:toc t :name "Modules")
 			(heading (:toc t :name "VCO")
-				 ,(make-function-string modules-index "cl-synthesizer-modules-vco" "make-module")
+				 ,(make-function-string :cl-synthesizer/vco "cl-synthesizer-modules-vco" "make-module")
 				 ,(make-example-header)
 				 ,(make-code-string "src/modules/vco/example-1.lisp"))
 			(heading (:toc t :name "VCA")
-				 ,(make-function-string modules-index "cl-synthesizer-modules-vca" "make-module")
+				 ,(make-function-string :cl-synthesizer/vca "cl-synthesizer-modules-vca" "make-module")
 				 ,(make-example-header)
 				 ,(make-code-string "src/modules/vca/example-1.lisp"))
 			(heading (:toc t :name "ADSR")
-				 ,(make-function-string modules-index "cl-synthesizer-modules-adsr" "make-module")
+				 ,(make-function-string :cl-synthesizer/adsr "cl-synthesizer-modules-adsr" "make-module")
 				 ,(make-example-header)
 				 ,(make-code-string "src/modules/adsr/example-1.lisp"))
 			(heading (:toc t :name "Multiple")
-				 ,(make-function-string modules-index "cl-synthesizer-modules-multiple" "make-module")
+				 ,(make-function-string :cl-synthesizer/multiple "cl-synthesizer-modules-multiple" "make-module")
 				 ,(make-example-header)
 				 ,(make-code-string "src/modules/multiple/example-1.lisp"))
 			(heading (:toc t :name "MIDI Polyphonic Interface")
-				 ,(make-function-string modules-index "cl-synthesizer-modules-midi-polyphonic-interface" "make-module"))
+				 ,(make-function-string :cl-synthesizer/midi "cl-synthesizer-modules-midi-polyphonic-interface" "make-module"))
 			(heading (:toc t :name "MIDI Monophonic Interface")
-				 ,(make-function-string modules-index "cl-synthesizer-modules-midi-monophonic-interface" "make-module"))
+				 ,(make-function-string :cl-synthesizer/midi "cl-synthesizer-modules-midi-monophonic-interface" "make-module"))
 			(heading (:toc t :name "MIDI Relative CC Interface")
-				 ,(make-function-string modules-index "cl-synthesizer-modules-midi-relative-cc-interface" "make-module")
+				 ,(make-function-string :cl-synthesizer/midi "cl-synthesizer-modules-midi-relative-cc-interface" "make-module")
 				 ,(make-example-header)
 				 ,(make-code-string "src/modules/midi/modules/midi-relative-cc-interface/example-1.lisp"))
 			(heading (:toc t :name "MIDI Sequencer")
-				 ,(make-function-string modules-index "cl-synthesizer-modules-midi-sequencer" "make-module")
+				 ,(make-function-string :cl-synthesizer/midi "cl-synthesizer-modules-midi-sequencer" "make-module")
 				 ,(make-example-header)
 				 ,(make-code-string "src/modules/midi/modules/midi-sequencer/example-1.lisp"))
 			(heading (:toc t :name "Fixed Output")
-				 ,(make-function-string modules-index "cl-synthesizer-modules-fixed-output" "make-module")
+				 ,(make-function-string :cl-synthesizer/fixed-output "cl-synthesizer-modules-fixed-output" "make-module")
 				 ,(make-example-header)
 				 ,(make-code-string "src/modules/fixed-output/example-1.lisp"))
 			(heading (:toc t :name "Adder")
-				 ,(make-function-string modules-index "cl-synthesizer-modules-adder" "make-module"))
+				 ,(make-function-string :cl-synthesizer/adder "cl-synthesizer-modules-adder" "make-module"))
 			(heading (:toc t :name "Mixer")
-				 ,(make-function-string modules-index "cl-synthesizer-modules-mixer" "make-module")
+				 ,(make-function-string :cl-synthesizer/mixer "cl-synthesizer-modules-mixer" "make-module")
 				 ,(make-example-header)
 				 ,(make-code-string "src/modules/mixer/example-1.lisp"))
 			(heading (:toc t :name "Trigger")
-				 ,(make-function-string modules-index "cl-synthesizer-modules-trigger" "make-module")
+				 ,(make-function-string :cl-synthesizer/trigger "cl-synthesizer-modules-trigger" "make-module")
 				 ,(make-example-header)
 				 ,(make-code-string "src/modules/trigger/example-1.lisp"))
 			(heading (:toc t :name "Ramp")
-				 ,(make-function-string modules-index "cl-synthesizer-modules-ramp" "make-module")
+				 ,(make-function-string :cl-synthesizer/ramp "cl-synthesizer-modules-ramp" "make-module")
 				 ,(make-example-header)
 				 ,(make-code-string "src/modules/ramp/example-1.lisp"))
 			(heading (:toc t :name "Sustain")
-				 ,(make-function-string modules-index "cl-synthesizer-modules-sustain" "make-module")
+				 ,(make-function-string :cl-synthesizer/sustain "cl-synthesizer-modules-sustain" "make-module")
 				 ,(make-example-header)
 				 ,(make-code-string "src/modules/sustain/example-1.lisp"))
 			(heading (:toc t :name "Wave File Writer")
-				 ,(make-function-string addons-index "cl-synthesizer-modules-wave-file-writer" "make-module"))
+				 ,(make-function-string :cl-synthesizer/wave-file-writer "cl-synthesizer-modules-wave-file-writer" "make-module"))
 			(heading (:toc t :name "CSV File Writer")
-				 ,(make-function-string modules-index "cl-synthesizer-modules-csv-file-writer" "make-module")))
+				 ,(make-function-string :cl-synthesizer/csv-file-writer "cl-synthesizer-modules-csv-file-writer" "make-module")))
 		       (heading (:toc t :name "Monitor")
 				(heading (:toc t :name "add-monitor")
-					 ,(make-function-string monitor-index "cl-synthesizer-monitor" "add-monitor"))
-				(heading (:toc t :name "wave-file-agent")
-					 ,(make-function-string addons-index "cl-synthesizer-monitor-wave-file-agent" "make-backend")
+					 ,(make-function-string :cl-synthesizer/monitor "cl-synthesizer-monitor" "add-monitor"))
+				(heading (:toc t :name "wave-file-agent") ,(make-function-string :cl-synthesizer/monitor-wave-file "cl-synthesizer-monitor-wave-file-agent" "make-backend")
 					 ,(make-example-header)
-					 ,(make-code-string "addons/wave-file/example-1.lisp"))
+					 ,(make-code-string "src/monitor/wave-file/example-1.lisp"))
 				(heading (:toc t :name "csv-file-agent")
-					 ,(make-function-string monitor-csv-file-index "cl-synthesizer-monitor-csv-file-agent" "make-backend")
+					 ,(make-function-string :cl-synthesizer/monitor-csv-file "cl-synthesizer-monitor-csv-file-agent" "make-backend")
 					 ,(make-example-header)
 					 ,(make-code-string "src/monitor/csv-file/example-1.lisp"))
 				(heading (:toc t :name "buffer-agent")
-					 ,(make-function-string monitor-buffer-index "cl-synthesizer-monitor-buffer-agent" "make-backend")))
+					 ,(make-function-string :cl-synthesizer/monitor-buffer "cl-synthesizer-monitor-buffer-agent" "make-backend")))
 		       (heading (:toc t :name "MIDI")
 				(heading (:toc t :name "MIDI Event"))
-				,(make-function-string modules-index "cl-synthesizer-midi-event" "make-control-change-event")
-				,(make-function-string modules-index "cl-synthesizer-midi-event" "make-note-on-event")
-				,(make-function-string modules-index "cl-synthesizer-midi-event" "make-note-off-event")
-				,(make-function-string modules-index "cl-synthesizer-midi-event" "control-change-eventp")
-				,(make-function-string modules-index "cl-synthesizer-midi-event" "note-on-eventp")
-				,(make-function-string modules-index "cl-synthesizer-midi-event" "note-off-eventp")
-				,(make-function-string modules-index "cl-synthesizer-midi-event" "get-channel")
-				,(make-function-string modules-index "cl-synthesizer-midi-event" "get-controller-number")
-				,(make-function-string modules-index "cl-synthesizer-midi-event" "get-control-value")
-				,(make-function-string modules-index "cl-synthesizer-midi-event" "get-note-number")
-				,(make-function-string modules-index "cl-synthesizer-midi-event" "get-velocity")
+				,(make-function-string :cl-synthesizer/midi "cl-synthesizer-midi-event" "make-control-change-event")
+				,(make-function-string :cl-synthesizer/midi "cl-synthesizer-midi-event" "make-note-on-event")
+				,(make-function-string :cl-synthesizer/midi "cl-synthesizer-midi-event" "make-note-off-event")
+				,(make-function-string :cl-synthesizer/midi "cl-synthesizer-midi-event" "control-change-eventp")
+				,(make-function-string :cl-synthesizer/midi "cl-synthesizer-midi-event" "note-on-eventp")
+				,(make-function-string :cl-synthesizer/midi "cl-synthesizer-midi-event" "note-off-eventp")
+				,(make-function-string :cl-synthesizer/midi "cl-synthesizer-midi-event" "get-channel")
+				,(make-function-string :cl-synthesizer/midi "cl-synthesizer-midi-event" "get-controller-number")
+				,(make-function-string :cl-synthesizer/midi "cl-synthesizer-midi-event" "get-control-value")
+				,(make-function-string :cl-synthesizer/midi "cl-synthesizer-midi-event" "get-note-number")
+				,(make-function-string :cl-synthesizer/midi "cl-synthesizer-midi-event" "get-velocity")
 				(heading (:toc t :name "MIDI Utilities")
-					 ,(make-function-string modules-index "cl-synthesizer-midi" "get-note-number-frequency")
+					 ,(make-function-string :cl-synthesizer/midi "cl-synthesizer-midi" "get-note-number-frequency")
 					 ,(make-note-number-chart)))
 		       (heading (:toc t :name "Conditions")
-				,(make-condition-string lib-index "cl-synthesizer" "assembly-error")))
+				,(make-condition-string :cl-synthesizer "cl-synthesizer" "assembly-error")))
 	      (heading (:name "Run tests" :toc t)
 		       "<pre><code>(asdf:test-system :cl-synthesizer)</code></pre>")
 	      (heading (:name "Run examples" :toc t)
@@ -329,7 +351,7 @@
 ;; Patches
 ;;
 
-(defun get-patches (readme-index)
+(defun get-patches ()
   `("<html><head>"
     "<script type=\"text/javascript\" src=\"toggledisplay.js\"></script>"
     "<link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\"/>"
@@ -338,15 +360,15 @@
 	      (heading (:name "cl-synthesizer-patches")
 		       ,(cl-html-readme:read-file "makedoc/patches-introduction.html")))
     (semantic (:name "section")
-	      ,(make-patch readme-index
+	      ,(make-patch :cl-synthesizer/doc
 			   :package "cl-synthesizer-patches-saw"
 			   :path "makedoc/patches/saw.lisp"
 			   :wave-file "saw.wav")
-	      ,(make-patch readme-index
+	      ,(make-patch :cl-synthesizer/doc
 			   :package "cl-synthesizer-patches-frequency-modulated-saw"
 			   :path "makedoc/patches/frequency-modulated-saw.lisp"
 			   :wave-file "frequency-modulated-saw.wav")
-	      ,(make-patch readme-index
+	      ,(make-patch :cl-synthesizer/doc
 			   :package "cl-synthesizer-patches-two-frequency-modulated-saws"
 			   :path "makedoc/patches/two-frequency-modulated-saws.lisp"
 			   :wave-file "two-frequency-modulated-saws.wav"))
@@ -365,37 +387,21 @@
     (cl-synthesizer-patches-frequency-modulated-saw::run-example)
     (cl-synthesizer-patches-two-frequency-modulated-saws::run-example))
   ;; Generate html files
-  (let ((lib-index (make-index :cl-synthesizer))
-	(lib-modules-index (make-index :cl-synthesizer/modules))
-	(lib-monitor-index (make-index :cl-synthesizer/monitor))
-	(lib-monitor-wave-file-index (make-index :cl-synthesizer/monitor-wave-file))
-	(lib-monitor-csv-file-index (make-index :cl-synthesizer/monitor-csv-file))
-	(lib-monitor-buffer-index (make-index :cl-synthesizer/monitor-buffer))
-	(lib-addons-index (make-index :cl-synthesizer/addons))
-	(readme-index (make-index :cl-synthesizer/doc)))
-    (let ((cl-html-readme:*home-directory* (asdf:system-source-directory :cl-synthesizer/doc))
-	  (cl-html-readme:*tab-width* 4))
-      (with-open-file (fh (cl-html-readme:make-path "docs/index.html")
-			  :direction :output
-			  :if-exists :supersede
-			  :if-does-not-exist :create
-			  :external-format :utf-8)
-	(cl-html-readme:doc-to-html fh (get-readme
-					lib-index
-					lib-modules-index
-					lib-monitor-index
-					lib-monitor-buffer-index
-					lib-monitor-csv-file-index
-					lib-monitor-wave-file-index
-					readme-index
-					lib-addons-index)))
-      (with-open-file (fh (cl-html-readme:make-path "docs/patches.html")
-			  :direction :output
-			  :if-exists :supersede
-			  :if-does-not-exist :create
-			  :external-format :utf-8)
-	(cl-html-readme:doc-to-html fh (get-patches readme-index)))))
-    "DONE")
+  (let ((cl-html-readme:*home-directory* (asdf:system-source-directory :cl-synthesizer/doc))
+	(cl-html-readme:*tab-width* 4))
+    (with-open-file (fh (cl-html-readme:make-path "docs/index.html")
+			:direction :output
+			:if-exists :supersede
+			:if-does-not-exist :create
+			:external-format :utf-8)
+      (cl-html-readme:doc-to-html fh (get-readme)))
+    (with-open-file (fh (cl-html-readme:make-path "docs/patches.html")
+			:direction :output
+			:if-exists :supersede
+			:if-does-not-exist :create
+			:external-format :utf-8)
+      (cl-html-readme:doc-to-html fh (get-patches))))
+  "DONE")
 
 ;;(make-doc)
 
