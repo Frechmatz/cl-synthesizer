@@ -45,7 +45,8 @@
 	<li>:output The output consisting of the sum of the inputs.</li>
     </ul></p>"
   (if (<= channel-count 0)
-      (cl-synthesizer:signal-assembly-error
+      (error
+       'cl-synthesizer:assembly-error
        :format-control "~a: channel-count must be greater than 0: '~a'"
        :format-arguments (list name channel-count)))
   (let ((input-sockets

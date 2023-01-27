@@ -74,7 +74,8 @@
   The module has no outputs.
   <p>The recommended way of CSV file generation is to use a Monitor.</p>"
   (if (<= (length columns) 0)
-      (cl-synthesizer:signal-assembly-error
+      (error
+       'cl-synthesizer:assembly-error
        :format-control "'~a': Columns must not be empty."
        :format-arguments (list name)))
   (let ((column-keys (make-keyword-list "column" (length columns)))

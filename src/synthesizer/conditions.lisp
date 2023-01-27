@@ -7,8 +7,3 @@
    a non-existing module, a patch is added to an already patched socket
    and so on."))
 
-(defun signal-assembly-error (&key format-control format-arguments)
-  (error (make-condition
-	  'assembly-error
-	  :format-control format-control
-	  :format-arguments format-arguments)))

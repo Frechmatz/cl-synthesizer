@@ -66,27 +66,31 @@
     (multiple-value-bind (module-rack module-name module)
 	(cl-synthesizer:find-module rack module-path)
       (if (not module)
-	  (cl-synthesizer:signal-assembly-error
+	  (error
+	   'cl-synthesizer:assembly-error
 	   :format-control "Monitor: Cannot find module '~a'"
 	   :format-arguments (list module-path)))
       (let ((input-fetcher nil))
 	(cond
 	  ((eq :output-socket socket-type)
 	   (if (not (find socket-key (cl-synthesizer:get-outputs module)))
-	       (cl-synthesizer:signal-assembly-error
+	       (error
+		'cl-synthesizer:assembly-error
 		:format-control "Monitor: Module '~a' does not expose output socket '~a'"
 		:format-arguments (list module-path socket-key)))
 	   (setf input-fetcher (make-get-output-lambda module socket-key)))
 	  ((eq :input-socket socket-type)
 	   (if (not (find socket-key (cl-synthesizer:get-inputs module)))
-	       (cl-synthesizer:signal-assembly-error
+	       (error
+		'cl-synthesizer:assembly-error
 		:format-control "Monitor: Module '~a' does not expose input socket '~a'"
 		:format-arguments (list module-path socket-key)))
 	   ;; Get output which is patched with input
 	   (multiple-value-bind (source-module-name source-module source-socket)
 	       (get-patch module-rack module-name :input-socket socket-key)
 	     (if (not source-module-name)
-		 (cl-synthesizer:signal-assembly-error
+		 (error
+		  'cl-synthesizer:assembly-error
 		  :format-control
 		  "Monitor: Can only monitor patched inputs. Module '~a' Socket '~a'"
 		  :format-arguments (list module-name socket-key)))
@@ -100,7 +104,8 @@
 				   (lambda(key) (declare (ignore key)) nil))))
 	     (setf input-fetcher (lambda() (funcall get-state-fn socket-key)))))
 	  (t
-	   (cl-synthesizer:signal-assembly-error
+	   (error
+	    'cl-synthesizer:assembly-error
 	    :format-control "Monitor: Socket-Type not supported: '~a'. Must be one of :input-socket, :output-socket, :state"
 	    :format-arguments (list socket-type))))
 	input-fetcher))))
@@ -171,27 +176,32 @@
 	additional-agent-args)
 
      (if (not backend)
-	 (cl-synthesizer:signal-assembly-error
+	 (error
+	  'cl-synthesizer:assembly-error
 	  :format-control "Monitor: Backend must not be nil"
 	  :format-arguments nil))
 
      (if (not (functionp (cl-synthesizer:get-inputs-fn backend)))
-	 (cl-synthesizer:signal-assembly-error
+	 (error
+	  'cl-synthesizer:assembly-error
 	  :format-control "Monitor: Backend must provide an inputs function"
 	  :format-arguments nil))
      
      (if (not (functionp (cl-synthesizer:get-update-fn backend)))
-	 (cl-synthesizer:signal-assembly-error
+	 (error
+	  'cl-synthesizer:assembly-error
 	  :format-control "Monitor: Backend must provide an update function"
 	  :format-arguments nil))
      
      (if (not ordered-input-sockets)
-	 (cl-synthesizer:signal-assembly-error
+	 (error
+	  'cl-synthesizer:assembly-error
 	  :format-control "Monitor: Sockets returned by agent must not be nil"
 	  :format-arguments nil))
 
      (if (not (= (length ordered-input-sockets) (length socket-mappings)))
-	 (cl-synthesizer:signal-assembly-error
+	 (error
+	  'cl-synthesizer:assembly-error
 	  :format-control
 	  "Monitor: Number of sockets ('~a') returned by agent must not differ from number of socket mappings: ~a"
 	  :format-arguments (list (length ordered-input-sockets) (length socket-mappings))))

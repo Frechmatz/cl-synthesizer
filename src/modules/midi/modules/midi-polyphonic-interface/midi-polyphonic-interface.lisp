@@ -86,11 +86,13 @@
     </ul></p>"
   (declare (ignore environment))
   (if (not cv-velocity-max)
-      (cl-synthesizer:signal-assembly-error
+      (error
+       'cl-synthesizer:assembly-error
        :format-control "cv-velocity-max of MIDI-Polyphonic-Interface '~a' must not be nil"
        :format-arguments (list name)))
   (if (<= cv-velocity-max 0.0)
-      (cl-synthesizer:signal-assembly-error
+      (error
+       'cl-synthesizer:assembly-error
        :format-control
        "cv-velocity-max of MIDI-Polyphonic-Interface '~a' must be greater than 0: '~a'"
        :format-arguments (list name cv-velocity-max)))

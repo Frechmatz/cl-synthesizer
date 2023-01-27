@@ -186,20 +186,23 @@
 	      :expose-input-socket
 	      (lambda(rack-input-socket input-module-name input-socket)
 		(if (get-exposed-input-socket rack-input-socket)
-		    (signal-assembly-error
+		    (error
+		     'assembly-error
 		     :format-control "expose-input-socket: Module already exposes input socket '~a'"
 		     :format-arguments (list rack-input-socket)))
 		(let ((module (get-module this input-module-name)))
 		  (if (not module)
-		      (signal-assembly-error
+		      (error 'assembly-error
 		       :format-control "expose-input-socket: Cannot find module '~a'"
 		       :format-arguments (list input-module-name)))
 		  (if (not (find input-socket (get-inputs module)))
-		      (signal-assembly-error
+		      (error
+		       'assembly-error
 		       :format-control "expose-input-socket: Module '~a' does not expose input socket '~a'"
 		       :format-arguments (list input-module-name input-socket))))
 		(if (is-input-patched input-module-name input-socket)
-		    (signal-assembly-error
+		    (error
+		     'assembly-error
 		     :format-control "expose-input-socket: Module '~a' Input Socket '~a' already patched"
 		     :format-arguments (list input-module-name input-socket)))
 		;;(add-patch "INPUT" rack-input-socket input-module-name input-socket)
@@ -213,20 +216,24 @@
 	      :expose-output-socket
 	      (lambda(rack-output-socket output-module-name output-socket)
 		(if (get-exposed-output-socket rack-output-socket)
-		    (signal-assembly-error
+		    (error
+		     'assembly-error
 		     :format-control "expose-output-socket: Module already exposes output socket '~a'"
 		     :format-arguments (list rack-output-socket)))
 		(let ((module (get-module this output-module-name)))
 		  (if (not module)
-		      (signal-assembly-error
+		      (error
+		       'assembly-error
 		       :format-control "expose-output-socket: Cannot find module '~a'"
 		       :format-arguments (list output-module-name)))
 		  (if (not (find output-socket (get-outputs module)))
-		      (signal-assembly-error
+		      (error
+		       'assembly-error
 		       :format-control "expose-output-socket: Module '~a' does not expose output socket '~a'"
 		       :format-arguments (list output-module-name output-socket))))
 		(if (is-output-patched output-module-name output-socket)
-		    (signal-assembly-error
+		    (error
+		     'assembly-error
 		     :format-control "expose-output-socket: Module '~a' Output Socket '~a' already patched"
 		     :format-arguments (list output-module-name output-socket)))
 
@@ -254,20 +261,24 @@
 			      t)))
 	      :add-module (lambda (module-name module-fn &rest args)
 			    (if (get-module this module-name)
-				(signal-assembly-error
+				(error
+				 'assembly-error
 				 :format-control "add-module: A module with name '~a' has already been added to the rack"
 				 :format-arguments (list module-name)))
 			    (let ((module (apply module-fn `(,module-name ,environment ,@args))))
 			      (if (not (functionp (get-inputs-fn module)))
-				    (signal-assembly-error
+				  (error
+				   'assembly-error
 				     :format-control "add-module: Invalid module '~a': Property :input must be a function"
 				     :format-arguments (list module-name)))
 			      (if (not (functionp (get-outputs-fn module)))
-				    (signal-assembly-error
+				  (error
+				   'assembly-error
 				     :format-control "add-module: Invalid module '~a': Property :output must be a function"
 				     :format-arguments (list module-name)))
 			      (if (not (functionp (get-update-fn module)))
-				    (signal-assembly-error
+				  (error
+				   'assembly-error
 				     :format-control "add-module: Invalid module '~a': Property :update must be a function"
 				     :format-arguments (list module-name)))
 			      (add-module module-name module)
@@ -290,28 +301,34 @@
 			    (let ((source-module (get-module this output-name))
 				 (destination-module (get-module this input-name)))
 			      (if (not source-module)
-				  (signal-assembly-error
+				  (error
+				   'assembly-error
 				   :format-control "add-patch: Cannot find output module '~a'"
 				   :format-arguments (list output-name)))
 			      (if (not destination-module)
-				  (signal-assembly-error
+				  (error
+				   'assembly-error
 				   :format-control "add-patch: Cannot find input module '~a'"
 				   :format-arguments (list input-name)))
 			     (if (not (find output-socket (cl-synthesizer:get-outputs source-module)))
-				 (signal-assembly-error
+				 (error
+				  'assembly-error
 				  :format-control "add-patch: Module '~a' does not expose output socket '~a'"
 				  :format-arguments (list output-name output-socket)))
 			      (if (not (find input-socket (get-inputs destination-module)))
-				  (signal-assembly-error
+				  (error
+				   'assembly-error
 				   :format-control "add-patch: Module '~a' does not expose input socket '~a'"
 				   :format-arguments (list input-name input-socket)))
 			     (if (is-module-input-exposed-as-input-socket input-name input-socket)
-				   (signal-assembly-error
+				 (error
+				  'assembly-error
 				    :format-control
 				    "add-patch: Module '~a' Input socket '~a' is exposed as rack input"
 				    :format-arguments (list input-name input-socket)))
 			     (if (is-module-output-exposed-as-output-socket output-name output-socket)
-				   (signal-assembly-error
+				 (error
+				  'assembly-error
 				    :format-control
 				    "add-patch: Module '~a' Output socket '~a' is exposed as rack output"
 				    :format-arguments (list input-name input-socket)))
@@ -321,7 +338,8 @@
 					 (and (string= input-name (get-patch-input-name p))
 					      (eq input-socket (get-patch-input-socket p))))
 				       patches)))
-			       (if p (signal-assembly-error
+				(if p (error
+				       'assembly-error
 				      :format-control
 				      "add-patch: Input socket '~a' of module '~a' is already connected with output socket '~a' of module '~a'"
 				      :format-arguments (list
@@ -334,7 +352,8 @@
 					 (and (string= output-name (get-patch-output-name p))
 					      (eq output-socket (get-patch-output-socket p))))
 				       patches)))
-			       (if p (signal-assembly-error
+			       (if p (error
+				      'assembly-error
 				      :format-control
 				      "add-patch: Output socket '~a' of module '~a' is already connected with input socket '~a' of module '~a'"
 				      :format-arguments (list

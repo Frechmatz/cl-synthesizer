@@ -39,7 +39,8 @@
     (declare (type single-float cv-max initial-gain))
     ;; (declare (optimize (debug 3) (speed 0) (space 0)))
     (if (> 0.0 cv-max)
-	(cl-synthesizer:signal-assembly-error
+	(error
+	 'cl-synthesizer:assembly-error
 	 :format-control "CV-MAX must not be smaller than 0.0"
 	 :format-arguments (list cv-max)))
     (let* ((cur-out 0)

@@ -12,7 +12,8 @@
 	   (assert-not-mapped (controller-number control-value)
 	     (let ((cur-value (get-value controller-number control-value)))
 	       (if cur-value
-		   (cl-synthesizer:signal-assembly-error
+		   (error
+		    'cl-synthesizer:assembly-error
 		    :format-control "cc mapping of controller-number '~a' control-value '~a' already set to '~a'"
 		    :format-arguments (list controller-number control-value cur-value))))))
       (list

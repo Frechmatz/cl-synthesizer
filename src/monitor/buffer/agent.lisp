@@ -20,7 +20,8 @@
   (declare (ignore environment))
   (let ((count (length buffer)))
     (if (<= count 0)
-	(cl-synthesizer:signal-assembly-error
+	(error
+	 'cl-synthesizer:assembly-error
 	 :format-control "'~a': Length of buffer must be greater than 0: '~a'"
 	 :format-arguments (list name count)))
     (let ((input-sockets (make-keyword-list

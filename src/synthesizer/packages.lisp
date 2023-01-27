@@ -2,7 +2,6 @@
   (:use :cl)
   (:export
    :assembly-error
-   :signal-assembly-error
    :*home-directory*
    :make-environment
    :get-environment

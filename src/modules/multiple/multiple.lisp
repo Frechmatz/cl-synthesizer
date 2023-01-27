@@ -35,7 +35,8 @@
     </ul></p>"
   (declare (ignore environment))
   (if (<= output-count 0)
-      (cl-synthesizer:signal-assembly-error
+      (error
+       'cl-synthesizer:assembly-error
        :format-control "'~a': output-count must be greater than 0: '~a'"
        :format-arguments (list name output-count)))
   (let ((cur-input nil) (output-value nil) (output-sockets (make-keyword-list "output" output-count)))

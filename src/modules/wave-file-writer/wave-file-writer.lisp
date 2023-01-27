@@ -46,15 +46,18 @@
   The module has no outputs.
   <p>The recommended way of Wave file generation is to use a Monitor.</p>"
   (if (<= channel-count 0)
-      (cl-synthesizer:signal-assembly-error
+      (error
+       'cl-synthesizer:assembly-error
        :format-control "'~a': channel-count must be greater than 0: '~a'"
        :format-arguments (list name channel-count)))
   (if (not v-peak)
-      (cl-synthesizer:signal-assembly-error
+      (error
+       'cl-synthesizer:assembly-error
        :format-control "'~a': v-peak must not be nil"
        :format-arguments (list name)))
   (if (> 0 v-peak)
-      (cl-synthesizer:signal-assembly-error
+      (error
+       'cl-synthesizer:assembly-error
        :format-control "'~a': v-peak must not be negative: '~a'"
        :format-arguments (list name v-peak)))
   (let ((input-sockets (make-keyword-list "channel" channel-count))

@@ -58,7 +58,8 @@
     This module has been inspired by <a href=\"https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes\">dhemery</a>"
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (if (and gate-state (not (eq gate-state :on)) (not (eq gate-state :off)))
-      (cl-synthesizer:signal-assembly-error
+      (error
+       'cl-synthesizer:assembly-error
        :format-control "~a: Invalid gate-state '~a' Must be one of nil, :on, :off"
        :format-arguments (list name gate-state)))
   (let* ((time-cv-to-time-ms (lambda(time-cv) (* (abs time-cv) 1000)))
