@@ -21,7 +21,7 @@
 	<li>:cv-lin-hz-v Frequency/Volt setting for the linear frequency modulation input :cv-lin.</li>
 	<li>:v-peak Absolute value of the output peak voltage emitted by the oscillator.</li>
 	<li>:duty-cycle The duty cycle of the square wave. 0 <= duty-cycle <= 1.</li>
-	<li>:phase-offset A phase offset in radians.</li>
+	<li>:phase-offset Phase offset in radians.</li>
         <li>:wave-forms A list of keywords that declares the wave forms that are to be exposed by 
           the module. Each keyword must be one of :sine, :saw, :triangle or :square. By default
           the module exposes all wave forms. Declaring the required wave forms is highly recommended
