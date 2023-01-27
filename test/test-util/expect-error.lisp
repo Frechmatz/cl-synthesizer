@@ -16,14 +16,14 @@
        (assert-false err)
        nil)))
 
-(defmacro expect-invalid-arguments-error(&body body)
-  "Fail test if body does not signal an invalid-arguments-error."
+(defmacro expect-simple-error(&body body)
+  "Fail test if body does not signal a simple-error."
   `(handler-case
        (progn
          ,@body
          (assert-true nil))
-     (cl-synthesizer:invalid-arguments-error (err)
-       ;;(format t "~%Catched expected invalid-arguments-error: ~a~%" err)
+     (simple-error (err)
+       ;;(format t "~%Catched expected simple-error: ~a~%" err)
        (assert-true err) ;; increase test count of lisp-unit summary
        t)
      (error (err)

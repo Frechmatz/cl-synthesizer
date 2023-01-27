@@ -59,7 +59,7 @@
 (define-test test-midi-sequencer-3 ()
 	     (let ((rack (cl-synthesizer:make-rack
 			  :environment (cl-synthesizer:make-environment))))
-	       (cl-synthesizer-test::expect-invalid-arguments-error
+	       (cl-synthesizer-test::expect-simple-error
 		 (cl-synthesizer:add-module
 		  rack "MIDI-SEQUENCER"
 		  #'cl-synthesizer-modules-midi-sequencer:make-module :events
@@ -87,7 +87,7 @@
 (define-test test-midi-sequencer-4 ()
 	     (let ((rack (cl-synthesizer:make-rack
 			  :environment (cl-synthesizer:make-environment))))
-	       (cl-synthesizer-test::expect-invalid-arguments-error
+	       (cl-synthesizer-test::expect-simple-error
 		 (cl-synthesizer:add-module
 		  rack "MIDI-SEQUENCER"
 		  #'cl-synthesizer-modules-midi-sequencer:make-module :events

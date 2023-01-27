@@ -54,7 +54,7 @@
 	       	 (assert-false module-name)
 	         (assert-false module)
 	         (assert-false socket))
-	       (expect-invalid-arguments-error
+	       (expect-simple-error
 		 (cl-synthesizer-test::get-patch rack "Module 1" :xx-socket :input-1))
 	       ))
 

@@ -43,9 +43,10 @@
     If the module does not exist, the module does not expose the given socket, or
     if the socket is not patched, all entries of the returned values object are nil."
   (if (not (or (eq :input-socket socket-type) (eq :output-socket socket-type)))
-      (cl-synthesizer:signal-invalid-arguments-error
-       :format-control "get-patch: socket must be one of :input-socket or :output-socket"
-       :format-arguments nil))
+      (error (make-condition
+	      'simple-error
+	      :format-control "get-patch: socket must be one of :input-socket or :output-socket"
+	      :format-arguments nil)))
   (let ((rm (cl-synthesizer:get-module rack module-name)))
     (if (not rm)
 	(values nil nil nil)

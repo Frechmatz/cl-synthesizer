@@ -62,7 +62,8 @@
     </p>"
   ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (if (not environment)
-      (signal-invalid-arguments-error
+      (error
+       'simple-error
        :format-control "Environment must not be nil"
        :format-arguments nil))
 

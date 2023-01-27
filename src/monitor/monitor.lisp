@@ -29,7 +29,8 @@
 
 (defun get-patch (rack module-name socket-type socket)
   (if (not (or (eq :input-socket socket-type) (eq :output-socket socket-type)))
-      (cl-synthesizer:signal-invalid-arguments-error
+      (error
+       'simple-error
        :format-control "get-patch: socket must be one of :input-socket or :output-socket"
        :format-arguments nil))
   (let ((rm (cl-synthesizer:get-module rack module-name)))

@@ -1,13 +1,5 @@
 (in-package :cl-synthesizer)
 
-(define-condition invalid-arguments-error (simple-error) ())
-
-(defun signal-invalid-arguments-error (&key format-control format-arguments)
-  (error (make-condition
-	  'invalid-arguments-error
-	  :format-control format-control
-	  :format-arguments format-arguments)))
-
 (define-condition assembly-error (simple-error) ()
   (:documentation
    "This condition is signalled in cases where the assembly of a rack fails,
