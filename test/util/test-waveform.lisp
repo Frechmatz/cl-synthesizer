@@ -6,7 +6,7 @@
 	(phase-generator (cl-synthesizer-util:phase-generator 1000.0))
 	(trigger-count 0))
     (dotimes (i 7250)
-		 (if (funcall trigger (cl-synthesizer-util:phase-sine-converter (funcall phase-generator 1.0)))
+		 (if (funcall trigger (cl-synthesizer-util:phase-sine-converter (funcall phase-generator 1.0) 0.0))
 		     (setf trigger-count (+ trigger-count 1))))
     ;; 14 zero-crossings
     (assert-equal 14 trigger-count)))
@@ -18,7 +18,7 @@
 	(phase-generator (cl-synthesizer-util:phase-generator 1000.0))
 	(trigger-count 0))
     (dotimes (i 7250)
-      (if (funcall trigger (cl-synthesizer-util:phase-saw-converter (funcall phase-generator 1.0)))
+      (if (funcall trigger (cl-synthesizer-util:phase-saw-converter (funcall phase-generator 1.0) 0.0))
 	  (setf trigger-count (+ trigger-count 1))))
     ;; 14 zero-crossings
     (assert-equal 14 trigger-count)))
@@ -29,7 +29,7 @@
 	(phase-generator (cl-synthesizer-util:phase-generator 1000.0))
 	(trigger-count 0))
     (dotimes (i 7250)
-		 (if (funcall trigger (cl-synthesizer-util:phase-triangle-converter (funcall phase-generator 1.0)))
+		 (if (funcall trigger (cl-synthesizer-util:phase-triangle-converter (funcall phase-generator 1.0) 0.0))
 		     (setf trigger-count (+ trigger-count 1))))
     ;; 14 zero-crossings
     (assert-equal 14 trigger-count)))
@@ -40,7 +40,7 @@
 	(phase-generator (cl-synthesizer-util:phase-generator 1000.0))
 	(trigger-count 0))
     (dotimes (i 7250)
-		 (if (funcall trigger (cl-synthesizer-util:phase-square-converter (funcall phase-generator 1.0)))
+		 (if (funcall trigger (cl-synthesizer-util:phase-square-converter (funcall phase-generator 1.0) 0.0 0.5))
 		     (setf trigger-count (+ trigger-count 1))))
     ;; 14 zero-crossings
     (assert-equal 14 trigger-count)))
@@ -51,7 +51,8 @@
 	(phase-generator (cl-synthesizer-util:phase-generator 1000.0))
 	(trigger-count 0))
     (dotimes (i 10000)
-		 (if (funcall trigger (cl-synthesizer-util:phase-square-converter (funcall phase-generator 1.0) :duty-cycle 0.25))
+      (if (funcall trigger (cl-synthesizer-util:phase-square-converter
+			    (funcall phase-generator 1.0) 0.0 0.25))
 		     (setf trigger-count (+ trigger-count 1))))
     ;; 20 zero-crossings
     (assert-equal 20 trigger-count)))
@@ -62,7 +63,8 @@
 	(phase-generator (cl-synthesizer-util:phase-generator 1000.0))
 	(trigger-count 0))
     (dotimes (i 7250)
-		 (if (funcall trigger (cl-synthesizer-util:phase-square-converter (funcall phase-generator 1.0) :duty-cycle 1.0))
+      (if (funcall trigger (cl-synthesizer-util:phase-square-converter
+			    (funcall phase-generator 1.0) 0.0 1.0))
 		     (setf trigger-count (+ trigger-count 1))))
     ;; 0 zero-crossings
     (assert-equal 0 trigger-count)))
@@ -73,7 +75,8 @@
 	(phase-generator (cl-synthesizer-util:phase-generator 1000.0))
 	(trigger-count 0))
     (dotimes (i 7250)
-		 (if (funcall trigger (cl-synthesizer-util:phase-square-converter (funcall phase-generator 1.0) :duty-cycle 0.0))
+      (if (funcall trigger (cl-synthesizer-util:phase-square-converter
+			    (funcall phase-generator 1.0) 0.0 0.0))
 		     (setf trigger-count (+ trigger-count 1))))
     ;; 0 zero-crossings
     (assert-equal 0 trigger-count)))

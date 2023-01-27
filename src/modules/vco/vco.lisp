@@ -141,7 +141,7 @@
 			   (setf cur-sine-output
 				 (* v-peak
 				    (cl-synthesizer-util:phase-sine-converter
-				     cur-phi :phase-offset phase-offset))))))
+				     cur-phi phase-offset))))))
 		  ((eq wave-form :saw)
 		   (push (lambda() cur-saw-output) outputs)
 		   (push :saw outputs)
@@ -150,7 +150,7 @@
 			   (declare (inline cl-synthesizer-util:phase-saw-converter))
 			   (setf cur-saw-output
 				 (* v-peak (cl-synthesizer-util:phase-saw-converter
-					    cur-phi :phase-offset phase-offset))))))
+					    cur-phi phase-offset))))))
 		  ((eq wave-form :square)
 		   (push (lambda() cur-square-output) outputs)
 		   (push :square outputs)
@@ -159,7 +159,7 @@
 			   (declare (inline cl-synthesizer-util:phase-square-converter))
 			   (setf cur-square-output
 				 (* v-peak (cl-synthesizer-util:phase-square-converter
-					    cur-phi :duty-cycle duty-cycle :phase-offset phase-offset))))))
+					    cur-phi phase-offset duty-cycle))))))
 		  ((eq wave-form :triangle)
 		   (push (lambda() cur-triangle-output) outputs)
 		   (push :triangle outputs)
@@ -168,7 +168,7 @@
 			   (declare (inline cl-synthesizer-util:phase-triangle-converter))
 			   (setf cur-triangle-output
 				 (* v-peak (cl-synthesizer-util:phase-triangle-converter
-					    cur-phi :phase-offset phase-offset))))))
+					    cur-phi phase-offset))))))
 		  (t
 		   (cl-synthesizer:signal-assembly-error
 		    :format-control "Invalid wave-form identifier '~a' passed to VCO '~a'"
