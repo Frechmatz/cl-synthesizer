@@ -21,14 +21,14 @@
 	     (find-if
 	      (lambda (p)
 		(and
-		 (string= (cl-synthesizer:get-patch-input-name p) name)
-		 (eq (cl-synthesizer:get-patch-input-socket p) input-socket)))
+		 (string= (getf p :input-name) name)
+		 (eq (getf p :input-socket) input-socket)))
 	      (cl-synthesizer:get-patches rack))))
 	(if patch
 	    (push (list
 		   input-socket
-		   (cl-synthesizer:get-module rack (cl-synthesizer:get-patch-output-name patch))
-		   (cl-synthesizer:get-patch-output-socket patch)) result))))
+		   (cl-synthesizer:get-module rack (getf patch :output-name))
+		   (getf patch :output-socket)) result))))
     result))
 
 (defun get-module-trace (rack)

@@ -4,6 +4,14 @@
 ;; Rack
 ;;
 
+
+(defun make-patch (&key output-name output-socket input-name input-socket)
+  (list
+   :output-name output-name
+   :output-socket output-socket
+   :input-name input-name
+   :input-socket input-socket))
+
 (defun find-module (rack module-path)
   "Get a module of a rack. <p>The function has the following parameters:
     <ul>
@@ -335,8 +343,8 @@
 
 			      (let ((p (find-if
 				       (lambda (p)
-					 (and (string= input-name (get-patch-input-name p))
-					      (eq input-socket (get-patch-input-socket p))))
+					 (and (string= input-name (getf p :input-name))
+					      (eq input-socket (getf p :input-socket))))
 				       patches)))
 				(if p (error
 				       'assembly-error
@@ -345,12 +353,12 @@
 				      :format-arguments (list
 							 input-socket
 							 input-name
-							 (get-patch-output-name p)
-							 (get-patch-output-socket p)))))
+							 (getf p :output-name)
+							 (getf p :output-socket)))))
 			     (let ((p (find-if
 				       (lambda (p)
-					 (and (string= output-name (get-patch-output-name p))
-					      (eq output-socket (get-patch-output-socket p))))
+					 (and (string= output-name (getf p :output-name))
+					      (eq output-socket (getf p :output-socket))))
 				       patches)))
 			       (if p (error
 				      'assembly-error
@@ -359,8 +367,8 @@
 				      :format-arguments (list
 							 output-socket
 							 output-name
-							 (get-patch-input-socket p)
-							 (get-patch-input-name p)))))
+							 (getf p :input-socket)
+							 (getf p :input-name)))))
 			     (add-patch output-name output-socket input-name input-socket))))))
 
 	(setf this rack)

@@ -11,8 +11,8 @@
 	 (patch
 	  (find-if
 	   (lambda (p)
-	     (and (string= name (cl-synthesizer:get-patch-input-name p))
-		  (eq input-socket (cl-synthesizer:get-patch-input-socket p))))
+	     (and (string= name (getf p :input-name))
+		  (eq input-socket (getf p :input-socket))))
 	   (cl-synthesizer:get-patches rack))))
     patch))
 
@@ -22,8 +22,8 @@
 	 (patch
 	  (find-if
 	   (lambda (p)
-	     (and (string= name (cl-synthesizer:get-patch-output-name p))
-		  (eq output-socket (cl-synthesizer:get-patch-output-socket p))))
+	     (and (string= name (getf p :output-name))
+		  (eq output-socket (getf p :output-socket))))
 	   (cl-synthesizer:get-patches rack))))
     patch))
 
@@ -41,16 +41,16 @@
 	      (if (not patch)
 		  (values nil nil nil)
 		  (values
-		   (cl-synthesizer:get-patch-output-name patch)
-		   (cl-synthesizer:get-module rack (cl-synthesizer:get-patch-output-name patch))
-		   (cl-synthesizer:get-patch-output-socket patch))))
+		   (getf patch :output-name)
+		   (cl-synthesizer:get-module rack (getf patch :output-name))
+		   (getf patch :output-socket))))
 	    (let ((patch (get-module-output-patch rack rm socket)))
 	      (if (not patch)
 		  (values nil nil nil)
 		  (values
-		   (cl-synthesizer:get-patch-input-name patch)
-		   (cl-synthesizer:get-module rack (cl-synthesizer:get-patch-input-name patch))
-		   (cl-synthesizer:get-patch-input-socket patch))))))))
+		   (getf patch :input-name)
+		   (cl-synthesizer:get-module rack (getf patch :input-name))
+		   (getf patch :input-socket))))))))
 
 (defun make-get-output-lambda (module output-socket)
   (let ((l (getf (cl-synthesizer:get-outputs module) output-socket)))

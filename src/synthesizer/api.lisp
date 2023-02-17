@@ -200,33 +200,11 @@
   </ul></p>"
   (funcall (getf rack :expose-output-socket) rack-output-socket output-module-name output-socket))
 
-;;
-;; Patches
-;;
-(defun make-patch (&key output-name output-socket input-name input-socket)
-  "TODO Create class. Do not expose via cl-synthesizer."
-  (list
-   :output-name output-name
-   :output-socket output-socket
-   :input-name input-name
-   :input-socket input-socket))
-
-(defun get-patch-output-name (patch)
-  (getf patch :output-name))
-(defun get-patch-output-socket (patch)
-  (getf patch :output-socket))
-(defun get-patch-input-name (patch)
-  (getf patch :input-name))
-(defun get-patch-input-socket (patch)
-  (getf patch :input-socket))
-
-;;
-;; Exposed sockets
-;;
-
 (defun get-exposed-input-socket (rack socket)
+  "TODO docstring"
   (funcall (getf rack :get-exposed-input-socket) socket))
 
 (defun get-exposed-output-socket (rack socket)
+  "TODO docstring"
   (funcall (getf rack :get-exposed-output-socket) socket))
 
