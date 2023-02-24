@@ -49,8 +49,7 @@
       (nreverse module-trace))))
 
 (defun make-get-output-lambda (module output-socket)
-  (let ((l (getf (cl-synthesizer:get-outputs module) output-socket)))
-    (lambda() (funcall l))))
+  (getf (cl-synthesizer:get-outputs module) output-socket))
 
 (defun compile-module (rack module)
   (let ((input-setters nil)
