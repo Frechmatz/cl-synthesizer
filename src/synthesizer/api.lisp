@@ -1,11 +1,8 @@
 (in-package :cl-synthesizer)
 
 
-(defun get-outputs (module)
-  (funcall (getf module :outputs)))
-
-(defun get-update-fn (module)
-  (getf module :update))
+;;(defun get-update-fn (module)
+;;  (getf module :update))
 
 (defun update (module)
   (funcall (getf module :update)))

@@ -26,7 +26,7 @@
 	(input-args-1 (make-note-events #'cl-synthesizer-midi-event:make-note-on-event voice-count))
 	(input-args-2 (make-note-events #'cl-synthesizer-midi-event:make-note-off-event voice-count)))
     (lambda (&key duration-seconds)
-      (let ((update-fn (cl-synthesizer:get-update-fn rack))
+      (let ((update-fn (getf rack :update))
 	    (set-midi-events-fn (getf (funcall (getf rack :inputs)) :midi-events)))
 	(dotimes (i (* 41000 duration-seconds))
 	  (funcall set-midi-events-fn input-args-1)

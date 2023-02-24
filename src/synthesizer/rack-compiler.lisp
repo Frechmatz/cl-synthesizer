@@ -54,7 +54,7 @@
 (defun compile-module (rack module)
   (let ((input-setters nil)
 	(inputs (funcall (getf module :inputs)))
-	(module-update-fn (cl-synthesizer:get-update-fn module)))
+	(module-update-fn (getf module :update)))
     ;; Push setters for all inputs
     (dolist (binding (get-module-input-patches rack module))
       (let ((cur-input-socket (first binding))

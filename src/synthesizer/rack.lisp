@@ -45,7 +45,7 @@
 	    by its environment is 44100, then the update function of the rack will be called 88200 times.</li>
     </ul></p>"
   (let ((sample-rate (floor (getf (get-environment rack) :sample-rate)))
-	(update-fn (cl-synthesizer:get-update-fn rack)))
+	(update-fn (getf rack :update)))
     (dotimes (i (floor (* duration-seconds sample-rate)))
       (funcall update-fn)))
   (cl-synthesizer:shutdown rack)
@@ -284,7 +284,7 @@
 				   'assembly-error
 				     :format-control "add-module: Invalid module '~a': Property :output must be a function"
 				     :format-arguments (list module-name)))
-			      (if (not (functionp (get-update-fn module)))
+			      (if (not (functionp (getf module :update)))
 				  (error
 				   'assembly-error
 				     :format-control "add-module: Invalid module '~a': Property :update must be a function"

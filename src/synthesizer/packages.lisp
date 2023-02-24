@@ -17,7 +17,6 @@
    ;; Api
    :is-rack
    :shutdown
-   :get-update-fn
    :update
    :get-state-fn
    :get-state

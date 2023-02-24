@@ -18,7 +18,7 @@
 	(push
 	 (list
 	  key 
-	  (getf (cl-synthesizer:get-update-fn test-case) key))
+	  (getf (getf test-case :update) key))
 	 update-args))
       (update-module module update-args)
       (dolist (expected (getf test-case :expected-outputs))

@@ -187,7 +187,7 @@
 	  :format-control "Monitor: Backend must provide an inputs function"
 	  :format-arguments nil))
      
-     (if (not (functionp (cl-synthesizer:get-update-fn backend)))
+     (if (not (functionp (getf backend :update)))
 	 (error
 	  'cl-synthesizer:assembly-error
 	  :format-control "Monitor: Backend must provide an update function"
@@ -208,7 +208,7 @@
 
      (let ((set-input-lambdas (make-array (length socket-mappings) :initial-element nil))
 	   (backend-inputs (funcall (getf backend :inputs)))
-	   (backend-update (cl-synthesizer:get-update-fn backend))
+	   (backend-update (getf backend :update))
 	   (socket-count (length socket-mappings)))
        ;; Set up lambdas for setting the inputs of the backend
        (dotimes (i socket-count)
