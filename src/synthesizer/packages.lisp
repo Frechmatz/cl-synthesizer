@@ -14,7 +14,6 @@
    :play-rack
    :find-module
    :get-module-name
-   ;; Api
    :is-rack
    :shutdown
    :update
