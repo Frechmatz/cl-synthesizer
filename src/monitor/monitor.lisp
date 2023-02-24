@@ -99,10 +99,10 @@
 		   (make-get-output-lambda source-module source-socket)
 		   )))
 	  ((eq :state socket-type)
-	   (let ((get-state-fn (if (cl-synthesizer:get-state-fn module)
-				   (cl-synthesizer:get-state-fn module)
+	   (let ((get-state-fn (if (getf module :state)
+				   (getf module :state)
 				   (lambda(key) (declare (ignore key)) nil))))
-	     (setf input-fetcher (lambda() (funcall get-state-fn socket-key)))))
+	     (setf input-fetcher (lambda() (funcall (getf module :state) socket-key)))))
 	  (t
 	   (error
 	    'cl-synthesizer:assembly-error

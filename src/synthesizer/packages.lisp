@@ -18,7 +18,7 @@
    :is-rack
    :shutdown
    :update
-   :get-state-fn
+;;   :get-state-fn
    :get-state
    :get-modules
    :get-patches

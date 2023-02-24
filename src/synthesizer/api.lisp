@@ -1,17 +1,11 @@
 (in-package :cl-synthesizer)
 
 
-;;(defun get-update-fn (module)
-;;  (getf module :update))
-
 (defun update (module)
   (funcall (getf module :update)))
 
-(defun get-state-fn (module)
-  (getf module :state))
-
 (defun get-state (module key)
-  (let ((fn (get-state-fn module)))
+  (let ((fn (getf module :state)))
     (if fn
 	(funcall fn key)
 	nil)))
