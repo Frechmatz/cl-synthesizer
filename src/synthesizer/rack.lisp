@@ -124,9 +124,9 @@
 		   (string= module-name (getf p :output-name))))
 		patches))
 	     (get-input-setter-fn (module-name socket)
-	       (getf (get-inputs (get-module this module-name)) socket))
+	       (getf (funcall (getf (get-module this module-name) :inputs)) socket))
 	     (get-output-getter-fn (module-name socket)
-	       (getf (get-outputs (get-module this module-name)) socket))
+	       (getf (funcall (getf (get-module this module-name) :outputs)) socket))
 	     (get-exposed-output-socket (socket)
 	       (find-if
 		(lambda(entry)
@@ -203,7 +203,7 @@
 		      (error 'assembly-error
 		       :format-control "expose-input-socket: Cannot find module '~a'"
 		       :format-arguments (list input-module-name)))
-		  (if (not (find input-socket (get-inputs module)))
+		  (if (not (find input-socket (funcall (getf module :inputs))))
 		      (error
 		       'assembly-error
 		       :format-control "expose-input-socket: Module '~a' does not expose input socket '~a'"
@@ -234,7 +234,7 @@
 		       'assembly-error
 		       :format-control "expose-output-socket: Cannot find module '~a'"
 		       :format-arguments (list output-module-name)))
-		  (if (not (find output-socket (get-outputs module)))
+		  (if (not (find output-socket (funcall (getf module :outputs))))
 		      (error
 		       'assembly-error
 		       :format-control "expose-output-socket: Module '~a' does not expose output socket '~a'"
@@ -274,12 +274,12 @@
 				 :format-control "add-module: A module with name '~a' has already been added to the rack"
 				 :format-arguments (list module-name)))
 			    (let ((module (apply module-fn `(,module-name ,environment ,@args))))
-			      (if (not (functionp (get-inputs-fn module)))
+			      (if (not (functionp (getf module :inputs)))
 				  (error
 				   'assembly-error
 				     :format-control "add-module: Invalid module '~a': Property :input must be a function"
 				     :format-arguments (list module-name)))
-			      (if (not (functionp (get-outputs-fn module)))
+			      (if (not (functionp (getf module :outputs)))
 				  (error
 				   'assembly-error
 				     :format-control "add-module: Invalid module '~a': Property :output must be a function"
@@ -318,12 +318,12 @@
 				   'assembly-error
 				   :format-control "add-patch: Cannot find input module '~a'"
 				   :format-arguments (list input-name)))
-			     (if (not (find output-socket (cl-synthesizer:get-outputs source-module)))
+			     (if (not (find output-socket (funcall (getf source-module :outputs))))
 				 (error
 				  'assembly-error
 				  :format-control "add-patch: Module '~a' does not expose output socket '~a'"
 				  :format-arguments (list output-name output-socket)))
-			      (if (not (find input-socket (get-inputs destination-module)))
+			      (if (not (find input-socket (funcall (getf destination-module :inputs))))
 				  (error
 				   'assembly-error
 				   :format-control "add-patch: Module '~a' does not expose input socket '~a'"

@@ -17,10 +17,6 @@
    ;; Api
    :is-rack
    :shutdown
-   :get-inputs-fn
-   :get-inputs
-   :get-outputs-fn
-   :get-outputs
    :get-update-fn
    :update
    :get-state-fn

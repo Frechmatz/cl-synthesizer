@@ -1,13 +1,5 @@
 (in-package :cl-synthesizer)
 
-(defun get-inputs-fn (module)
-  (getf module :inputs))
-
-(defun get-inputs (module)
-  (funcall (getf module :inputs)))
-
-(defun get-outputs-fn (module)
-  (getf module :outputs))
 
 (defun get-outputs (module)
   (funcall (getf module :outputs)))
