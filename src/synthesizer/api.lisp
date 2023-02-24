@@ -10,11 +10,8 @@
 	(funcall fn key)
 	nil)))
 
-(defun get-shutdown-fn (module)
-  (getf module :shutdown))
-
 (defun shutdown (module)
-  (let ((fn (get-shutdown-fn module)))
+  (let ((fn (getf module :shutdown)))
     (if fn (funcall fn))))
 
 (defun get-modules (rack)
@@ -29,9 +26,6 @@
        <li>:name Name of the module</li>
     </ul>"
   (funcall (getf rack :modules)))
-
-(defun get-patches-fn (rack)
-  (getf rack :patches))
 
 (defun get-patches (rack)
   "Get all patches of a rack. <p>The function has the following parameters:
