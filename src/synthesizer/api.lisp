@@ -2,14 +2,16 @@
 
 
 (defun update (module)
+  "Calls the update function of a module."
   (funcall (getf module :update)))
 
 (defun shutdown (module)
+  "Calls the (optional) shutdown function of a module."
   (let ((fn (getf module :shutdown)))
     (if fn (funcall fn))))
 
 (defun get-modules (rack)
-  "Get all modules of a rack. <p>The function has the following parameters:
+  "Returns all modules of a rack. <p>The function has the following parameters:
     <ul>
 	<li>rack The rack.</li>
     </ul></p>
@@ -22,7 +24,7 @@
   (funcall (getf rack :modules)))
 
 (defun get-patches (rack)
-  "Get all patches of a rack. <p>The function has the following parameters:
+  "Returns all patches of a rack. <p>The function has the following parameters:
     <ul>
 	<li>rack The rack.</li>
     </ul></p>
@@ -80,7 +82,7 @@
   (apply (getf rack :add-module) module-name module-fn args))
 
 (defun get-module-name (rack module)
-  "Get the name of a module. <p>The function has the following parameters:
+  "Returns the name of a module. <p>The function has the following parameters:
     <ul>
 	<li>rack The rack.</li>
 	<li>module The module.</li>
@@ -93,7 +95,7 @@
     (if match (getf match :name) nil)))
 
 (defun get-module (rack name)
-  "Get a module of a rack. <p>The function has the following parameters:
+  "Get a module by its name. <p>The function has the following parameters:
     <ul>
       <li>rack The rack.</li>
       <li>name The name of the module.</li>
