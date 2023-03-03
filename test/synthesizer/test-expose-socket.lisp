@@ -11,12 +11,12 @@
       (cl-synthesizer:add-rack-input rack :rack-input-socket-2 "Module 1" :input-2)
       (cl-synthesizer:add-rack-output rack :rack-output-socket-1 "Module 1" :output-1)
       (cl-synthesizer:add-rack-output rack :rack-output-socket-2 "Module 1" :output-2)
-      (assert-true (cl-synthesizer::get-exposed-output-socket rack :rack-output-socket-1))
-      (assert-true (cl-synthesizer::get-exposed-output-socket rack :rack-output-socket-2))
-      (assert-false (cl-synthesizer::get-exposed-output-socket rack :rack-output-socket-3))
-      (assert-true (cl-synthesizer::get-exposed-input-socket rack :rack-input-socket-1))
-      (assert-true (cl-synthesizer::get-exposed-input-socket rack :rack-input-socket-2))
-      (assert-false (cl-synthesizer::get-exposed-input-socket rack :rack-input-socket-3)))))
+      (assert-true (cl-synthesizer-test::get-rack-output rack :rack-output-socket-1))
+      (assert-true (cl-synthesizer-test::get-rack-output rack :rack-output-socket-2))
+      (assert-false (cl-synthesizer-test::get-rack-output rack :rack-output-socket-3))
+      (assert-true (cl-synthesizer-test::get-rack-input rack :rack-input-socket-1))
+      (assert-true (cl-synthesizer-test::get-rack-input rack :rack-input-socket-2))
+      (assert-false (cl-synthesizer-test::get-rack-input rack :rack-input-socket-3)))))
 
 (define-test test-expose-input-socket-twice ()
   "Expose same input-socket two times"
@@ -26,7 +26,7 @@
 	       "Module 1"
 	       #'cl-synthesizer-test::pass-through-module)))
       (cl-synthesizer:add-rack-input rack :rack-input-socket-1 "Module 1" :input-1)
-      (assert-true (cl-synthesizer::get-exposed-input-socket rack :rack-input-socket-1))
+      (assert-true (cl-synthesizer-test::get-rack-input rack :rack-input-socket-1))
       (expect-assembly-error
 	(cl-synthesizer:add-rack-input rack :rack-input-socket-1 "Module 1" :input-1)))))
 
@@ -38,7 +38,7 @@
 	       "Module 1"
 	       #'cl-synthesizer-test::pass-through-module)))
       (cl-synthesizer:add-rack-output rack :rack-output-socket-1 "Module 1" :output-1)
-      (assert-true (cl-synthesizer::get-exposed-output-socket rack :rack-output-socket-1))
+      (assert-true (cl-synthesizer-test::get-rack-output rack :rack-output-socket-1))
       (expect-assembly-error
 	(cl-synthesizer:add-rack-output rack :rack-output-socket-1 "Module 1" :output-1)))))
 

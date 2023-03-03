@@ -112,6 +112,7 @@
   (getf rack :environment))
 
 (defun get-hooks (rack)
+  "Returns the hooks of a rack."
   (funcall (getf rack :hooks)))
 
 (defun add-hook (rack hook)
@@ -149,10 +150,6 @@
     </ul></p>"
   (funcall (getf rack :add-patch) output-module-name output-socket input-module-name input-socket))
 
-;;
-;;
-;;
-
 (defun add-rack-input (rack rack-input-socket input-module-name input-socket)
   "Exposes an input socket of a module as an input socket of the rack. <p>The function has the following parameters:
    <ul>
@@ -173,11 +170,29 @@
   </ul></p>"
   (funcall (getf rack :expose-output-socket) rack-output-socket output-module-name output-socket))
 
-(defun get-exposed-input-socket (rack socket)
-  "TODO docstring"
-  (funcall (getf rack :get-exposed-input-socket) socket))
+(defun get-rack-inputs (rack)
+  "Returns the inputs of a rack.<p>The function has the following parameters:
+    <ul>
+	<li>rack The rack.</li>
+    </ul></p>
+   Returns a list of property lists with the following keys:
+   <ul>
+     <li>:rack-socket Input socket of the rack.</li>
+     <li>:module-name Name of the module attached to the rack input.</li>
+     <li>:module-socket Input socket of the module attached to the rack input.</li>
+   </ul>"
+  (funcall (getf rack :get-exposed-input-sockets)))
 
-(defun get-exposed-output-socket (rack socket)
-  "TODO docstring"
-  (funcall (getf rack :get-exposed-output-socket) socket))
+(defun get-rack-outputs (rack)
+  "Returns the outputs of a rack.<p>The function has the following parameters:
+    <ul>
+	<li>rack The rack.</li>
+    </ul></p>
+   Returns a list of property lists with the following keys:
+   <ul>
+     <li>:rack-socket Output socket of the rack.</li>
+     <li>:module-name Name of the module attached to the rack output.</li>
+     <li>:module-socket Output socket of the module attached to the rack output.</li>
+   </ul>"
+  (funcall (getf rack :get-exposed-output-sockets)))
 

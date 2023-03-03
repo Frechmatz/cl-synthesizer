@@ -34,3 +34,19 @@
     (if fn
 	(funcall fn key)
 	nil)))
+
+(defun get-rack-input (rack socket)
+  (let ((inputs (cl-synthesizer:get-rack-inputs rack)))
+    (find-if
+     (lambda(entry)
+       (eq socket (getf entry :rack-socket)))
+     inputs)))
+
+(defun get-rack-output (rack socket)
+  (let ((outputs (cl-synthesizer:get-rack-outputs rack)))
+    (find-if
+     (lambda(entry)
+       (eq socket (getf entry :rack-socket)))
+     outputs)))
+
+

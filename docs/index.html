@@ -37,14 +37,17 @@
 <li><a href="#make-rack">make-rack</a></li>
 <li><a href="#add-module">add-module</a></li>
 <li><a href="#add-patch">add-patch</a></li>
-<li><a href="#expose-input-socket">expose-input-socket</a></li>
-<li><a href="#expose-output-socket">expose-output-socket</a></li>
+<li><a href="#add-rack-input">add-rack-input</a></li>
+<li><a href="#get-rack-inputs">get-rack-inputs</a></li>
+<li><a href="#add-rack-output">add-rack-output</a></li>
+<li><a href="#get-rack-outputs">get-rack-outputs</a></li>
 <li><a href="#get-module">get-module</a></li>
 <li><a href="#get-module-name">get-module-name</a></li>
 <li><a href="#find-module">find-module</a></li>
 <li><a href="#get-patches">get-patches</a></li>
 <li><a href="#get-modules">get-modules</a></li>
 <li><a href="#add-hook">add-hook</a></li>
+<li><a href="#get-hooks">get-hooks</a></li>
 <li><a href="#play-rack">play-rack</a></li>
 <li><a href="#get-environment">get-environment</a></li></ul></li>
 <li><a href="#Modules">Modules</a><ul>
@@ -108,7 +111,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3886863448" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3886871398" type="audio/wav"></audio></p>
 <h2 id="Frequency modulated Saw">Frequency modulated Saw</h2><p><pre><code>(defpackage :cl-synthesizer-patches-frequency-modulated-saw
   (:use :cl)
   (:documentation &quot;Frequency modulated Saw&quot;))
@@ -142,7 +145,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3886863448" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3886871398" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated Saws">Two frequency modulated Saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-two-frequency-modulated-saws
   (:use :cl)
   (:documentation &quot;Two frequency modulated Saws&quot;))
@@ -162,7 +165,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
      #'cl-synthesizer-modules-vco:make-module
      :base-frequency vco-frequency :v-peak 5.0 :cv-lin-hz-v 20.0)
     (cl-synthesizer:add-patch rack &quot;LFO&quot; :sine &quot;VCO&quot; :cv-lin)
-    (cl-synthesizer:expose-output-socket rack :saw &quot;VCO&quot; :saw)
+    (cl-synthesizer:add-rack-output rack :saw &quot;VCO&quot; :saw)
     rack))
 
 (defun example ()
@@ -184,10 +187,10 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3886863448" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3886871398" type="audio/wav"></audio></p>
 <h1 id="Change-Log">Change-Log</h1>
 <h2>Version 1.0.0</h2><p>Initial version. Not tagged.</p>
-<h2>Version 2.x</h2>Work in progress. Master branch.<ul><li>Removed bridge modules.</li><li>Added rack:expose-input-socket.</li><li>Added rack:expose-output-socket.</li></ul>
+<h2>Version 2.x</h2>Work in progress. Master branch.<ul><li>Removed bridge modules.</li><li>Added rack:add-rack-input.</li><li>Added rack:add-rack-output.</li><li>Added rack:get-rack-inputs.</li><li>Added rack:get-rack-outputs.</li></ul>
 <h1 id="Concepts">Concepts</h1>
 <h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
   ...)</code></pre></p>
@@ -240,8 +243,8 @@ to set input values, to retrieve output values, to update the module, to shutdow
       (format t &quot;Sine: ~a&quot; sine))))</code></pre></p><p>When all things are done the rack should be shut down in order to release any resources that may have been allocated, such as opened files.</p><p><pre><code>(cl-synthesizer:shutdown rack)</code></pre></p><p>Racks may expose input and output sockets.</p><p><pre><code>(let ((rack
        (cl-synthesizer:make-rack :environment ...)))
   (cl-synthesizer:add-module rack &quot;SOME-MODULE&quot; ...)
-  (cl-synthesizer:expose-input-socket rack :rack-input-1 &quot;SOME-MODULE&quot; :module-input)
-  (cl-synthesizer:expose-output-socket rack :rack-output-1 &quot;SOME-MODULE&quot; :module-output))</code></pre></p>
+  (cl-synthesizer:add-rack-input rack :rack-input-1 &quot;SOME-MODULE&quot; :module-input)
+  (cl-synthesizer:add-rack-output rack :rack-output-1 &quot;SOME-MODULE&quot; :module-output))</code></pre></p>
 <h2 id="Monitor">Monitor</h2><p>Monitors are high-level Rack-Hooks. The purpose of a monitor
 is to collect module states and pass them to a "Monitor-Backend". A backend may
 for example generate a Wave file.</p> 
@@ -362,20 +365,40 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
 	<li>The given input-socket is already connected with a module.</li>
 	<li>The given input-socket is not exposed by the input module.</li>
     </ul></p></p>
-<h3 id="expose-input-socket">expose-input-socket</h3><b>cl-synthesizer:expose-input-socket</b>&nbsp;(rack rack-input-socket input-module-name input-socket)<p>Exposes an input socket of a module as an input socket of the rack. <p>The function has the following parameters:
+<h3 id="add-rack-input">add-rack-input</h3><b>cl-synthesizer:add-rack-input</b>&nbsp;(rack rack-input-socket input-module-name input-socket)<p>Exposes an input socket of a module as an input socket of the rack. <p>The function has the following parameters:
    <ul>
     <li>rack The rack.</li>
     <li>rack-input-socket A keyword representing the input socket of the rack.</li>
     <li>input-module-name Name of the module whose input is to be exposed.</li>
     <li>input-socket A keyword representing one of the inputs of the module.</li>
   </ul></p></p>
-<h3 id="expose-output-socket">expose-output-socket</h3><b>cl-synthesizer:expose-output-socket</b>&nbsp;(rack rack-output-socket output-module-name output-socket)<p>Exposes an output socket of a module as an output socket of the rack. <p>The function has the following parameters:
+<h3 id="get-rack-inputs">get-rack-inputs</h3><b>cl-synthesizer:get-rack-inputs</b>&nbsp;(rack)<p>Returns the inputs of a rack.<p>The function has the following parameters:
+    <ul>
+	<li>rack The rack.</li>
+    </ul></p>
+   Returns a list of property lists with the following keys:
+   <ul>
+     <li>:rack-socket Input socket of the rack.</li>
+     <li>:module-name Name of the module attached to the rack input.</li>
+     <li>:module-socket Input socket of the module attached to the rack input.</li>
+   </ul></p>
+<h3 id="add-rack-output">add-rack-output</h3><b>cl-synthesizer:add-rack-output</b>&nbsp;(rack rack-output-socket output-module-name output-socket)<p>Exposes an output socket of a module as an output socket of the rack. <p>The function has the following parameters:
    <ul>
     <li>rack The rack.</li>
     <li>rack-output-socket A keyword representing the output socket of the rack.</li>
     <li>output-module-name Name of the module whose output is to be exposed.</li>
     <li>output-socket A keyword representing one of the outputs of the module.</li>
   </ul></p></p>
+<h3 id="get-rack-outputs">get-rack-outputs</h3><b>cl-synthesizer:get-rack-outputs</b>&nbsp;(rack)<p>Returns the outputs of a rack.<p>The function has the following parameters:
+    <ul>
+	<li>rack The rack.</li>
+    </ul></p>
+   Returns a list of property lists with the following keys:
+   <ul>
+     <li>:rack-socket Output socket of the rack.</li>
+     <li>:module-name Name of the module attached to the rack output.</li>
+     <li>:module-socket Output socket of the module attached to the rack output.</li>
+   </ul></p>
 <h3 id="get-module">get-module</h3><b>cl-synthesizer:get-module</b>&nbsp;(rack name)<p>Get a module by its name. <p>The function has the following parameters:
     <ul>
       <li>rack The rack.</li>
@@ -424,6 +447,7 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
       <li>:shutdown A function with no parameters that is called when the rack is shutting down.</li>
    </ul></p>
    Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>.</p>
+<h3 id="get-hooks">get-hooks</h3><b>cl-synthesizer:get-hooks</b>&nbsp;(rack)<p>Returns the hooks of a rack.</p>
 <h3 id="play-rack">play-rack</h3><b>cl-synthesizer:play-rack</b>&nbsp;(rack &key duration-seconds)<p>A utility function that "plays" the rack by consecutively calling its update function
     for a given number of "ticks". <p>The function has the following parameters:
     <ul>
@@ -639,8 +663,8 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
      :release-time-ms 1000
      :exponential exponential)
 
-    (cl-synthesizer:expose-input-socket rack :gate &quot;ADSR&quot; :gate)
-    (cl-synthesizer:expose-output-socket rack :adsr-out &quot;ADSR&quot; :cv)
+    (cl-synthesizer:add-rack-input rack :gate &quot;ADSR&quot; :gate)
+    (cl-synthesizer:add-rack-output rack :adsr-out &quot;ADSR&quot; :cv)
 
     rack))
 
@@ -729,8 +753,8 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
     (cl-synthesizer:add-module rack &quot;MULTIPLE&quot;
                    #'cl-synthesizer-modules-multiple:make-module :output-count 5)
     (cl-synthesizer:add-patch rack &quot;LFO&quot; :sine &quot;MULTIPLE&quot; :input)
-    (cl-synthesizer:expose-output-socket rack :line-out-1 &quot;MULTIPLE&quot; :output-1)
-    (cl-synthesizer:expose-output-socket rack :line-out-2 &quot;MULTIPLE&quot; :output-2)
+    (cl-synthesizer:add-rack-output rack :line-out-1 &quot;MULTIPLE&quot; :output-1)
+    (cl-synthesizer:add-rack-output rack :line-out-2 &quot;MULTIPLE&quot; :output-2)
 
     rack))
 
@@ -1020,7 +1044,7 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
      :value 3.0
      :output-socket :fixed)
     
-    (cl-synthesizer:expose-output-socket rack :line-out &quot;FIXED-OUTPUT&quot; :fixed)
+    (cl-synthesizer:add-rack-output rack :line-out &quot;FIXED-OUTPUT&quot; :fixed)
 
     rack))
 
@@ -1094,7 +1118,7 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
     
     (cl-synthesizer:add-patch rack &quot;VOICE-1&quot; :audio &quot;MIXER&quot; :channel-1)
     (cl-synthesizer:add-patch rack &quot;VOICE-2&quot; :audio &quot;MIXER&quot; :channel-2)
-    (cl-synthesizer:expose-output-socket rack :line-out &quot;MIXER&quot; :output)
+    (cl-synthesizer:add-rack-output rack :line-out &quot;MIXER&quot; :output)
     
     rack))</code></pre></p>
 <h3 id="Trigger">Trigger</h3><b>cl-synthesizer-modules-trigger:make-module</b>&nbsp;(name environment &key trigger-threshold pulse-voltage)<p>Creates a Voltage to Trigger Converter module. 
@@ -1210,12 +1234,12 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
      #'cl-synthesizer-modules-ramp:make-module
      :time-ms 500 :target-output -2.5 :exponential exponential)
     
-    (cl-synthesizer:expose-input-socket rack :trigger &quot;ATTACK&quot; :trigger)
+    (cl-synthesizer:add-rack-input rack :trigger &quot;ATTACK&quot; :trigger)
     (cl-synthesizer:add-patch rack &quot;ATTACK&quot; :busy &quot;DECAY&quot; :pass-through)
     (cl-synthesizer:add-patch rack &quot;ATTACK&quot; :output &quot;DECAY&quot; :input)
     (cl-synthesizer:add-patch rack &quot;ATTACK&quot; :done &quot;DECAY&quot; :trigger)
 
-    (cl-synthesizer:expose-output-socket rack :output &quot;DECAY&quot; :output)
+    (cl-synthesizer:add-rack-output rack :output &quot;DECAY&quot; :output)
 
     rack))
 
@@ -1709,4 +1733,4 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
 <h1 id="Generate documentation">Generate documentation</h1>Depends on :cl-html-readme and :docparser which are available via Quicklisp.<p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2023-03-03  21:17:28</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-03-03  23:29:58</small></p></footer></body></html>

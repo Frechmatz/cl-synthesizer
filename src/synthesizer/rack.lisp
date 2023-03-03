@@ -187,10 +187,15 @@
 	       :get-exposed-input-socket
 	       (lambda(socket)
 		 (get-exposed-input-socket socket))
+	       :get-exposed-input-sockets
+	       (lambda()
+		 exposed-input-sockets)
 	       :get-exposed-output-socket
 	       (lambda(socket)
 		 (get-exposed-output-socket socket))
-	       
+	       :get-exposed-output-sockets
+	       (lambda()
+		 exposed-output-sockets)
 	      :expose-input-socket
 	      (lambda(rack-input-socket input-module-name input-socket)
 		(if (get-exposed-input-socket rack-input-socket)

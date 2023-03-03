@@ -20,7 +20,9 @@
    :get-modules
    :get-patches
    :add-rack-input
-   :add-rack-output))
+   :add-rack-output
+   :get-rack-inputs
+   :get-rack-outputs))
 
 (defpackage :cl-synthesizer-rack-compiler
   (:use :cl)
