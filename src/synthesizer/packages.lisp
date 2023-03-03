@@ -17,7 +17,6 @@
    :is-rack
    :shutdown
    :update
-   :get-state
    :get-modules
    :get-patches
    :expose-input-socket

@@ -28,3 +28,9 @@
 	  (push input sockets))
       (setf counter (+ counter 1)))
     sockets))
+
+(defun get-module-state (module key)
+  (let ((fn (getf module :state)))
+    (if fn
+	(funcall fn key)
+	nil)))

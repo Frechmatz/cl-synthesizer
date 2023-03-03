@@ -30,7 +30,7 @@
 		 (assert-equal 2 (get-module-output counter :out))
 		 (assert-equal 4 (get-module-output multiplier :out))
 		 (cl-synthesizer:shutdown rack)
-		 (assert-true (cl-synthesizer:get-state counter :shutdown-called)))))
+		 (assert-true (cl-synthesizer-test::get-module-state counter :shutdown-called)))))
 
 (defun create-test-rack-adder ()
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))

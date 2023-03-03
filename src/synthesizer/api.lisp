@@ -4,12 +4,6 @@
 (defun update (module)
   (funcall (getf module :update)))
 
-(defun get-state (module key)
-  (let ((fn (getf module :state)))
-    (if fn
-	(funcall fn key)
-	nil)))
-
 (defun shutdown (module)
   (let ((fn (getf module :shutdown)))
     (if fn (funcall fn))))
