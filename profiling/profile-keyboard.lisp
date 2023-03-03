@@ -41,9 +41,9 @@
 
     (cl-synthesizer:add-patch rack "VCO" :sine "VCA" :input)
     (cl-synthesizer:add-patch rack "ADSR" :cv "VCA" :cv)
-    (cl-synthesizer:expose-input-socket rack :cv "VCO" :cv-exp)
-    (cl-synthesizer:expose-input-socket rack :gate "ADSR" :gate)
-    (cl-synthesizer:expose-output-socket rack :audio "VCA" :output)
+    (cl-synthesizer:add-rack-input rack :cv "VCO" :cv-exp)
+    (cl-synthesizer:add-rack-input rack :gate "ADSR" :gate)
+    (cl-synthesizer:add-rack-output rack :audio "VCA" :output)
     
     rack))
 

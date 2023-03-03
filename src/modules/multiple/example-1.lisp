@@ -16,8 +16,8 @@
     (cl-synthesizer:add-module rack "MULTIPLE"
 			       #'cl-synthesizer-modules-multiple:make-module :output-count 5)
     (cl-synthesizer:add-patch rack "LFO" :sine "MULTIPLE" :input)
-    (cl-synthesizer:expose-output-socket rack :line-out-1 "MULTIPLE" :output-1)
-    (cl-synthesizer:expose-output-socket rack :line-out-2 "MULTIPLE" :output-2)
+    (cl-synthesizer:add-rack-output rack :line-out-1 "MULTIPLE" :output-1)
+    (cl-synthesizer:add-rack-output rack :line-out-2 "MULTIPLE" :output-2)
 
     rack))
 

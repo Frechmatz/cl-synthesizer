@@ -18,12 +18,12 @@
      #'cl-synthesizer-modules-ramp:make-module
      :time-ms 500 :target-output -2.5 :exponential exponential)
     
-    (cl-synthesizer:expose-input-socket rack :trigger "ATTACK" :trigger)
+    (cl-synthesizer:add-rack-input rack :trigger "ATTACK" :trigger)
     (cl-synthesizer:add-patch rack "ATTACK" :busy "DECAY" :pass-through)
     (cl-synthesizer:add-patch rack "ATTACK" :output "DECAY" :input)
     (cl-synthesizer:add-patch rack "ATTACK" :done "DECAY" :trigger)
 
-    (cl-synthesizer:expose-output-socket rack :output "DECAY" :output)
+    (cl-synthesizer:add-rack-output rack :output "DECAY" :output)
 
     rack))
 

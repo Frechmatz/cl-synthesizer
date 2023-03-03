@@ -17,7 +17,7 @@
      #'cl-synthesizer-modules-vco:make-module
      :base-frequency vco-frequency :v-peak 5.0 :cv-lin-hz-v 20.0)
     (cl-synthesizer:add-patch rack "LFO" :sine "VCO" :cv-lin)
-    (cl-synthesizer:expose-output-socket rack :saw "VCO" :saw)
+    (cl-synthesizer:add-rack-output rack :saw "VCO" :saw)
     rack))
 
 (defun example ()

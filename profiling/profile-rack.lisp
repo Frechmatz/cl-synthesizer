@@ -62,14 +62,14 @@
 
 (defun expose-inputs (rack target-module-name socket-count)
   (dotimes (i socket-count)
-    (cl-synthesizer:expose-input-socket rack
+    (cl-synthesizer:add-rack-input rack
 			      (make-keyword "input" (+ i 1))
 			      target-module-name
 			      (make-keyword "input" (+ i 1)))))
 
 (defun expose-outputs (rack source-module-name socket-count)
   (dotimes (i socket-count)
-    (cl-synthesizer:expose-output-socket
+    (cl-synthesizer:add-rack-output
      rack
      (make-keyword "output" (+ i 1))
      source-module-name

@@ -14,7 +14,7 @@
      :value 3.0
      :output-socket :fixed)
     
-    (cl-synthesizer:expose-output-socket rack :line-out "FIXED-OUTPUT" :fixed)
+    (cl-synthesizer:add-rack-output rack :line-out "FIXED-OUTPUT" :fixed)
 
     rack))
 

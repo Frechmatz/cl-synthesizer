@@ -6,8 +6,8 @@
   (let ((rack (cl-synthesizer:make-rack
 	       :environment environment)))
     (cl-synthesizer:add-module rack "Multiplier" #'cl-synthesizer-test::multiplier-module)
-    (cl-synthesizer:expose-input-socket rack :in "Multiplier" :in)
-    (cl-synthesizer:expose-output-socket rack :out "Multiplier" :out)
+    (cl-synthesizer:add-rack-input rack :in "Multiplier" :in)
+    (cl-synthesizer:add-rack-output rack :out "Multiplier" :out)
     
     rack))
 
@@ -18,10 +18,10 @@
     (cl-synthesizer:add-module rack "RACK-2" #'create-nested-rack)
     (cl-synthesizer:add-module rack "RACK-3" #'create-nested-rack)
 
-    (cl-synthesizer:expose-input-socket rack :in "RACK-1" :in)
+    (cl-synthesizer:add-rack-input rack :in "RACK-1" :in)
     (cl-synthesizer:add-patch rack "RACK-1" :out "RACK-2" :in)
     (cl-synthesizer:add-patch rack "RACK-2" :out "RACK-3" :in)
-    (cl-synthesizer:expose-output-socket rack :out "RACK-3" :out)
+    (cl-synthesizer:add-rack-output rack :out "RACK-3" :out)
 
     (update-module rack (list (list :in 5)))
     (assert-equal 40 (get-module-output rack :out))))

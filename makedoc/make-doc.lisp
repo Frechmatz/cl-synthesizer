@@ -180,8 +180,8 @@
 				"Work in progress. Master branch."
 				"<ul>"
 				"<li>Removed bridge modules.</li>"
-				"<li>Added rack:expose-input-socket.</li>"
-				"<li>Added rack:expose-output-socket.</li>"
+				"<li>Added rack:add-rack-input.</li>"
+				"<li>Added rack:add-rack-output.</li>"
 				"</ul>"))
 	      (heading (:name "Concepts" :toc t)
 		       (heading (:name "Environment" :toc t)
@@ -230,10 +230,10 @@
 					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "add-module"))
 				(heading (:toc t :name "add-patch")
 					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "add-patch"))
-				(heading (:toc t :name "expose-input-socket")
-					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "expose-input-socket"))
-				(heading (:toc t :name "expose-output-socket")
-					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "expose-output-socket"))
+				(heading (:toc t :name "add-rack-input")
+					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "add-rack-input"))
+				(heading (:toc t :name "add-rack-output")
+					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "add-rack-output"))
 				(heading (:toc t :name "get-module")
 					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "get-module"))
 				(heading (:toc t :name "get-module-name")

@@ -153,7 +153,7 @@
 ;;
 ;;
 
-(defun expose-input-socket (rack rack-input-socket input-module-name input-socket)
+(defun add-rack-input (rack rack-input-socket input-module-name input-socket)
   "Exposes an input socket of a module as an input socket of the rack. <p>The function has the following parameters:
    <ul>
     <li>rack The rack.</li>
@@ -163,7 +163,7 @@
   </ul></p>"
   (funcall (getf rack :expose-input-socket) rack-input-socket input-module-name input-socket))
 
-(defun expose-output-socket (rack rack-output-socket output-module-name output-socket)
+(defun add-rack-output (rack rack-output-socket output-module-name output-socket)
   "Exposes an output socket of a module as an output socket of the rack. <p>The function has the following parameters:
    <ul>
     <li>rack The rack.</li>

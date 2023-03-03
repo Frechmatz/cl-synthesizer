@@ -15,8 +15,8 @@
      :release-time-ms 1000
      :exponential exponential)
 
-    (cl-synthesizer:expose-input-socket rack :gate "ADSR" :gate)
-    (cl-synthesizer:expose-output-socket rack :adsr-out "ADSR" :cv)
+    (cl-synthesizer:add-rack-input rack :gate "ADSR" :gate)
+    (cl-synthesizer:add-rack-output rack :adsr-out "ADSR" :cv)
 
     rack))
 

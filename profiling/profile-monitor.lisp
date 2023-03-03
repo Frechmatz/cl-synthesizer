@@ -30,7 +30,7 @@
      #'cl-synthesizer-modules-multiple:make-module
      :output-count 3)
     
-    (cl-synthesizer:expose-input-socket rack :input "MULTIPLE" :input)
+    (cl-synthesizer:add-rack-input rack :input "MULTIPLE" :input)
     (cl-synthesizer-monitor:add-monitor
      rack
      #'monitor-agent

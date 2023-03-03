@@ -57,7 +57,7 @@
      :gate-state :on
      :gate-threshold gate-threshold
      :exponential exponential)
-    (cl-synthesizer:expose-input-socket rack :attack-cv-time "ATTACK" :cv-time)
+    (cl-synthesizer:add-rack-input rack :attack-cv-time "ATTACK" :cv-time)
     
     (cl-synthesizer:add-module
      rack "DECAY"
@@ -79,10 +79,10 @@
      :target-output 0.0
      :gate-threshold gate-threshold
      :exponential exponential)
-    (cl-synthesizer:expose-input-socket rack :release-cv-time "RELEASE" :cv-time)
+    (cl-synthesizer:add-rack-input rack :release-cv-time "RELEASE" :cv-time)
 
     ;; Inputs => ATTACK
-    (cl-synthesizer:expose-input-socket rack :gate "GATE-MULTIPLE" :input)
+    (cl-synthesizer:add-rack-input rack :gate "GATE-MULTIPLE" :input)
     (cl-synthesizer:add-patch rack "GATE-MULTIPLE" :output-1 "TRIGGER" :input)
     (cl-synthesizer:add-patch rack "GATE-MULTIPLE" :output-2 "ATTACK" :gate)
     (cl-synthesizer:add-patch rack "TRIGGER" :output "ATTACK" :trigger)
@@ -110,7 +110,7 @@
      "OUTPUT-MULTIPLE"
      #'cl-synthesizer-modules-multiple:make-module :output-count 2)
     (cl-synthesizer:add-patch rack "RELEASE" :output "OUTPUT-MULTIPLE" :input)
-    (cl-synthesizer:expose-output-socket rack :cv "OUTPUT-MULTIPLE" :output-1)
+    (cl-synthesizer:add-rack-output rack :cv "OUTPUT-MULTIPLE" :output-1)
     (if backward-coupled
 	(cl-synthesizer:add-patch rack "OUTPUT-MULTIPLE" :output-2 "ATTACK" :input))
 	

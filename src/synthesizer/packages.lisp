@@ -19,8 +19,8 @@
    :update
    :get-modules
    :get-patches
-   :expose-input-socket
-   :expose-output-socket))
+   :add-rack-input
+   :add-rack-output))
 
 (defpackage :cl-synthesizer-rack-compiler
   (:use :cl)

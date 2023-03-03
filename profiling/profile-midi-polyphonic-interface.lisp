@@ -9,7 +9,7 @@
     (cl-synthesizer:add-module
      rack "MIDI-IFC"
      #'cl-synthesizer-modules-midi-polyphonic-interface:make-module :voice-count voice-count)
-    (cl-synthesizer:expose-input-socket rack :midi-events "MIDI-IFC" :midi-events)
+    (cl-synthesizer:add-rack-input rack :midi-events "MIDI-IFC" :midi-events)
     rack))
 
 (defun make-note-events (factory-fn voice-count)
