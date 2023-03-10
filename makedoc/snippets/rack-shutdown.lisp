@@ -1,1 +1,0 @@
-(cl-synthesizer:shutdown rack)

@@ -43,8 +43,7 @@
       <li>:channel-1 ... :channel-n The sample values of the generated frames
 	  are written in order :channel-1 ... :channel-n</li>
   </ul></p>
-  The module has no outputs.
-  <p>The recommended way of Wave file generation is to use a Monitor.</p>"
+  The module has no outputs."
   (if (<= channel-count 0)
       (error
        'cl-synthesizer:assembly-error

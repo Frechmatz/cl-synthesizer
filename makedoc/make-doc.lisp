@@ -187,27 +187,18 @@
 				"</ul>"))
 	      (heading (:name "Concepts" :toc t)
 		       (heading (:name "Environment" :toc t)
-				,(cl-html-readme:read-file "makedoc/environment-introduction.html")
-				,(make-code-string "makedoc/snippets/environment-make-environment.lisp"))
+				,(cl-html-readme:read-file "makedoc/environment-introduction.html"))
 		       (heading (:name "Module" :toc t)
 				,(cl-html-readme:read-file "makedoc/module-introduction.html")
-				"<p>Define a module:</p>"
-				,(make-code-string "makedoc/snippets/module-blueprint.lisp")
-				"<p>Add the module to a rack (Racks are explained in the following chapter):</p>"
-				,(make-code-string "makedoc/snippets/module-blueprint-add.lisp"))
+
+				(heading (:name "Example 1: A module" :toc t)
+					 ,(make-code-string "src/synthesizer/examples/example-1/adder-2.lisp"))
+				(heading (:name "Example 2: A module using other modules" :toc t)
+					 ,(make-code-string "src/synthesizer/examples/example-1/adder-4.lisp")))
 		       (heading (:name "Rack" :toc t)
-				"<p>Racks contain modules and their connections which each other. The connections are so called \"Patches\". A rack is also a module. Beside the module functionality a rack provides Module and Patch management, Hooks and Compilation. Racks are instantiated via \"cl-synthesizer:make-rack\"</p>"
-				,(make-code-string "makedoc/snippets/rack-make-rack.lisp")
-				"<p>After the rack has been created, modules and patches can be added to it.</p>"
-				,(make-code-string "makedoc/snippets/rack-add-modules.lisp")
-				"<p>The rack is now ready to use and a \"tick\" can be processed. When a tick is to be processed, the rack checks if it has been modified, and if yes, a compilation occurs. The compilation step processes the modules and patch table of the rack in order to eliminate/minimize any expensive property list lookups during the actual execution.</p>"
-				,(make-code-string "makedoc/snippets/rack-process-tick.lisp")
-				"<p>Lets get the :sine output of the \"VCO\" module. The following snippet illustrates the low-level Api of the synthesizer. The recommended way to retrieve output values is to use a \"Monitor\”. Monitors are explained in the next chapter.</p>"
-				,(make-code-string "makedoc/snippets/rack-get-output.lisp")
-				"<p>When all things are done the rack should be shut down in order to release any resources that may have been allocated, such as opened files.</p>"
-				,(make-code-string "makedoc/snippets/rack-shutdown.lisp")
-				"<p>Racks may expose input and output sockets.</p>"
-				,(make-code-string "makedoc/snippets/rack-expose-sockets.lisp"))
+				"<p>Racks contain modules and their connections with each other. These connections are so called \"Patches\". Rack are also modules.</p>"
+				(heading (:name "Example: Create a rack, process a tick and shut it down" :toc t)
+					 ,(make-code-string "src/synthesizer/examples/example-1/adder-rack.lisp")))
 		       (heading (:name "Monitor" :toc t)
 				,(cl-html-readme:read-file "makedoc/monitor-introduction.html")
 				,(make-example-header)

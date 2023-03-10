@@ -139,8 +139,7 @@
 	    <ul>
 		<li>module-path Path of the module from which the value of
 		    a certain input/output socket or state is to be retrieved, for
-		    example \"ADSR\" or '(\"VOICE-1\" \"ADSR\"). 
-                    See also cl-synthesizer:find-module.</li>
+		    example \"ADSR\" or '(\"VOICE-1\" \"ADSR\").</li>
 		<li>socket-type One of the following keywords: 
                     <ul>
                         <li>:input-socket The value of an input socket of the module. The input must be patched.</li>

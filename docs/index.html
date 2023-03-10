@@ -22,8 +22,11 @@
 <li><a href="#Change-Log">Change-Log</a></li>
 <li><a href="#Concepts">Concepts</a><ul>
 <li><a href="#Environment">Environment</a></li>
-<li><a href="#Module">Module</a></li>
-<li><a href="#Rack">Rack</a></li>
+<li><a href="#Module">Module</a><ul>
+<li><a href="#Example 1: A module">Example 1: A module</a></li>
+<li><a href="#Example 2: A module using other modules">Example 2: A module using other modules</a></li></ul></li>
+<li><a href="#Rack">Rack</a><ul>
+<li><a href="#Example: Create a rack, process a tick and shut it down">Example: Create a rack, process a tick and shut it down</a></li></ul></li>
 <li><a href="#Monitor">Monitor</a></li></ul></li>
 <li><a href="#API">API</a><ul>
 <li><a href="#Environment-1">Environment</a><ul>
@@ -111,7 +114,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3886871398" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3887467896" type="audio/wav"></audio></p>
 <h2 id="Frequency modulated Saw">Frequency modulated Saw</h2><p><pre><code>(defpackage :cl-synthesizer-patches-frequency-modulated-saw
   (:use :cl)
   (:documentation &quot;Frequency modulated Saw&quot;))
@@ -145,7 +148,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3886871398" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3887467896" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated Saws">Two frequency modulated Saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-two-frequency-modulated-saws
   (:use :cl)
   (:documentation &quot;Two frequency modulated Saws&quot;))
@@ -187,16 +190,15 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3886871398" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3887467896" type="audio/wav"></audio></p>
 <h1 id="Change-Log">Change-Log</h1>
 <h2>Version 1.0.0</h2><p>Initial version. Not tagged.</p>
 <h2>Version 2.x</h2>Work in progress. Master branch.<ul><li>Removed bridge modules.</li><li>Added rack:add-rack-input.</li><li>Added rack:add-rack-output.</li><li>Added rack:get-rack-inputs.</li><li>Added rack:get-rack-outputs.</li></ul>
 <h1 id="Concepts">Concepts</h1>
-<h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer. An environment is represented by a property list.</p><p><pre><code>(let ((environment (cl-synthesizer:make-environment)))
-  ...)</code></pre></p>
+<h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer.</p>
 <h2 id="Module">Module</h2><p>Modules are the core components of cl-synthesizer. They generate the actual audio data.</p>
 <p>Modules do have a name, inputs, outputs and a shutdown function. The inputs/outputs are represented by keywords and are so called sockets. The shutdown function can be used to release resources 
-that have been allocated by the module, for example opened files.</p>
+that have been allocated by the module.</p>
 <p>Beside the input/output sockets a module can also expose "state sockets".
 State sockets represent internal states of the module. These sockets are not accessible when connecting modules with each other. There purpose is 
 to support debugging/analyzation of a module. So called Monitors can be used to write states for example into a CSV file.</p>
@@ -205,46 +207,97 @@ to set input values, to retrieve output values, to update the module, to shutdow
 <p>A module must provide a factory/instantiation function. The typical name of this function is "make-module". When a module is added to the synthesizer then not the 
     readily instantiated module is passed, but its factory function. This function is called by the synthesizer. The synthesizer passes the module name, 
     the environment and any arbitrary initialization parameters to it.</p>
-<p>A module can implement all its logic on its own but it can also use other modules. An example of a module using other modules is the
-    <a href="https://github.com/Frechmatz/cl-synthesizer/blob/master/src/modules/mixer.lisp">Mixer</a>.</p>
-<p>For each input/output socket that a module exposes, it must provide a corresponding setter/getter function. When processing an update, the synthesizer sets the inputs of the module via successive calls to the input setters. An input setter must not change the current output state of the module. When all inputs have been set, the synthesizer calls the update function of the module, which has no parameters. The update function must update the states of the output sockets by using the previously set input values.</p><p>Define a module:</p><p><pre><code>(defpackage :blueprint-module
+<p>A module can implement all its logic on its own but it can also use other modules.</p>
+<p>For each input/output socket that a module exposes, it must provide a corresponding setter/getter function. When processing an update, the synthesizer sets the inputs of the module via successive calls to the input setters. An input setter must not change the current output state of the module. When all inputs have been set, the synthesizer calls the update function of the module, which has no parameters. The update function must update the states of the output sockets by using the previously set input values.</p>
+<h3 id="Example 1: A module">Example 1: A module</h3><p><pre><code>(defpackage :cl-synthesizer-example-1-adder-2
   (:use :cl)
-  (:export
-   :make-module))
+  (:export :make-module))
+(in-package :cl-synthesizer-example-1-adder-2)
 
-(in-package :blueprint-module)
-
-(defun make-module (name environment &amp;key module-param)
-  (let ((input-1 nil) (input-2 nil) (output-1 nil) (output-2 nil))
-    (let ((inputs
-       (list
-        :input-1 (lambda(value) (setf input-1 value))
-        :input-2 (lambda(value) (setf input-2 value))))
-      (outputs
-       (list
-        :output-1 (lambda() output-1)
-        :output-2 (lambda() output-2))))
+(defun make-module (name environment)
+  &quot;Adder module with 2 inputs&quot;
+  (declare (ignore name environment))
+  (let ((input-1 nil) (input-2 nil) (cur-output nil))
+    (let ((inputs (list
+           :input-1 (lambda (value) (setf input-1 value))
+           :input-2 (lambda (value) (setf input-2 value))))
+      (outputs (list
+            :sum (lambda() cur-output))))
       (list
        :inputs (lambda () inputs)
        :outputs (lambda () outputs)
-       :update (lambda ()
-         (setf output-1 input-1)
-         (setf output-2 input-2))
-       :state (lambda (key)
-            (if (eq key :module-param) module-param nil))
-       :shutdown (lambda ())))))</code></pre></p><p>Add the module to a rack (Racks are explained in the following chapter):</p><p><pre><code>(let ((rack ...))
-  (cl-synthesizer:add-module rack &quot;MODULE-1&quot; #'blueprint-module:make-module :module-param 1234))</code></pre></p>
-<h2 id="Rack">Rack</h2><p>Racks contain modules and their connections which each other. The connections are so called "Patches". A rack is also a module. Beside the module functionality a rack provides Module and Patch management, Hooks and Compilation. Racks are instantiated via "cl-synthesizer:make-rack"</p><p><pre><code>(let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment)))))</code></pre></p><p>After the rack has been created, modules and patches can be added to it.</p><p><pre><code>(let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
-  (cl-synthesizer:add-module rack &quot;LFO&quot; ...)
-  (cl-synthesizer:add-module rack &quot;VCO&quot; ...)
-  (cl-synthesizer:add-patch rack &quot;LFO&quot; :sine &quot;VCO&quot; :cv-lin))</code></pre></p><p>The rack is now ready to use and a "tick" can be processed. When a tick is to be processed, the rack checks if it has been modified, and if yes, a compilation occurs. The compilation step processes the modules and patch table of the rack in order to eliminate/minimize any expensive property list lookups during the actual execution.</p><p><pre><code>(cl-synthesizer:update rack)</code></pre></p><p>Lets get the :sine output of the "VCO" module. The following snippet illustrates the low-level Api of the synthesizer. The recommended way to retrieve output values is to use a "Monitor”. Monitors are explained in the next chapter.</p><p><pre><code>(let ((module (cl-synthesizer:get-module rack &quot;VCO&quot;)))
-  (let ((module-outputs (funcall (getf module :outputs)))
-    (let ((sine (funcall (getf module-outputs :sine))))
-      (format t &quot;Sine: ~a&quot; sine))))</code></pre></p><p>When all things are done the rack should be shut down in order to release any resources that may have been allocated, such as opened files.</p><p><pre><code>(cl-synthesizer:shutdown rack)</code></pre></p><p>Racks may expose input and output sockets.</p><p><pre><code>(let ((rack
-       (cl-synthesizer:make-rack :environment ...)))
-  (cl-synthesizer:add-module rack &quot;SOME-MODULE&quot; ...)
-  (cl-synthesizer:add-rack-input rack :rack-input-1 &quot;SOME-MODULE&quot; :module-input)
-  (cl-synthesizer:add-rack-output rack :rack-output-1 &quot;SOME-MODULE&quot; :module-output))</code></pre></p>
+       :update (lambda () (setf cur-output (+ input-1 input-2)))))))</code></pre></p>
+<h3 id="Example 2: A module using other modules">Example 2: A module using other modules</h3><p><pre><code>(defpackage :cl-synthesizer-example-1-adder-4
+  (:use :cl)
+  (:export :make-module))
+(in-package :cl-synthesizer-example-1-adder-4)
+
+(defun make-module (name environment)
+  &quot;Adder module with 4 inputs&quot;
+  (declare (ignore name))
+  ;; create a rack
+  (let ((rack (cl-synthesizer:make-rack :environment environment)))
+
+    ;; add modules
+    (cl-synthesizer:add-module rack &quot;ADDER-1&quot; #'cl-synthesizer-example-1-adder-2:make-module)
+    (cl-synthesizer:add-module rack &quot;ADDER-2&quot; #'cl-synthesizer-example-1-adder-2:make-module)
+    (cl-synthesizer:add-module rack &quot;MAIN-ADDER&quot; #'cl-synthesizer-example-1-adder-2:make-module)
+
+    ;; patch internal modules
+    (cl-synthesizer:add-patch rack &quot;ADDER-1&quot; :sum &quot;MAIN-ADDER&quot; :input-1)
+    (cl-synthesizer:add-patch rack &quot;ADDER-2&quot; :sum &quot;MAIN-ADDER&quot; :input-2)
+    
+    ;; define rack inputs
+    (cl-synthesizer:add-rack-input rack :input-1 &quot;ADDER-1&quot; :input-1)
+    (cl-synthesizer:add-rack-input rack :input-2 &quot;ADDER-1&quot; :input-2)
+    (cl-synthesizer:add-rack-input rack :input-3 &quot;ADDER-2&quot; :input-1)
+    (cl-synthesizer:add-rack-input rack :input-4 &quot;ADDER-2&quot; :input-2)
+
+    ;; define rack output
+    (cl-synthesizer:add-rack-output rack :sum &quot;MAIN-ADDER&quot; :sum)
+
+    ;; return the rack
+    rack))</code></pre></p>
+<h2 id="Rack">Rack</h2><p>Racks contain modules and their connections with each other. These connections are so called "Patches". Rack are also modules.</p>
+<h3 id="Example: Create a rack, process a tick and shut it down">Example: Create a rack, process a tick and shut it down</h3><p><pre><code>(defpackage :cl-synthesizer-example-1
+  (:use :cl))
+(in-package :cl-synthesizer-example-1)
+
+
+(defun make-example-rack ()
+  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+    (cl-synthesizer:add-module rack &quot;ADDER&quot; #'cl-synthesizer-example-1-adder-4:make-module)
+    ;; add rack inputs
+    (cl-synthesizer:add-rack-input rack :input-1 &quot;ADDER&quot; :input-1)
+    (cl-synthesizer:add-rack-input rack :input-2 &quot;ADDER&quot; :input-2)
+    (cl-synthesizer:add-rack-input rack :input-3 &quot;ADDER&quot; :input-3)
+    (cl-synthesizer:add-rack-input rack :input-4 &quot;ADDER&quot; :input-4)
+    ;; add rack output
+    (cl-synthesizer:add-rack-output rack :sum &quot;ADDER&quot; :sum)
+    rack))
+
+(defun run-example ()
+  (let ((rack (make-example-rack)))
+    (let ((rack-inputs (funcall (getf rack :inputs)))
+      (rack-outputs (funcall (getf rack :outputs))))
+      ;; set inputs
+      (let ((input-setter (getf rack-inputs :input-1)))
+    (funcall input-setter 10))
+      (let ((input-setter (getf rack-inputs :input-2)))
+    (funcall input-setter 20))
+      (let ((input-setter (getf rack-inputs :input-3)))
+    (funcall input-setter 30))
+      (let ((input-setter (getf rack-inputs :input-4)))
+    (funcall input-setter 40))
+      ;; update
+      (cl-synthesizer:update rack)
+      ;; print output of rack
+      (let ((sum (funcall (getf rack-outputs :sum))))
+    (format t &quot;~%Sum:~a~%&quot; sum))
+      ;; shutdown
+      (cl-synthesizer:shutdown rack))))
+
+;; (run-example)</code></pre></p>
 <h2 id="Monitor">Monitor</h2><p>Monitors are high-level Rack-Hooks. The purpose of a monitor
 is to collect module states and pass them to a "Monitor-Backend". A backend may
 for example generate a Wave file.</p> 
@@ -446,7 +499,7 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
       <li>:update A function with no parameters that is called after the rack has updated its state.</li>
       <li>:shutdown A function with no parameters that is called when the rack is shutting down.</li>
    </ul></p>
-   Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>.</p>
+   Hooks must not modify the rack.</p>
 <h3 id="get-hooks">get-hooks</h3><b>cl-synthesizer:get-hooks</b>&nbsp;(rack)<p>Returns the hooks of a rack.</p>
 <h3 id="play-rack">play-rack</h3><b>cl-synthesizer:play-rack</b>&nbsp;(rack &key duration-seconds)<p>A utility function that "plays" the rack by consecutively calling its update function
     for a given number of "ticks". <p>The function has the following parameters:
@@ -1416,8 +1469,7 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
       <li>:channel-1 ... :channel-n The sample values of the generated frames
 	  are written in order :channel-1 ... :channel-n</li>
   </ul></p>
-  The module has no outputs.
-  <p>The recommended way of Wave file generation is to use a Monitor.</p></p>
+  The module has no outputs.</p>
 <h3 id="CSV File Writer">CSV File Writer</h3><b>cl-synthesizer-modules-csv-file-writer:make-module</b>&nbsp;(name environment &key columns filename (column-separator ,) (add-header t))<p>Creates a CSV File Writer module.
     <p>The function has the following parameters:
   <ul>
@@ -1443,8 +1495,7 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
      If a value contains the column separator it will not be quoted. The file is opened on the first 
      call of the update function and closed by the shutdown handler.
   </p>
-  The module has no outputs.
-  <p>The recommended way of CSV file generation is to use a Monitor.</p></p>
+  The module has no outputs.</p>
 <h2 id="Monitor-1">Monitor</h2>
 <h3 id="add-monitor">add-monitor</h3><b>cl-synthesizer-monitor:add-monitor</b>&nbsp;(rack monitor-agent socket-mappings &rest additional-agent-args)<p>Adds a monitor to a rack. <p>The function has the following parameters:
     <ul>
@@ -1474,8 +1525,7 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
 	    <ul>
 		<li>module-path Path of the module from which the value of
 		    a certain input/output socket or state is to be retrieved, for
-		    example "ADSR" or '("VOICE-1" "ADSR"). 
-                    See also cl-synthesizer:find-module.</li>
+		    example "ADSR" or '("VOICE-1" "ADSR").</li>
 		<li>socket-type One of the following keywords: 
                     <ul>
                         <li>:input-socket The value of an input socket of the module. The input must be patched.</li>
@@ -1733,4 +1783,4 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
 <h1 id="Generate documentation">Generate documentation</h1>Depends on :cl-html-readme and :docparser which are available via Quicklisp.<p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2023-03-03  23:29:58</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-03-10  21:11:36</small></p></footer></body></html>

@@ -122,7 +122,7 @@
       <li>:update A function with no parameters that is called after the rack has updated its state.</li>
       <li>:shutdown A function with no parameters that is called when the rack is shutting down.</li>
    </ul></p>
-   Hooks must not modify the rack. See also <b>cl-synthesizer-monitor:add-monitor</b>."
+   Hooks must not modify the rack."
   (funcall (getf rack :add-hook) hook))
 
 (defun add-patch (rack output-module-name output-socket input-module-name input-socket)

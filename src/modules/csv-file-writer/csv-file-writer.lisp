@@ -71,8 +71,7 @@
      If a value contains the column separator it will not be quoted. The file is opened on the first 
      call of the update function and closed by the shutdown handler.
   </p>
-  The module has no outputs.
-  <p>The recommended way of CSV file generation is to use a Monitor.</p>"
+  The module has no outputs."
   (if (<= (length columns) 0)
       (error
        'cl-synthesizer:assembly-error

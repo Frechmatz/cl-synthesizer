@@ -439,7 +439,12 @@
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "Examples of cl-synthesizer"
   :depends-on (:cl-synthesizer)
-  :components ((:module "src/modules/vca"
+  :components ((:module "src/synthesizer/examples/example-1"
+		:serial t
+		:components ((:file "adder-2")
+			     (:file "adder-4")
+			     (:file "adder-rack")))
+	       (:module "src/modules/vca"
 		:serial t
 		:components ((:file "example-1")
 			     (:file "example-2")))
