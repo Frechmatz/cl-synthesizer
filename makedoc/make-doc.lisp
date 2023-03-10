@@ -196,7 +196,7 @@
 				(heading (:name "Example 2: A module using other modules" :toc t)
 					 ,(make-code-string "src/synthesizer/examples/example-1/adder-4.lisp")))
 		       (heading (:name "Rack" :toc t)
-				"<p>Racks contain modules and their connections with each other. These connections are so called \"Patches\". Rack are also modules.</p>"
+				"<p>Racks contain modules and their connections with each other. These connections are so called \"Patches\". Racks are also modules.</p>"
 				(heading (:name "Example: Create a rack, process a tick and shut it down" :toc t)
 					 ,(make-code-string "src/synthesizer/examples/example-1/adder-rack.lisp")))
 		       (heading (:name "Monitor" :toc t)
