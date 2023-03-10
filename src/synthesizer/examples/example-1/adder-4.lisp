@@ -14,7 +14,7 @@
     (cl-synthesizer:add-module rack "ADDER-2" #'cl-synthesizer-example-1-adder-2:make-module)
     (cl-synthesizer:add-module rack "MAIN-ADDER" #'cl-synthesizer-example-1-adder-2:make-module)
 
-    ;; patch internal modules
+    ;; patch modules
     (cl-synthesizer:add-patch rack "ADDER-1" :sum "MAIN-ADDER" :input-1)
     (cl-synthesizer:add-patch rack "ADDER-2" :sum "MAIN-ADDER" :input-2)
     
