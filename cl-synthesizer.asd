@@ -24,7 +24,8 @@
 	       :cl-synthesizer/monitor
 	       :cl-synthesizer/monitor-buffer
 	       :cl-synthesizer/monitor-csv-file
-	       :cl-synthesizer/monitor-wave-file)
+	       :cl-synthesizer/monitor-wave-file
+               :cl-synthesizer/sound-server-client)
   :in-order-to ((test-op (test-op "cl-synthesizer/test"))))
 
 (defsystem :cl-synthesizer/core
@@ -348,6 +349,18 @@
 		:components ((:file "packages")
 			     (:file "agent")))))
 
+(defsystem :cl-synthesizer/sound-server-client
+  :serial t
+  :version "1.0.0"
+  :depends-on (:cl-java-sound-client
+               :cl-synthesizer/core
+	       :cl-synthesizer/monitor
+               :cl-synthesizer/monitor-buffer)
+  :components ((:module "src/sound-server-client"
+		:serial t
+		:components ((:file "packages")
+			     (:file "client")))))
+
 (defsystem :cl-synthesizer/test
   :serial t
   :version "1.0.0"
@@ -488,6 +501,10 @@
 	       (:module "src/monitor/wave-file"
 		:serial t
 		:components ((:file "example-1")))
+	       (:module "src/sound-server-client"
+		:serial t
+		:components ((:file "example-1")
+                             (:file "example-2")))
 	       (:module "src/run-examples"
 		:serial t
 		:components ((:file "packages")

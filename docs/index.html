@@ -6,7 +6,6 @@
 </p>
 <p>cl-synthesizer has been developed with the following principles in mind:
 <ul>
-    <li>No dependencies on binding libraries. The Common Lisp Standard Library shall it be.</li>
     <li>Extensive unit testing.</li>
     <li>Extensive profiling of consing and execution speed.</li>
 </ul></p>
@@ -87,6 +86,7 @@
 <section>
 <h1 id="Installation">Installation</h1><pre><code>cd ~/quicklisp/local-projects
 git clone https://github.com/Frechmatz/cl-wave-file-writer.git
+git clone https://github.com/Frechmatz/cl-java-sound-client.git    
 git clone https://github.com/Frechmatz/cl-synthesizer.git
 (ql:quickload "cl-synthesizer")</code></pre>
 <h1 id="Examples">Examples</h1>
@@ -114,7 +114,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3887468611" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3887999353" type="audio/wav"></audio></p>
 <h2 id="Frequency modulated Saw">Frequency modulated Saw</h2><p><pre><code>(defpackage :cl-synthesizer-patches-frequency-modulated-saw
   (:use :cl)
   (:documentation &quot;Frequency modulated Saw&quot;))
@@ -148,7 +148,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3887468611" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3887999353" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated Saws">Two frequency modulated Saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-two-frequency-modulated-saws
   (:use :cl)
   (:documentation &quot;Two frequency modulated Saws&quot;))
@@ -190,7 +190,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3887468611" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3887999353" type="audio/wav"></audio></p>
 <h1 id="Change-Log">Change-Log</h1>
 <h2>Version 1.0.0</h2><p>Initial version. Not tagged.</p>
 <h2>Version 2.x</h2>Work in progress. Master branch.<ul><li>Removed bridge modules.</li><li>Added rack:add-rack-input.</li><li>Added rack:add-rack-output.</li><li>Added rack:get-rack-inputs.</li><li>Added rack:get-rack-outputs.</li></ul>
@@ -1783,4 +1783,4 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
 <h1 id="Generate documentation">Generate documentation</h1>Depends on :cl-html-readme and :docparser which are available via Quicklisp.<p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2023-03-10  21:23:31</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-03-17  00:49:13</small></p></footer></body></html>
