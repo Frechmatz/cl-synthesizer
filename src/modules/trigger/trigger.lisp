@@ -22,11 +22,14 @@
     </ul></p>"
   (declare (ignore name environment))
   (let ((cur-output 0) (waiting nil) (input-input nil))
-    (let ((inputs (list :input (lambda(value) (setf input-input value))))
-	  (outputs (list :output (lambda() cur-output))))
+    (let ((inputs (list :input (list
+				:set (lambda(value) (setf input-input value))
+				:get (lambda() input-input))))
+	  (outputs (list :output (list
+				  :get (lambda() cur-output)))))
     (list
-     :inputs (lambda () inputs)
-     :outputs (lambda () outputs)
+     :inputs (lambda() inputs)
+     :outputs (lambda() outputs)
      :update (lambda ()
 	       (if (not input-input)
 		   (setf input-input 0.0))

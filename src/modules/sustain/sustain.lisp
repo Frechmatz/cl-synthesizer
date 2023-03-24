@@ -35,18 +35,26 @@
   (let* ((output 0.0) (busy 0.0) (done 0.0) (passthrough-gate nil)
 	 (input-trigger nil) (input-input nil) (input-pass-through nil) (input-gate nil))
     (let ((inputs (list
-		   :trigger (lambda(value) (setf input-trigger value))
-		   :input (lambda(value) (setf input-input value))
-		   :pass-through (lambda(value) (setf input-pass-through value))
-		   :gate (lambda(value) (setf input-gate value))))
+		   :trigger (list
+			     :set (lambda(value) (setf input-trigger value))
+			     :get (lambda() input-trigger))
+		   :input (list
+			   :set (lambda(value) (setf input-input value))
+			   :get (lambda() input-input))
+		   :pass-through (list
+				  :set (lambda(value) (setf input-pass-through value))
+				  :get (lambda() input-pass-through))
+		   :gate (list
+			  :set (lambda(value) (setf input-gate value))
+			  :get (lambda() input-gate))))
 	  (outputs (list
-		    :output (lambda() output)
-		    :busy (lambda() busy)
-		    :done (lambda() done)
-		    :gate (lambda() passthrough-gate))))
+		    :output (list :get (lambda() output))
+		    :busy (list :get (lambda() busy))
+		    :done (list :get (lambda() done))
+		    :gate (list :get (lambda() passthrough-gate)))))
     (list
-     :inputs (lambda () inputs)
-     :outputs (lambda () outputs)
+     :inputs (lambda() inputs)
+     :outputs (lambda() outputs)
      :update (lambda ()
 	       (setf done 0.0)
 	       (setf passthrough-gate input-gate)

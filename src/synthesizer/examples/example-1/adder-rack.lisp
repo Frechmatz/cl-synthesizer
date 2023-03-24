@@ -20,18 +20,18 @@
     (let ((rack-inputs (funcall (getf rack :inputs)))
 	  (rack-outputs (funcall (getf rack :outputs))))
       ;; set inputs
-      (let ((input-setter (getf rack-inputs :input-1)))
+      (let ((input-setter (getf (getf rack-inputs :input-1) :set)))
 	(funcall input-setter 10))
-      (let ((input-setter (getf rack-inputs :input-2)))
+      (let ((input-setter (getf (getf rack-inputs :input-2) :set)))
 	(funcall input-setter 20))
-      (let ((input-setter (getf rack-inputs :input-3)))
+      (let ((input-setter (getf (getf rack-inputs :input-3) :set)))
 	(funcall input-setter 30))
-      (let ((input-setter (getf rack-inputs :input-4)))
+      (let ((input-setter (getf (getf rack-inputs :input-4) :set)))
 	(funcall input-setter 40))
       ;; update
       (cl-synthesizer:update rack)
       ;; print output of rack
-      (let ((sum (funcall (getf rack-outputs :sum))))
+      (let ((sum (funcall (getf (getf rack-outputs :sum) :get))))
 	(format t "~%Sum:~a~%" sum))
       ;; shutdown
       (cl-synthesizer:shutdown rack))))

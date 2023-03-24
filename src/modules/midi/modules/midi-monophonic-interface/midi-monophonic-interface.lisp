@@ -89,15 +89,17 @@
 	 (voice-manager (make-instance 'cl-synthesizer-midi-lru-set::lru-set :capacity stack-depth)))
 
     ;; Set up outputs
-    (push (lambda () (get-voice-state-cv voice-state)) outputs)
+    (push (list :get (lambda () (get-voice-state-cv voice-state))) outputs)
     (push :cv outputs)
-    (push (lambda () (get-voice-state-gate voice-state)) outputs)
+    (push (list :get (lambda () (get-voice-state-gate voice-state))) outputs)
     (push :gate outputs)
-    (push (lambda () (get-voice-state-velocity voice-state)) outputs)
+    (push (list :get (lambda () (get-voice-state-velocity voice-state))) outputs)
     (push :velocity outputs)
 
     ;; Set up inputs
-    (setf inputs (list :midi-events (lambda(value) (setf input-midi-events value))))
+    (setf inputs (list :midi-events
+		       (list :set (lambda(value) (setf input-midi-events value))
+			     :get (lambda() input-midi-events))))
 
     (labels ((retrigger-gate (voice-state)
 	       "Put gate down for one tick."
@@ -121,8 +123,8 @@
 	       "Velocity value (0..127) to CV"
 	       (* velocity (/ cv-velocity-max 127.0))))
     (list
-       :inputs (lambda () inputs)
-       :outputs (lambda () outputs)
+       :inputs (lambda() inputs)
+       :outputs (lambda() outputs)
        :update (lambda ()
 		 ;; Pull up pending gate
 		 (activate-pending-gate)

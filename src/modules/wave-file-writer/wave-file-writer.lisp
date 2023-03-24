@@ -71,12 +71,14 @@
     (let ((inputs nil) (index 0))
       (dolist (input-socket input-sockets)
 	(let ((cur-index index))
-	  (push (lambda(value) (setf (aref input-values cur-index) value)) inputs)
+	  (push (list
+		 :set (lambda(value) (setf (aref input-values cur-index) value))
+		 :get (lambda() (aref input-values cur-index))) inputs)
 	  (push input-socket inputs)
 	  (setf index (+ 1 index))))
     (list
-     :inputs (lambda () inputs)
-     :outputs (lambda () nil)
+     :inputs (lambda() inputs)
+     :outputs (lambda() nil)
      :update (lambda ()
 	       (if (not opened-wave-writer)
 		   (progn

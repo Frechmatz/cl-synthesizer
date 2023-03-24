@@ -15,14 +15,20 @@
 		      (error (format nil "Unknown state '~a' requested frm module pass-through-module" state)))))
      :inputs (lambda ()
 	       (list
-		:input-1 (lambda(value) (setf input-1 value))
-		:input-2 (lambda(value) (setf input-2 value))
-		:input-3 (lambda(value) (setf input-3 value))))
+		:input-1 (list
+			  :set (lambda(value) (setf input-1 value))
+			  :get (lambda() input-1))
+		:input-2 (list
+			  :set (lambda(value) (setf input-2 value))
+			  :get (lambda() input-2))
+		:input-3 (list
+			  :set (lambda(value) (setf input-3 value))
+			  :get (lambda() input-3))))
      :outputs (lambda ()
 		(list
-		 :output-1 (lambda() output-1)
-		 :output-2 (lambda() output-2)
-		 :output-3 (lambda() output-3)))
+		 :output-1 (list :get (lambda() output-1))
+		 :output-2 (list :get (lambda() output-2))
+		 :output-3 (list :get (lambda() output-3))))
      :update (lambda ()
 	       (setf output-1 input-1)
 	       (setf output-2 input-2)

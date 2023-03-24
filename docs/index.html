@@ -114,7 +114,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3887999353" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3888688388" type="audio/wav"></audio></p>
 <h2 id="Frequency modulated Saw">Frequency modulated Saw</h2><p><pre><code>(defpackage :cl-synthesizer-patches-frequency-modulated-saw
   (:use :cl)
   (:documentation &quot;Frequency modulated Saw&quot;))
@@ -148,7 +148,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3887999353" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3888688388" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated Saws">Two frequency modulated Saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-two-frequency-modulated-saws
   (:use :cl)
   (:documentation &quot;Two frequency modulated Saws&quot;))
@@ -190,10 +190,10 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3887999353" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3888688388" type="audio/wav"></audio></p>
 <h1 id="Change-Log">Change-Log</h1>
 <h2>Version 1.0.0</h2><p>Initial version. Not tagged.</p>
-<h2>Version 2.x</h2>Work in progress. Master branch.<ul><li>Removed bridge modules.</li><li>Added rack:add-rack-input.</li><li>Added rack:add-rack-output.</li><li>Added rack:get-rack-inputs.</li><li>Added rack:get-rack-outputs.</li></ul>
+<h2>Version 2.x</h2>Work in progress. Master branch.<ul><li>Removed bridge modules.</li><li>Added rack:add-rack-input.</li><li>Added rack:add-rack-output.</li><li>Added rack:get-rack-inputs.</li><li>Added rack:get-rack-outputs.</li><li>Added module input socket getters.</li></ul>
 <h1 id="Concepts">Concepts</h1>
 <h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer.</p>
 <h2 id="Module">Module</h2><p>Modules are the core components of cl-synthesizer. They generate the actual audio data.</p>
@@ -219,13 +219,17 @@ to set input values, to retrieve output values, to update the module, to shutdow
   (declare (ignore name environment))
   (let ((input-1 nil) (input-2 nil) (cur-output nil))
     (let ((inputs (list
-           :input-1 (lambda (value) (setf input-1 value))
-           :input-2 (lambda (value) (setf input-2 value))))
+           :input-1 (list
+                 :set (lambda (value) (setf input-1 value))
+                 :get (lambda() input-1))
+           :input-2 (list
+                 :set (lambda (value) (setf input-2 value))
+                 :get (lambda() input-2))))
       (outputs (list
-            :sum (lambda() cur-output))))
+            :sum (list :get (lambda() cur-output)))))
       (list
-       :inputs (lambda () inputs)
-       :outputs (lambda () outputs)
+       :inputs (lambda() inputs)
+       :outputs (lambda() outputs)
        :update (lambda () (setf cur-output (+ input-1 input-2)))))))</code></pre></p>
 <h3 id="Example 2: A module using other modules">Example 2: A module using other modules</h3><p><pre><code>(defpackage :cl-synthesizer-example-1-adder-4
   (:use :cl)
@@ -281,18 +285,18 @@ to set input values, to retrieve output values, to update the module, to shutdow
     (let ((rack-inputs (funcall (getf rack :inputs)))
       (rack-outputs (funcall (getf rack :outputs))))
       ;; set inputs
-      (let ((input-setter (getf rack-inputs :input-1)))
+      (let ((input-setter (getf (getf rack-inputs :input-1) :set)))
     (funcall input-setter 10))
-      (let ((input-setter (getf rack-inputs :input-2)))
+      (let ((input-setter (getf (getf rack-inputs :input-2) :set)))
     (funcall input-setter 20))
-      (let ((input-setter (getf rack-inputs :input-3)))
+      (let ((input-setter (getf (getf rack-inputs :input-3) :set)))
     (funcall input-setter 30))
-      (let ((input-setter (getf rack-inputs :input-4)))
+      (let ((input-setter (getf (getf rack-inputs :input-4) :set)))
     (funcall input-setter 40))
       ;; update
       (cl-synthesizer:update rack)
       ;; print output of rack
-      (let ((sum (funcall (getf rack-outputs :sum))))
+      (let ((sum (funcall (getf (getf rack-outputs :sum) :get))))
     (format t &quot;~%Sum:~a~%&quot; sum))
       ;; shutdown
       (cl-synthesizer:shutdown rack))))
@@ -373,15 +377,18 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
 	    </ul>
 	    The module instantiation function must return a property list with the following keys:
 	    <ul>
-		<li>:inputs A function with no parameters that returns a property list representing the
-                    input sockets and their corresponding setter functions that are exposed by the module.</br>
-                    Example: <code>:inputs (lambda() (list :input-1 (lambda(value) (setf input-1 value))))</code>
-                    </br>Modules are supposed to buffer this list as the inputs might be requested several times.
+		<li>:inputs A function with no parameters that returns a property list defining the
+                    input sockets of the module. An input socket consists of a keyword and a property list with the following keys:
+                    <ul>
+                    <li>:set A function with one parameter to set the input value.</li>
+                    <li>:get A function with no parameters to get the current input value.</li>
+                    </ul>
                 </li>
-		<li>:outputs A function with no parameters that returns a property list representing 
-                    the  output sockets and their corresponding getter functions that exposed by the module.</br>
-                    Example: <code>:outputs (lambda() (list :output-1 (lambda() output-1)))</code>
-                    </br>Modules are supposed to buffer this list as the outputs might be requested several times.
+		<li>:outputs A function with no parameters that returns a property list defining
+                    the output sockets of the module. An output socket consists of a keyword and a property list with the following keys:
+                    <ul>
+                    <li>:get A function with no parameters to get the current output value.</li>
+                    </ul>
                 </li>
 		<li>:update A function with no parameters that updates the outputs according to the previously set inputs.</li>
 		<li>:shutdown An optional function with no parameters that is called when the rack
@@ -1772,9 +1779,8 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
 </tbody></table>
 
 <h2 id="Conditions">Conditions</h2><b>cl-synthesizer:assembly-error</b><p>This condition is signalled in cases where the assembly of a rack fails,
-   because for example a module name is not unique, a patch is added for
-   a non-existing module, a patch is added to an already patched socket
-   and so on.</p>
+   because for example a module name is not unique, a module is malformed, a patch is added for
+   a non-existing module, a patch is added to an already patched socket and so on.</p>
 <h1 id="Run tests">Run tests</h1><pre><code>(asdf:test-system :cl-synthesizer)</code></pre>
 <h1 id="Run examples">Run examples</h1>Run all examples of cl-synthesizer. Generated files are written into <code>~/cl-synthesizer-examples/</code><p><pre><code>(asdf:load-system :cl-synthesizer/examples)
 (cl-synthesizer-examples::run-examples)</code></pre></p>
@@ -1783,4 +1789,4 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
 <h1 id="Generate documentation">Generate documentation</h1>Depends on :cl-html-readme and :docparser which are available via Quicklisp.<p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2023-03-17  00:49:13</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-03-25  00:13:08</small></p></footer></body></html>

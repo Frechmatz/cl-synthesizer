@@ -56,15 +56,18 @@
 	    </ul>
 	    The module instantiation function must return a property list with the following keys:
 	    <ul>
-		<li>:inputs A function with no parameters that returns a property list representing the
-                    input sockets and their corresponding setter functions that are exposed by the module.</br>
-                    Example: <code>:inputs (lambda() (list :input-1 (lambda(value) (setf input-1 value))))</code>
-                    </br>Modules are supposed to buffer this list as the inputs might be requested several times.
+		<li>:inputs A function with no parameters that returns a property list defining the
+                    input sockets of the module. An input socket consists of a keyword and a property list with the following keys:
+                    <ul>
+                    <li>:set A function with one parameter to set the input value.</li>
+                    <li>:get A function with no parameters to get the current input value.</li>
+                    </ul>
                 </li>
-		<li>:outputs A function with no parameters that returns a property list representing 
-                    the  output sockets and their corresponding getter functions that exposed by the module.</br>
-                    Example: <code>:outputs (lambda() (list :output-1 (lambda() output-1)))</code>
-                    </br>Modules are supposed to buffer this list as the outputs might be requested several times.
+		<li>:outputs A function with no parameters that returns a property list defining
+                    the output sockets of the module. An output socket consists of a keyword and a property list with the following keys:
+                    <ul>
+                    <li>:get A function with no parameters to get the current output value.</li>
+                    </ul>
                 </li>
 		<li>:update A function with no parameters that updates the outputs according to the previously set inputs.</li>
 		<li>:shutdown An optional function with no parameters that is called when the rack

@@ -14,7 +14,7 @@
 		    (t 
 		      (error (format nil "Unknown state '~a' requested frm module update-counter-module" state)))))
      :inputs (lambda () nil)
-     :outputs (lambda () (list :out (lambda() out)))
+     :outputs (lambda () (list :out (list :get (lambda() out))))
      :update (lambda ()
 	       (setf out (+ 1 out)))
      :shutdown (lambda()

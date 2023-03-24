@@ -82,19 +82,29 @@
 				   (normalized-delta (cl-synthesizer-util:normalized-exp ramp-progress-percent)))
 			      (+ start (* (- target-output start) normalized-delta))))))
     (let ((inputs (list
-		   :trigger (lambda(value) (setf input-trigger value))
-		   :input (lambda(value) (setf input-input value))
-		   :pass-through (lambda(value) (setf input-pass-through value))
-		   :gate (lambda(value) (setf input-gate value))
-		   :cv-time (lambda(value) (setf input-cv-time  value))))
+		   :trigger (list
+			     :set (lambda(value) (setf input-trigger value))
+			     :get (lambda() input-trigger))
+		   :input (list
+			   :set (lambda(value) (setf input-input value))
+			   :get (lambda() input-input))
+		   :pass-through (list
+				  :set (lambda(value) (setf input-pass-through value))
+				  :get (lambda() input-pass-through))
+		   :gate (list
+			  :set (lambda(value) (setf input-gate value))
+			  :get (lambda() input-gate))
+		   :cv-time (list
+			     :set (lambda(value) (setf input-cv-time  value))
+			     :get (lambda() input-cv-time))))
 	  (outputs (list
-		    :output (lambda() output)
-		    :busy (lambda() busy)
-		    :done (lambda() done)
-		    :gate (lambda() passthrough-gate))))
+		    :output (list :get (lambda() output))
+		    :busy (list :get (lambda() busy))
+		    :done (list :get (lambda() done))
+		    :gate (list :get (lambda() passthrough-gate)))))
       (list
-       :inputs (lambda () inputs)
-       :outputs (lambda () outputs)
+       :inputs (lambda() inputs)
+       :outputs (lambda() outputs)
        :update (lambda ()
 		 (setf done 0.0)
 		 (if input-cv-time

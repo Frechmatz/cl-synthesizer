@@ -1,14 +1,16 @@
 (in-package :cl-synthesizer-test)
 
 (defun get-module-output (module socket)
-  (funcall (getf (funcall (getf module :outputs)) socket)))
+  (funcall (getf (getf (funcall (getf module :outputs)) socket) :get)))
 
 (defun update-module (module input-args)
   "input-args: List of (key value)"
   (let ((module-inputs (funcall (getf module :inputs))))
     (dolist (input input-args)
-      (funcall
-       (getf module-inputs (first input)) (second input))))
+      (let ((socket (first input))
+	    (socket-value (second input)))
+	(let ((setter (getf (getf module-inputs socket) :set)))
+	  (funcall setter socket-value)))))
   (cl-synthesizer:update module))
 
 (defun get-module-input-sockets (module)

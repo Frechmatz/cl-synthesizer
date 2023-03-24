@@ -29,7 +29,9 @@
       (let ((inputs nil) (index 0))
 	(dolist (input-socket input-sockets)
 	  (let ((cur-index index))
-	    (push (lambda(value) (setf (aref buffer cur-index) value)) inputs)
+	    (push (list
+		   :set (lambda(value) (setf (aref buffer cur-index) value))
+		   :get (lambda() (aref buffer cur-index))) inputs)
 	    (push input-socket inputs)
 	    (setf index (+ 1 index))))
 	(list

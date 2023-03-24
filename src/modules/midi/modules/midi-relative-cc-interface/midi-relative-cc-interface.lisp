@@ -79,12 +79,14 @@
 	       ((and max-output (< max-output v)) max-output)
 	       (t v))))
       (let* ((cur-output (clip initial-output)) (input-midi-events nil)
-	     (inputs (list :midi-events (lambda(value) (setf input-midi-events value))))
-	     (outputs (list :output (lambda() cur-output)))
+	     (inputs (list :midi-events (list
+					 :set (lambda(value) (setf input-midi-events value))
+					 :get (lambda() input-midi-events))))
+	     (outputs (list :output (list :get (lambda() cur-output))))
 	     (map-fn (getf cc-mapper :map)))
 	(list
-	 :inputs (lambda () inputs)
-	 :outputs (lambda () outputs)
+	 :inputs (lambda() inputs)
+	 :outputs (lambda() outputs)
 	 :update (lambda ()
 		   (dolist (midi-event input-midi-events)
 		     (if (and midi-event

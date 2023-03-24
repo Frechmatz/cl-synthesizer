@@ -114,15 +114,17 @@
 	    (gate-socket (make-keyword "GATE" (+ i 1)))
 	    (velocity-socket (make-keyword "VELOCITY" (+ i 1))))
 	(let ((cur-i i)) ;; new context
-	  (push (lambda () (get-voice-state-cv (elt voice-states cur-i))) outputs)
+	  (push (list :get (lambda () (get-voice-state-cv (elt voice-states cur-i)))) outputs)
 	  (push cv-socket outputs)
-	  (push (lambda () (get-voice-state-gate (elt voice-states cur-i))) outputs)
+	  (push (list :get (lambda () (get-voice-state-gate (elt voice-states cur-i)))) outputs)
 	  (push gate-socket outputs)
-	  (push (lambda () (get-voice-state-velocity (elt voice-states cur-i))) outputs)
+	  (push (list :get (lambda () (get-voice-state-velocity (elt voice-states cur-i)))) outputs)
 	  (push velocity-socket outputs))))
 
     ;; Set up inputs
-    (setf inputs (list :midi-events (lambda(value) (setf input-midi-events value))))
+    (setf inputs (list :midi-events (list
+				     :set (lambda(value) (setf input-midi-events value))
+				     :get (lambda() input-midi-events))))
 
     (labels ((retrigger-gate (voice-state)
 	       "Put gate down for one tick."
@@ -152,8 +154,8 @@
 	       "Velocity value (0..127) to CV"
 	       (* velocity (/ cv-velocity-max 127.0))))
       (list
-       :inputs (lambda () inputs)
-       :outputs (lambda () outputs)
+       :inputs (lambda() inputs)
+       :outputs (lambda() outputs)
        :update (lambda ()
 		 ;; Pull up pending gates
 		 (activate-pending-gates)

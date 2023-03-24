@@ -184,6 +184,7 @@
 				"<li>Added rack:add-rack-output.</li>"
 				"<li>Added rack:get-rack-inputs.</li>"
 				"<li>Added rack:get-rack-outputs.</li>"
+				"<li>Added module input socket getters.</li>"
 				"</ul>"))
 	      (heading (:name "Concepts" :toc t)
 		       (heading (:name "Environment" :toc t)

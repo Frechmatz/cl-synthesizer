@@ -122,9 +122,15 @@
 		 (setf cur-exp-frequency (funcall exp-converter cv-exp))
 		 (+ cur-lin-frequency cur-exp-frequency)))
 	  (let ((inputs (list
-			 :cv-exp (lambda(value) (setf input-cv-exp value))
-			 :cv-lin (lambda(value) (setf input-cv-lin value))
-			 :sync (lambda(value) (setf input-sync value))))
+			 :cv-exp (list
+				  :set (lambda(value) (setf input-cv-exp value))
+				  :get (lambda() input-cv-exp))
+			 :cv-lin (list
+				  :set (lambda(value) (setf input-cv-lin value))
+				  :get (lambda() input-cv-lin))
+			 :sync (list
+				:set (lambda(value) (setf input-sync value))
+				:get (lambda() input-sync))))
 		(outputs nil)
 		(update-functions (make-array (length wave-forms))))
 	    (let ((index nil) (added-wave-forms nil))
@@ -138,7 +144,7 @@
 		(push wave-form added-wave-forms)
 		(cond
 		  ((eq wave-form :sine)
-		   (push (lambda() cur-sine-output) outputs)
+		   (push (list :get (lambda() cur-sine-output)) outputs)
 		   (push :sine outputs)
 		   (setf (elt update-functions index)
 			 (lambda()
@@ -148,7 +154,7 @@
 				    (cl-synthesizer-util:phase-sine-converter
 				     cur-phi phase-offset))))))
 		  ((eq wave-form :saw)
-		   (push (lambda() cur-saw-output) outputs)
+		   (push (list :get (lambda() cur-saw-output)) outputs)
 		   (push :saw outputs)
 		   (setf (elt update-functions index)
 			 (lambda()
@@ -157,7 +163,7 @@
 				 (* v-peak (cl-synthesizer-util:phase-saw-converter
 					    cur-phi phase-offset))))))
 		  ((eq wave-form :square)
-		   (push (lambda() cur-square-output) outputs)
+		   (push (list :get (lambda() cur-square-output)) outputs)
 		   (push :square outputs)
 		   (setf (elt update-functions index)
 			 (lambda()
@@ -166,7 +172,7 @@
 				 (* v-peak (cl-synthesizer-util:phase-square-converter
 					    cur-phi phase-offset duty-cycle))))))
 		  ((eq wave-form :triangle)
-		   (push (lambda() cur-triangle-output) outputs)
+		   (push (list :get (lambda() cur-triangle-output)) outputs)
 		   (push :triangle outputs)
 		   (setf (elt update-functions index)
 			 (lambda()
@@ -180,8 +186,8 @@
 		    :format-control "Invalid wave-form identifier '~a' passed to VCO '~a'"
 		    :format-arguments (list wave-form name))))))
 	    (list
-	     :inputs (lambda () inputs)
-	     :outputs (lambda () outputs)
+	     :inputs (lambda() inputs)
+	     :outputs (lambda() outputs)
 	     :update (lambda ()
 		       (if (not input-cv-exp)
 			   (setf input-cv-exp 0.0))

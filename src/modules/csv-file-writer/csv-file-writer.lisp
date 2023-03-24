@@ -92,7 +92,9 @@
 	(dolist (column-key column-keys)
 	  (let ((cur-index index))
 	    (setf (aref column-properties cur-index) (make-column-properties (nth cur-index columns) index))
-	    (push (lambda(value) (setf (aref column-values cur-index) value)) inputs)
+	    (push (list
+		   :set (lambda(value) (setf (aref column-values cur-index) value))
+		   :get (lambda() (aref column-values cur-index))) inputs)
 	    (push column-key inputs))
 	  (setf index (+ 1 index)))
       (flet ((open-file ()
@@ -112,8 +114,8 @@
 			    column-properties
 			    :initial-value "")))))
 	(list
-	 :inputs (lambda () inputs)
-	 :outputs (lambda () nil)
+	 :inputs (lambda() inputs)
+	 :outputs (lambda() nil)
 	 :update (lambda ()
 		   (if (not output-stream)
 		       (progn

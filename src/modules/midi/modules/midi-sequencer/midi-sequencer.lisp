@@ -50,7 +50,7 @@
 	    (setf (aref event-array i) (getf evt :midi-events))
 	    (setf (aref timestamp-array i) timestamp)
 	    (setf i (+ i 1))))))
-    (let ((outputs (list :midi-events (lambda() cur-midi-events))))
+    (let ((outputs (list :midi-events (list :get (lambda() cur-midi-events)))))
       (list
        :inputs (lambda() nil)
        :outputs (lambda() outputs)

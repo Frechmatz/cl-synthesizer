@@ -41,14 +41,16 @@
        :format-arguments (list name output-count)))
   (let ((cur-input nil) (output-value nil) (output-sockets (make-keyword-list "output" output-count)))
     (let ((inputs
-	   (list :input (lambda(value) (setf cur-input value))))
+	    (list :input (list
+			  :set (lambda(value) (setf cur-input value))
+			  :get (lambda() cur-input))))
 	  (outputs nil))
       (let ((getter (lambda() cur-input)))
 	(dolist (output-socket output-sockets)
-	  (push getter outputs)
+	  (push (list :get getter) outputs)
 	  (push output-socket outputs)))
       (list
-       :inputs (lambda () inputs)
-       :outputs (lambda () outputs)
+       :inputs (lambda() inputs)
+       :outputs (lambda() outputs)
        :update (lambda () (setf output-value cur-input))))))
 

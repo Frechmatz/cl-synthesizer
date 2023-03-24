@@ -11,9 +11,13 @@
 		      (error (format nil "Unknown state '~a' requested frm module input-adder-module" state))))
      :inputs (lambda ()
 	       (list
-		:in-1 (lambda(value) (setf in-1 value))
-		:in-2 (lambda(value) (setf in-2 value))))
+		:in-1 (list
+		       :set (lambda(value) (setf in-1 value))
+		       :get (lambda() in-1))
+		:in-2 (list
+		       :set (lambda(value) (setf in-2 value))
+		       :get (lambda() in-2))))
      :outputs (lambda ()
-		(list :out (lambda() out)))
+		(list :out (list :get (lambda() out))))
      :update (lambda ()
 	       (setf out (+ in-1 in-2))))))

@@ -56,14 +56,20 @@
 			      (declare (type single-float cv))
 			      (cl-synthesizer-util:normalized-exp (/ cv cv-max)))))
       (let ((inputs (list
-		     :input (lambda(value) (setf input-signal value))
-		     :cv (lambda(value) (setf input-cv value))
-		     :gain (lambda(value) (setf input-gain value))))
+		     :input (list
+			     :set (lambda(value) (setf input-signal value))
+			     :get (lambda() input-signal))
+		     :cv (list
+			  :set (lambda(value) (setf input-cv value))
+			  :get (lambda() input-cv))
+		     :gain (list
+			    :set (lambda(value) (setf input-gain value))
+			    :get (lambda() input-gain))))
 	    (outputs (list
-		      :output (lambda() cur-out))))
+		      :output (list :get (lambda() cur-out)))))
 	(list
-	 :inputs (lambda () inputs)
-	 :outputs (lambda () outputs)
+	 :inputs (lambda() inputs)
+	 :outputs (lambda() outputs)
 	 :update (lambda ()
 		   (if (not input-signal)
 		       (setf input-signal 0.0))

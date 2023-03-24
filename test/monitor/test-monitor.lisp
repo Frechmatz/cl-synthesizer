@@ -15,14 +15,20 @@
 			   (list
 			    :inputs (lambda()
 				      (list
-				       :out (lambda(value) (setf handler-out value))
-				       :in (lambda(value) (setf handler-in value))
-				       :module-name (lambda(value) (setf handler-module-name value))))
+				       :out (list
+					     :set (lambda(value) (setf handler-out value))
+					     :get (lambda() handler-out))
+				       :in (list
+					    :set (lambda(value) (setf handler-in value))
+					    :get (lambda() handler-in))
+				       :module-name (list
+						     :set (lambda(value) (setf handler-module-name value))
+						     :get (lambda() handler-module-name))))
 			    :outputs (lambda()
 				       (list
-					:out (lambda() handler-out)
-					:in (lambda() handler-in)
-					:module-name (lambda() handler-module-name)))
+					:out (list :get (lambda() handler-out))
+					:in (list :get (lambda() handler-in))
+					:module-name (list :get (lambda() handler-module-name))))
 			    :update (lambda () nil)
 			    :shutdown (lambda() (setf shutdown-called t)))
 			   '(:out :in :module-name))))

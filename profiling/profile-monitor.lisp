@@ -7,14 +7,20 @@
   (declare (ignore name environment inputs rest))
   (let ((input-sockets
 	 (list
-	  :input-1 (lambda(value) (declare (ignore value)) nil)
-	  :input-2 (lambda(value) (declare (ignore value)) nil)
-	  :input-3 (lambda(value) (declare (ignore value)) nil)))
+	  :input-1 (list
+		    :set (lambda(value) (declare (ignore value)) nil)
+		    :get (lambda() nil))
+	  :input-2 (list
+		    :set (lambda(value) (declare (ignore value)) nil)
+		    :get (lambda() nil))
+	  :input-3 (list
+		    :set (lambda(value) (declare (ignore value)) nil)
+		    :get (lambda() nil))))
 	(output-sockets
 	 (list
-	       :input-1 (lambda() nil)
-	       :input-2 (lambda() nil)
-	       :input-3 (lambda() nil))))
+	       :input-1 (list :get (lambda() nil))
+	       :input-2 (list :get (lambda() nil))
+	       :input-3 (list :get (lambda() nil)))))
     (values
      (list
       :inputs (lambda() input-sockets)

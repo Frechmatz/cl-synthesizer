@@ -49,7 +49,7 @@
       (nreverse module-trace))))
 
 (defun make-get-output-lambda (module output-socket)
-  (getf (funcall (getf module :outputs)) output-socket))
+  (getf (getf (funcall (getf module :outputs)) output-socket) :get))
 
 (defun compile-module (rack module)
   (let ((input-setters nil)
@@ -60,7 +60,7 @@
       (let ((cur-input-socket (first binding))
 	    (output-module (second binding))
 	    (output-socket (third binding)))
-	(let ((input-setter (getf inputs cur-input-socket)))
+	(let ((input-setter (getf (getf inputs cur-input-socket) :set)))
 	  (let ((output-getter (make-get-output-lambda output-module output-socket)))
 	    (push (lambda()
 		    (funcall input-setter (funcall output-getter)))

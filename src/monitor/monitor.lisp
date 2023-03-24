@@ -5,6 +5,81 @@
 
 (in-package :cl-synthesizer-monitor)
 
+(defun assert-backend-module-structure (module)
+  (labels ((iterate-list (l callback)
+	     (dotimes (i (/ (length l) 2))
+	       (let ((element-1 (nth (* i 2) l))
+		     (element-2 (nth (+ (* i 2) 1) l)))
+		 (funcall callback element-1 element-2))))
+	   (assert-plistp (plist format-control format-arguments)
+	     (if (or (not (listp plist)) (not (evenp (length plist))))
+		 (error
+		  'cl-synthesizer:assembly-error
+		  :format-control format-control
+		  :format-arguments format-arguments))
+	     (iterate-list
+	      plist
+	      (lambda (keyword value)
+		(declare (ignore value))
+		(if (not (keywordp keyword))
+		    (error
+		     'cl-synthesizer:assembly-error
+		     :format-control format-control
+		     :format-arguments format-arguments))))))
+    (if (not module)
+	(error
+	 'cl-synthesizer:assembly-error
+	 :format-control "Monitor: Backend module must not be nil"))
+    
+    (assert-plistp
+     module
+     "Monitor: Backend module is not a property list: ~a" (list module))
+
+    ;;
+    ;; Check update function
+    ;;
+    (if (not (functionp (getf module :update)))
+	(error
+	 'cl-synthesizer:assembly-error
+	 :format-control "Monitor: Invalid backend module: Property :update must be a function"
+	 :format-arguments (list module)))
+    
+    ;;
+    ;; Check inputs
+    ;;
+    (if (not (functionp (getf module :inputs)))
+	(error
+	 'cl-synthesizer:assembly-error
+	 :format-control "Monitor: Invalid backend module: Property :inputs must be a function (~a)"
+	 :format-arguments (list module)))
+    (let ((inputs (funcall (getf module :inputs))))
+      (assert-plistp
+       inputs
+       "Monitor: Inputs of backend module are not a property list: ~a"
+       (list inputs))
+      ;; check all inputs
+      (iterate-list
+       inputs
+       (lambda (socket socket-properties)
+	 (assert-plistp
+	  socket-properties
+	  "Monitor: Socket properties of input socket ~a are not a property list: ~a"
+	  (list socket socket-properties))
+	 ;; check presence of setter
+	 (if (not (getf socket-properties :set))
+	     (error
+	      'cl-synthesizer:assembly-error
+	      :format-control
+	      "Monitor: Input socket ~a of backend module does not have a 'set' function"
+	      :format-arguments (list socket)))
+	 ;; check if setter is a function
+	 (if (not (functionp (getf socket-properties :set)))
+	     (error
+	      'cl-synthesizer:assembly-error
+	      :format-control "Monitor: Setter of input socket ~a is not a function"
+	      :format-arguments (list socket))))))))
+
+
 (defun get-module-input-patch (rack module input-socket)
   (let* ((name (cl-synthesizer:get-module-name rack module))
 	 ;; list of (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
@@ -52,9 +127,17 @@
 		   (cl-synthesizer:get-module rack (getf patch :input-name))
 		   (getf patch :input-socket))))))))
 
+;; Old
+;;(defun make-get-output-lambda (module output-socket)
+;;  (let ((l (getf (funcall (getf module :outputs)) output-socket)))
+;;    (lambda() (funcall l))))
+
+
 (defun make-get-output-lambda (module output-socket)
-  (let ((l (getf (funcall (getf module :outputs)) output-socket)))
+  (let ((l (getf (getf (funcall (getf module :outputs)) output-socket) :get)))
+    ;; TODO Additional wrapping not necessary
     (lambda() (funcall l))))
+
 
 
 (defun get-input-fetcher (rack socket-mapping)
@@ -102,7 +185,7 @@
 	   (let ((get-state-fn (if (getf module :state)
 				   (getf module :state)
 				   (lambda(key) (declare (ignore key)) nil))))
-	     (setf input-fetcher (lambda() (funcall (getf module :state) socket-key)))))
+	     (setf input-fetcher (lambda() (funcall get-state-fn socket-key)))))
 	  (t
 	   (error
 	    'cl-synthesizer:assembly-error
@@ -111,7 +194,7 @@
 	input-fetcher))))
 
 (defun add-monitor (rack monitor-agent socket-mappings &rest additional-agent-args)
-   "Adds a monitor to a rack. <p>The function has the following parameters:
+  "Adds a monitor to a rack. <p>The function has the following parameters:
     <ul>
 	<li>rack The rack.</li>
 	<li>monitor-agent A function that instantiates the monitor backend.
@@ -157,78 +240,64 @@
 	<li>&rest additional-agent-args Optional keyword arguments to be passed to
 	    the agent.</li>
     </ul></p>"
-     ;; Call the monitor agent to get a backend (which is a module) and an
-     ;; ordered list of input sockets of the backend. We cannot
-     ;; depend here on the order of the input sockets that is exposed by the backend,
-     ;; because modules are not required to expose their input sockets in any specific order.
-     ;; Defining the positional mapping is job of the monitor agent.
+  ;;
+  ;; Call the monitor agent to get a backend (which is a module) and an
+  ;; ordered list of input sockets of the backend. We cannot
+  ;; depend here on the order of the input sockets that is exposed by the backend,
+  ;; because modules are not required to expose their input sockets in any specific order.
+  ;; Defining the positional mapping is job of the monitor agent.
+  ;;
   (multiple-value-bind (backend ordered-input-sockets)
-       (apply
-	monitor-agent
-	"Monitor-Backend"
-	(cl-synthesizer:get-environment rack)
-	(mapcar
-	 (lambda(m)
-	   ;; ("OUTPUT" :input-socket :line-out :extra-1 "Extra") => (:extra-1 "Extra") 
-	   (cdr (cdr (cdr m))))
-	 socket-mappings)
-	additional-agent-args)
+      (apply
+       monitor-agent
+       "Monitor-Backend"
+       (cl-synthesizer:get-environment rack)
+       (mapcar
+	(lambda(m)
+	  ;; ("OUTPUT" :input-socket :line-out :extra-1 "Extra") => (:extra-1 "Extra") 
+	  (cdr (cdr (cdr m))))
+	socket-mappings)
+       additional-agent-args)
 
-     (if (not backend)
-	 (error
-	  'cl-synthesizer:assembly-error
-	  :format-control "Monitor: Backend must not be nil"
-	  :format-arguments nil))
+    (assert-backend-module-structure backend)
+    
+    (if (not ordered-input-sockets)
+	(error
+	 'cl-synthesizer:assembly-error
+	 :format-control "Monitor: Sockets returned by agent must not be nil"
+	 :format-arguments nil))
 
-     (if (not (functionp (getf backend :inputs)))
-	 (error
-	  'cl-synthesizer:assembly-error
-	  :format-control "Monitor: Backend must provide an inputs function"
-	  :format-arguments nil))
-     
-     (if (not (functionp (getf backend :update)))
-	 (error
-	  'cl-synthesizer:assembly-error
-	  :format-control "Monitor: Backend must provide an update function"
-	  :format-arguments nil))
-     
-     (if (not ordered-input-sockets)
-	 (error
-	  'cl-synthesizer:assembly-error
-	  :format-control "Monitor: Sockets returned by agent must not be nil"
-	  :format-arguments nil))
+    (if (not (= (length ordered-input-sockets) (length socket-mappings)))
+	(error
+	 'cl-synthesizer:assembly-error
+	 :format-control
+	 "Monitor: Number of sockets ('~a') returned by agent must not differ from number of socket mappings: ~a"
+	 :format-arguments (list (length ordered-input-sockets) (length socket-mappings))))
 
-     (if (not (= (length ordered-input-sockets) (length socket-mappings)))
-	 (error
-	  'cl-synthesizer:assembly-error
-	  :format-control
-	  "Monitor: Number of sockets ('~a') returned by agent must not differ from number of socket mappings: ~a"
-	  :format-arguments (list (length ordered-input-sockets) (length socket-mappings))))
-
-     (let ((set-input-lambdas (make-array (length socket-mappings) :initial-element nil))
-	   (backend-inputs (funcall (getf backend :inputs)))
-	   (backend-update (getf backend :update))
-	   (socket-count (length socket-mappings)))
-       ;; Set up lambdas for setting the inputs of the backend
-       (dotimes (i socket-count)
-	 (let* ((backend-input-socket (nth i ordered-input-sockets))
-		(socket-mapping (nth i socket-mappings)))
-	   (let ((input-fetcher (get-input-fetcher rack socket-mapping))
-		 (input-setter (getf backend-inputs backend-input-socket)))
-	     (setf (elt set-input-lambdas i)
-		   (lambda()
-		     (funcall input-setter (funcall input-fetcher)))))))
-       ;; Compile
-       (let ((compiled-backend-update
+    (let ((set-input-lambdas (make-array (length socket-mappings) :initial-element nil))
+	  (backend-inputs (funcall (getf backend :inputs)))
+	  (backend-update (getf backend :update))
+	  (socket-count (length socket-mappings)))
+      ;; Set up lambdas for setting the inputs of the backend
+      (dotimes (i socket-count)
+	(let* ((backend-input-socket (nth i ordered-input-sockets))
+	       (socket-mapping (nth i socket-mappings)))
+	  (let ((input-fetcher (get-input-fetcher rack socket-mapping))
+		(input-setter (getf (getf backend-inputs backend-input-socket) :set)))
+	    (setf (elt set-input-lambdas i)
+		  (lambda()
+		    (funcall input-setter (funcall input-fetcher)))))))
+      ;; Compile
+      (let ((compiled-backend-update
 	      (lambda()
 		;; Set inputs
 		(dotimes (index socket-count)
 		  (funcall (elt set-input-lambdas index)))
 		;; Update
 		(funcall backend-update))))
-	 (cl-synthesizer:add-hook
-	  rack
-	  (list 
-	   :shutdown (lambda ()
-		       (cl-synthesizer:shutdown backend))
-	   :update compiled-backend-update))))))
+	(cl-synthesizer:add-hook
+	 rack
+	 (list 
+	  :shutdown (lambda ()
+		      (cl-synthesizer:shutdown backend))
+	  :update compiled-backend-update))))))

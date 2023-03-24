@@ -9,7 +9,10 @@
 		  (if (eq state :module-name)
 		      name
 		      (error (format nil "Unknown state '~a' requested frm module multiplier-module" state))))
-     :inputs (lambda () (list :in (lambda(value) (setf in value))))
-     :outputs (lambda () (list :out (lambda() out)))
+     :inputs (lambda () (list :in (list
+				   :set (lambda(value) (setf in value))
+				   :get (lambda() in))))
+     :outputs (lambda () (list :out (list
+				     :get (lambda() out))))
      :update (lambda ()
 	       (setf out (* 2 in))))))
