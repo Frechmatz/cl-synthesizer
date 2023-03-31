@@ -182,8 +182,6 @@
 				"<li>Removed bridge modules.</li>"
 				"<li>Added rack:add-rack-input.</li>"
 				"<li>Added rack:add-rack-output.</li>"
-				"<li>Added rack:get-rack-inputs.</li>"
-				"<li>Added rack:get-rack-outputs.</li>"
 				"<li>Added module input socket getters.</li>"
 				"</ul>"))
 	      (heading (:name "Concepts" :toc t)
@@ -226,12 +224,8 @@
 					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "add-patch"))
 				(heading (:toc t :name "add-rack-input")
 					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "add-rack-input"))
-				(heading (:toc t :name "get-rack-inputs")
-					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "get-rack-inputs"))
 				(heading (:toc t :name "add-rack-output")
 					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "add-rack-output"))
-				(heading (:toc t :name "get-rack-outputs")
-					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "get-rack-outputs"))
 				(heading (:toc t :name "get-module")
 					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "get-module"))
 				(heading (:toc t :name "get-module-name")

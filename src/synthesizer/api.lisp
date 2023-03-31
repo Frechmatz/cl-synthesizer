@@ -161,7 +161,7 @@
     <li>input-module-name Name of the module whose input is to be exposed.</li>
     <li>input-socket A keyword representing one of the inputs of the module.</li>
   </ul></p>"
-  (funcall (getf rack :expose-input-socket) rack-input-socket input-module-name input-socket))
+  (funcall (getf rack :add-rack-input) rack-input-socket input-module-name input-socket))
 
 (defun add-rack-output (rack rack-output-socket output-module-name output-socket)
   "Exposes an output socket of a module as an output socket of the rack. <p>The function has the following parameters:
@@ -171,31 +171,5 @@
     <li>output-module-name Name of the module whose output is to be exposed.</li>
     <li>output-socket A keyword representing one of the outputs of the module.</li>
   </ul></p>"
-  (funcall (getf rack :expose-output-socket) rack-output-socket output-module-name output-socket))
-
-(defun get-rack-inputs (rack)
-  "Returns the inputs of a rack.<p>The function has the following parameters:
-    <ul>
-	<li>rack The rack.</li>
-    </ul></p>
-   Returns a list of property lists with the following keys:
-   <ul>
-     <li>:rack-socket Input socket of the rack.</li>
-     <li>:module-name Name of the module attached to the rack input.</li>
-     <li>:module-socket Input socket of the module attached to the rack input.</li>
-   </ul>"
-  (funcall (getf rack :get-exposed-input-sockets)))
-
-(defun get-rack-outputs (rack)
-  "Returns the outputs of a rack.<p>The function has the following parameters:
-    <ul>
-	<li>rack The rack.</li>
-    </ul></p>
-   Returns a list of property lists with the following keys:
-   <ul>
-     <li>:rack-socket Output socket of the rack.</li>
-     <li>:module-name Name of the module attached to the rack output.</li>
-     <li>:module-socket Output socket of the module attached to the rack output.</li>
-   </ul>"
-  (funcall (getf rack :get-exposed-output-sockets)))
+  (funcall (getf rack :add-rack-output) rack-output-socket output-module-name output-socket))
 
