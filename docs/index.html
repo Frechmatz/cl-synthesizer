@@ -3,12 +3,6 @@
 <h1>cl-synthesizer</h1><p>A Modular Audio Synthesizer Engine implemented in Common Lisp.
     <p>cl-synthesizer is an easy to use library which follows the approach of
       a classical hardware modular synthesizer, where modules are put into a rack and patched together with cables.</p>
-</p>
-<p>cl-synthesizer has been developed with the following principles in mind:
-<ul>
-    <li>Extensive unit testing.</li>
-    <li>Extensive profiling of consing and execution speed.</li>
-</ul></p>
 <p>The source code of cl-synthesizer can be found <a href="https://github.com/Frechmatz/cl-synthesizer">here</a>.</p></header>
 <nav>
 <h1>Table of contents</h1>
@@ -22,8 +16,8 @@
 <li><a href="#Concepts">Concepts</a><ul>
 <li><a href="#Environment">Environment</a></li>
 <li><a href="#Module">Module</a><ul>
-<li><a href="#Example 1: A module">Example 1: A module</a></li>
-<li><a href="#Example 2: A module using other modules">Example 2: A module using other modules</a></li></ul></li>
+<li><a href="#Example: A module">Example: A module</a></li>
+<li><a href="#Example: A module using other modules">Example: A module using other modules</a></li></ul></li>
 <li><a href="#Rack">Rack</a><ul>
 <li><a href="#Example: Create a rack, process a tick and shut it down">Example: Create a rack, process a tick and shut it down</a></li></ul></li>
 <li><a href="#Monitor">Monitor</a></li></ul></li>
@@ -57,10 +51,6 @@
 <li><a href="#VCA">VCA</a></li>
 <li><a href="#ADSR">ADSR</a></li>
 <li><a href="#Multiple">Multiple</a></li>
-<li><a href="#MIDI Polyphonic Interface">MIDI Polyphonic Interface</a></li>
-<li><a href="#MIDI Monophonic Interface">MIDI Monophonic Interface</a></li>
-<li><a href="#MIDI Relative CC Interface">MIDI Relative CC Interface</a></li>
-<li><a href="#MIDI Sequencer">MIDI Sequencer</a></li>
 <li><a href="#Fixed Output">Fixed Output</a></li>
 <li><a href="#Adder">Adder</a></li>
 <li><a href="#Mixer">Mixer</a></li>
@@ -76,6 +66,10 @@
 <li><a href="#buffer-agent">buffer-agent</a></li></ul></li>
 <li><a href="#MIDI">MIDI</a><ul>
 <li><a href="#MIDI Event">MIDI Event</a></li>
+<li><a href="#MIDI Polyphonic Interface">MIDI Polyphonic Interface</a></li>
+<li><a href="#MIDI Monophonic Interface">MIDI Monophonic Interface</a></li>
+<li><a href="#MIDI Relative CC Interface">MIDI Relative CC Interface</a></li>
+<li><a href="#MIDI Sequencer">MIDI Sequencer</a></li>
 <li><a href="#MIDI Utilities">MIDI Utilities</a></li></ul></li>
 <li><a href="#Conditions">Conditions</a></li></ul></li>
 <li><a href="#Run tests">Run tests</a></li>
@@ -114,7 +108,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3888688388" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3889281153" type="audio/wav"></audio></p>
 <h2 id="Frequency modulated Saw">Frequency modulated Saw</h2><p><pre><code>(defpackage :cl-synthesizer-patches-frequency-modulated-saw
   (:use :cl)
   (:documentation &quot;Frequency modulated Saw&quot;))
@@ -148,7 +142,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3888688388" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3889281153" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated Saws">Two frequency modulated Saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-two-frequency-modulated-saws
   (:use :cl)
   (:documentation &quot;Two frequency modulated Saws&quot;))
@@ -190,7 +184,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3888688388" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3889281153" type="audio/wav"></audio></p>
 <h1 id="Change-Log">Change-Log</h1>
 <h2>Version 1.0.0</h2><p>Initial version. Not tagged.</p>
 <h2>Version 2.x</h2>Work in progress. Master branch.<ul><li>Removed bridge modules.</li><li>Added rack:add-rack-input.</li><li>Added rack:add-rack-output.</li><li>Added rack:get-rack-inputs.</li><li>Added rack:get-rack-outputs.</li><li>Added module input socket getters.</li></ul>
@@ -207,9 +201,8 @@ to set input values, to retrieve output values, to update the module, to shutdow
 <p>A module must provide a factory/instantiation function. The typical name of this function is "make-module". When a module is added to the synthesizer then not the 
     readily instantiated module is passed, but its factory function. This function is called by the synthesizer. The synthesizer passes the module name, 
     the environment and any arbitrary initialization parameters to it.</p>
-<p>A module can implement all its logic on its own but it can also use other modules.</p>
 <p>For each input/output socket that a module exposes, it must provide a corresponding setter/getter function. When processing an update, the synthesizer sets the inputs of the module via successive calls to the input setters. An input setter must not change the current output state of the module. When all inputs have been set, the synthesizer calls the update function of the module, which has no parameters. The update function must update the states of the output sockets by using the previously set input values.</p>
-<h3 id="Example 1: A module">Example 1: A module</h3><p><pre><code>(defpackage :cl-synthesizer-example-1-adder-2
+<h3 id="Example: A module">Example: A module</h3><p><pre><code>(defpackage :cl-synthesizer-example-1-adder-2
   (:use :cl)
   (:export :make-module))
 (in-package :cl-synthesizer-example-1-adder-2)
@@ -231,7 +224,7 @@ to set input values, to retrieve output values, to update the module, to shutdow
        :inputs (lambda() inputs)
        :outputs (lambda() outputs)
        :update (lambda () (setf cur-output (+ input-1 input-2)))))))</code></pre></p>
-<h3 id="Example 2: A module using other modules">Example 2: A module using other modules</h3><p><pre><code>(defpackage :cl-synthesizer-example-1-adder-4
+<h3 id="Example: A module using other modules">Example: A module using other modules</h3><p><pre><code>(defpackage :cl-synthesizer-example-1-adder-4
   (:use :cl)
   (:export :make-module))
 (in-package :cl-synthesizer-example-1-adder-4)
@@ -311,7 +304,7 @@ instantiated by a so called "Monitor-Agent".</p>
 <p>A Monitor-Agent is a factory function whose purpose is to prepare the initialization 
 parameters of a specific backend (e.g. a Wave-File-Writer module), to set up the 
 mapping of the values collected by the monitor to input sockets of the backend 
-and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-monitor-wave-file-example-1
+and to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-monitor-wave-file-example-1
   (:use :cl))
 
 (in-package :cl-synthesizer-monitor-wave-file-example-1)
@@ -343,7 +336,7 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
 <h3 id="make-environment">make-environment</h3><b>cl-synthesizer:make-environment</b>&nbsp;(&key (sample-rate 44100) (home-directory nil))<p>Creates an environment. An enviroment is a property list with the following keys:
     <ul>
 	<li>:sample-rate Sample rate of the synthesizer.</li>
-	<li>:home-directory The root output directory of stuff generated by the synthesizer, such as audio or csv files. Default value is the home directory of the current user. Can be overwritten via cl-synthesizer:*home-directory*.</li>
+	<li>:home-directory The root output directory of files generated by the synthesizer. Default value is the home directory of the current user. Can be overwritten via cl-synthesizer:*home-directory*.</li>
     </ul></p>
 <h3 id="*home-directory*">*home-directory*</h3><b>cl-synthesizer:*home-directory*</b><p>Optional home-directory setting of cl-synthesizer. Overrides the home-directory argument passed to make-environment.</p>
 <h2 id="Module-1">Module</h2>
@@ -823,261 +816,6 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
     (cl-synthesizer:play-rack rack :duration-seconds 10)))
 
 ;; (run-example)</code></pre></p>
-<h3 id="MIDI Polyphonic Interface">MIDI Polyphonic Interface</h3><b>cl-synthesizer-modules-midi-polyphonic-interface:make-module</b>&nbsp;(name environment &key (voice-count 1) (channel nil) (cv-gate-on 5.0)
- (cv-gate-off 0.0) (cv-velocity-max 5.0))<p>Creates a polyphonic MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
-    voice is represented by a pitch-control voltage, a velocity-control voltage and a gate signal.
-    <p>The function has the following parameters:
-    <ul>
-	<li>name Name of the module.</li>
-	<li>environment The synthesizer environment.</li>
-	<li>:voice-count The number of voices to be exposed by the module.</li>
-	<li>:channel Optional MIDI channel to which note events must belong. By default the
-	    channel is ignored.</li>
-	<li>:cv-gate-on The "Gate on" control voltage.</li>
-	<li>:cv-gate-off The "Gate off" control voltage.</li>
-	<li>:cv-velocity-max Control voltage that represents the maximum velocity of 127.</li>
-    </ul>
-    Gate transitions are implemented as follows: Each incoming "note on" event causes that the gate signal of the
-    assigned voice switches to On. If the gate signal of the assigned voice is already On
-    (this happens when the available voices are exhausted and a voice is "stolen") then
-    the gate signal switches to Off for the duration of one system tick and then to On again.</p>
-    <p>The module has the following inputs:
-    <ul>
-	<li>:midi-events A list of MIDI events.</li>
-    </ul></p>
-    <p>The module has the following outputs:
-    <ul>
-	<li>:gate-1 ... :gate-n Gate signal.</li>
-	<li>:cv-1 ... :cv-n Pitch control voltage. cv = note-number / 12.0</li>
-	<li>:velocity-1 ... :velocity-n Velocity control voltage.</li>
-    </ul></p></p>
-<h3 id="MIDI Monophonic Interface">MIDI Monophonic Interface</h3><b>cl-synthesizer-modules-midi-monophonic-interface:make-module</b>&nbsp;(name environment &key (channel nil) (cv-gate-on 5.0) (cv-gate-off 0.0)
- (force-gate-retrigger nil) (stack-depth 5) (cv-velocity-max 5.0)
- (force-velocity-update nil))<p>Creates a monophonic MIDI interface module. The module dispatches MIDI-Note events to a single voice. 
-   If the voice is already assigned to a note, then the incoming note is pushed on top of the current note.
-   <p>The function has the following parameters:
-    <ul>
-	<li>name Name of the module.</li>
-	<li>environment The synthesizer environment.</li>
-        <li>:stack-depth Maximum number of stacked notes.</li>
-	<li>:channel Optional MIDI channel to which note events must belong. By default the
-	    channel is ignored.</li>
-	<li>:cv-gate-on The "Gate on" control voltage.</li>
-	<li>:cv-gate-off The "Gate off" control voltage.</li>
-	<li>:force-gate-retrigger If t then each "note on" event will cause a retriggering 
-            of the gate signal. Otherwise the gate signal will stay on when it is already on.</li>
-	<li>:cv-velocity-max Control voltage that represents the maximum velocity (Velocity = 127).</li>
-	<li>:force-velocity-update If t then each "note on" event will cause an
-            update of the velocity control voltage according to the velocity of the current event.</li>
-    </ul>
-    Gate transitions are implemented as follows: Incoming notes are stacked. The 
-    first ("initiating") "note on" event causes the gate signal to go up. The gate goes 
-    down when after a "note off" event no more notes are on the stack.</p>
-    <p>The module has the following inputs:
-    <ul>
-	<li>:midi-events A list of MIDI events.</li>
-    </ul></p>
-    <p>The module has the following outputs:
-    <ul>
-	<li>:gate The gate signal.</li>
-	<li>:cv Pitch control voltage representing the note which is on top of the note stack. cv = note-number / 12.0</li>
-	<li>:velocity Velocity control voltage. The velocity control voltage represents 
-        the velocity of the initiating "note on" event (Gate goes up). Nested "note on" 
-        events do not cause an update of this voltage. This behaviour can be overridden 
-        by the :force-velocity-update parameter.</li>
-    </ul></p></p>
-<h3 id="MIDI Relative CC Interface">MIDI Relative CC Interface</h3><b>cl-synthesizer-modules-midi-relative-cc-interface:make-module</b>&nbsp;(name environment &key mappings (channel nil) (initial-output 0)
- (min-output nil) (max-output nil))<p>Creates a MIDI CC Event interface module. CC events are interpreted as relative 
-   changes to the current output value.
-   <p>The function has the following parameters:
-    <ul>
-	<li>name Name of the module.</li>
-	<li>environment The synthesizer environment.</li>
-	<li>:mappings A list of mappings. A mapping consists of a controller number, control values and a resulting offset 
-          that will be added to the current output value of the module. A mapping can be defined as shown by the following examples:
-          <ul>
-             <li>(:controller-number 112 :control-value 61 :offset 1.0)</li>
-             <li>(:controller-number 112 :control-value (:range 60 70) :offset 1.0)</li>
-             <li>(:controller-number 112 :control-value (61 63 65) :offset 1.0)</li>
-          </ul>
-        </li>
-        <li>:channel Optional number of the MIDI channel to which the controller events 
-          must belong. By default there is no channel filtering applied.</li>
-        <li>:initial-output The initial output value of the module.</li>
-        <li>:min-output Optional lowest output value of the module.</li>
-        <li>:max-output Optional largest output value of the module.</li>
-    </ul></p>
-    <p>The module has the following inputs:
-    <ul>
-	<li>:midi-events A list of MIDI events.</li>
-    </ul></p>
-    <p>The module has the following outputs:
-    <ul>
-	<li>:output The current output value.</li>
-    </ul></p></p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-modules-midi-relative-cc-interface-example-1
-  (:use :cl))
-
-(in-package :cl-synthesizer-modules-midi-relative-cc-interface-example-1)
-
-(defun example ()
-  &quot;MIDI Relative CC-Interface Example&quot;
-  (let ((rack (cl-synthesizer:make-rack
-           :environment (cl-synthesizer:make-environment))))
-
-    (cl-synthesizer:add-module
-     rack &quot;MIDI-CC-IFC&quot; #'cl-synthesizer-modules-midi-relative-cc-interface:make-module
-     :mappings '((:controller-number 112 :control-value 61 :offset -1.0)
-         (:controller-number 112 :control-value 67 :offset 1.0))
-     :initial-output 2.5
-     :channel nil)
-
-    (cl-synthesizer:add-module
-     rack &quot;MIDI-SEQUENCER&quot;
-     #'cl-synthesizer-modules-midi-sequencer:make-module :events
-     (list 
-      (list :timestamp-milli-seconds 100
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
-      (list :timestamp-milli-seconds 200
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
-      (list :timestamp-milli-seconds 300
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
-      (list :timestamp-milli-seconds 400
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
-      (list :timestamp-milli-seconds 500
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))
-      (list :timestamp-milli-seconds 600
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))
-      (list :timestamp-milli-seconds 700
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))
-      (list :timestamp-milli-seconds 800
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))))
-    
-    (cl-synthesizer:add-patch rack &quot;MIDI-SEQUENCER&quot; :midi-events &quot;MIDI-CC-IFC&quot; :midi-events)
-
-    (cl-synthesizer-monitor:add-monitor
-     rack
-     #'cl-synthesizer-monitor-csv-file-agent:make-backend
-     '((&quot;MIDI-CC-IFC&quot; :output-socket :output :name &quot;CC-Out&quot;))
-     :filename &quot;cl-synthesizer-examples/midi-relative-cc-interface-example-1.csv&quot;)
-
-    rack))
-
-(defun run-example ()
-  (cl-synthesizer::play-rack (example) :duration-seconds 0.9))
-
-;; (run-example)</code></pre></p>
-<h3 id="MIDI Sequencer">MIDI Sequencer</h3><b>cl-synthesizer-modules-midi-sequencer:make-module</b>&nbsp;(name environment &key events)<p>Creates a Midi-Sequencer module.
-    <p>The function has the following parameters:
-    <ul>
-	<li>name Name of the module.</li>
-	<li>environment The synthesizer environment.</li>
-	<li>:events A list of Midi events and their timestamps. Each
-	    entry consists of a property list with the following keys:
-	    <ul>
-		<li>:timestamp-milli-seconds Point of time when events are to be fired. The very first
-                timestamp of the synthesizer is 0.</li>
-		<li>:midi-events List of Midi events to be fired.</li>
-	    </ul>
-            The events must be ordered by timestamp and there must be no duplicate timestamps. 
-	</li>
-    </ul></p>
-    The module has no inputs.
-    The module has one output socket :midi-events.</p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-modules-midi-sequencer-example-1
-  (:use :cl))
-
-(in-package :cl-synthesizer-modules-midi-sequencer-example-1)
-
-(defun example ()
-  &quot;Midi-Sequencer example&quot;
-  (let ((rack (cl-synthesizer:make-rack
-           :environment (cl-synthesizer:make-environment))))
-
-    ;; Add sequencer
-    (cl-synthesizer:add-module
-     rack
-     &quot;MIDI-SEQUENCER&quot;
-     #'cl-synthesizer-modules-midi-sequencer:make-module :events
-     (list 
-      (list :timestamp-milli-seconds 0
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-note-on-event
-               :channel 1
-               :note-number 69
-               :velocity 100)))
-      (list :timestamp-milli-seconds 1000
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-note-off-event
-               :channel 1
-               :note-number 69
-               :velocity 100)))
-      (list :timestamp-milli-seconds 2000
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-note-on-event
-               :channel 1
-               :note-number 75
-               :velocity 100)))
-      (list :timestamp-milli-seconds 2500
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-note-off-event
-               :channel 1
-               :note-number 75
-               :velocity 100)))))
-
-    ;; Add MIDI Interface and connect it with the MIDI Sequencer
-    (cl-synthesizer:add-module
-     rack
-     &quot;MIDI-IFC&quot;
-     #'cl-synthesizer-modules-midi-polyphonic-interface:make-module :voice-count 1)
-    (cl-synthesizer:add-patch rack &quot;MIDI-SEQUENCER&quot; :midi-events &quot;MIDI-IFC&quot; :midi-events)
-
-    ;; Add VCO
-    (cl-synthesizer:add-module
-     rack &quot;VCO&quot; #'cl-synthesizer-modules-vco:make-module
-     :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
-     :v-peak 5.0)
-
-    ;; Add ADSR
-    (cl-synthesizer:add-module
-     rack &quot;ADSR&quot;
-     #'cl-synthesizer-modules-adsr:make-module
-     :attack-time-ms 100 :attack-target-output 5.0
-     :decay-time-ms 50 :decay-target-output 3.0
-     :release-time-ms 100)
-    
-    ;; Add VCA
-    (cl-synthesizer:add-module rack &quot;VCA&quot; #'cl-synthesizer-modules-vca:make-module :cv-max 5.0 :exponential nil)
-
-    ;; Connect VCA with ADSR and VCO
-    (cl-synthesizer:add-patch rack &quot;ADSR&quot; :cv &quot;VCA&quot; :cv)
-    (cl-synthesizer:add-patch rack &quot;VCO&quot; :triangle &quot;VCA&quot; :input)
-    
-    ;; Connect Midi interface with ADSR and VCO
-    (cl-synthesizer:add-patch rack &quot;MIDI-IFC&quot; :cv-1 &quot;VCO&quot; :cv-exp)
-    (cl-synthesizer:add-patch rack &quot;MIDI-IFC&quot; :gate-1 &quot;ADSR&quot; :gate)
-
-    ;; Record VCA output into a wave file
-    (cl-synthesizer-monitor:add-monitor
-     rack
-     #'cl-synthesizer-monitor-wave-file-agent:make-backend
-     '((&quot;VCA&quot; :output-socket :output))
-     :filename &quot;cl-synthesizer-examples/midi-sequencer-example-1.wav&quot;
-     :v-peak 5.0)
-    
-    rack))
-
-(defun run-example ()
-  (let ((rack (example)))
-    (cl-synthesizer::play-rack rack :duration-seconds 5)))
-
-;; (run-example)</code></pre></p>
 <h3 id="Fixed Output">Fixed Output</h3><b>cl-synthesizer-modules-fixed-output:make-module</b>&nbsp;(name environment &key value (output-socket out))<p>Creates a module with a fixed output value.
    <p>The function has the following parameters:
     <ul>
@@ -1535,7 +1273,7 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
 		    example "ADSR" or '("VOICE-1" "ADSR").</li>
 		<li>socket-type One of the following keywords: 
                     <ul>
-                        <li>:input-socket The value of an input socket of the module. The input must be patched.</li>
+                        <li>:input-socket The value of an input socket of the module.</li>
                         <li>:output-socket The value of an output socket of the module.</li>
                         <li>:state The value of an internal state of the module (see state function).</li>
                     </ul>
@@ -1645,6 +1383,261 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
     </ul></p></p>
 <h2 id="MIDI">MIDI</h2>
 <h3 id="MIDI Event">MIDI Event</h3><b>cl-synthesizer-midi-event:make-control-change-event</b>&nbsp;(&key channel controller-number control-value)<p>Creates a MIDI control change event.</p><b>cl-synthesizer-midi-event:make-note-on-event</b>&nbsp;(&key channel note-number velocity)<p>Creates a MIDI Note-On event.</p><b>cl-synthesizer-midi-event:make-note-off-event</b>&nbsp;(&key channel note-number velocity)<p>Creates a MIDI Note-Off event.</p><b>cl-synthesizer-midi-event:control-change-eventp</b>&nbsp;(event)<p>Returns t if the given MIDI event is a Control-Change event.</p><b>cl-synthesizer-midi-event:note-on-eventp</b>&nbsp;(event)<p>Returns t if the given MIDI event is a Note-On event.</p><b>cl-synthesizer-midi-event:note-off-eventp</b>&nbsp;(event)<p>Returns t if the given MIDI event is a Note-Off event.</p><b>cl-synthesizer-midi-event:get-channel</b>&nbsp;(event)<p>Returns the MIDI channel number to which the event belongs.</p><b>cl-synthesizer-midi-event:get-controller-number</b>&nbsp;(event)<p>Returns the controller number of a Control-Change MIDI event.</p><b>cl-synthesizer-midi-event:get-control-value</b>&nbsp;(event)<p>Returns the control value of a Control-Change MIDI event.</p><b>cl-synthesizer-midi-event:get-note-number</b>&nbsp;(event)<p>Returns the note number of Note-On/Off MIDI event.</p><b>cl-synthesizer-midi-event:get-velocity</b>&nbsp;(event)<p>Returns the velocity of a Note-On/Off MIDI event.</p>
+<h3 id="MIDI Polyphonic Interface">MIDI Polyphonic Interface</h3><b>cl-synthesizer-modules-midi-polyphonic-interface:make-module</b>&nbsp;(name environment &key (voice-count 1) (channel nil) (cv-gate-on 5.0)
+ (cv-gate-off 0.0) (cv-velocity-max 5.0))<p>Creates a polyphonic MIDI interface module. The module dispatches MIDI-Note events to so called voices where each
+    voice is represented by a pitch-control voltage, a velocity-control voltage and a gate signal.
+    <p>The function has the following parameters:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:voice-count The number of voices to be exposed by the module.</li>
+	<li>:channel Optional MIDI channel to which note events must belong. By default the
+	    channel is ignored.</li>
+	<li>:cv-gate-on The "Gate on" control voltage.</li>
+	<li>:cv-gate-off The "Gate off" control voltage.</li>
+	<li>:cv-velocity-max Control voltage that represents the maximum velocity of 127.</li>
+    </ul>
+    Gate transitions are implemented as follows: Each incoming "note on" event causes that the gate signal of the
+    assigned voice switches to On. If the gate signal of the assigned voice is already On
+    (this happens when the available voices are exhausted and a voice is "stolen") then
+    the gate signal switches to Off for the duration of one system tick and then to On again.</p>
+    <p>The module has the following inputs:
+    <ul>
+	<li>:midi-events A list of MIDI events.</li>
+    </ul></p>
+    <p>The module has the following outputs:
+    <ul>
+	<li>:gate-1 ... :gate-n Gate signal.</li>
+	<li>:cv-1 ... :cv-n Pitch control voltage. cv = note-number / 12.0</li>
+	<li>:velocity-1 ... :velocity-n Velocity control voltage.</li>
+    </ul></p></p>
+<h3 id="MIDI Monophonic Interface">MIDI Monophonic Interface</h3><b>cl-synthesizer-modules-midi-monophonic-interface:make-module</b>&nbsp;(name environment &key (channel nil) (cv-gate-on 5.0) (cv-gate-off 0.0)
+ (force-gate-retrigger nil) (stack-depth 5) (cv-velocity-max 5.0)
+ (force-velocity-update nil))<p>Creates a monophonic MIDI interface module. The module dispatches MIDI-Note events to a single voice. 
+   If the voice is already assigned to a note, then the incoming note is pushed on top of the current note.
+   <p>The function has the following parameters:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+        <li>:stack-depth Maximum number of stacked notes.</li>
+	<li>:channel Optional MIDI channel to which note events must belong. By default the
+	    channel is ignored.</li>
+	<li>:cv-gate-on The "Gate on" control voltage.</li>
+	<li>:cv-gate-off The "Gate off" control voltage.</li>
+	<li>:force-gate-retrigger If t then each "note on" event will cause a retriggering 
+            of the gate signal. Otherwise the gate signal will stay on when it is already on.</li>
+	<li>:cv-velocity-max Control voltage that represents the maximum velocity (Velocity = 127).</li>
+	<li>:force-velocity-update If t then each "note on" event will cause an
+            update of the velocity control voltage according to the velocity of the current event.</li>
+    </ul>
+    Gate transitions are implemented as follows: Incoming notes are stacked. The 
+    first ("initiating") "note on" event causes the gate signal to go up. The gate goes 
+    down when after a "note off" event no more notes are on the stack.</p>
+    <p>The module has the following inputs:
+    <ul>
+	<li>:midi-events A list of MIDI events.</li>
+    </ul></p>
+    <p>The module has the following outputs:
+    <ul>
+	<li>:gate The gate signal.</li>
+	<li>:cv Pitch control voltage representing the note which is on top of the note stack. cv = note-number / 12.0</li>
+	<li>:velocity Velocity control voltage. The velocity control voltage represents 
+        the velocity of the initiating "note on" event (Gate goes up). Nested "note on" 
+        events do not cause an update of this voltage. This behaviour can be overridden 
+        by the :force-velocity-update parameter.</li>
+    </ul></p></p>
+<h3 id="MIDI Relative CC Interface">MIDI Relative CC Interface</h3><b>cl-synthesizer-modules-midi-relative-cc-interface:make-module</b>&nbsp;(name environment &key mappings (channel nil) (initial-output 0)
+ (min-output nil) (max-output nil))<p>Creates a MIDI CC Event interface module. CC events are interpreted as relative 
+   changes to the current output value.
+   <p>The function has the following parameters:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:mappings A list of mappings. A mapping consists of a controller number, control values and a resulting offset 
+          that will be added to the current output value of the module. A mapping can be defined as shown by the following examples:
+          <ul>
+             <li>(:controller-number 112 :control-value 61 :offset 1.0)</li>
+             <li>(:controller-number 112 :control-value (:range 60 70) :offset 1.0)</li>
+             <li>(:controller-number 112 :control-value (61 63 65) :offset 1.0)</li>
+          </ul>
+        </li>
+        <li>:channel Optional number of the MIDI channel to which the controller events 
+          must belong. By default there is no channel filtering applied.</li>
+        <li>:initial-output The initial output value of the module.</li>
+        <li>:min-output Optional lowest output value of the module.</li>
+        <li>:max-output Optional largest output value of the module.</li>
+    </ul></p>
+    <p>The module has the following inputs:
+    <ul>
+	<li>:midi-events A list of MIDI events.</li>
+    </ul></p>
+    <p>The module has the following outputs:
+    <ul>
+	<li>:output The current output value.</li>
+    </ul></p></p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-modules-midi-relative-cc-interface-example-1
+  (:use :cl))
+
+(in-package :cl-synthesizer-modules-midi-relative-cc-interface-example-1)
+
+(defun example ()
+  &quot;MIDI Relative CC-Interface Example&quot;
+  (let ((rack (cl-synthesizer:make-rack
+           :environment (cl-synthesizer:make-environment))))
+
+    (cl-synthesizer:add-module
+     rack &quot;MIDI-CC-IFC&quot; #'cl-synthesizer-modules-midi-relative-cc-interface:make-module
+     :mappings '((:controller-number 112 :control-value 61 :offset -1.0)
+         (:controller-number 112 :control-value 67 :offset 1.0))
+     :initial-output 2.5
+     :channel nil)
+
+    (cl-synthesizer:add-module
+     rack &quot;MIDI-SEQUENCER&quot;
+     #'cl-synthesizer-modules-midi-sequencer:make-module :events
+     (list 
+      (list :timestamp-milli-seconds 100
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
+      (list :timestamp-milli-seconds 200
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
+      (list :timestamp-milli-seconds 300
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
+      (list :timestamp-milli-seconds 400
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
+      (list :timestamp-milli-seconds 500
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))
+      (list :timestamp-milli-seconds 600
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))
+      (list :timestamp-milli-seconds 700
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))
+      (list :timestamp-milli-seconds 800
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))))
+    
+    (cl-synthesizer:add-patch rack &quot;MIDI-SEQUENCER&quot; :midi-events &quot;MIDI-CC-IFC&quot; :midi-events)
+
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-csv-file-agent:make-backend
+     '((&quot;MIDI-CC-IFC&quot; :output-socket :output :name &quot;CC-Out&quot;))
+     :filename &quot;cl-synthesizer-examples/midi-relative-cc-interface-example-1.csv&quot;)
+
+    rack))
+
+(defun run-example ()
+  (cl-synthesizer::play-rack (example) :duration-seconds 0.9))
+
+;; (run-example)</code></pre></p>
+<h3 id="MIDI Sequencer">MIDI Sequencer</h3><b>cl-synthesizer-modules-midi-sequencer:make-module</b>&nbsp;(name environment &key events)<p>Creates a Midi-Sequencer module.
+    <p>The function has the following parameters:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+	<li>:events A list of Midi events and their timestamps. Each
+	    entry consists of a property list with the following keys:
+	    <ul>
+		<li>:timestamp-milli-seconds Point of time when events are to be fired. The very first
+                timestamp of the synthesizer is 0.</li>
+		<li>:midi-events List of Midi events to be fired.</li>
+	    </ul>
+            The events must be ordered by timestamp and there must be no duplicate timestamps. 
+	</li>
+    </ul></p>
+    The module has no inputs.
+    The module has one output socket :midi-events.</p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-modules-midi-sequencer-example-1
+  (:use :cl))
+
+(in-package :cl-synthesizer-modules-midi-sequencer-example-1)
+
+(defun example ()
+  &quot;Midi-Sequencer example&quot;
+  (let ((rack (cl-synthesizer:make-rack
+           :environment (cl-synthesizer:make-environment))))
+
+    ;; Add sequencer
+    (cl-synthesizer:add-module
+     rack
+     &quot;MIDI-SEQUENCER&quot;
+     #'cl-synthesizer-modules-midi-sequencer:make-module :events
+     (list 
+      (list :timestamp-milli-seconds 0
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-note-on-event
+               :channel 1
+               :note-number 69
+               :velocity 100)))
+      (list :timestamp-milli-seconds 1000
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-note-off-event
+               :channel 1
+               :note-number 69
+               :velocity 100)))
+      (list :timestamp-milli-seconds 2000
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-note-on-event
+               :channel 1
+               :note-number 75
+               :velocity 100)))
+      (list :timestamp-milli-seconds 2500
+        :midi-events (list
+              (cl-synthesizer-midi-event:make-note-off-event
+               :channel 1
+               :note-number 75
+               :velocity 100)))))
+
+    ;; Add MIDI Interface and connect it with the MIDI Sequencer
+    (cl-synthesizer:add-module
+     rack
+     &quot;MIDI-IFC&quot;
+     #'cl-synthesizer-modules-midi-polyphonic-interface:make-module :voice-count 1)
+    (cl-synthesizer:add-patch rack &quot;MIDI-SEQUENCER&quot; :midi-events &quot;MIDI-IFC&quot; :midi-events)
+
+    ;; Add VCO
+    (cl-synthesizer:add-module
+     rack &quot;VCO&quot; #'cl-synthesizer-modules-vco:make-module
+     :base-frequency (cl-synthesizer-midi:get-note-number-frequency 0)
+     :v-peak 5.0)
+
+    ;; Add ADSR
+    (cl-synthesizer:add-module
+     rack &quot;ADSR&quot;
+     #'cl-synthesizer-modules-adsr:make-module
+     :attack-time-ms 100 :attack-target-output 5.0
+     :decay-time-ms 50 :decay-target-output 3.0
+     :release-time-ms 100)
+    
+    ;; Add VCA
+    (cl-synthesizer:add-module rack &quot;VCA&quot; #'cl-synthesizer-modules-vca:make-module :cv-max 5.0 :exponential nil)
+
+    ;; Connect VCA with ADSR and VCO
+    (cl-synthesizer:add-patch rack &quot;ADSR&quot; :cv &quot;VCA&quot; :cv)
+    (cl-synthesizer:add-patch rack &quot;VCO&quot; :triangle &quot;VCA&quot; :input)
+    
+    ;; Connect Midi interface with ADSR and VCO
+    (cl-synthesizer:add-patch rack &quot;MIDI-IFC&quot; :cv-1 &quot;VCO&quot; :cv-exp)
+    (cl-synthesizer:add-patch rack &quot;MIDI-IFC&quot; :gate-1 &quot;ADSR&quot; :gate)
+
+    ;; Record VCA output into a wave file
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-wave-file-agent:make-backend
+     '((&quot;VCA&quot; :output-socket :output))
+     :filename &quot;cl-synthesizer-examples/midi-sequencer-example-1.wav&quot;
+     :v-peak 5.0)
+    
+    rack))
+
+(defun run-example ()
+  (let ((rack (example)))
+    (cl-synthesizer::play-rack rack :duration-seconds 5)))
+
+;; (run-example)</code></pre></p>
 <h3 id="MIDI Utilities">MIDI Utilities</h3><b>cl-synthesizer-midi:get-note-number-frequency</b>&nbsp;(note-number)<p>Returns the frequency of a given note number. Note number 69 results in a frequency of 440Hz.
    This function implements a mapping according to 
    <a href="http://subsynth.sourceforge.net/midinote2freq.html">midinote2freq</a></p><table><thead><tr><th>Note number</th><th>Frequency</th></tr></thead><tbody>
@@ -1789,4 +1782,4 @@ and finally to instantiate the backend.</p><p><b>Example</b></p><p><pre><code>(d
 <h1 id="Generate documentation">Generate documentation</h1>Depends on :cl-html-readme and :docparser which are available via Quicklisp.<p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2023-03-25  00:13:08</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-03-31  21:52:33</small></p></footer></body></html>

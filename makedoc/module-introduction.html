@@ -9,5 +9,4 @@ to set input values, to retrieve output values, to update the module, to shutdow
 <p>A module must provide a factory/instantiation function. The typical name of this function is "make-module". When a module is added to the synthesizer then not the 
     readily instantiated module is passed, but its factory function. This function is called by the synthesizer. The synthesizer passes the module name, 
     the environment and any arbitrary initialization parameters to it.</p>
-<p>A module can implement all its logic on its own but it can also use other modules.</p>
 <p>For each input/output socket that a module exposes, it must provide a corresponding setter/getter function. When processing an update, the synthesizer sets the inputs of the module via successive calls to the input setters. An input setter must not change the current output state of the module. When all inputs have been set, the synthesizer calls the update function of the module, which has no parameters. The update function must update the states of the output sockets by using the previously set input values.</p>
