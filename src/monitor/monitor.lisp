@@ -80,67 +80,7 @@
 	      :format-arguments (list socket))))))))
 
 
-(defun get-module-input-patch (rack module input-socket)
-  (let* ((name (cl-synthesizer:get-module-name rack module))
-	 ;; list of (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
-	 (patch
-	  (find-if
-	   (lambda (p)
-	     (and (string= name (getf p :input-name))
-		  (eq input-socket (getf p :input-socket))))
-	   (cl-synthesizer:get-patches rack))))
-    patch))
-
-(defun get-module-output-patch (rack module output-socket)
-  (let* ((name (cl-synthesizer:get-module-name rack module))
-	 ;; list of (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
-	 (patch
-	  (find-if
-	   (lambda (p)
-	     (and (string= name (getf p :output-name))
-		  (eq output-socket (getf p :output-socket))))
-	   (cl-synthesizer:get-patches rack))))
-    patch))
-
-(defun get-patch (rack module-name socket-type socket)
-  (if (not (or (eq :input-socket socket-type) (eq :output-socket socket-type)))
-      (error
-       'simple-error
-       :format-control "get-patch: socket must be one of :input-socket or :output-socket"
-       :format-arguments nil))
-  (let ((rm (cl-synthesizer:get-module rack module-name)))
-    (if (not rm)
-	(values nil nil nil)
-	(if (eq :input-socket socket-type)
-	    (let ((patch (get-module-input-patch rack rm socket)))
-	      (if (not patch)
-		  (values nil nil nil)
-		  (values
-		   (getf patch :output-name)
-		   (cl-synthesizer:get-module rack (getf patch :output-name))
-		   (getf patch :output-socket))))
-	    (let ((patch (get-module-output-patch rack rm socket)))
-	      (if (not patch)
-		  (values nil nil nil)
-		  (values
-		   (getf patch :input-name)
-		   (cl-synthesizer:get-module rack (getf patch :input-name))
-		   (getf patch :input-socket))))))))
-
-;; Old
-;;(defun make-get-output-lambda (module output-socket)
-;;  (let ((l (getf (funcall (getf module :outputs)) output-socket)))
-;;    (lambda() (funcall l))))
-
-
-(defun make-get-output-lambda (module output-socket)
-  (let ((l (getf (getf (funcall (getf module :outputs)) output-socket) :get)))
-    ;; TODO Additional wrapping not necessary
-    (lambda() (funcall l))))
-
-
-
-(defun get-input-fetcher (rack socket-mapping)
+(defun get-input-getter (rack socket-mapping)
   "Returns a lambda that returns the actual value of an input, output or state
    of the module designated by the socket mapping"
   (let* ((module-path (first socket-mapping))
@@ -161,26 +101,14 @@
 		'cl-synthesizer:assembly-error
 		:format-control "Monitor: Module '~a' does not expose output socket '~a'"
 		:format-arguments (list module-path socket-key)))
-	   (setf input-fetcher (make-get-output-lambda module socket-key)))
+	   (setf input-fetcher (getf (getf (funcall (getf module :outputs)) socket-key) :get)))
 	  ((eq :input-socket socket-type)
 	   (if (not (find socket-key (funcall (getf module :inputs))))
 	       (error
 		'cl-synthesizer:assembly-error
 		:format-control "Monitor: Module '~a' does not expose input socket '~a'"
 		:format-arguments (list module-path socket-key)))
-	   ;; Get output which is patched with input
-	   (multiple-value-bind (source-module-name source-module source-socket)
-	       (get-patch module-rack module-name :input-socket socket-key)
-	     (if (not source-module-name)
-		 (error
-		  'cl-synthesizer:assembly-error
-		  :format-control
-		  "Monitor: Can only monitor patched inputs. Module '~a' Socket '~a'"
-		  :format-arguments (list module-name socket-key)))
-	     (setf input-fetcher
-		   ;;(lambda () (funcall (getf source-module :get-output) source-socket))
-		   (make-get-output-lambda source-module source-socket)
-		   )))
+	   (setf input-fetcher (getf (getf (funcall (getf module :inputs)) socket-key) :get)))
 	  ((eq :state socket-type)
 	   (let ((get-state-fn (if (getf module :state)
 				   (getf module :state)
@@ -225,7 +153,7 @@
 		    example \"ADSR\" or '(\"VOICE-1\" \"ADSR\").</li>
 		<li>socket-type One of the following keywords: 
                     <ul>
-                        <li>:input-socket The value of an input socket of the module. The input must be patched.</li>
+                        <li>:input-socket The value of an input socket of the module.</li>
                         <li>:output-socket The value of an output socket of the module.</li>
                         <li>:state The value of an internal state of the module (see state function).</li>
                     </ul>
@@ -240,13 +168,6 @@
 	<li>&rest additional-agent-args Optional keyword arguments to be passed to
 	    the agent.</li>
     </ul></p>"
-  ;;
-  ;; Call the monitor agent to get a backend (which is a module) and an
-  ;; ordered list of input sockets of the backend. We cannot
-  ;; depend here on the order of the input sockets that is exposed by the backend,
-  ;; because modules are not required to expose their input sockets in any specific order.
-  ;; Defining the positional mapping is job of the monitor agent.
-  ;;
   (multiple-value-bind (backend ordered-input-sockets)
       (apply
        monitor-agent
@@ -254,7 +175,6 @@
        (cl-synthesizer:get-environment rack)
        (mapcar
 	(lambda(m)
-	  ;; ("OUTPUT" :input-socket :line-out :extra-1 "Extra") => (:extra-1 "Extra") 
 	  (cdr (cdr (cdr m))))
 	socket-mappings)
        additional-agent-args)
@@ -271,7 +191,7 @@
 	(error
 	 'cl-synthesizer:assembly-error
 	 :format-control
-	 "Monitor: Number of sockets ('~a') returned by agent must not differ from number of socket mappings: ~a"
+	 "Monitor: Number of sockets ('~a') returned by agent does not match number of socket mappings: ~a"
 	 :format-arguments (list (length ordered-input-sockets) (length socket-mappings))))
 
     (let ((set-input-lambdas (make-array (length socket-mappings) :initial-element nil))
@@ -282,7 +202,7 @@
       (dotimes (i socket-count)
 	(let* ((backend-input-socket (nth i ordered-input-sockets))
 	       (socket-mapping (nth i socket-mappings)))
-	  (let ((input-fetcher (get-input-fetcher rack socket-mapping))
+	  (let ((input-fetcher (get-input-getter rack socket-mapping))
 		(input-setter (getf (getf backend-inputs backend-input-socket) :set)))
 	    (setf (elt set-input-lambdas i)
 		  (lambda()

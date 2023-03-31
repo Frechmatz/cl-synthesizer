@@ -111,19 +111,6 @@
 		 (cl-synthesizer:shutdown rack)
 		 (assert-true (cl-synthesizer-test::get-module-state monitor-backend-module :shutdown-called)))))
 
-(define-test test-monitor-unpatched-input ()
-	     (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
-	       (cl-synthesizer:add-module rack "Counter" #'cl-synthesizer-test::update-counter-module)
-	       (cl-synthesizer:add-module rack "Multiplier" #'cl-synthesizer-test::multiplier-module)
-	       (let ((monitor-backend-module (pass-through-module "Backend" (cl-synthesizer:get-environment rack))))
-		 (cl-synthesizer-test::expect-assembly-error
-		   (cl-synthesizer-monitor:add-monitor
-		    rack
-		    (test-monitor-make-backend monitor-backend-module)
-		    '(("Multiplier" :output-socket :out)
-		      ("Multiplier" :input-socket :in)
-		      ("Counter" :state :module-name)))))))
-
 ;; 4 mappings required but backend provides only 3 inputs
 (define-test test-monitor-insufficient-mapping ()
 	     (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
