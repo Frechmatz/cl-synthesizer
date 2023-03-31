@@ -38,7 +38,7 @@
         <li>:cv-lin Bipolar linear frequency control voltage. Example: If the :cv-lin-hz-v setting
            of the oscillator is 77Hz a :cv-lin input value of 2.0V results in a frequency of 154Hz and 
            a :cv-lin input value of -2.0V results in a frequency of -154Hz.</li>
-        <li>:sync A trigger signal that resets the phase.</li>
+        <li>:sync Indicator if the phase is to be reset. See also :sync-threshold constructor parameter.</li>
     </ul>
     The frequency of the oscillator is calculated by adding the frequencies resulting from the
     :cv-lin and :cv-exp inputs. The frequency is clipped according to the :f-max setting.</p>
