@@ -398,17 +398,15 @@
 				      socket) :get)))
 	       (setf rack-inputs nil)
 	       (dolist (exposed-input-socket exposed-input-sockets)
-		 (setf rack-inputs
-		       (push (list
-			      :set (get-input-setter-fn
-				    (getf exposed-input-socket :module-name)
-				    (getf exposed-input-socket :module-socket))
-			      :get (get-input-getter-fn
-				    (getf exposed-input-socket :module-name)
-				    (getf exposed-input-socket :module-socket)))
-			     rack-inputs))
-		 (setf rack-inputs
-		       (push (getf exposed-input-socket :rack-socket) rack-inputs)))))
+		 (push (list
+			:set (get-input-setter-fn
+			      (getf exposed-input-socket :module-name)
+			      (getf exposed-input-socket :module-socket))
+			:get (get-input-getter-fn
+			      (getf exposed-input-socket :module-name)
+			      (getf exposed-input-socket :module-socket)))
+		       rack-inputs)
+		 (push (getf exposed-input-socket :rack-socket) rack-inputs))))
 	     (update-rack-outputs ()
 	       (labels ((get-output-getter-fn (module-name socket)
 			  (getf (getf (funcall (getf (get-module this module-name) :outputs))
@@ -432,12 +430,11 @@
 		  input-module-name
 		  input-socket
 		  exposed-input-sockets)
-		 (setf exposed-input-sockets
-		       (push (list
-			      :rack-socket rack-input-socket
-			      :module-name input-module-name
-			      :module-socket input-socket)
-			     exposed-input-sockets))
+		 (push (list
+			:rack-socket rack-input-socket
+			:module-name input-module-name
+			:module-socket input-socket)
+		       exposed-input-sockets)
 		 (update-rack-inputs)
 		 (assert-input-socket-p this rack-input-socket))
 	       :add-rack-output
@@ -448,12 +445,11 @@
 		  output-module-name
 		  output-socket
 		  exposed-output-sockets)
-		 (setf exposed-output-sockets
-		       (push (list
-			      :rack-socket rack-output-socket
-			      :module-name output-module-name
-			      :module-socket output-socket)
-			     exposed-output-sockets))
+		 (push (list
+			:rack-socket rack-output-socket
+			:module-name output-module-name
+			:module-socket output-socket)
+		       exposed-output-sockets)
 		 (update-rack-outputs)
 		 (assert-output-socket-p this rack-output-socket))
 	       :modules (lambda() modules)
