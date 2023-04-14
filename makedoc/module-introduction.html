@@ -2,8 +2,8 @@
 Modules do have a name, inputs, outputs and a shutdown function. The inputs/outputs are represented by keywords and are so called sockets. The shutdown function can be used to release resources 
 that have been allocated by the module.</p>
 <p>Beside the input/output sockets a module can also expose "state sockets".
-State sockets represent internal states of the module. These sockets are not accessible when connecting modules with each other. There purpose is 
-to support debugging/analyzation of a module. So called Monitors can be used to write states for example into a CSV file.</p>
+State sockets represent internal states of the module. These sockets are not accessible when connecting modules with each other. Their purpose is 
+to support debugging/analyzation of a module. Monitors can be used to write states for example into a CSV file.</p>
 <p>A module is represented by a property list. This list provides functions such as to get the input sockets, to get the output sockets, to get the state sockets, 
 to set input values, to retrieve output values, to update the module, to shutdown the module and so on.</p>
 <p>A module must provide a factory/instantiation function. The typical name of this function is "make-module". When a module is added to the synthesizer then not the 
