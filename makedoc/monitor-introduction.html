@@ -1,10 +1,7 @@
-<p>Monitors are high-level Rack-Hooks. The purpose of a monitor
-is to collect module states and pass them to a "Monitor-Backend". A backend may
-for example generate a Wave file.</p> 
-<p>Monitors provide a simple syntax for declaring the module sockets to be tracked (input, output and state) as well as any other settings supported by specific backends.</p>
-<p>A backend is a plain module, which declares input sockets, output sockets, a shutdown function and so on. Backends are 
-instantiated by a so called "Monitor-Agent".</p>
-<p>A Monitor-Agent is a factory function whose purpose is to prepare the initialization 
-parameters of a specific backend (e.g. a Wave-File-Writer module), to set up the 
-mapping of the values collected by the monitor to input sockets of the backend 
-and to instantiate it.</p>
+<p>Monitors collect module states, like input and output values, and pass them to a so
+  called "Monitor Backend". A monitor backend can for example be a CSV-File-Writer
+  or a Wave-File-Generator.
+A monitor backend is a module with input sockets and an optional shutdown function. It is instantiated by a so called "Monitor Agent".
+The agent sits between the monitor and its backend. The agent instantiates the backend
+  and defines the mapping of the values collected by the monitor to input sockets of the backend.
+Monitors register themselves as rack hooks.</p>

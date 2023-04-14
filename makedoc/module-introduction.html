@@ -1,5 +1,5 @@
-<p>Modules are the core components of cl-synthesizer. They generate the actual audio data.</p>
-<p>Modules do have a name, inputs, outputs and a shutdown function. The inputs/outputs are represented by keywords and are so called sockets. The shutdown function can be used to release resources 
+<p>Modules are creating the sounds of the synthesizer.
+Modules do have a name, inputs, outputs and a shutdown function. The inputs/outputs are represented by keywords and are so called sockets. The shutdown function can be used to release resources 
 that have been allocated by the module.</p>
 <p>Beside the input/output sockets a module can also expose "state sockets".
 State sockets represent internal states of the module. These sockets are not accessible when connecting modules with each other. There purpose is 

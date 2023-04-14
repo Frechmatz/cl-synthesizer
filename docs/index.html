@@ -19,7 +19,7 @@
 <li><a href="#Example: A module">Example: A module</a></li>
 <li><a href="#Example: A module using other modules">Example: A module using other modules</a></li></ul></li>
 <li><a href="#Rack">Rack</a><ul>
-<li><a href="#Example: Create a rack, process a tick and shut it down">Example: Create a rack, process a tick and shut it down</a></li></ul></li>
+<li><a href="#Example: Create a rack, process a tick and shut the rack down">Example: Create a rack, process a tick and shut the rack down</a></li></ul></li>
 <li><a href="#Monitor">Monitor</a></li></ul></li>
 <li><a href="#API">API</a><ul>
 <li><a href="#Environment-1">Environment</a><ul>
@@ -106,7 +106,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3889287520" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3890476445" type="audio/wav"></audio></p>
 <h2 id="Frequency modulated Saw">Frequency modulated Saw</h2><p><pre><code>(defpackage :cl-synthesizer-patches-frequency-modulated-saw
   (:use :cl)
   (:documentation &quot;Frequency modulated Saw&quot;))
@@ -140,7 +140,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3889287520" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3890476445" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated Saws">Two frequency modulated Saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-two-frequency-modulated-saws
   (:use :cl)
   (:documentation &quot;Two frequency modulated Saws&quot;))
@@ -182,14 +182,14 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3889287520" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3890476445" type="audio/wav"></audio></p>
 <h1 id="Change-Log">Change-Log</h1>
 <h2>Version 1.0.0</h2><p>Initial version. Not tagged.</p>
 <h2>Version 2.x</h2>Work in progress. Master branch.<ul><li>Removed bridge modules.</li><li>Added rack:add-rack-input.</li><li>Added rack:add-rack-output.</li><li>Added module input socket getters.</li></ul>
 <h1 id="Concepts">Concepts</h1>
 <h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer.</p>
-<h2 id="Module">Module</h2><p>Modules are the core components of cl-synthesizer. They generate the actual audio data.</p>
-<p>Modules do have a name, inputs, outputs and a shutdown function. The inputs/outputs are represented by keywords and are so called sockets. The shutdown function can be used to release resources 
+<h2 id="Module">Module</h2><p>Modules are creating the sounds of the synthesizer.
+Modules do have a name, inputs, outputs and a shutdown function. The inputs/outputs are represented by keywords and are so called sockets. The shutdown function can be used to release resources 
 that have been allocated by the module.</p>
 <p>Beside the input/output sockets a module can also expose "state sockets".
 State sockets represent internal states of the module. These sockets are not accessible when connecting modules with each other. There purpose is 
@@ -253,8 +253,8 @@ to set input values, to retrieve output values, to update the module, to shutdow
 
     ;; return the rack
     rack))</code></pre></p>
-<h2 id="Rack">Rack</h2><p>Racks contain modules and their connections with each other. These connections are so called "Patches". Racks are also modules.</p>
-<h3 id="Example: Create a rack, process a tick and shut it down">Example: Create a rack, process a tick and shut it down</h3><p><pre><code>(defpackage :cl-synthesizer-example-1
+<h2 id="Rack">Rack</h2><p>Racks are holding modules and their connections with each other. The connections are so called "Patches".</p>
+<h3 id="Example: Create a rack, process a tick and shut the rack down">Example: Create a rack, process a tick and shut the rack down</h3><p><pre><code>(defpackage :cl-synthesizer-example-1
   (:use :cl))
 (in-package :cl-synthesizer-example-1)
 
@@ -293,16 +293,13 @@ to set input values, to retrieve output values, to update the module, to shutdow
       (cl-synthesizer:shutdown rack))))
 
 ;; (run-example)</code></pre></p>
-<h2 id="Monitor">Monitor</h2><p>Monitors are high-level Rack-Hooks. The purpose of a monitor
-is to collect module states and pass them to a "Monitor-Backend". A backend may
-for example generate a Wave file.</p> 
-<p>Monitors provide a simple syntax for declaring the module sockets to be tracked (input, output and state) as well as any other settings supported by specific backends.</p>
-<p>A backend is a plain module, which declares input sockets, output sockets, a shutdown function and so on. Backends are 
-instantiated by a so called "Monitor-Agent".</p>
-<p>A Monitor-Agent is a factory function whose purpose is to prepare the initialization 
-parameters of a specific backend (e.g. a Wave-File-Writer module), to set up the 
-mapping of the values collected by the monitor to input sockets of the backend 
-and to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-monitor-wave-file-example-1
+<h2 id="Monitor">Monitor</h2><p>Monitors collect module states, like input and output values, and pass them to a so
+  called "Monitor Backend". A monitor backend can for example be a CSV-File-Writer
+  or a Wave-File-Generator.
+A monitor backend is a module with input sockets and an optional shutdown function. It is instantiated by a so called "Monitor Agent".
+The agent sits between the monitor and its backend. The agent instantiates the backend
+  and defines the mapping of the values collected by the monitor to input sockets of the backend.
+Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-monitor-wave-file-example-1
   (:use :cl))
 
 (in-package :cl-synthesizer-monitor-wave-file-example-1)
@@ -1760,4 +1757,4 @@ and to instantiate it.</p><p><b>Example</b></p><p><pre><code>(defpackage :cl-syn
 <h1 id="Generate documentation">Generate documentation</h1>Depends on :cl-html-readme and :docparser which are available via Quicklisp.<p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2023-03-31  23:38:40</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-04-14  17:54:05</small></p></footer></body></html>
