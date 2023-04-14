@@ -79,6 +79,13 @@
 	      :format-control "Monitor: Setter of input socket ~a is not a function"
 	      :format-arguments (list socket))))))))
 
+(defun get-module (rack module-path)
+  (if module-path
+      (multiple-value-bind (module-rack module-name module)
+	  (cl-synthesizer:find-module rack module-path)
+	(declare (ignore module-rack module-name))
+	module)
+      rack))
 
 (defun get-input-getter (rack socket-mapping)
   "Returns a lambda that returns the actual value of an input, output or state
@@ -86,8 +93,7 @@
   (let* ((module-path (first socket-mapping))
 	 (socket-type (second socket-mapping))
 	 (socket-key (third socket-mapping)))
-    (multiple-value-bind (module-rack module-name module)
-	(cl-synthesizer:find-module rack module-path)
+    (let ((module (get-module rack module-path)))
       (if (not module)
 	  (error
 	   'cl-synthesizer:assembly-error
@@ -148,7 +154,7 @@
 	<li>socket-mappings Declares the input/outputs/states whose values are to be tracked.
             Each entry has the following format:
 	    <ul>
-		<li>module-path Path of the module from which the value of
+		<li>module-path Optional path of a module of the rack from which the value of
 		    a certain input/output socket or state is to be retrieved, for
 		    example \"ADSR\" or '(\"VOICE-1\" \"ADSR\").</li>
 		<li>socket-type One of the following keywords: 
@@ -168,6 +174,7 @@
 	<li>&rest additional-agent-args Optional keyword arguments to be passed to
 	    the agent.</li>
     </ul></p>"
+  ;; Instantiate backend
   (multiple-value-bind (backend ordered-input-sockets)
       (apply
        monitor-agent

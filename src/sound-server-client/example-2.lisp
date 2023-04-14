@@ -31,6 +31,8 @@
      rack "VOICE-1" #'make-voice :lfo-frequency 1.0 :vco-frequency 440.0)
     (cl-synthesizer:add-module
      rack "VOICE-2" #'make-voice :lfo-frequency 2.0 :vco-frequency 442.0)
+    (cl-synthesizer:add-rack-output rack :left "VOICE-1" :audio)
+    (cl-synthesizer:add-rack-output rack :right "VOICE-2" :audio)
     rack))
 
 (defun example ()
@@ -40,8 +42,8 @@
 	   'cl-synthesizer-java-sound-client:cl-synthesizer-controller
 	   :rack (make-rack)
 	   :output-sockets
-	   '(("VOICE-1" :output-socket :audio)
-	     ("VOICE-2" :output-socket :audio))
+	   '((nil :output-socket :left)
+	     (nil :output-socket :right))
 	   :duration-seconds 5
 	   :sample-width :16Bit
 	   :v-peak 5.0)))

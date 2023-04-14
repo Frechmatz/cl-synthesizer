@@ -11,6 +11,7 @@
      "VCO"
      #'cl-synthesizer-modules-vco:make-module
      :base-frequency 440.0 :v-peak 5.0)
+    (cl-synthesizer:add-rack-output rack :out "VCO" :sine)
     rack))
 
 (defun example ()
@@ -19,7 +20,7 @@
 	  (make-instance
 	   'cl-synthesizer-java-sound-client:cl-synthesizer-controller
 	   :rack (make-rack)
-	   :output-sockets '(("VCO" :output-socket :sine))
+	   :output-sockets '((nil :output-socket :out))
 	   :duration-seconds 5
 	   :sample-width :16Bit
 	   :v-peak 5.0)))
