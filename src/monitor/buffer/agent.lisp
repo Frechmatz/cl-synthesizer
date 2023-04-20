@@ -44,7 +44,7 @@
 ;;
 
 (defun make-backend (name environment inputs &rest rest &key buffer &allow-other-keys)
-  "Creates a monitor backend which writes its inputs into a buffer.
+  "Creates a monitor backend which writes to a memory buffer.
     <p>The function has the following parameters:
     <ul>
 	<li>name A name.</li>

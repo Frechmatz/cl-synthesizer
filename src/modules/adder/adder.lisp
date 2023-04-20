@@ -27,7 +27,7 @@
     <p>The module has the following inputs:
     <ul>
         <li>:input-1 ... :input-n. Where n is the input-count. Input values
-        not of type <b>number</b> are ignored.</li>
+        not of type number are ignored.</li>
     </ul></p>
     <p>The module has the following outputs:
     <ul>

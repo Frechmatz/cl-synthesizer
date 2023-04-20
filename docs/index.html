@@ -17,10 +17,9 @@
 <li><a href="#Environment">Environment</a></li>
 <li><a href="#Module">Module</a><ul>
 <li><a href="#Example: A module">Example: A module</a></li>
-<li><a href="#Example: A module using other modules">Example: A module using other modules</a></li></ul></li>
+<li><a href="#Example: A module based on other modules">Example: A module based on other modules</a></li></ul></li>
 <li><a href="#Rack">Rack</a><ul>
-<li><a href="#Example: Create a rack, process a tick and shut the rack down">Example: Create a rack, process a tick and shut the rack down</a></li></ul></li>
-<li><a href="#Monitor">Monitor</a></li></ul></li>
+<li><a href="#Example">Example</a></li></ul></li></ul></li>
 <li><a href="#API">API</a><ul>
 <li><a href="#Environment-1">Environment</a><ul>
 <li><a href="#make-environment">make-environment</a></li>
@@ -57,7 +56,7 @@
 <li><a href="#Sustain">Sustain</a></li>
 <li><a href="#Wave File Writer">Wave File Writer</a></li>
 <li><a href="#CSV File Writer">CSV File Writer</a></li></ul></li>
-<li><a href="#Monitor-1">Monitor</a><ul>
+<li><a href="#Monitors">Monitors</a><ul>
 <li><a href="#add-monitor">add-monitor</a></li>
 <li><a href="#wave-file-agent">wave-file-agent</a></li>
 <li><a href="#csv-file-agent">csv-file-agent</a></li>
@@ -106,7 +105,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3890483245" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3891003461" type="audio/wav"></audio></p>
 <h2 id="Frequency modulated Saw">Frequency modulated Saw</h2><p><pre><code>(defpackage :cl-synthesizer-patches-frequency-modulated-saw
   (:use :cl)
   (:documentation &quot;Frequency modulated Saw&quot;))
@@ -140,7 +139,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3890483245" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3891003461" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated Saws">Two frequency modulated Saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-two-frequency-modulated-saws
   (:use :cl)
   (:documentation &quot;Two frequency modulated Saws&quot;))
@@ -182,7 +181,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3890483245" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3891003461" type="audio/wav"></audio></p>
 <h1 id="Change-Log">Change-Log</h1>
 <h2>Version 1.0.0</h2><p>Initial version. Not tagged.</p>
 <h2>Version 2.x</h2>Work in progress. Master branch.<ul><li>Removed bridge modules.</li><li>Added rack:add-rack-input.</li><li>Added rack:add-rack-output.</li><li>Added module input socket getters.</li></ul>
@@ -209,20 +208,22 @@ to set input values, to retrieve output values, to update the module, to shutdow
   &quot;Adder module with 2 inputs&quot;
   (declare (ignore name environment))
   (let ((input-1 nil) (input-2 nil) (cur-output nil))
-    (let ((inputs (list
-           :input-1 (list
-                 :set (lambda (value) (setf input-1 value))
-                 :get (lambda() input-1))
-           :input-2 (list
-                 :set (lambda (value) (setf input-2 value))
-                 :get (lambda() input-2))))
-      (outputs (list
-            :sum (list :get (lambda() cur-output)))))
+    (let ((inputs
+            (list
+             :input-1 (list
+                       :set (lambda (value) (setf input-1 value))
+                       :get (lambda() input-1))
+             :input-2 (list
+                       :set (lambda (value) (setf input-2 value))
+                       :get (lambda() input-2))))
+          (outputs
+            (list
+             :sum (list :get (lambda() cur-output)))))
       (list
        :inputs (lambda() inputs)
        :outputs (lambda() outputs)
        :update (lambda () (setf cur-output (+ input-1 input-2)))))))</code></pre></p>
-<h3 id="Example: A module using other modules">Example: A module using other modules</h3><p><pre><code>(defpackage :cl-synthesizer-example-1-adder-4
+<h3 id="Example: A module based on other modules">Example: A module based on other modules</h3><p><pre><code>(defpackage :cl-synthesizer-example-1-adder-4
   (:use :cl)
   (:export :make-module))
 (in-package :cl-synthesizer-example-1-adder-4)
@@ -254,7 +255,7 @@ to set input values, to retrieve output values, to update the module, to shutdow
     ;; return the rack
     rack))</code></pre></p>
 <h2 id="Rack">Rack</h2><p>Racks are holding modules and their connections with each other. The connections are so called "Patches".</p>
-<h3 id="Example: Create a rack, process a tick and shut the rack down">Example: Create a rack, process a tick and shut the rack down</h3><p><pre><code>(defpackage :cl-synthesizer-example-1
+<h3 id="Example">Example</h3><p><pre><code>(defpackage :cl-synthesizer-example-1
   (:use :cl))
 (in-package :cl-synthesizer-example-1)
 
@@ -274,56 +275,23 @@ to set input values, to retrieve output values, to update the module, to shutdow
 (defun run-example ()
   (let ((rack (make-example-rack)))
     (let ((rack-inputs (funcall (getf rack :inputs)))
-      (rack-outputs (funcall (getf rack :outputs))))
+          (rack-outputs (funcall (getf rack :outputs))))
       ;; set inputs
       (let ((input-setter (getf (getf rack-inputs :input-1) :set)))
-    (funcall input-setter 10))
+        (funcall input-setter 10))
       (let ((input-setter (getf (getf rack-inputs :input-2) :set)))
-    (funcall input-setter 20))
+        (funcall input-setter 20))
       (let ((input-setter (getf (getf rack-inputs :input-3) :set)))
-    (funcall input-setter 30))
+        (funcall input-setter 30))
       (let ((input-setter (getf (getf rack-inputs :input-4) :set)))
-    (funcall input-setter 40))
+        (funcall input-setter 40))
       ;; update
       (cl-synthesizer:update rack)
       ;; print output of rack
       (let ((sum (funcall (getf (getf rack-outputs :sum) :get))))
-    (format t &quot;~%Sum:~a~%&quot; sum))
+        (format t &quot;~%Sum:~a~%&quot; sum))
       ;; shutdown
       (cl-synthesizer:shutdown rack))))
-
-;; (run-example)</code></pre></p>
-<h2 id="Monitor">Monitor</h2><p>Monitors collect module states, like input and output values, and pass them to a so
-  called "Monitor Backend". A monitor backend can for example be a CSV-File-Writer
-  or a Wave-File-Generator.
-A monitor backend is a module with input sockets and an optional shutdown function. It is instantiated by a so called "Monitor Agent".
-The agent sits between the monitor and its backend. The agent instantiates the backend
-  and defines the mapping of the values collected by the monitor to input sockets of the backend.
-Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-monitor-wave-file-example-1
-  (:use :cl))
-
-(in-package :cl-synthesizer-monitor-wave-file-example-1)
-
-(defun example ()
-  &quot;Wave-File-Agent example&quot;
-  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
-    
-    (cl-synthesizer:add-module
-     rack &quot;VCO&quot; #'cl-synthesizer-modules-vco:make-module
-     :base-frequency 5.0 :v-peak 5.0)
-
-    (cl-synthesizer-monitor:add-monitor
-     rack
-     #'cl-synthesizer-monitor-wave-file-agent:make-backend
-     '((&quot;VCO&quot; :output-socket :sine))
-     :filename &quot;cl-synthesizer-examples/monitor-wave-file-example-1.wav&quot;
-     :v-peak 5.0)
-    
-    rack))
-
-(defun run-example ()
-  (let ((rack (example)))
-    (cl-synthesizer:play-rack rack :duration-seconds 2)))
 
 ;; (run-example)</code></pre></p>
 <h1 id="API">API</h1>
@@ -337,7 +305,7 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
 <h2 id="Module-1">Module</h2>
 <h3 id="update">update</h3><b>cl-synthesizer:update</b>&nbsp;(module)<p>Calls the update function of a module.</p>
 <h3 id="shutdown">shutdown</h3><b>cl-synthesizer:shutdown</b>&nbsp;(module)<p>Calls the (optional) shutdown function of a module.</p>
-<h3 id="is-rack">is-rack</h3><b>cl-synthesizer:is-rack</b>&nbsp;(module)<p>Returns <b>t</b> if the given module represents a rack.</p>
+<h3 id="is-rack">is-rack</h3><b>cl-synthesizer:is-rack</b>&nbsp;(module)<p>Returns t if the given module represents a rack.</p>
 <h2 id="Rack-1">Rack</h2>
 <h3 id="make-rack">make-rack</h3><b>cl-synthesizer:make-rack</b>&nbsp;(&key environment)<p>Creates a rack.<p>The function has the following parameters:
     <ul>
@@ -345,8 +313,8 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
     </ul></p>
     <p>    
     The update function of the rack calls the update function of all embedded modules. If the 
-    rack has already been shut down the function immediately returns <b>nil</b>.
-    Othwerwise it returns <b>t</b>.
+    rack has already been shut down the function immediately returns nil.
+    Othwerwise it returns t.
     </p><p>
     The shutdown function of the rack calls the shutdown handlers of all embedded modules and hooks. If the rack has 
     already been shut down the function immediately returns.
@@ -699,18 +667,18 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
 (defun example ()
   &quot;ADSR example. Linear vs. Exponential&quot;
   (let ((rack (cl-synthesizer:make-rack
-           :environment (cl-synthesizer:make-environment))))
+               :environment (cl-synthesizer:make-environment))))
     
     (cl-synthesizer:add-module
      rack &quot;MIDI-SEQUENCER&quot;
      #'cl-synthesizer-modules-midi-sequencer:make-module :events
      (list 
       (list :timestamp-milli-seconds 0
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-note-on-event :channel 1 :note-number 69 :velocity 100)))
+            :midi-events (list
+                          (cl-synthesizer-midi-event:make-note-on-event :channel 1 :note-number 69 :velocity 100)))
       (list :timestamp-milli-seconds 1500
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-note-off-event :channel 1 :note-number 69 :velocity 100)))))
+            :midi-events (list
+                          (cl-synthesizer-midi-event:make-note-off-event :channel 1 :note-number 69 :velocity 100)))))
 
     (cl-synthesizer:add-module
      rack &quot;MIDI-IFC&quot;
@@ -771,7 +739,7 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
 (defun example ()
   &quot;Multiple example&quot;
   (let ((rack (cl-synthesizer:make-rack
-           :environment (cl-synthesizer:make-environment))))
+               :environment (cl-synthesizer:make-environment))))
     
     (cl-synthesizer:add-module
      rack &quot;LFO&quot;
@@ -779,7 +747,7 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
      :base-frequency 1.0 :v-peak 1.0)
     
     (cl-synthesizer:add-module rack &quot;MULTIPLE&quot;
-                   #'cl-synthesizer-modules-multiple:make-module :output-count 5)
+                               #'cl-synthesizer-modules-multiple:make-module :output-count 5)
     (cl-synthesizer:add-patch rack &quot;LFO&quot; :sine &quot;MULTIPLE&quot; :input)
     (cl-synthesizer:add-rack-output rack :line-out-1 &quot;MULTIPLE&quot; :output-1)
     (cl-synthesizer:add-rack-output rack :line-out-2 &quot;MULTIPLE&quot; :output-2)
@@ -809,7 +777,7 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
 (defun example ()
   &quot;Fixed-Output example&quot;
   (let ((rack (cl-synthesizer:make-rack
-           :environment (cl-synthesizer:make-environment))))
+               :environment (cl-synthesizer:make-environment))))
     
     (cl-synthesizer:add-module
      rack &quot;FIXED-OUTPUT&quot;
@@ -835,7 +803,7 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
     <p>The module has the following inputs:
     <ul>
         <li>:input-1 ... :input-n. Where n is the input-count. Input values
-        not of type <b>number</b> are ignored.</li>
+        not of type number are ignored.</li>
     </ul></p>
     <p>The module has the following outputs:
     <ul>
@@ -875,7 +843,7 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
 (defun example ()
   &quot;Mixer example.&quot;
   (let ((rack (cl-synthesizer:make-rack
-           :environment (cl-synthesizer:make-environment))))
+               :environment (cl-synthesizer:make-environment))))
 
     ;;
     ;; add modules...
@@ -1019,7 +987,7 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
 (defun example ()
   &quot;Linear and Exponential Ramp&quot;
   (let ((rack (cl-synthesizer:make-rack
-           :environment (cl-synthesizer:make-environment))))
+               :environment (cl-synthesizer:make-environment))))
 
     (cl-synthesizer:add-module
      rack &quot;VCO&quot;
@@ -1096,7 +1064,7 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
 (defun example ()
   &quot;Sustain example&quot;
   (let ((rack (cl-synthesizer:make-rack
-           :environment (cl-synthesizer:make-environment))))
+               :environment (cl-synthesizer:make-environment))))
     
     ;; Use MIDI sequencer for generation of Gate signals
     (cl-synthesizer:add-module
@@ -1104,29 +1072,29 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
      #'cl-synthesizer-modules-midi-sequencer:make-module :events
      (list 
       (list :timestamp-milli-seconds 300
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-note-on-event
-               :channel 1
-               :note-number 69
-               :velocity 100)))
+            :midi-events (list
+                          (cl-synthesizer-midi-event:make-note-on-event
+                           :channel 1
+                           :note-number 69
+                           :velocity 100)))
       (list :timestamp-milli-seconds 700
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-note-off-event
-               :channel 1
-               :note-number 69
-               :velocity 100)))
+            :midi-events (list
+                          (cl-synthesizer-midi-event:make-note-off-event
+                           :channel 1
+                           :note-number 69
+                           :velocity 100)))
       (list :timestamp-milli-seconds 1800
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-note-on-event
-               :channel 1
-               :note-number 69
-               :velocity 100)))
+            :midi-events (list
+                          (cl-synthesizer-midi-event:make-note-on-event
+                           :channel 1
+                           :note-number 69
+                           :velocity 100)))
       (list :timestamp-milli-seconds 2100
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-note-off-event
-               :channel 1
-               :note-number 69
-               :velocity 100)))))
+            :midi-events (list
+                          (cl-synthesizer-midi-event:make-note-off-event
+                           :channel 1
+                           :note-number 69
+                           :velocity 100)))))
 
     (cl-synthesizer:add-module
      rack &quot;MIDI-IFC&quot;
@@ -1216,8 +1184,12 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
      call of the update function and closed by the shutdown handler.
   </p>
   The module has no outputs.</p>
-<h2 id="Monitor-1">Monitor</h2>
-<h3 id="add-monitor">add-monitor</h3><b>cl-synthesizer-monitor:add-monitor</b>&nbsp;(rack monitor-agent socket-mappings &rest additional-agent-args)<p>Adds a monitor to a rack. <p>The function has the following parameters:
+<h2 id="Monitors">Monitors</h2><p>Monitors are hook functions that can be registered at racks. They collect module states, like output socket values, and pass them to a so
+  called "Monitor Backend". A monitor backend can for example be a CSV-File-Writer.
+A monitor backend implements the module interface. It is instantiated by a so called "Monitor Agent".
+This agent sits between the monitor and its backend. The agent instantiates the backend
+  and defines the mapping of the values collected by the monitor to input sockets of the backend.</p>
+<h3 id="add-monitor">add-monitor</h3><b>cl-synthesizer-monitor:add-monitor</b>&nbsp;(rack monitor-agent socket-mappings &rest additional-agent-args)<p>Registers a monitor at a rack.<p>The function has the following parameters:
     <ul>
 	<li>rack The rack.</li>
 	<li>monitor-agent A function that instantiates the monitor backend.
@@ -1263,7 +1235,7 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
 	<li>&rest additional-agent-args Optional keyword arguments to be passed to
 	    the agent.</li>
     </ul></p></p>
-<h3 id="wave-file-agent">wave-file-agent</h3><b>cl-synthesizer-monitor-wave-file-agent:make-backend</b>&nbsp;(name environment inputs &rest rest &key filename &allow-other-keys)<p>Creates a monitor backend which writes its inputs into a Wave file.
+<h3 id="wave-file-agent">wave-file-agent</h3><b>cl-synthesizer-monitor-wave-file-agent:make-backend</b>&nbsp;(name environment inputs &rest rest &key filename &allow-other-keys)<p>Creates a monitor backend which writes to a Wave file.
     <p>The function has the following parameters:
     <ul>
 	<li>name A name.</li>
@@ -1275,8 +1247,7 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
     <ul>
        <li>A property list that implements a module (this is the Monitor-Backend).</li>
        <li>An ordered list of input sockets of the module.</li>
-    </ul></p>
-    <p>See also cl-synthesizer-modules:wave-file-writer.</p></p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-monitor-wave-file-example-1
+    </ul></p></p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-monitor-wave-file-example-1
   (:use :cl))
 
 (in-package :cl-synthesizer-monitor-wave-file-example-1)
@@ -1303,7 +1274,7 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
     (cl-synthesizer:play-rack rack :duration-seconds 2)))
 
 ;; (run-example)</code></pre></p>
-<h3 id="csv-file-agent">csv-file-agent</h3><b>cl-synthesizer-monitor-csv-file-agent:make-backend</b>&nbsp;(name environment inputs &rest rest &key filename &allow-other-keys)<p>Creates a monitor backend which writes its inputs into a CSV file.
+<h3 id="csv-file-agent">csv-file-agent</h3><b>cl-synthesizer-monitor-csv-file-agent:make-backend</b>&nbsp;(name environment inputs &rest rest &key filename &allow-other-keys)<p>Creates a monitor backend which writes to a CSV file.
     <p>The function has the following parameters:
     <ul>
 	<li>name A name.</li>
@@ -1315,8 +1286,7 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
     <ul>
        <li>A property list that implements a module (this is the Monitor-Backend).</li>
        <li>An ordered list of input sockets of the module.</li>
-    </ul></p>
-    <p>See also cl-synthesizer-modules:csv-file-writer.</p></p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-monitor-csv-file-example-1
+    </ul></p></p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-monitor-csv-file-example-1
   (:use :cl))
 
 (in-package :cl-synthesizer-monitor-csv-file-example-1)
@@ -1343,7 +1313,7 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
     (cl-synthesizer:play-rack rack :duration-seconds 2)))
 
 ;; (run-example)</code></pre></p>
-<h3 id="buffer-agent">buffer-agent</h3><b>cl-synthesizer-monitor-buffer-agent:make-backend</b>&nbsp;(name environment inputs &rest rest &key buffer &allow-other-keys)<p>Creates a monitor backend which writes its inputs into a buffer.
+<h3 id="buffer-agent">buffer-agent</h3><b>cl-synthesizer-monitor-buffer-agent:make-backend</b>&nbsp;(name environment inputs &rest rest &key buffer &allow-other-keys)<p>Creates a monitor backend which writes to a memory buffer.
     <p>The function has the following parameters:
     <ul>
 	<li>name A name.</li>
@@ -1457,12 +1427,12 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
 (defun example ()
   &quot;MIDI Relative CC-Interface Example&quot;
   (let ((rack (cl-synthesizer:make-rack
-           :environment (cl-synthesizer:make-environment))))
+               :environment (cl-synthesizer:make-environment))))
 
     (cl-synthesizer:add-module
      rack &quot;MIDI-CC-IFC&quot; #'cl-synthesizer-modules-midi-relative-cc-interface:make-module
      :mappings '((:controller-number 112 :control-value 61 :offset -1.0)
-         (:controller-number 112 :control-value 67 :offset 1.0))
+                 (:controller-number 112 :control-value 67 :offset 1.0))
      :initial-output 2.5
      :channel nil)
 
@@ -1471,29 +1441,29 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
      #'cl-synthesizer-modules-midi-sequencer:make-module :events
      (list 
       (list :timestamp-milli-seconds 100
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
+            :midi-events (list
+                          (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
       (list :timestamp-milli-seconds 200
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
+            :midi-events (list
+                          (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
       (list :timestamp-milli-seconds 300
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
+            :midi-events (list
+                          (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
       (list :timestamp-milli-seconds 400
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
+            :midi-events (list
+                          (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 61)))
       (list :timestamp-milli-seconds 500
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))
+            :midi-events (list
+                          (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))
       (list :timestamp-milli-seconds 600
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))
+            :midi-events (list
+                          (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))
       (list :timestamp-milli-seconds 700
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))
+            :midi-events (list
+                          (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))
       (list :timestamp-milli-seconds 800
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))))
+            :midi-events (list
+                          (cl-synthesizer-midi-event:make-control-change-event :channel 1 :controller-number 112 :control-value 67)))))
     
     (cl-synthesizer:add-patch rack &quot;MIDI-SEQUENCER&quot; :midi-events &quot;MIDI-CC-IFC&quot; :midi-events)
 
@@ -1533,7 +1503,7 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
 (defun example ()
   &quot;Midi-Sequencer example&quot;
   (let ((rack (cl-synthesizer:make-rack
-           :environment (cl-synthesizer:make-environment))))
+               :environment (cl-synthesizer:make-environment))))
 
     ;; Add sequencer
     (cl-synthesizer:add-module
@@ -1542,29 +1512,29 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
      #'cl-synthesizer-modules-midi-sequencer:make-module :events
      (list 
       (list :timestamp-milli-seconds 0
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-note-on-event
-               :channel 1
-               :note-number 69
-               :velocity 100)))
+            :midi-events (list
+                          (cl-synthesizer-midi-event:make-note-on-event
+                           :channel 1
+                           :note-number 69
+                           :velocity 100)))
       (list :timestamp-milli-seconds 1000
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-note-off-event
-               :channel 1
-               :note-number 69
-               :velocity 100)))
+            :midi-events (list
+                          (cl-synthesizer-midi-event:make-note-off-event
+                           :channel 1
+                           :note-number 69
+                           :velocity 100)))
       (list :timestamp-milli-seconds 2000
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-note-on-event
-               :channel 1
-               :note-number 75
-               :velocity 100)))
+            :midi-events (list
+                          (cl-synthesizer-midi-event:make-note-on-event
+                           :channel 1
+                           :note-number 75
+                           :velocity 100)))
       (list :timestamp-milli-seconds 2500
-        :midi-events (list
-              (cl-synthesizer-midi-event:make-note-off-event
-               :channel 1
-               :note-number 75
-               :velocity 100)))))
+            :midi-events (list
+                          (cl-synthesizer-midi-event:make-note-off-event
+                           :channel 1
+                           :note-number 75
+                           :velocity 100)))))
 
     ;; Add MIDI Interface and connect it with the MIDI Sequencer
     (cl-synthesizer:add-module
@@ -1757,4 +1727,4 @@ Monitors register themselves as rack hooks.</p><p><b>Example</b></p><p><pre><cod
 <h1 id="Generate documentation">Generate documentation</h1>Depends on :cl-html-readme and :docparser which are available via Quicklisp.<p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2023-04-14  19:47:25</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-04-20  20:17:41</small></p></footer></body></html>

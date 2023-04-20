@@ -360,8 +360,8 @@
     </ul></p>
     <p>    
     The update function of the rack calls the update function of all embedded modules. If the 
-    rack has already been shut down the function immediately returns <b>nil</b>.
-    Othwerwise it returns <b>t</b>.
+    rack has already been shut down the function immediately returns nil.
+    Othwerwise it returns t.
     </p><p>
     The shutdown function of the rack calls the shutdown handlers of all embedded modules and hooks. If the rack has 
     already been shut down the function immediately returns.

@@ -38,7 +38,7 @@
   (funcall (getf rack :patches)))
 
 (defun is-rack (module)
-  "Returns <b>t</b> if the given module represents a rack."
+  "Returns t if the given module represents a rack."
   (getf module :is-rack))
 
 (defun add-module (rack module-name module-fn &rest args)

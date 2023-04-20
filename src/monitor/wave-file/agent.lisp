@@ -17,7 +17,7 @@
     (nreverse l)))
 
 (defun make-backend (name environment inputs &rest rest &key filename &allow-other-keys)
-  "Creates a monitor backend which writes its inputs into a Wave file.
+  "Creates a monitor backend which writes to a Wave file.
     <p>The function has the following parameters:
     <ul>
 	<li>name A name.</li>
@@ -29,8 +29,7 @@
     <ul>
        <li>A property list that implements a module (this is the Monitor-Backend).</li>
        <li>An ordered list of input sockets of the module.</li>
-    </ul></p>
-    <p>See also cl-synthesizer-modules:wave-file-writer.</p>"
+    </ul></p>"
   (let ((handler 
 	 (apply #'cl-synthesizer-modules-wave-file-writer:make-module
 	  name
