@@ -105,7 +105,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3891003461" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3891006280" type="audio/wav"></audio></p>
 <h2 id="Frequency modulated Saw">Frequency modulated Saw</h2><p><pre><code>(defpackage :cl-synthesizer-patches-frequency-modulated-saw
   (:use :cl)
   (:documentation &quot;Frequency modulated Saw&quot;))
@@ -139,7 +139,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3891003461" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3891006280" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated Saws">Two frequency modulated Saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-two-frequency-modulated-saws
   (:use :cl)
   (:documentation &quot;Two frequency modulated Saws&quot;))
@@ -181,7 +181,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3891003461" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3891006280" type="audio/wav"></audio></p>
 <h1 id="Change-Log">Change-Log</h1>
 <h2>Version 1.0.0</h2><p>Initial version. Not tagged.</p>
 <h2>Version 2.x</h2>Work in progress. Master branch.<ul><li>Removed bridge modules.</li><li>Added rack:add-rack-input.</li><li>Added rack:add-rack-output.</li><li>Added module input socket getters.</li></ul>
@@ -1184,9 +1184,9 @@ to set input values, to retrieve output values, to update the module, to shutdow
      call of the update function and closed by the shutdown handler.
   </p>
   The module has no outputs.</p>
-<h2 id="Monitors">Monitors</h2><p>Monitors are hook functions that can be registered at racks. They collect module states, like output socket values, and pass them to a so
+<h2 id="Monitors">Monitors</h2><p>Monitors are hooks that are registered at racks. They collect module states like output socket values and pass them to a so
   called "Monitor Backend". A monitor backend can for example be a CSV-File-Writer.
-A monitor backend implements the module interface. It is instantiated by a so called "Monitor Agent".
+A monitor backend is a module. It is instantiated by a so called "Monitor Agent".
 This agent sits between the monitor and its backend. The agent instantiates the backend
   and defines the mapping of the values collected by the monitor to input sockets of the backend.</p>
 <h3 id="add-monitor">add-monitor</h3><b>cl-synthesizer-monitor:add-monitor</b>&nbsp;(rack monitor-agent socket-mappings &rest additional-agent-args)<p>Registers a monitor at a rack.<p>The function has the following parameters:
@@ -1727,4 +1727,4 @@ This agent sits between the monitor and its backend. The agent instantiates the 
 <h1 id="Generate documentation">Generate documentation</h1>Depends on :cl-html-readme and :docparser which are available via Quicklisp.<p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2023-04-20  20:17:41</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-04-20  21:04:40</small></p></footer></body></html>
