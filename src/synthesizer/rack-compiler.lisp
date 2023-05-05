@@ -4,19 +4,23 @@
 
 (in-package :cl-synthesizer-rack-compiler)
 
-(defun get-input-sockets (module)
-  "TODO Inefficient implementation, but for now live with it"
-  (let ((sockets nil) (counter 0))
-    (dolist (input (funcall (getf module :inputs)))
-      ;; Property list. Sockets are at indices 0, 2, 4, 6, ...
-      (if (= (rem counter 2) 0)
-	  (push input sockets))
-      (setf counter (+ counter 1)))
-    sockets))
+(defmacro do-property-list (plist property-key property-value &body body)
+  (let ((read-key (gensym)) (cur-key (gensym)) (item (gensym)))
+    `(let ((,read-key t) (,cur-key nil))
+       (dolist (,item ,plist)
+	 (if ,read-key
+	     (progn
+	       (setf ,read-key nil)
+	       (setf ,cur-key ,item))
+	     (progn
+	       (setf ,read-key t)
+	       (let ((,property-key ,cur-key) (,property-value ,item))
+		 ,@body)))))))
 
 (defun get-module-input-patches (rack module)
   (let ((result nil) (name (cl-synthesizer:get-module-name rack module)))
-    (dolist (input-socket (get-input-sockets module))
+    (do-property-list (funcall (getf module :inputs)) input-socket input-socket-value
+      (declare (ignore input-socket-value))
       (let ((patch
 	     (find-if
 	      (lambda (p)
