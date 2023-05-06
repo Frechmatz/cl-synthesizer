@@ -3,7 +3,7 @@
 (defun print-vco-state (vco)
   (format t "~%VCO: f-exp: ~a f-lin: ~a f: ~a~%"
 	  (cl-synthesizer-test::get-module-state vco :exponential-frequency)
-	  (cl-synthesizer-test::get-module-astate vco :linear-frequency)
+	  (cl-synthesizer-test::get-module-state vco :linear-frequency)
 	  (cl-synthesizer-test::get-module-state vco :frequency)))
 
 ;; Test that VCO emits base-frequency when cv inputs are 0.0
