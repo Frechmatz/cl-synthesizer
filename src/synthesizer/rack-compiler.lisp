@@ -17,23 +17,34 @@
 	       (let ((,property-key ,cur-key) (,property-value ,item))
 		 ,@body)))))))
 
-(defun get-module-input-patches (rack module)
-  (let ((result nil) (name (cl-synthesizer:get-module-name rack module)))
-    (do-property-list (funcall (getf module :inputs)) input-socket input-socket-value
-      (declare (ignore input-socket-value))
-      (let ((patch
-	     (find-if
-	      (lambda (p)
-		(and
-		 (string= (getf p :input-name) name)
-		 (eq (getf p :input-socket) input-socket)))
-	      (cl-synthesizer:get-patches rack))))
-	(if patch
-	    (push (list
-		   input-socket
-		   (cl-synthesizer:get-module rack (getf patch :output-name))
-		   (getf patch :output-socket)) result))))
-    result))
+(defmacro do-module-input-patches (rack module input-socket output-module output-module-socket
+				   &body body)
+  (let ((patch (gensym))
+	(module-name (gensym))
+	(cur-input-socket (gensym))
+	(cur-input-socket-value (gensym))
+	(patches (gensym)))
+    `(let ((,module-name (cl-synthesizer:get-module-name ,rack ,module))
+	   (,patches (cl-synthesizer:get-patches ,rack)))
+       (do-property-list
+	   (funcall (getf ,module :inputs))
+	   ,cur-input-socket
+	   ,cur-input-socket-value
+	 (declare (ignore ,cur-input-socket-value))
+	 (let ((,patch
+		 (find-if
+		  (lambda (p)
+		    (and
+		     (string= (getf p :input-name) ,module-name)
+		     (eq (getf p :input-socket) ,cur-input-socket)))
+		  ,patches)))
+	   (if ,patch
+	       (let ((,output-module
+		       (cl-synthesizer:get-module ,rack (getf ,patch :output-name)))
+		     (,input-socket ,cur-input-socket)
+		     (,output-module-socket
+		       (getf ,patch :output-socket)))
+		 ,@body)))))))
 
 (defun get-module-trace (rack)
   "Get list of modules in execution order"
@@ -43,11 +54,15 @@
 	       (if (not (find module visited-modules :test #'eq))
 		   (progn
 		     (push module visited-modules)
-		       (dolist (binding (get-module-input-patches rack module))
-			 (let ((output-module (second binding)))
-			   (if output-module
-			       (traverse-module output-module))))
-		       (push module module-trace)))))
+		     (do-module-input-patches
+			 rack
+			 module
+			 input-socket
+			 output-module
+			 output-module-socket
+		       (declare (ignore input-socket output-module-socket))
+		       (traverse-module output-module))
+		     (push module module-trace)))))
       (dolist (module (cl-synthesizer:get-modules rack))
 	(traverse-module (getf module :module)))
       (nreverse module-trace))))
@@ -60,15 +75,17 @@
 	(inputs (funcall (getf module :inputs)))
 	(module-update-fn (getf module :update)))
     ;; Push setters for all inputs
-    (dolist (binding (get-module-input-patches rack module))
-      (let ((cur-input-socket (first binding))
-	    (output-module (second binding))
-	    (output-socket (third binding)))
-	(let ((input-setter (getf (getf inputs cur-input-socket) :set)))
-	  (let ((output-getter (make-get-output-lambda output-module output-socket)))
-	    (push (lambda()
-		    (funcall input-setter (funcall output-getter)))
-		  input-setters)))))
+    (do-module-input-patches
+	rack
+	module
+	cur-input-socket
+	output-module
+	output-socket
+      (let ((input-setter (getf (getf inputs cur-input-socket) :set)))
+	(let ((output-getter (make-get-output-lambda output-module output-socket)))
+	  (push (lambda()
+		  (funcall input-setter (funcall output-getter)))
+		input-setters))))
     ;; The compiled update function
     (lambda ()
       ;; Set inputs
@@ -76,7 +93,6 @@
 	(funcall fn))
       ;; Update module
       (funcall module-update-fn))))
-
 
 (defun compile-rack (rack)
   "Compile a rack."
