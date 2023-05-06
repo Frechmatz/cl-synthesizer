@@ -274,7 +274,20 @@
 		   duration-seconds
 		   exponential
 		   (getf info :module-count) (getf info :patch-count)))))))
-   ))
+   (list
+    :id :compiler :name "Compiler"
+    :setup (lambda(&key number-of-compiler-runs)
+	     (let ((rack (cl-synthesizer-profiling-compiler::make-test-rack)))
+	       (let ((info (get-rack-info rack)))
+		 (values 
+		  (lambda ()
+		    (dotimes (i number-of-compiler-runs)
+		      (cl-synthesizer-rack-compiler::compile-rack rack)))
+		  (format
+		   nil
+		   "Compiling a rack ~a times. (Modules: ~a Patches: ~a)"
+		   number-of-compiler-runs
+		   (getf info :module-count) (getf info :patch-count)))))))))
 
 ;;
 ;; Profiling plan runner
@@ -497,6 +510,14 @@
    :jobs '((:client-id :keyboard :init (:duration-seconds 60 :voice-count 50 :exponential nil))
 	   (:client-id :keyboard :init (:duration-seconds 60 :voice-count 50 :exponential t)))))
 
+(defparameter *profiling-plan-compiler*
+  (list
+   :name "Compiler"
+   :max-samples 500
+   :profile-time t
+   :profile-statistical nil
+   :init nil
+   :jobs '((:client-id :compiler :init (:number-of-compiler-runs 5000)))))
 
 (defparameter *profiling-plan-all*
   (list
@@ -538,7 +559,7 @@
 	   (:client-id :adsr :init (:duration-seconds 60 :exponential t))
 	   (:client-id :mixer :init (:duration-seconds 60 :channel-count 32))
 	   (:client-id :keyboard :init (:duration-seconds 10 :voice-count 50))
-	   )))
+	   (:client-id :compiler :init (:number-of-compiler-runs 5000)))))
 
 ;; (run-plan *profiling-plan-vco-core*)
 ;; (run-plan *profiling-plan-vco*)
@@ -554,6 +575,9 @@
 ;; (run-plan *profiling-plan-adsr-exponential*)
 ;; (run-plan *profiling-plan-mixer*)
 ;; (run-plan *profiling-plan-keyboard*)
+;; (run-plan *profiling-plan-compiler*)
+
+
 
 (defun run-all ()
   (run-plan *profiling-plan-all*))

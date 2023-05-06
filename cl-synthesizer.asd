@@ -535,5 +535,6 @@
 			     (:file "profile-adsr")
 			     (:file "profile-mixer")
 			     (:file "profile-keyboard")
+			     (:file "profile-compiler")
 			     (:file "profile")))))
 
