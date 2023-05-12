@@ -285,7 +285,7 @@
 		      (cl-synthesizer-rack-compiler::compile-rack rack)))
 		  (format
 		   nil
-		   "Compiling a rack ~a times. (Modules: ~a Patches: ~a)"
+		   "Compiling a rack ~a times (Modules: ~a Patches: ~a)"
 		   number-of-compiler-runs
 		   (getf info :module-count) (getf info :patch-count)))))))))
 
