@@ -48,26 +48,20 @@
 ;;
 
 (defun assert-module-structure (module-name module)
-  (labels ((iterate-list (l callback)
-	     (dotimes (i (/ (length l) 2))
-	       (let ((element-1 (nth (* i 2) l))
-		     (element-2 (nth (+ (* i 2) 1) l)))
-		 (funcall callback element-1 element-2))))
-	   (assert-plistp (plist format-control format-arguments)
+  (labels ((assert-plistp (plist format-control format-arguments)
 	     (if (or (not (listp plist)) (not (evenp (length plist))))
 		 (error
 		  'assembly-error
 		  :format-control format-control
 		  :format-arguments format-arguments))
-	     (iterate-list
-	      plist
-	      (lambda (keyword value)
-		(declare (ignore value))
+	     (cl-synthesizer-property-list-iterator:do-property-list-keys
+		 plist
+		 keyword
 		(if (not (keywordp keyword))
 		     (error
 		      'assembly-error
 		      :format-control format-control
-		      :format-arguments format-arguments))))))
+		      :format-arguments format-arguments)))))
     (assert-plistp module "Module ~a is not a property list: ~a" (list module-name module))
 
     ;; Check module update function
@@ -91,9 +85,10 @@
        "Inputs of module ~a are not a property list: ~a"
        (list module-name inputs))
       ;; check all inputs
-      (iterate-list
-       inputs
-       (lambda (socket socket-properties)
+      (cl-synthesizer-property-list-iterator:do-property-list
+	  inputs
+	  socket
+	  socket-properties
 	 (assert-plistp
 	  socket-properties
 	  "Socket properties of module ~a input socket ~a are not a property list: ~a"
@@ -121,7 +116,7 @@
 	     (error
 	      'assembly-error
 	      :format-control "Getter of input socket ~a of module ~a is not a function"
-	      :format-arguments (list socket module-name))))))
+	      :format-arguments (list socket module-name)))))
     ;;
     ;; Check module outputs
     ;;
@@ -137,9 +132,10 @@
        "Outputs of module ~a are not a property list: ~a"
        (list module-name outputs))
       ;; check all outputs
-      (iterate-list
-       outputs
-       (lambda (socket socket-properties)
+      (cl-synthesizer-property-list-iterator:do-property-list
+	  outputs
+	  socket
+	  socket-properties
 	 (assert-plistp
 	  socket-properties
 	  "Socket properties of module ~a output socket ~a are not a property list: ~a"
@@ -155,7 +151,7 @@
 	     (error
 	      'assembly-error
 	      :format-control "Getter of output socket ~a of module ~a is not a function"
-	      :format-arguments (list socket module-name))))))))
+	      :format-arguments (list socket module-name)))))))
 	  
 (defun assert-input-socket-p (module socket)
   (let ((inputs (funcall (getf module :inputs))))

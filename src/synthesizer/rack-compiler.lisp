@@ -4,33 +4,25 @@
 
 (in-package :cl-synthesizer-rack-compiler)
 
-(defmacro do-property-list (plist property-key property-value &body body)
-  (let ((read-key (gensym)) (cur-key (gensym)) (item (gensym)))
-    `(let ((,read-key t) (,cur-key nil))
-       (dolist (,item ,plist)
-	 (if ,read-key
-	     (progn
-	       (setf ,read-key nil)
-	       (setf ,cur-key ,item))
-	     (progn
-	       (setf ,read-key t)
-	       (let ((,property-key ,cur-key) (,property-value ,item))
-		 ,@body)))))))
+;;
+;; Iterator macros
+;; Todos
+;; - Support of declare expressions analog to dolist. Does not work right now
+;;   due to required wrapping of body into a progn form
+;; - after that removal of do-module-input-patches-output-modules
+;;
 
-(defmacro do-module-input-patches (rack module input-socket output-module output-module-socket
-				   &body body)
+(defmacro do-module-input-patches (rack module input-socket output-module
+				   output-module-socket &body body)
   (let ((patch (gensym))
 	(module-name (gensym))
 	(cur-input-socket (gensym))
-	(cur-input-socket-value (gensym))
 	(patches (gensym)))
     `(let ((,module-name (cl-synthesizer:get-module-name ,rack ,module))
 	   (,patches (cl-synthesizer:get-patches ,rack)))
-       (do-property-list
+       (cl-synthesizer-property-list-iterator:do-property-list-keys
 	   (funcall (getf ,module :inputs))
 	   ,cur-input-socket
-	   ,cur-input-socket-value
-	 (declare (ignore ,cur-input-socket-value))
 	 (let ((,patch
 		 (find-if
 		  (lambda (p)
@@ -44,7 +36,34 @@
 		     (,input-socket ,cur-input-socket)
 		     (,output-module-socket
 		       (getf ,patch :output-socket)))
-		 ,@body)))))))
+		 (progn ,@body))))))))
+
+(defmacro do-module-input-patches-output-modules (rack module
+						  output-module &body body)
+  (let ((patch (gensym))
+	(module-name (gensym))
+	(cur-input-socket (gensym))
+	(patches (gensym)))
+    `(let ((,module-name (cl-synthesizer:get-module-name ,rack ,module))
+	   (,patches (cl-synthesizer:get-patches ,rack)))
+       (cl-synthesizer-property-list-iterator:do-property-list-keys
+	   (funcall (getf ,module :inputs))
+	   ,cur-input-socket
+	 (let ((,patch
+		 (find-if
+		  (lambda (p)
+		    (and
+		     (string= (getf p :input-name) ,module-name)
+		     (eq (getf p :input-socket) ,cur-input-socket)))
+		  ,patches)))
+	   (if ,patch
+	       (let ((,output-module
+		       (cl-synthesizer:get-module ,rack (getf ,patch :output-name))))
+		 (progn ,@body))))))))
+
+;;
+;;
+;;
 
 (defun get-module-trace (rack)
   "Get list of modules in execution order"
@@ -54,13 +73,10 @@
 	       (if (not (find module visited-modules :test #'eq))
 		   (progn
 		     (push module visited-modules)
-		     (do-module-input-patches
+		     (do-module-input-patches-output-modules
 			 rack
 			 module
-			 input-socket
 			 output-module
-			 output-module-socket
-		       (declare (ignore input-socket output-module-socket))
 		       (traverse-module output-module))
 		     (push module module-trace)))))
       (dolist (module (cl-synthesizer:get-modules rack))

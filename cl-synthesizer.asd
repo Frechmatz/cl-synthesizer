@@ -40,6 +40,7 @@
   :components ((:module "src/synthesizer"
 		:serial t
 		:components ((:file "packages")
+			     (:file "property-list-iterator") 
 			     (:file "conditions")
 			     (:file "api")
 			     (:file "environment")

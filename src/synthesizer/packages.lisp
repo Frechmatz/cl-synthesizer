@@ -27,3 +27,8 @@
   (:export
    :compile-rack))
 
+(defpackage :cl-synthesizer-property-list-iterator
+  (:use :cl)
+  (:export
+   :do-property-list
+   :do-property-list-keys))
