@@ -115,97 +115,6 @@
 	      :format-arguments (list socket module-name)))))))
 	  
 
-(defun assert-add-module (rack module-name)
-  (if (cl-synthesizer:get-module rack module-name)
-      (error
-       'assembly-error
-       :format-control
-       "add-module: A module with name '~a' has already been added to the rack"
-       :format-arguments (list module-name))))
-
-
-(defun assert-add-rack-input (rack rack-input-socket input-module-name input-socket
-			      exposed-input-sockets)
-  (labels ((get-exposed-input-socket (socket)
-	     (find-if
-	      (lambda(entry)
-		(eq socket (getf entry :rack-socket)))
-	      exposed-input-sockets))
-	   (is-input-patched (module-name socket)
-	     (find-if
-	      (lambda (p)
-		(and
-		 (eq socket (getf p :input-socket))
-		 (string= module-name (getf p :input-name))))
-	      (cl-synthesizer:get-patches rack))))
-
-    (if (get-exposed-input-socket rack-input-socket)
-	(error
-	 'assembly-error
-	 :format-control
-	 "add-rack-input: Module already exposes input socket '~a'"
-	 :format-arguments (list rack-input-socket)))
-    (let ((module (cl-synthesizer:get-module rack input-module-name)))
-      (if (not module)
-	  (error
-	   'assembly-error
-	   :format-control
-	   "add-rack-input: Cannot find module '~a'"
-	   :format-arguments (list input-module-name)))
-      (if (not (find input-socket (funcall (getf module :inputs))))
-	  (error
-	   'assembly-error
-	   :format-control
-	   "add-rack-input: Module '~a' does not expose input socket '~a'"
-	   :format-arguments (list input-module-name input-socket)))
-      (if (is-input-patched input-module-name input-socket)
-	  (error
-	   'assembly-error
-	   :format-control
-	   "add-rack-input: Module '~a' Input Socket '~a' already patched"
-	   :format-arguments (list input-module-name input-socket))))))
-
-(defun assert-add-rack-output (rack rack-output-socket output-module-name output-socket
-			      exposed-output-sockets)
-  (labels ((get-exposed-output-socket (socket)
-	     (find-if
-	      (lambda(entry)
-		(eq socket (getf entry :rack-socket)))
-	      exposed-output-sockets))
-	   (is-output-patched (module-name socket)
-	     (find-if
-	      (lambda (p)
-		(and
-		 (eq socket (getf p :output-socket))
-		 (string= module-name (getf p :output-name))))
-	      (cl-synthesizer:get-patches rack))))
-
-    (if (get-exposed-output-socket rack-output-socket)
-	(error
-	 'assembly-error
-	 :format-control
-	 "add-rack-outut: Module already exposes output socket '~a'"
-	 :format-arguments (list rack-output-socket)))
-    (let ((module (cl-synthesizer:get-module rack output-module-name)))
-      (if (not module)
-	  (error
-	   'assembly-error
-	   :format-control
-	   "add-rack-output: Cannot find module '~a'"
-	   :format-arguments (list output-module-name)))
-      (if (not (find output-socket (funcall (getf module :outputs))))
-	  (error
-	   'assembly-error
-	   :format-control
-	   "add-rack-output: Module '~a' does not expose output socket '~a'"
-	   :format-arguments (list output-module-name output-socket)))
-      (if (is-output-patched output-module-name output-socket)
-	  (error
-	   'assembly-error
-	   :format-control
-	   "add-rack-output: Module '~a' Output Socket '~a' already patched"
-	   :format-arguments (list output-module-name output-socket))))))
-
 
 ;;
 ;; The rack
@@ -457,6 +366,138 @@
 		"Internal Error: Output socket ~a should be exposed by a module but is not. Outputs: ~a"
 		:format-arguments (list socket rack-outputs))))
 
+	 ;;
+	 ;;
+	 ;;
+	 (assert-add-rack-input (rack-input-socket input-module-name
+				 input-socket exposed-input-sockets)
+	   (labels ((get-exposed-input-socket (socket)
+		      (find-if
+		       (lambda(entry)
+			 (eq socket (getf entry :rack-socket)))
+		       exposed-input-sockets))
+		    (is-input-patched (module-name socket)
+		      (find-if
+	      (lambda (p)
+		(and
+		 (eq socket (getf p :input-socket))
+		 (string= module-name (getf p :input-name))))
+	      patches)))
+	     
+	     (if (get-exposed-input-socket rack-input-socket)
+		 (error
+		  'assembly-error
+		  :format-control
+		  "add-rack-input: Module already exposes input socket '~a'"
+		  :format-arguments (list rack-input-socket)))
+	     (let ((module (get-module-by-name input-module-name)))
+	       (if (not module)
+		   (error
+		    'assembly-error
+		    :format-control
+		    "add-rack-input: Cannot find module '~a'"
+		    :format-arguments (list input-module-name)))
+	       (if (not (find input-socket (funcall (getf module :inputs))))
+		   (error
+		    'assembly-error
+		    :format-control
+		    "add-rack-input: Module '~a' does not expose input socket '~a'"
+		    :format-arguments (list input-module-name input-socket)))
+	       (if (is-input-patched input-module-name input-socket)
+		   (error
+		    'assembly-error
+		    :format-control
+		    "add-rack-input: Module '~a' Input Socket '~a' already patched"
+		    :format-arguments (list input-module-name input-socket))))))
+
+	 ;;
+	 ;;
+	 ;;
+	 (assert-add-rack-output (rack-output-socket output-module-name
+				  output-socket exposed-output-sockets)
+	   (labels ((get-exposed-output-socket (socket)
+		      (find-if
+		       (lambda(entry)
+			 (eq socket (getf entry :rack-socket)))
+		       exposed-output-sockets))
+		    (is-output-patched (module-name socket)
+		      (find-if
+		       (lambda (p)
+			 (and
+			  (eq socket (getf p :output-socket))
+			  (string= module-name (getf p :output-name))))
+		       patches)))
+	     
+	     (if (get-exposed-output-socket rack-output-socket)
+		 (error
+		  'assembly-error
+		  :format-control
+		  "add-rack-outut: Module already exposes output socket '~a'"
+		  :format-arguments (list rack-output-socket)))
+	     (let ((module (get-module-by-name output-module-name)))
+	       (if (not module)
+		   (error
+		    'assembly-error
+		    :format-control
+		    "add-rack-output: Cannot find module '~a'"
+		    :format-arguments (list output-module-name)))
+	       (if (not (find output-socket (funcall (getf module :outputs))))
+		   (error
+		    'assembly-error
+		    :format-control
+		    "add-rack-output: Module '~a' does not expose output socket '~a'"
+		    :format-arguments (list output-module-name output-socket)))
+	       (if (is-output-patched output-module-name output-socket)
+		   (error
+		    'assembly-error
+		    :format-control
+		    "add-rack-output: Module '~a' Output Socket '~a' already patched"
+		    :format-arguments (list output-module-name output-socket))))))
+	 ;;
+	 ;;
+	 ;;
+	 (assert-add-module (module-name)
+	   (if (get-module-by-name module-name)
+	       (error
+		'assembly-error
+		:format-control
+		"add-module: A module with name '~a' has already been added to the rack"
+		:format-arguments (list module-name))))
+
+	 ;;
+	 ;;
+	 ;;
+	 (add-rack-output (rack-output-socket output-module-name output-socket)
+	   (assert-add-rack-output
+	    rack-output-socket
+	    output-module-name
+	    output-socket
+	    exposed-output-sockets)
+	   (push (list
+		  :rack-socket rack-output-socket
+		  :module-name output-module-name
+		  :module-socket output-socket)
+		 exposed-output-sockets)
+	   (update-rack-outputs)
+	   (assert-output-socket-p rack-output-socket))
+	 
+	 ;;
+	 ;;
+	 ;;
+	 (add-rack-input (rack-input-socket input-module-name input-socket)
+	   (assert-add-rack-input
+	    rack-input-socket
+	    input-module-name
+	    input-socket
+	    exposed-input-sockets)
+	   (push (list
+		  :rack-socket rack-input-socket
+		  :module-name input-module-name
+		  :module-socket input-socket)
+		 exposed-input-sockets)
+	   (update-rack-inputs)
+	   (assert-input-socket-p rack-input-socket))
+	 
 	 
 	 )
       (let ((rack
@@ -466,34 +507,10 @@
 		 (get-module-by-name name))
 	       :add-rack-input
 	       (lambda(rack-input-socket input-module-name input-socket)
-		 (assert-add-rack-input
-		  this
-		  rack-input-socket
-		  input-module-name
-		  input-socket
-		  exposed-input-sockets)
-		 (push (list
-			:rack-socket rack-input-socket
-			:module-name input-module-name
-			:module-socket input-socket)
-		       exposed-input-sockets)
-		 (update-rack-inputs)
-		 (assert-input-socket-p rack-input-socket))
+		 (add-rack-input rack-input-socket input-module-name input-socket))
 	       :add-rack-output
 	       (lambda(rack-output-socket output-module-name output-socket)
-		 (assert-add-rack-output
-		  this
-		  rack-output-socket
-		  output-module-name
-		  output-socket
-		  exposed-output-sockets)
-		 (push (list
-			:rack-socket rack-output-socket
-			:module-name output-module-name
-			:module-socket output-socket)
-		       exposed-output-sockets)
-		 (update-rack-outputs)
-		 (assert-output-socket-p rack-output-socket))
+		 (add-rack-output rack-output-socket output-module-name output-socket))
 	       :modules (lambda() modules)
 	       :outputs (lambda() rack-outputs)
 	       :inputs (lambda() rack-inputs)
@@ -502,7 +519,7 @@
 	       :update (lambda ()
 			 (update))
 	       :add-module (lambda (module-name module-fn &rest args)
-			     (assert-add-module this module-name)
+			     (assert-add-module module-name)
 			     (let ((module (apply module-fn `(,module-name ,environment ,@args))))
 			       (assert-module-structure module-name module)
 			       (setf compiled-rack nil)
