@@ -114,23 +114,6 @@
 	      :format-control "Getter of output socket ~a of module ~a is not a function"
 	      :format-arguments (list socket module-name)))))))
 	  
-(defun assert-input-socket-p (module socket)
-  (let ((inputs (funcall (getf module :inputs))))
-    (if (not (getf inputs socket))
-	(error
-	 'simple-error
-	 :format-control
-	 "Internal Error: Input socket ~a should be exposed by a module but is not. Inputs: ~a"
-	 :format-arguments (list socket inputs)))))
-
-(defun assert-output-socket-p (module socket)
-  (let ((outputs (funcall (getf module :outputs))))
-    (if (not (getf outputs socket))
-	(error
-	 'simple-error
-	 :format-control
-	 "Internal Error: Output socket ~a should be exposed by a module but is not. Outputs: ~a"
-	 :format-arguments (list socket outputs)))))
 
 (defun assert-add-module (rack module-name)
   (if (cl-synthesizer:get-module rack module-name)
@@ -451,7 +434,29 @@
 		  :input-name input-name
 		  :input-socket input-socket)
 		 patches))
-  
+
+	 ;;
+	 ;;
+	 ;;
+	 (assert-input-socket-p (socket)
+	   (if (not (getf rack-inputs socket))
+	       (error
+		'simple-error
+		:format-control
+		"Internal Error: Input socket ~a should be exposed by a module but is not. Inputs: ~a"
+		:format-arguments (list socket rack-inputs))))
+
+	 ;;
+	 ;;
+	 ;;
+	 (assert-output-socket-p (socket)
+	   (if (not (getf rack-outputs socket))
+	       (error
+		'simple-error
+		:format-control
+		"Internal Error: Output socket ~a should be exposed by a module but is not. Outputs: ~a"
+		:format-arguments (list socket rack-outputs))))
+
 	 
 	 )
       (let ((rack
@@ -473,7 +478,7 @@
 			:module-socket input-socket)
 		       exposed-input-sockets)
 		 (update-rack-inputs)
-		 (assert-input-socket-p this rack-input-socket))
+		 (assert-input-socket-p rack-input-socket))
 	       :add-rack-output
 	       (lambda(rack-output-socket output-module-name output-socket)
 		 (assert-add-rack-output
@@ -488,7 +493,7 @@
 			:module-socket output-socket)
 		       exposed-output-sockets)
 		 (update-rack-outputs)
-		 (assert-output-socket-p this rack-output-socket))
+		 (assert-output-socket-p rack-output-socket))
 	       :modules (lambda() modules)
 	       :outputs (lambda() rack-outputs)
 	       :inputs (lambda() rack-inputs)
