@@ -434,7 +434,24 @@
 		    :format-control
 		    "add-patch: Module '~a' Output socket '~a' is exposed as rack output"
 		    :format-arguments (list input-name input-socket))))))
-	 
+
+	 ;;
+	 ;;
+	 ;;
+	 (add-patch (output-name output-socket input-name input-socket)
+	   (assert-add-patch
+	    output-name output-socket
+	    input-name input-socket
+	    exposed-input-sockets
+	    exposed-output-sockets)
+	   (setf compiled-rack nil)
+	   (push (list
+		  :output-name output-name
+		  :output-socket output-socket
+		  :input-name input-name
+		  :input-socket input-socket)
+		 patches))
+  
 	 
 	 )
       (let ((rack
@@ -493,18 +510,7 @@
 	       :environment environment
 	       :is-rack t
 	       :add-patch (lambda (output-name output-socket input-name input-socket)
-			    (assert-add-patch
-			     output-name output-socket
-			     input-name input-socket
-			     exposed-input-sockets
-			     exposed-output-sockets)
-			    (setf compiled-rack nil)
-			    (push (list
-				   :output-name output-name
-				   :output-socket output-socket
-				   :input-name input-name
-				   :input-socket input-socket)
-				  patches)))))
+			    (add-patch output-name output-socket input-name input-socket)))))
       	(setf this rack)
 	rack))))
 
