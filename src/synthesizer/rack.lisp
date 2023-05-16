@@ -369,7 +369,7 @@
        :format-control "Environment must not be nil"
        :format-arguments nil))
 
-  (let ((this nil)
+  (let ((this nil) ;; Property-List representation of the rack
 	(has-shut-down nil)
 	;; list of (:module module :name name)
 	(modules nil)
@@ -385,37 +385,82 @@
 	(rack-outputs nil)
 	(rack-inputs nil))
     
-    (labels ((update-rack-inputs ()
-	       (labels ((get-input-setter-fn (module-name socket)
-			  (getf (getf (funcall (getf (get-module this module-name) :inputs))
-				      socket) :set))
-			(get-input-getter-fn (module-name socket)
-			  (getf (getf (funcall (getf (get-module this module-name) :inputs))
-				      socket) :get)))
-	       (setf rack-inputs nil)
-	       (dolist (exposed-input-socket exposed-input-sockets)
-		 (push (list
-			:set (get-input-setter-fn
-			      (getf exposed-input-socket :module-name)
-			      (getf exposed-input-socket :module-socket))
-			:get (get-input-getter-fn
-			      (getf exposed-input-socket :module-name)
-			      (getf exposed-input-socket :module-socket)))
-		       rack-inputs)
-		 (push (getf exposed-input-socket :rack-socket) rack-inputs))))
-	     (update-rack-outputs ()
-	       (labels ((get-output-getter-fn (module-name socket)
-			  (getf (getf (funcall (getf (get-module this module-name) :outputs))
-				      socket) :get)))
-	       (let ((new-outputs nil))
-		 (dolist (exposed-output-socket exposed-output-sockets)
-		   (push
-		    (list :get (get-output-getter-fn
-				(getf exposed-output-socket :module-name)
-				(getf exposed-output-socket :module-socket)))
-		    new-outputs)
-		   (push (getf exposed-output-socket :rack-socket) new-outputs))
-		 (setf rack-outputs new-outputs)))))
+    (labels
+	;;
+	;;
+	;;
+	((update-rack-inputs ()
+	   (labels ((get-input-setter-fn (module-name socket)
+		      (getf (getf (funcall (getf (get-module this module-name) :inputs))
+				  socket) :set))
+		    (get-input-getter-fn (module-name socket)
+		      (getf (getf (funcall (getf (get-module this module-name) :inputs))
+				  socket) :get)))
+	     (setf rack-inputs nil)
+	     (dolist (exposed-input-socket exposed-input-sockets)
+	       (push (list
+		      :set (get-input-setter-fn
+			    (getf exposed-input-socket :module-name)
+			    (getf exposed-input-socket :module-socket))
+		      :get (get-input-getter-fn
+			    (getf exposed-input-socket :module-name)
+			    (getf exposed-input-socket :module-socket)))
+		     rack-inputs)
+	       (push (getf exposed-input-socket :rack-socket) rack-inputs))))
+
+	 ;;
+	 ;;
+	 ;;
+	 (update-rack-outputs ()
+	   (labels ((get-output-getter-fn (module-name socket)
+		      (getf (getf (funcall (getf (get-module this module-name) :outputs))
+				  socket) :get)))
+	     (let ((new-outputs nil))
+	       (dolist (exposed-output-socket exposed-output-sockets)
+		 (push
+		  (list :get (get-output-getter-fn
+			      (getf exposed-output-socket :module-name)
+			      (getf exposed-output-socket :module-socket)))
+		  new-outputs)
+		 (push (getf exposed-output-socket :rack-socket) new-outputs))
+	       (setf rack-outputs new-outputs))))
+
+	 ;;
+	 ;;
+	 ;;
+	 (update ()
+	   (if has-shut-down
+	       nil
+	       (progn
+		 (if (not compiled-rack)
+		     (setf
+		      compiled-rack
+		      (cl-synthesizer-rack-compiler:compile-rack this)))
+		 (funcall compiled-rack)
+		 t)))
+
+	 ;;
+	 ;;
+	 ;;
+	 (add-hook (hook)
+	   (setf compiled-rack nil)
+	   (push hook hooks))
+
+	 ;;
+	 ;;
+	 ;;
+	 (shutdown ()
+	   (if (not has-shut-down)
+	       (progn
+		 (setf has-shut-down t)
+		 (dolist (module modules)
+		   (let ((fn (getf (getf module :module) :shutdown)))
+		     (if fn (funcall fn))))
+		 (dolist (hook hooks)
+		   (let ((fn (getf hook :shutdown)))
+		     (if fn (funcall fn)))))))
+	 
+	 )
       (let ((rack
 	      (list
 	       :add-rack-input
@@ -454,15 +499,7 @@
 	       :patches (lambda() patches)
 	       :hooks (lambda () hooks)
 	       :update (lambda ()
-			 (if has-shut-down
-			     nil
-			     (progn
-			       (if (not compiled-rack)
-				   (setf
-				    compiled-rack
-				    (cl-synthesizer-rack-compiler:compile-rack this)))
-			       (funcall compiled-rack)
-			       t)))
+			 (update))
 	       :add-module (lambda (module-name module-fn &rest args)
 			     (assert-add-module this module-name)
 			     (let ((module (apply module-fn `(,module-name ,environment ,@args))))
@@ -471,16 +508,9 @@
 			       (push (list :module module :name module-name) modules)
 			       module))
 	       :add-hook (lambda (hook)
-			   (setf compiled-rack nil)
-			   (push hook hooks))
+			   (add-hook hook))
 	       :shutdown (lambda()
-			   (if (not has-shut-down)
-			       (progn
-				 (setf has-shut-down t)
-				 (dolist (module modules)
-				   (cl-synthesizer:shutdown (getf module :module)))
-				 (dolist (m hooks)
-				   (cl-synthesizer:shutdown m)))))
+			   (shutdown))
 	       :environment environment
 	       :is-rack t
 	       :add-patch (lambda (output-name output-socket input-name input-socket)
