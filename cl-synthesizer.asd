@@ -419,7 +419,8 @@
 			     (:file "test-update")
 			     (:file "test-nested-racks")
 			     (:file "test-find-module")
-			     (:file "test-expose-socket"))))
+			     (:file "test-expose-socket")
+			     (:file "test-hooks"))))
   :perform (test-op (o c) (symbol-call :lisp-unit '#:run-tests :all :cl-synthesizer-test)))
 
 
