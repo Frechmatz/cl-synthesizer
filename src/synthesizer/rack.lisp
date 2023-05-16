@@ -490,6 +490,13 @@
 		      :format-control "Getter of output socket ~a of module ~a is not a function"
 		      :format-arguments (list socket module-name)))))))
 	  
+	 (add-module (module-name module-fn &rest args)
+	   (assert-add-module module-name)
+	   (let ((module (apply module-fn `(,module-name ,environment ,@args))))
+	     (assert-module-structure module-name module)
+	     (setf compiled-rack nil)
+	     (push (list :module module :name module-name) modules)
+	     module))
 
 
 
@@ -511,23 +518,17 @@
 	       :inputs (lambda() rack-inputs)
 	       :patches (lambda() patches)
 	       :hooks (lambda () hooks)
-	       :update (lambda ()
-			 (update))
-	       :add-module (lambda (module-name module-fn &rest args)
-			     (assert-add-module module-name)
-			     (let ((module (apply module-fn `(,module-name ,environment ,@args))))
-			       (assert-module-structure module-name module)
-			       (setf compiled-rack nil)
-			       (push (list :module module :name module-name) modules)
-			       module))
-	       :add-hook (lambda (hook)
-			   (add-hook hook))
-	       :shutdown (lambda()
-			   (shutdown))
+	       :update (lambda () (update))
+	       :add-module
+	       (lambda (module-name module-fn &rest args)
+		 (apply #'add-module module-name module-fn args))
+	       :add-hook (lambda (hook) (add-hook hook))
+	       :shutdown (lambda() (shutdown))
 	       :environment environment
 	       :is-rack t
-	       :add-patch (lambda (output-name output-socket input-name input-socket)
-			    (add-patch output-name output-socket input-name input-socket)))))
+	       :add-patch
+	       (lambda (output-name output-socket input-name input-socket)
+		 (add-patch output-name output-socket input-name input-socket)))))
       	(setf this rack)
 	rack))))
 
