@@ -91,11 +91,7 @@
 	<li>module The module.</li>
     </ul></p>
    Returns the name or nil if the module does not belong to the rack"
-  (let ((match
-	    (find-if
-	     (lambda (cur-module) (eq module (getf cur-module :module)))
-	     (get-modules rack))))
-    (if match (getf match :name) nil)))
+  (funcall (getf rack :get-module-name) module))
 
 (defun get-module (rack name)
   "Get a module by its name. <p>The function has the following parameters:

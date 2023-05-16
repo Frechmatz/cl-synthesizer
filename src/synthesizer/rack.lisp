@@ -27,7 +27,7 @@
 	(has-shut-down nil)
 	;; list of (:module module :name name)
 	(modules nil)
-	;; List of lambda()
+	;; list of (:update <update-fn> :shutdown <shutdown-fn>)
 	(hooks nil)
 	;; list of (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
 	(patches nil)
@@ -40,7 +40,6 @@
 	(rack-inputs nil))
     
     (labels
-	
 	;;
 	;;
 	;;
@@ -50,7 +49,17 @@
 		    (lambda (m) (string= name (getf m :name)))
 		    modules)))
 	     (if module (getf module :module) nil)))
-	  
+
+	 ;;
+	 ;;
+	 ;;
+	 (get-module-name (module)
+	   (let ((match
+		     (find-if
+		      (lambda (cur-module) (eq module (getf cur-module :module)))
+		      modules)))
+	     (if match (getf match :name) nil)))
+	 
 	 ;;
 	 ;;
 	 ;;
@@ -103,7 +112,7 @@
 		      (cl-synthesizer-rack-compiler:compile-rack this)))
 		 (funcall compiled-rack)
 		 t)))
-
+	 
 	 ;;
 	 ;;
 	 ;;
@@ -489,46 +498,39 @@
 		      'assembly-error
 		      :format-control "Getter of output socket ~a of module ~a is not a function"
 		      :format-arguments (list socket module-name)))))))
-	  
+
+	 ;;
+	 ;;
+	 ;;
 	 (add-module (module-name module-fn &rest args)
 	   (assert-add-module module-name)
 	   (let ((module (apply module-fn `(,module-name ,environment ,@args))))
 	     (assert-module-structure module-name module)
 	     (setf compiled-rack nil)
 	     (push (list :module module :name module-name) modules)
-	     module))
-
-
-
-	 
-	 )
+	     module)))
       (let ((rack
 	      (list
-	       :get-module-by-name
-	       (lambda (name)
-		 (get-module-by-name name))
-	       :add-rack-input
-	       (lambda(rack-input-socket input-module-name input-socket)
-		 (add-rack-input rack-input-socket input-module-name input-socket))
-	       :add-rack-output
-	       (lambda(rack-output-socket output-module-name output-socket)
-		 (add-rack-output rack-output-socket output-module-name output-socket))
+	       :get-module-by-name (lambda (name) (get-module-by-name name))
+	       :get-module-name (lambda (module) (get-module-name module))
+	       :add-rack-input (lambda(rack-input-socket input-module-name input-socket)
+				 (add-rack-input rack-input-socket input-module-name input-socket))
+	       :add-rack-output (lambda(rack-output-socket output-module-name output-socket)
+				  (add-rack-output rack-output-socket output-module-name output-socket))
 	       :modules (lambda() modules)
 	       :outputs (lambda() rack-outputs)
 	       :inputs (lambda() rack-inputs)
 	       :patches (lambda() patches)
 	       :hooks (lambda () hooks)
 	       :update (lambda () (update))
-	       :add-module
-	       (lambda (module-name module-fn &rest args)
-		 (apply #'add-module module-name module-fn args))
+	       :add-module (lambda (module-name module-fn &rest args)
+			     (apply #'add-module module-name module-fn args))
 	       :add-hook (lambda (hook) (add-hook hook))
 	       :shutdown (lambda() (shutdown))
 	       :environment environment
 	       :is-rack t
-	       :add-patch
-	       (lambda (output-name output-socket input-name input-socket)
-		 (add-patch output-name output-socket input-name input-socket)))))
+	       :add-patch (lambda (output-name output-socket input-name input-socket)
+			    (add-patch output-name output-socket input-name input-socket)))))
       	(setf this rack)
 	rack))))
 
