@@ -104,11 +104,7 @@
       <li>name The name of the module.</li>
     </ul></p>
    Returns the module or nil."
-  (let ((module
-	 (find-if
-	  (lambda (m) (string= name (getf m :name)))
-	  (get-modules rack))))
-    (if module (getf module :module) nil)))
+  (funcall (getf rack :get-module-by-name) name))
 
 (defun get-environment (rack)
   "Returns the environment of the rack."
@@ -172,4 +168,43 @@
     <li>output-socket A keyword representing one of the outputs of the module.</li>
   </ul></p>"
   (funcall (getf rack :add-rack-output) rack-output-socket output-module-name output-socket))
+
+(defun find-module (rack module-path)
+  "Get a module of a rack. <p>The function has the following parameters:
+    <ul>
+      <li>rack The root rack.</li>
+      <li>module-path The path of the module within the rack (through multiple nested racks).</br>
+         Example 1: \"VCO\"</br> 
+         Example 2: '(\"VOICE-1\" \"VCO\")</li>
+    </ul></p>
+   Returns nil or a values object consisting of the rack of the module, the module name and the module itself."
+  (if (not (listp module-path))
+      (setf module-path (list module-path)))
+  (if (not module-path)
+      (values nil nil nil)
+      (let* ((module (get-module rack (first module-path))))
+	(if module
+	    (let ((module module))
+	      (if (< 1 (length module-path))
+		  (if (getf module :is-rack)
+		      (find-module module (rest module-path))
+		      (values nil nil nil))
+		  (values rack (first module-path) module)))
+	    (values nil nil nil)))))
+
+(defun play-rack (rack &key duration-seconds)
+  "A utility function that \"plays\" the rack by consecutively calling its update function
+    for a given number of \"ticks\". <p>The function has the following parameters:
+    <ul>
+	<li>rack The rack.</li>
+	<li>:duration-seconds Duration in seconds of how long to play the rack. If for
+	    example the duration is 2 seconds and the sample rate of the rack as declared
+	    by its environment is 44100, then the update function of the rack will be called 88200 times.</li>
+    </ul></p>"
+  (let ((sample-rate (floor (getf (get-environment rack) :sample-rate)))
+	(update-fn (getf rack :update)))
+    (dotimes (i (floor (* duration-seconds sample-rate)))
+      (funcall update-fn)))
+  (cl-synthesizer:shutdown rack)
+  "DONE")
 

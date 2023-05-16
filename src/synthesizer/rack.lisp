@@ -4,45 +4,6 @@
 ;; Rack
 ;;
 
-(defun find-module (rack module-path)
-  "Get a module of a rack. <p>The function has the following parameters:
-    <ul>
-      <li>rack The root rack.</li>
-      <li>module-path The path of the module within the rack (through multiple nested racks).</br>
-         Example 1: \"VCO\"</br> 
-         Example 2: '(\"VOICE-1\" \"VCO\")</li>
-    </ul></p>
-   Returns nil or a values object consisting of the rack of the module, the module name and the module itself."
-  (if (not (listp module-path))
-      (setf module-path (list module-path)))
-  (if (not module-path)
-      (values nil nil nil)
-      (let* ((module (get-module rack (first module-path))))
-	(if module
-	    (let ((module module))
-	      (if (< 1 (length module-path))
-		  (if (getf module :is-rack)
-		      (find-module module (rest module-path))
-		      (values nil nil nil))
-		  (values rack (first module-path) module)))
-	    (values nil nil nil)))))
-
-(defun play-rack (rack &key duration-seconds)
-  "A utility function that \"plays\" the rack by consecutively calling its update function
-    for a given number of \"ticks\". <p>The function has the following parameters:
-    <ul>
-	<li>rack The rack.</li>
-	<li>:duration-seconds Duration in seconds of how long to play the rack. If for
-	    example the duration is 2 seconds and the sample rate of the rack as declared
-	    by its environment is 44100, then the update function of the rack will be called 88200 times.</li>
-    </ul></p>"
-  (let ((sample-rate (floor (getf (get-environment rack) :sample-rate)))
-	(update-fn (getf rack :update)))
-    (dotimes (i (floor (* duration-seconds sample-rate)))
-      (funcall update-fn)))
-  (cl-synthesizer:shutdown rack)
-  "DONE")
-
 ;;
 ;; Validation functions
 ;;
@@ -170,88 +131,6 @@
 	 :format-control
 	 "Internal Error: Output socket ~a should be exposed by a module but is not. Outputs: ~a"
 	 :format-arguments (list socket outputs)))))
-
-(defun assert-add-patch (rack output-name output-socket input-name input-socket
-			 exposed-input-sockets exposed-output-sockets)
-  (labels ((is-module-input-exposed-as-input-socket (module-name socket)
-	     (find-if
-	      (lambda(entry)
-		(and
-		 (eq socket (getf entry :module-socket))
-		 (string= module-name (getf entry :module-name))))
-	      exposed-input-sockets))
-	   (is-module-output-exposed-as-output-socket (module-name socket)
-	     (find-if
-	      (lambda(entry)
-		(and
-		 (eq socket (getf entry :module-socket))
-		 (string= module-name (getf entry :module-name))))
-	      exposed-output-sockets)))
-    
-    (let ((source-module (get-module rack output-name))
-	  (destination-module (get-module rack input-name)))
-      (if (not source-module)
-	  (error
-	   'assembly-error
-	   :format-control "add-patch: Cannot find output module '~a'"
-	   :format-arguments (list output-name)))
-      (if (not destination-module)
-	  (error
-	   'assembly-error
-	   :format-control "add-patch: Cannot find input module '~a'"
-	   :format-arguments (list input-name)))
-      (if (not (find output-socket (funcall (getf source-module :outputs))))
-	  (error
-	   'assembly-error
-	   :format-control "add-patch: Module '~a' does not expose output socket '~a'"
-	   :format-arguments (list output-name output-socket)))
-      (if (not (find input-socket (funcall (getf destination-module :inputs))))
-	  (error
-	   'assembly-error
-	   :format-control "add-patch: Module '~a' does not expose input socket '~a'"
-	   :format-arguments (list input-name input-socket)))
-      (let ((p (find-if
-		(lambda (p)
-		  (and (string= input-name (getf p :input-name))
-		       (eq input-socket (getf p :input-socket))))
-		(cl-synthesizer:get-patches rack))))
-	(if p (error
-	       'assembly-error
-	       :format-control
-	       "add-patch: Input socket '~a' of module '~a' is already connected with output socket '~a' of module '~a'"
-	       :format-arguments (list
-				  input-socket
-				  input-name
-				  (getf p :output-name)
-				  (getf p :output-socket)))))
-      (let ((p (find-if
-		(lambda (p)
-		  (and (string= output-name (getf p :output-name))
-		       (eq output-socket (getf p :output-socket))))
-		(cl-synthesizer:get-patches rack))))
-	(if p (error
-	       'assembly-error
-	       :format-control
-	       "add-patch: Output socket '~a' of module '~a' is already connected with input socket '~a' of module '~a'"
-	       :format-arguments
-	       (list
-		output-socket
-		output-name
-		(getf p :input-socket)
-		(getf p :input-name)))))
-
-      (if (is-module-input-exposed-as-input-socket input-name input-socket)
-	  (error
-	   'assembly-error
-	   :format-control
-	   "add-patch: Module '~a' Input socket '~a' is exposed as rack input"
-	   :format-arguments (list input-name input-socket)))
-      (if (is-module-output-exposed-as-output-socket output-name output-socket)
-	  (error
-	   'assembly-error
-	   :format-control
-	   "add-patch: Module '~a' Output socket '~a' is exposed as rack output"
-	   :format-arguments (list input-name input-socket))))))
 
 (defun assert-add-module (rack module-name)
   (if (cl-synthesizer:get-module rack module-name)
@@ -386,15 +265,26 @@
 	(rack-inputs nil))
     
     (labels
+	
 	;;
 	;;
 	;;
-	((update-rack-inputs ()
+	((get-module-by-name (name)
+	   (let ((module
+		   (find-if
+		    (lambda (m) (string= name (getf m :name)))
+		    modules)))
+	     (if module (getf module :module) nil)))
+	  
+	 ;;
+	 ;;
+	 ;;
+	 (update-rack-inputs ()
 	   (labels ((get-input-setter-fn (module-name socket)
-		      (getf (getf (funcall (getf (get-module this module-name) :inputs))
+		      (getf (getf (funcall (getf (get-module-by-name module-name) :inputs))
 				  socket) :set))
 		    (get-input-getter-fn (module-name socket)
-		      (getf (getf (funcall (getf (get-module this module-name) :inputs))
+		      (getf (getf (funcall (getf (get-module-by-name module-name) :inputs))
 				  socket) :get)))
 	     (setf rack-inputs nil)
 	     (dolist (exposed-input-socket exposed-input-sockets)
@@ -413,7 +303,7 @@
 	 ;;
 	 (update-rack-outputs ()
 	   (labels ((get-output-getter-fn (module-name socket)
-		      (getf (getf (funcall (getf (get-module this module-name) :outputs))
+		      (getf (getf (funcall (getf (get-module-by-name module-name) :outputs))
 				  socket) :get)))
 	     (let ((new-outputs nil))
 	       (dolist (exposed-output-socket exposed-output-sockets)
@@ -460,9 +350,98 @@
 		   (let ((fn (getf hook :shutdown)))
 		     (if fn (funcall fn)))))))
 	 
+	 ;;
+	 ;;
+	 ;;
+	 (assert-add-patch (output-name output-socket input-name input-socket
+			    exposed-input-sockets exposed-output-sockets)
+	   (labels ((is-module-input-exposed-as-input-socket (module-name socket)
+		      (find-if
+		       (lambda(entry)
+			 (and
+			  (eq socket (getf entry :module-socket))
+			  (string= module-name (getf entry :module-name))))
+		       exposed-input-sockets))
+		    (is-module-output-exposed-as-output-socket (module-name socket)
+		      (find-if
+		       (lambda(entry)
+			 (and
+			  (eq socket (getf entry :module-socket))
+			  (string= module-name (getf entry :module-name))))
+		       exposed-output-sockets)))
+	     
+	     (let ((source-module (get-module-by-name output-name))
+		   (destination-module (get-module-by-name input-name)))
+	       (if (not source-module)
+		   (error
+		    'assembly-error
+		    :format-control "add-patch: Cannot find output module '~a'"
+		    :format-arguments (list output-name)))
+	       (if (not destination-module)
+		   (error
+		    'assembly-error
+		    :format-control "add-patch: Cannot find input module '~a'"
+		    :format-arguments (list input-name)))
+	       (if (not (find output-socket (funcall (getf source-module :outputs))))
+		   (error
+		    'assembly-error
+		    :format-control "add-patch: Module '~a' does not expose output socket '~a'"
+		    :format-arguments (list output-name output-socket)))
+	       (if (not (find input-socket (funcall (getf destination-module :inputs))))
+		   (error
+		    'assembly-error
+		    :format-control "add-patch: Module '~a' does not expose input socket '~a'"
+		    :format-arguments (list input-name input-socket)))
+	       (let ((p (find-if
+			 (lambda (p)
+			   (and (string= input-name (getf p :input-name))
+				(eq input-socket (getf p :input-socket))))
+			 patches)))
+		 (if p (error
+			'assembly-error
+			:format-control
+			"add-patch: Input socket '~a' of module '~a' is already connected with output socket '~a' of module '~a'"
+			:format-arguments (list
+					   input-socket
+					   input-name
+					   (getf p :output-name)
+					   (getf p :output-socket)))))
+	       (let ((p (find-if
+			 (lambda (p)
+			   (and (string= output-name (getf p :output-name))
+				(eq output-socket (getf p :output-socket))))
+			 patches)))
+		 (if p (error
+			'assembly-error
+			:format-control
+			"add-patch: Output socket '~a' of module '~a' is already connected with input socket '~a' of module '~a'"
+			:format-arguments
+			(list
+			 output-socket
+			 output-name
+			 (getf p :input-socket)
+			 (getf p :input-name)))))
+	       
+	       (if (is-module-input-exposed-as-input-socket input-name input-socket)
+		   (error
+		    'assembly-error
+		    :format-control
+		    "add-patch: Module '~a' Input socket '~a' is exposed as rack input"
+		    :format-arguments (list input-name input-socket)))
+	       (if (is-module-output-exposed-as-output-socket output-name output-socket)
+		   (error
+		    'assembly-error
+		    :format-control
+		    "add-patch: Module '~a' Output socket '~a' is exposed as rack output"
+		    :format-arguments (list input-name input-socket))))))
+	 
+	 
 	 )
       (let ((rack
 	      (list
+	       :get-module-by-name
+	       (lambda (name)
+		 (get-module-by-name name))
 	       :add-rack-input
 	       (lambda(rack-input-socket input-module-name input-socket)
 		 (assert-add-rack-input
@@ -515,7 +494,7 @@
 	       :is-rack t
 	       :add-patch (lambda (output-name output-socket input-name input-socket)
 			    (assert-add-patch
-			     this output-name output-socket
+			     output-name output-socket
 			     input-name input-socket
 			     exposed-input-sockets
 			     exposed-output-sockets)
