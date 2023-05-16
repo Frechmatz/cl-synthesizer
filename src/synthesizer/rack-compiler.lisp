@@ -4,66 +4,27 @@
 
 (in-package :cl-synthesizer-rack-compiler)
 
-;;
-;; Iterator macros
-;; Todos
-;; - Support of declare expressions analog to dolist. Does not work right now
-;;   due to required wrapping of body into a progn form
-;; - after that removal of do-module-input-patches-output-modules
-;;
 
-(defmacro do-module-input-patches (rack module input-socket output-module
-				   output-module-socket &body body)
-  (let ((patch (gensym))
-	(module-name (gensym))
-	(cur-input-socket (gensym))
-	(patches (gensym)))
-    `(let ((,module-name (cl-synthesizer:get-module-name ,rack ,module))
-	   (,patches (cl-synthesizer:get-patches ,rack)))
-       (cl-synthesizer-property-list-iterator:do-property-list-keys
-	   (funcall (getf ,module :inputs))
-	   ,cur-input-socket
-	 (let ((,patch
-		 (find-if
-		  (lambda (p)
-		    (and
-		     (string= (getf p :input-name) ,module-name)
-		     (eq (getf p :input-socket) ,cur-input-socket)))
-		  ,patches)))
-	   (if ,patch
-	       (let ((,output-module
-		       (cl-synthesizer:get-module ,rack (getf ,patch :output-name)))
-		     (,input-socket ,cur-input-socket)
-		     (,output-module-socket
-		       (getf ,patch :output-socket)))
-		 (progn ,@body))))))))
-
-(defmacro do-module-input-patches-output-modules (rack module
-						  output-module &body body)
-  (let ((patch (gensym))
-	(module-name (gensym))
-	(cur-input-socket (gensym))
-	(patches (gensym)))
-    `(let ((,module-name (cl-synthesizer:get-module-name ,rack ,module))
-	   (,patches (cl-synthesizer:get-patches ,rack)))
-       (cl-synthesizer-property-list-iterator:do-property-list-keys
-	   (funcall (getf ,module :inputs))
-	   ,cur-input-socket
-	 (let ((,patch
-		 (find-if
-		  (lambda (p)
-		    (and
-		     (string= (getf p :input-name) ,module-name)
-		     (eq (getf p :input-socket) ,cur-input-socket)))
-		  ,patches)))
-	   (if ,patch
-	       (let ((,output-module
-		       (cl-synthesizer:get-module ,rack (getf ,patch :output-name))))
-		 (progn ,@body))))))))
-
-;;
-;;
-;;
+(defun iterate-module-input-patches (rack module callback)
+  "cb: lambda (input-socket output-module output-module-socket)"
+  (let ((module-name (cl-synthesizer:get-module-name rack module))
+	(patches (cl-synthesizer:get-patches rack)))
+    (cl-synthesizer-property-list-iterator:do-property-list-keys
+	(funcall (getf module :inputs))
+	cur-input-socket
+      (let ((patch
+	      (find-if
+	       (lambda (p)
+		 (and
+		  (string= (getf p :input-name) module-name)
+		  (eq (getf p :input-socket) cur-input-socket)))
+	       patches)))
+	(if patch
+	    (let ((output-module
+		    (cl-synthesizer:get-module rack (getf patch :output-name)))
+		  (input-socket cur-input-socket)
+		  (output-module-socket (getf patch :output-socket)))
+	      (funcall callback input-socket output-module output-module-socket)))))))
 
 (defun get-module-trace (rack)
   "Get list of modules in execution order"
@@ -73,11 +34,12 @@
 	       (if (not (find module visited-modules :test #'eq))
 		   (progn
 		     (push module visited-modules)
-		     (do-module-input-patches-output-modules
-			 rack
-			 module
-			 output-module
-		       (traverse-module output-module))
+		     (iterate-module-input-patches
+		      rack
+		      module
+		      (lambda (input-socket output-module output-module-socket)
+			(declare (ignore input-socket output-module-socket))
+			(traverse-module output-module)))
 		     (push module module-trace)))))
       (dolist (module (cl-synthesizer:get-modules rack))
 	(traverse-module (getf module :module)))
@@ -91,17 +53,15 @@
 	(inputs (funcall (getf module :inputs)))
 	(module-update-fn (getf module :update)))
     ;; Push setters for all inputs
-    (do-module-input-patches
-	rack
-	module
-	cur-input-socket
-	output-module
-	output-socket
-      (let ((input-setter (getf (getf inputs cur-input-socket) :set)))
-	(let ((output-getter (make-get-output-lambda output-module output-socket)))
-	  (push (lambda()
-		  (funcall input-setter (funcall output-getter)))
-		input-setters))))
+    (iterate-module-input-patches
+     rack
+     module
+     (lambda (cur-input-socket output-module output-socket)
+       (let ((input-setter (getf (getf inputs cur-input-socket) :set)))
+	 (let ((output-getter (make-get-output-lambda output-module output-socket)))
+	   (push (lambda()
+		   (funcall input-setter (funcall output-getter)))
+		 input-setters)))))
     ;; The compiled update function
     (lambda ()
       ;; Set inputs
