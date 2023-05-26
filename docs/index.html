@@ -105,7 +105,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3891006280" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3894123209" type="audio/wav"></audio></p>
 <h2 id="Frequency modulated Saw">Frequency modulated Saw</h2><p><pre><code>(defpackage :cl-synthesizer-patches-frequency-modulated-saw
   (:use :cl)
   (:documentation &quot;Frequency modulated Saw&quot;))
@@ -139,7 +139,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3891006280" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3894123209" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated Saws">Two frequency modulated Saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-two-frequency-modulated-saws
   (:use :cl)
   (:documentation &quot;Two frequency modulated Saws&quot;))
@@ -181,7 +181,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3891006280" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3894123209" type="audio/wav"></audio></p>
 <h1 id="Change-Log">Change-Log</h1>
 <h2>Version 1.0.0</h2><p>Initial version. Not tagged.</p>
 <h2>Version 2.x</h2>Work in progress. Master branch.<ul><li>Removed bridge modules.</li><li>Added rack:add-rack-input.</li><li>Added rack:add-rack-output.</li><li>Added module input socket getters.</li></ul>
@@ -436,13 +436,16 @@ to set input values, to retrieve output values, to update the module, to shutdow
        <li>:module The module</li>
        <li>:name Name of the module</li>
     </ul></p>
-<h3 id="add-hook">add-hook</h3><b>cl-synthesizer:add-hook</b>&nbsp;(rack hook)<p>Adds a hook to the rack. A hook is called each time after the rack has updated its state.
-   <p>A hook consists a property list with the following keys:
+<h3 id="add-hook">add-hook</h3><b>cl-synthesizer:add-hook</b>&nbsp;(rack hook)<p>Adds a hook to a rack. <p>The function has the following parameters:
    <ul>
-      <li>:update A function with no parameters that is called after the rack has updated its state.</li>
-      <li>:shutdown A function with no parameters that is called when the rack is shutting down.</li>
+      <li>rack The rack.</li>
+      <li>hook The hook. A hook consists a property list with the following keys:
+         <ul>
+           <li>:updating An optional function with no parameters that is called before the rack is updated. This function can be used to set rack inputs.</li>
+           <li>:updated An optional function with no parameters that is called after the rack has been updated.</li>
+          <li>:shutdown An optional function with no parameters that is called when the rack is shutting down.</li></ul>
    </ul></p>
-   Hooks must not modify the rack.</p>
+   Hooks must not add/remove modules or patches.</p>
 <h3 id="get-hooks">get-hooks</h3><b>cl-synthesizer:get-hooks</b>&nbsp;(rack)<p>Returns the hooks of a rack.</p>
 <h3 id="play-rack">play-rack</h3><b>cl-synthesizer:play-rack</b>&nbsp;(rack &key duration-seconds)<p>A utility function that "plays" the rack by consecutively calling its update function
     for a given number of "ticks". <p>The function has the following parameters:
@@ -1727,4 +1730,4 @@ This agent sits between the monitor and its backend. The agent instantiates the 
 <h1 id="Generate documentation">Generate documentation</h1>Depends on :cl-html-readme and :docparser which are available via Quicklisp.<p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2023-04-20  21:04:40</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-05-26  22:53:29</small></p></footer></body></html>

@@ -72,12 +72,25 @@
 
 (defun compile-rack (rack)
   "Compile a rack."
-  (let ((lambdas (mapcar (lambda (module) (compile-module rack module)) (get-module-trace rack))))
+  (let ((module-updates
+	  (mapcar
+	   (lambda (module) (compile-module rack module))
+	   (get-module-trace rack)))
+	(rack-updated-hooks nil)
+	(rack-updating-hooks nil))
+    (dolist (hook (funcall (getf rack :hooks)))
+      (let ((updated (getf hook :updated))
+	    (updating (getf hook :updating)))
+	(if updating (push updating rack-updating-hooks))
+	(if updated (push updated rack-updated-hooks))))
     (lambda ()
+      ;; Call hooks
+      (dolist (fn rack-updating-hooks)
+	(funcall fn))
       ;; Update modules
-      (dolist (fn lambdas)
+      (dolist (fn module-updates)
 	(funcall fn))
       ;; Call hooks
-      (dolist (h (cl-synthesizer:get-hooks rack))
-	(cl-synthesizer:update h)))))
+      (dolist (fn rack-updated-hooks)
+	(funcall fn)))))
 

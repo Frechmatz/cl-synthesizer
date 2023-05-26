@@ -111,13 +111,16 @@
   (funcall (getf rack :hooks)))
 
 (defun add-hook (rack hook)
-  "Adds a hook to the rack. A hook is called each time after the rack has updated its state.
-   <p>A hook consists a property list with the following keys:
+  "Adds a hook to a rack. <p>The function has the following parameters:
    <ul>
-      <li>:update A function with no parameters that is called after the rack has updated its state.</li>
-      <li>:shutdown A function with no parameters that is called when the rack is shutting down.</li>
+      <li>rack The rack.</li>
+      <li>hook The hook. A hook consists a property list with the following keys:
+         <ul>
+           <li>:updating An optional function with no parameters that is called before the rack is updated. This function can be used to set rack inputs.</li>
+           <li>:updated An optional function with no parameters that is called after the rack has been updated.</li>
+          <li>:shutdown An optional function with no parameters that is called when the rack is shutting down.</li></ul>
    </ul></p>
-   Hooks must not modify the rack."
+   Hooks must not add/remove modules or patches."
   (funcall (getf rack :add-hook) hook))
 
 (defun add-patch (rack output-module-name output-socket input-module-name input-socket)

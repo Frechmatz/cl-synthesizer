@@ -49,7 +49,6 @@
 		    (lambda (m) (string= name (getf m :name)))
 		    modules)))
 	     (if module (getf module :module) nil)))
-
 	 ;;
 	 ;;
 	 ;;
@@ -59,7 +58,6 @@
 		      (lambda (cur-module) (eq module (getf cur-module :module)))
 		      modules)))
 	     (if match (getf match :name) nil)))
-	 
 	 ;;
 	 ;;
 	 ;;
@@ -81,7 +79,6 @@
 			    (getf exposed-input-socket :module-socket)))
 		     rack-inputs)
 	       (push (getf exposed-input-socket :rack-socket) rack-inputs))))
-
 	 ;;
 	 ;;
 	 ;;
@@ -98,7 +95,6 @@
 		  new-outputs)
 		 (push (getf exposed-output-socket :rack-socket) new-outputs))
 	       (setf rack-outputs new-outputs))))
-
 	 ;;
 	 ;;
 	 ;;
@@ -112,14 +108,30 @@
 		      (cl-synthesizer-rack-compiler:compile-rack this)))
 		 (funcall compiled-rack)
 		 t)))
-	 
+	 ;;
+	 ;;
+	 ;;
+	 (assert-plistp (plist format-control format-arguments)
+	   (if (or (not (listp plist)) (not (evenp (length plist))))
+	       (error
+		'assembly-error
+		:format-control format-control
+		:format-arguments format-arguments))
+	   (cl-synthesizer-property-list-iterator:do-property-list-keys
+	       plist
+	       keyword
+	     (if (not (keywordp keyword))
+		 (error
+		  'assembly-error
+		  :format-control format-control
+		  :format-arguments format-arguments))))
 	 ;;
 	 ;;
 	 ;;
 	 (add-hook (hook)
+	   (assert-plistp hook "Hook is not a property list: ~a" (list hook))
 	   (setf compiled-rack nil)
 	   (push hook hooks))
-
 	 ;;
 	 ;;
 	 ;;
@@ -133,7 +145,6 @@
 		 (dolist (hook hooks)
 		   (let ((fn (getf hook :shutdown)))
 		     (if fn (funcall fn)))))))
-	 
 	 ;;
 	 ;;
 	 ;;
@@ -218,7 +229,6 @@
 		    :format-control
 		    "add-patch: Module '~a' Output socket '~a' is exposed as rack output"
 		    :format-arguments (list input-name input-socket))))))
-
 	 ;;
 	 ;;
 	 ;;
@@ -235,7 +245,6 @@
 		  :input-name input-name
 		  :input-socket input-socket)
 		 patches))
-
 	 ;;
 	 ;;
 	 ;;
@@ -246,7 +255,6 @@
 		:format-control
 		"Internal Error: Input socket ~a should be exposed by a module but is not. Inputs: ~a"
 		:format-arguments (list socket rack-inputs))))
-
 	 ;;
 	 ;;
 	 ;;
@@ -257,7 +265,6 @@
 		:format-control
 		"Internal Error: Output socket ~a should be exposed by a module but is not. Outputs: ~a"
 		:format-arguments (list socket rack-outputs))))
-
 	 ;;
 	 ;;
 	 ;;
@@ -301,7 +308,6 @@
 		    :format-control
 		    "add-rack-input: Module '~a' Input Socket '~a' already patched"
 		    :format-arguments (list input-module-name input-socket))))))
-
 	 ;;
 	 ;;
 	 ;;
@@ -355,7 +361,6 @@
 		:format-control
 		"add-module: A module with name '~a' has already been added to the rack"
 		:format-arguments (list module-name))))
-
 	 ;;
 	 ;;
 	 ;;
@@ -372,7 +377,6 @@
 		 exposed-output-sockets)
 	   (update-rack-outputs)
 	   (assert-output-socket-p rack-output-socket))
-	 
 	 ;;
 	 ;;
 	 ;;
@@ -389,116 +393,99 @@
 		 exposed-input-sockets)
 	   (update-rack-inputs)
 	   (assert-input-socket-p rack-input-socket))
-	 
 	 ;;
 	 ;;
 	 ;;
 	 (assert-module-structure (module-name module)
-	   (labels ((assert-plistp (plist format-control format-arguments)
-		      (if (or (not (listp plist)) (not (evenp (length plist))))
-			  (error
-			   'assembly-error
-			   :format-control format-control
-			   :format-arguments format-arguments))
-		      (cl-synthesizer-property-list-iterator:do-property-list-keys
-			  plist
-			  keyword
-			(if (not (keywordp keyword))
-			    (error
-			     'assembly-error
-			     :format-control format-control
-			     :format-arguments format-arguments)))))
-	     (assert-plistp module "Module ~a is not a property list: ~a" (list module-name module))
-
-	     ;; Check module update function
-	     (if (not (functionp (getf module :update)))
-		 (error
-		  'assembly-error
-		  :format-control "Invalid module '~a': Property :update must be a function"
-		  :format-arguments (list module-name)))
-	     ;;
-	     ;; Check module inputs
-	     ;;
-	     (if (not (functionp (getf module :inputs)))
-		 (error
-		  'assembly-error
-		  :format-control "Invalid module '~a': Property :inputs must be a function"
-		  :format-arguments (list module-name)))
-	     (let ((inputs (funcall (getf module :inputs))))
-	       ;; check that the inputs are represented by a property list
+	   (assert-plistp module "Module ~a is not a property list: ~a" (list module-name module))
+	   ;; Check module update function
+	   (if (not (functionp (getf module :update)))
+	       (error
+		'assembly-error
+		:format-control "Invalid module '~a': Property :update must be a function"
+		:format-arguments (list module-name)))
+	   ;;
+	   ;; Check module inputs
+	   ;;
+	   (if (not (functionp (getf module :inputs)))
+	       (error
+		'assembly-error
+		:format-control "Invalid module '~a': Property :inputs must be a function"
+		:format-arguments (list module-name)))
+	   (let ((inputs (funcall (getf module :inputs))))
+	     ;; check that the inputs are represented by a property list
+	     (assert-plistp
+	      inputs
+	      "Inputs of module ~a are not a property list: ~a"
+	      (list module-name inputs))
+	     ;; check all inputs
+	     (cl-synthesizer-property-list-iterator:do-property-list
+		 inputs
+		 socket
+		 socket-properties
 	       (assert-plistp
-		inputs
-		"Inputs of module ~a are not a property list: ~a"
-		(list module-name inputs))
-	       ;; check all inputs
-	       (cl-synthesizer-property-list-iterator:do-property-list
-		   inputs
-		   socket
-		   socket-properties
-		 (assert-plistp
-		  socket-properties
-		  "Socket properties of module ~a input socket ~a are not a property list: ~a"
-		  (list module-name socket socket-properties))
-		 ;; check presence of setter
-		 (if (not (getf socket-properties :set))
-		     (error
-		      'assembly-error
-		      :format-control "Input socket ~a of module ~a does not have a 'set' function"
-		      :format-arguments (list socket module-name)))
-		 ;; check if setter is a function
-		 (if (not (functionp (getf socket-properties :set)))
-		     (error
-		      'assembly-error
-		      :format-control "Setter of input socket ~a of module ~a is not a function"
-		      :format-arguments (list socket module-name)))
-		 ;; check presence of getter
-		 (if (not (getf socket-properties :get))
-		     (error
-		      'assembly-error
-		      :format-control "Input socket ~a of module ~a does not have a 'get' function"
-		      :format-arguments (list socket module-name)))
-		 ;; check if getter is a function
-		 (if (not (functionp (getf socket-properties :get)))
-		     (error
-		      'assembly-error
-		      :format-control "Getter of input socket ~a of module ~a is not a function"
-		      :format-arguments (list socket module-name)))))
-	     ;;
-	     ;; Check module outputs
-	     ;;
-	     (if (not (functionp (getf module :outputs)))
-		 (error
-		  'assembly-error
-		  :format-control "Invalid module '~a': Property :outputs must be a function"
-		  :format-arguments (list module-name)))
-	     (let ((outputs (funcall (getf module :outputs))))
-	       ;; check that the outputs are represented by a property list
+		socket-properties
+		"Socket properties of module ~a input socket ~a are not a property list: ~a"
+		(list module-name socket socket-properties))
+	       ;; check presence of setter
+	       (if (not (getf socket-properties :set))
+		   (error
+		    'assembly-error
+		    :format-control "Input socket ~a of module ~a does not have a 'set' function"
+		    :format-arguments (list socket module-name)))
+	       ;; check if setter is a function
+	       (if (not (functionp (getf socket-properties :set)))
+		   (error
+		    'assembly-error
+		    :format-control "Setter of input socket ~a of module ~a is not a function"
+		    :format-arguments (list socket module-name)))
+	       ;; check presence of getter
+	       (if (not (getf socket-properties :get))
+		   (error
+		    'assembly-error
+		    :format-control "Input socket ~a of module ~a does not have a 'get' function"
+		    :format-arguments (list socket module-name)))
+	       ;; check if getter is a function
+	       (if (not (functionp (getf socket-properties :get)))
+		   (error
+		    'assembly-error
+		    :format-control "Getter of input socket ~a of module ~a is not a function"
+		    :format-arguments (list socket module-name)))))
+	   ;;
+	   ;; Check module outputs
+	   ;;
+	   (if (not (functionp (getf module :outputs)))
+	       (error
+		'assembly-error
+		:format-control "Invalid module '~a': Property :outputs must be a function"
+		:format-arguments (list module-name)))
+	   (let ((outputs (funcall (getf module :outputs))))
+	     ;; check that the outputs are represented by a property list
+	     (assert-plistp
+	      outputs
+	      "Outputs of module ~a are not a property list: ~a"
+	      (list module-name outputs))
+	     ;; check all outputs
+	     (cl-synthesizer-property-list-iterator:do-property-list
+		 outputs
+		 socket
+		 socket-properties
 	       (assert-plistp
-		outputs
-		"Outputs of module ~a are not a property list: ~a"
-		(list module-name outputs))
-	       ;; check all outputs
-	       (cl-synthesizer-property-list-iterator:do-property-list
-		   outputs
-		   socket
-		   socket-properties
-		 (assert-plistp
-		  socket-properties
-		  "Socket properties of module ~a output socket ~a are not a property list: ~a"
-		  (list module-name socket socket-properties))
-		 ;; check presence of getter
-		 (if (not (getf socket-properties :get))
-		     (error
-		      'assembly-error
-		      :format-control "Output socket ~a of module ~a does not have a 'get' function"
-		      :format-arguments (list socket module-name)))
-		 ;; check if getter is a function
-		 (if (not (functionp (getf socket-properties :get)))
-		     (error
-		      'assembly-error
-		      :format-control "Getter of output socket ~a of module ~a is not a function"
-		      :format-arguments (list socket module-name)))))))
-
+		socket-properties
+		"Socket properties of module ~a output socket ~a are not a property list: ~a"
+		(list module-name socket socket-properties))
+	       ;; check presence of getter
+	       (if (not (getf socket-properties :get))
+		   (error
+		    'assembly-error
+		    :format-control "Output socket ~a of module ~a does not have a 'get' function"
+		    :format-arguments (list socket module-name)))
+	       ;; check if getter is a function
+	       (if (not (functionp (getf socket-properties :get)))
+		   (error
+		    'assembly-error
+		    :format-control "Getter of output socket ~a of module ~a is not a function"
+		    :format-arguments (list socket module-name))))))
 	 ;;
 	 ;;
 	 ;;

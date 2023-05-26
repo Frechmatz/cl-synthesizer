@@ -227,4 +227,4 @@
 	 (list 
 	  :shutdown (lambda ()
 		      (cl-synthesizer:shutdown backend))
-	  :update compiled-backend-update))))))
+	  :updated compiled-backend-update))))))
