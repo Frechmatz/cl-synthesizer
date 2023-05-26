@@ -105,7 +105,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3894123209" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3894127605" type="audio/wav"></audio></p>
 <h2 id="Frequency modulated Saw">Frequency modulated Saw</h2><p><pre><code>(defpackage :cl-synthesizer-patches-frequency-modulated-saw
   (:use :cl)
   (:documentation &quot;Frequency modulated Saw&quot;))
@@ -139,7 +139,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3894123209" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3894127605" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated Saws">Two frequency modulated Saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-two-frequency-modulated-saws
   (:use :cl)
   (:documentation &quot;Two frequency modulated Saws&quot;))
@@ -181,7 +181,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3894123209" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3894127605" type="audio/wav"></audio></p>
 <h1 id="Change-Log">Change-Log</h1>
 <h2>Version 1.0.0</h2><p>Initial version. Not tagged.</p>
 <h2>Version 2.x</h2>Work in progress. Master branch.<ul><li>Removed bridge modules.</li><li>Added rack:add-rack-input.</li><li>Added rack:add-rack-output.</li><li>Added module input socket getters.</li></ul>
@@ -191,14 +191,13 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 Modules do have a name, inputs, outputs and a shutdown function. The inputs/outputs are represented by keywords and are so called sockets. The shutdown function can be used to release resources 
 that have been allocated by the module.</p>
 <p>Beside the input/output sockets a module can also expose "state sockets".
-State sockets represent internal states of the module. These sockets are not accessible when connecting modules with each other. Their purpose is 
-to support debugging/analyzation of a module. Monitors can be used to write states for example into a CSV file.</p>
+State sockets represent internal states of the module. These sockets are not accessible when connecting modules with each other. Their purpose is to support debugging/analyzation of a module, for example by writing certain states to a CSV file.</p>
 <p>A module is represented by a property list. This list provides functions such as to get the input sockets, to get the output sockets, to get the state sockets, 
 to set input values, to retrieve output values, to update the module, to shutdown the module and so on.</p>
 <p>A module must provide a factory/instantiation function. The typical name of this function is "make-module". When a module is added to the synthesizer then not the 
     readily instantiated module is passed, but its factory function. This function is called by the synthesizer. The synthesizer passes the module name, 
     the environment and any arbitrary initialization parameters to it.</p>
-<p>For each input/output socket that a module exposes, it must provide a corresponding setter/getter function. When processing an update, the synthesizer sets the inputs of the module via successive calls to the input setters. An input setter must not change the current output state of the module. When all inputs have been set, the synthesizer calls the update function of the module, which has no parameters. The update function must update the states of the output sockets by using the previously set input values.</p>
+<p>For each input/output socket that a module exposes, it must provide a corresponding setter/getter function. When processing an update, the synthesizer sets the inputs of the module via successive calls to the input setters. An input setter must not change the current outputs of the module. When all inputs have been set, the synthesizer calls the update function of the module, which has no parameters. The update function sets the module-outputs according to the previously set inputs.</p>
 <h3 id="Example: A module">Example: A module</h3><p><pre><code>(defpackage :cl-synthesizer-example-1-adder-2
   (:use :cl)
   (:export :make-module))
@@ -511,7 +510,7 @@ to set input values, to retrieve output values, to update the module, to shutdow
 (in-package :cl-synthesizer-modules-vco-example-1)
 
 (defun example ()
-  &quot;Write all wave forms into a Wave and a Csv file&quot;
+  &quot;Write all wave forms to a Wave and a CSV file&quot;
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module
      rack
@@ -601,7 +600,7 @@ to set input values, to retrieve output values, to update the module, to shutdow
     (cl-synthesizer:add-patch rack &quot;VCO-AUDIO&quot; :sine &quot;VCA&quot; :input)
     (cl-synthesizer:add-patch rack &quot;LFO-CV&quot; :triangle &quot;VCA&quot; :cv)
 
-    ;; Write VCA inputs/outputs into a CSV file
+    ;; Write VCA inputs/outputs to a CSV file
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-csv-file-agent:make-backend
@@ -1571,7 +1570,7 @@ This agent sits between the monitor and its backend. The agent instantiates the 
     (cl-synthesizer:add-patch rack &quot;MIDI-IFC&quot; :cv-1 &quot;VCO&quot; :cv-exp)
     (cl-synthesizer:add-patch rack &quot;MIDI-IFC&quot; :gate-1 &quot;ADSR&quot; :gate)
 
-    ;; Record VCA output into a wave file
+    ;; Write VCA output to a wave file
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-file-agent:make-backend
@@ -1723,11 +1722,11 @@ This agent sits between the monitor and its backend. The agent instantiates the 
    because for example a module name is not unique, a module is malformed, a patch is added for
    a non-existing module, a patch is added to an already patched socket and so on.</p>
 <h1 id="Run tests">Run tests</h1><pre><code>(asdf:test-system :cl-synthesizer)</code></pre>
-<h1 id="Run examples">Run examples</h1>Run all examples of cl-synthesizer. Generated files are written into <code>~/cl-synthesizer-examples/</code><p><pre><code>(asdf:load-system :cl-synthesizer/examples)
+<h1 id="Run examples">Run examples</h1>Run all examples of cl-synthesizer. Generated files are written to <code>~/cl-synthesizer-examples/</code><p><pre><code>(asdf:load-system :cl-synthesizer/examples)
 (cl-synthesizer-examples::run-examples)</code></pre></p>
-<h1 id="Run profiler">Run profiler</h1>Run the profiling suite. Generated files files are written into <code>~/cl-synthesizer-profiler/</code><p><pre><code>(asdf:load-system :cl-synthesizer/profiling)
+<h1 id="Run profiler">Run profiler</h1>Run the profiling suite. Generated files files are written to <code>~/cl-synthesizer-profiler/</code><p><pre><code>(asdf:load-system :cl-synthesizer/profiling)
 (cl-synthesizer-profiling::run-all)</code></pre></p>
 <h1 id="Generate documentation">Generate documentation</h1>Depends on :cl-html-readme and :docparser which are available via Quicklisp.<p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2023-05-26  22:53:29</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-05-27  00:06:45</small></p></footer></body></html>

@@ -71,7 +71,7 @@
     (cl-synthesizer:add-patch rack "MIDI-IFC" :cv-1 "VCO" :cv-exp)
     (cl-synthesizer:add-patch rack "MIDI-IFC" :gate-1 "ADSR" :gate)
 
-    ;; Record VCA output into a wave file
+    ;; Write VCA output to a wave file
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-wave-file-agent:make-backend

@@ -4,7 +4,7 @@
 (in-package :cl-synthesizer-modules-vco-example-1)
 
 (defun example ()
-  "Write all wave forms into a Wave and a Csv file"
+  "Write all wave forms to a Wave and a CSV file"
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
     (cl-synthesizer:add-module
      rack

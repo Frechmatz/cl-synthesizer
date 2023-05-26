@@ -185,7 +185,7 @@
 		  (cl-synthesizer:play-rack rack :duration-seconds duration-seconds))
 		(format
 		 nil
-		 "Updating CSV-Writer for ~a seconds with sample-rate ~a into file ~a"
+		 "Updating CSV-Writer for ~a seconds with sample-rate ~a to file ~a"
 		 duration-seconds sample-rate filename)))))
    (list
     :id :wave-writer :name "Wave-Writer"
@@ -198,7 +198,7 @@
 		  (cl-synthesizer:play-rack rack :duration-seconds duration-seconds))
 		(format
 		 nil
-		 "Updating Wave-Writer for ~a seconds with sample-rate ~a into file ~a"
+		 "Updating Wave-Writer for ~a seconds with sample-rate ~a to file ~a"
 		 duration-seconds sample-rate filename)))))
 
    (list

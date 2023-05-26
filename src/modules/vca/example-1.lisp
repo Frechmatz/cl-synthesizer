@@ -32,7 +32,7 @@
     (cl-synthesizer:add-patch rack "VCO-AUDIO" :sine "VCA" :input)
     (cl-synthesizer:add-patch rack "LFO-CV" :triangle "VCA" :cv)
 
-    ;; Write VCA inputs/outputs into a CSV file
+    ;; Write VCA inputs/outputs to a CSV file
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-csv-file-agent:make-backend
