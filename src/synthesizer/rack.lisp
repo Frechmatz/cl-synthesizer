@@ -74,7 +74,7 @@
 	((get-module-by-name (name)
 	   (let ((module
 		   (find-if
-		    (lambda (m) (string= name (getf m :name)))
+		    (lambda (m) (string= name (funcall (getf (getf m :module) *module-get-name*))))
 		    modules)))
 	     (if module (getf module :module) nil)))
 	 ;;
