@@ -11,19 +11,11 @@
     (if fn (funcall fn))))
 
 (defun get-modules (rack)
-  "Returns all modules of a rack. <p>The function has the following parameters:
-    <ul>
-	<li>rack The rack.</li>
-    </ul></p>
-    Returns the modules of the given rack"
+  "Returns the modules of a rack."
   (funcall (getf rack :modules)))
 
 (defun get-patches (rack)
-  "Returns all patches of a rack. <p>The function has the following parameters:
-    <ul>
-	<li>rack The rack.</li>
-    </ul></p>
-   Returns a list of property lists with the following keys:
+  "Returns a list of the patches of a rack. Each patch is represented by a property list with the following keys:
    <ul>
      <li>:output-name Name of the output module.</li>
      <li>:output-socket Output socket. </li>
