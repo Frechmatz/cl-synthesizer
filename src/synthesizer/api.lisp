@@ -73,11 +73,11 @@
 
 (defun get-module-name (module)
   "Returns the name of a module."
-  (funcall (getf module cl-synthesizer::*module-get-name*)))
+  (funcall (getf module :cl-synthesizer-module-get-name)))
 
 (defun get-module-rack (module)
   "Returns the rack to which a module belongs."
-  (funcall (getf module cl-synthesizer::*module-get-rack*)))
+  (funcall (getf module :cl-synthesizer-module-get-rack)))
 
 (defun get-module (rack name)
   "Get a module by its name. <p>The function has the following parameters:
