@@ -7,7 +7,7 @@
 
 (defun iterate-module-input-patches (rack module callback)
   "cb: lambda (input-socket output-module output-module-socket)"
-  (let ((module-name (cl-synthesizer:get-module-name rack module))
+  (let ((module-name (cl-synthesizer:get-module-name module))
 	(patches (cl-synthesizer:get-patches rack)))
     (cl-synthesizer-property-list-iterator:do-property-list-keys
 	(funcall (getf module :inputs))

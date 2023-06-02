@@ -84,14 +84,13 @@
     Returns the module."
   (apply (getf rack :add-module) module-name module-fn args))
 
-(defun get-module-name (rack module)
-  "Returns the name of a module. <p>The function has the following parameters:
-    <ul>
-	<li>rack The rack.</li>
-	<li>module The module.</li>
-    </ul></p>
-   Returns the name or nil if the module does not belong to the rack"
-  (funcall (getf rack :get-module-name) module))
+(defun get-module-name (module)
+  "Returns the name of a module."
+  (funcall (getf module cl-synthesizer::*module-get-name*)))
+
+(defun get-module-rack (module)
+  "Returns the rack to which a module belongs."
+  (funcall (getf module cl-synthesizer::*module-get-rack*)))
 
 (defun get-module (rack name)
   "Get a module by its name. <p>The function has the following parameters:

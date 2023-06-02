@@ -19,8 +19,8 @@
       (assert-eq m1 found-module-1)
       (assert-true found-module-2)
       (assert-eq m2 found-module-2)
-      (assert-equal "Module 1" (cl-synthesizer:get-module-name rack found-module-1))
-      (assert-equal "Module 2" (cl-synthesizer:get-module-name rack found-module-2))))))
+      (assert-equal "Module 1" (cl-synthesizer:get-module-name found-module-1))
+      (assert-equal "Module 2" (cl-synthesizer:get-module-name found-module-2))))))
 
 (define-test test-add-module-to-rack-already-exists ()
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
@@ -32,4 +32,4 @@
 	  (found-module-2 (cl-synthesizer:get-module rack "Module 2")))
       (assert-true found-module-1)
       (assert-false found-module-2)
-      (assert-equal "Module 1" (cl-synthesizer:get-module-name rack found-module-1)))))
+      (assert-equal "Module 1" (cl-synthesizer:get-module-name found-module-1)))))

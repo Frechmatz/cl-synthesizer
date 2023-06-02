@@ -1,5 +1,33 @@
 (in-package :cl-synthesizer)
 
+
+;;
+;; Module
+;;
+
+(defparameter *module-get-name* :cl-synthesizer-module-get-name)
+(defparameter *module-get-rack* :cl-synthesizer-module-get-rack)
+(defparameter *module-reserved-keys*
+  (list *module-get-name* *module-get-rack*))
+
+(defun make-enriched-module (module rack module-name)
+  ;; Verify that module does not use reserved properties
+  (dolist (keyword *module-reserved-keys*)
+    (if (find keyword module)
+	(error
+	 'assembly-error
+	 :format-control "Invalid module '~a': Property '~a' is a reserved for internal use"
+	 :format-arguments (list module-name keyword))))
+  (let ((enriched-module
+	  (concatenate
+	   'list 
+	   (copy-list module)
+	   (list
+	    *module-get-name* (lambda() module-name)
+	    *module-get-rack* (lambda() rack)))))
+    enriched-module))
+
+
 ;;
 ;; Rack
 ;;
@@ -49,15 +77,6 @@
 		    (lambda (m) (string= name (getf m :name)))
 		    modules)))
 	     (if module (getf module :module) nil)))
-	 ;;
-	 ;;
-	 ;;
-	 (get-module-name (module)
-	   (let ((match
-		     (find-if
-		      (lambda (cur-module) (eq module (getf cur-module :module)))
-		      modules)))
-	     (if match (getf match :name) nil)))
 	 ;;
 	 ;;
 	 ;;
@@ -493,13 +512,13 @@
 	   (assert-add-module module-name)
 	   (let ((module (apply module-fn `(,module-name ,environment ,@args))))
 	     (assert-module-structure module-name module)
+	     (setf module (make-enriched-module module this module-name))
 	     (setf compiled-rack nil)
 	     (push (list :module module :name module-name) modules)
 	     module)))
       (let ((rack
 	      (list
 	       :get-module-by-name (lambda (name) (get-module-by-name name))
-	       :get-module-name (lambda (module) (get-module-name module))
 	       :add-rack-input (lambda(rack-input-socket input-module-name input-socket)
 				 (add-rack-input rack-input-socket input-module-name input-socket))
 	       :add-rack-output (lambda(rack-output-socket output-module-name output-socket)

@@ -2,7 +2,7 @@
 
 
 (defun get-module-input-patch(rack module input-socket)
-  (let* ((name (cl-synthesizer:get-module-name rack module))
+  (let* ((name (cl-synthesizer:get-module-name module))
 	 (patch (find-if
 		 (lambda (p)
 		   (and (string= name (getf p :input-name))
@@ -11,7 +11,7 @@
 	 patch))
 
 (defun get-module-output-patch (rack module output-socket)
-  (let* ((name (cl-synthesizer:get-module-name rack module))
+  (let* ((name (cl-synthesizer:get-module-name module))
 	 (patch (find-if
 		 (lambda (p)
 		   (and (string= name (getf p :output-name))

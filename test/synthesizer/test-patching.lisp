@@ -10,8 +10,8 @@
 	  (found-module-2 (cl-synthesizer:get-module rack "Module 2")))
       (assert-true found-module-1)
       (assert-true found-module-2)
-      (assert-equal "Module 1" (cl-synthesizer:get-module-name rack found-module-1))
-      (assert-equal "Module 2" (cl-synthesizer:get-module-name rack  found-module-2)))
+      (assert-equal "Module 1" (cl-synthesizer:get-module-name found-module-1))
+      (assert-equal "Module 2" (cl-synthesizer:get-module-name found-module-2)))
     rack))
 
 (define-test test-simple-patch ()
