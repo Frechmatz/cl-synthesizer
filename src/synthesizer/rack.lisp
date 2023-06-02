@@ -53,7 +53,7 @@
 
   (let ((this nil) ;; Property-List representation of the rack
 	(has-shut-down nil)
-	;; list of (:module module :name name)
+	;; list of modules
 	(modules nil)
 	;; list of (:update <update-fn> :shutdown <shutdown-fn>)
 	(hooks nil)
@@ -72,11 +72,9 @@
 	;;
 	;;
 	((get-module-by-name (name)
-	   (let ((module
-		   (find-if
-		    (lambda (m) (string= name (funcall (getf (getf m :module) *module-get-name*))))
-		    modules)))
-	     (if module (getf module :module) nil)))
+	   (find-if
+	    (lambda (m) (string= name (funcall (getf m *module-get-name*))))
+	    modules))
 	 ;;
 	 ;;
 	 ;;
@@ -159,7 +157,7 @@
 	       (progn
 		 (setf has-shut-down t)
 		 (dolist (module modules)
-		   (let ((fn (getf (getf module :module) :shutdown)))
+		   (let ((fn (getf module :shutdown)))
 		     (if fn (funcall fn))))
 		 (dolist (hook hooks)
 		   (let ((fn (getf hook :shutdown)))
@@ -514,7 +512,7 @@
 	     (assert-module-structure module-name module)
 	     (setf module (make-enriched-module module this module-name))
 	     (setf compiled-rack nil)
-	     (push (list :module module :name module-name) modules)
+	     (push module modules)
 	     module)))
       (let ((rack
 	      (list

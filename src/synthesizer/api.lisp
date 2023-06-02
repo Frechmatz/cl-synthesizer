@@ -15,12 +15,7 @@
     <ul>
 	<li>rack The rack.</li>
     </ul></p>
-    Returns a list of modules where each module consists of a property list with
-    the following keys:
-    <ul>
-       <li>:module The module</li>
-       <li>:name Name of the module</li>
-    </ul>"
+    Returns the modules of the given rack"
   (funcall (getf rack :modules)))
 
 (defun get-patches (rack)

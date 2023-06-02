@@ -42,7 +42,7 @@
 			(traverse-module output-module)))
 		     (push module module-trace)))))
       (dolist (module (cl-synthesizer:get-modules rack))
-	(traverse-module (getf module :module)))
+	(traverse-module module))
       (nreverse module-trace))))
 
 (defun make-get-output-lambda (module output-socket)
