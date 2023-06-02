@@ -170,25 +170,25 @@
 (defun find-module (rack module-path)
   "Get a module of a rack. <p>The function has the following parameters:
     <ul>
-      <li>rack The root rack.</li>
-      <li>module-path The path of the module within the rack (through multiple nested racks).</br>
+      <li>rack The rack.</li>
+      <li>module-path The path of the module.</br>
          Example 1: \"VCO\"</br> 
          Example 2: '(\"VOICE-1\" \"VCO\")</li>
     </ul></p>
-   Returns nil or a values object consisting of the rack of the module, the module name and the module itself."
+   Returns the module or nil."
   (if (not (listp module-path))
       (setf module-path (list module-path)))
   (if (not module-path)
-      (values nil nil nil)
+      nil
       (let* ((module (get-module rack (first module-path))))
 	(if module
 	    (let ((module module))
 	      (if (< 1 (length module-path))
 		  (if (getf module :is-rack)
 		      (find-module module (rest module-path))
-		      (values nil nil nil))
-		  (values rack (first module-path) module)))
-	    (values nil nil nil)))))
+		      nil)
+		  module))
+	    nil))))
 
 (defun play-rack (rack &key duration-seconds)
   "A utility function that \"plays\" the rack by consecutively calling its update function

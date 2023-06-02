@@ -81,10 +81,7 @@
 
 (defun get-module (rack module-path)
   (if module-path
-      (multiple-value-bind (module-rack module-name module)
-	  (cl-synthesizer:find-module rack module-path)
-	(declare (ignore module-rack module-name))
-	module)
+      (cl-synthesizer:find-module rack module-path)
       rack))
 
 (defun get-input-getter (rack socket-mapping)
