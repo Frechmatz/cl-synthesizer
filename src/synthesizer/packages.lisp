@@ -12,7 +12,6 @@
    :add-hook
    :get-module
    :play-rack
-   :find-module
    :get-module-name
    :is-rack
    :shutdown

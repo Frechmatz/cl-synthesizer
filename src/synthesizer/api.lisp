@@ -79,14 +79,16 @@
   "Returns the rack to which a module belongs."
   (funcall (getf module :cl-synthesizer-module-get-rack)))
 
-(defun get-module (rack name)
+(defun get-module (rack path)
   "Get a module by its name. <p>The function has the following parameters:
     <ul>
       <li>rack The rack.</li>
-      <li>name The name of the module.</li>
+      <li>path The path of the module.</br>
+         Example: \"VCO\"</br> 
+         Example: '(\"VOICE-1\" \"VCO\")</li>
     </ul></p>
    Returns the module or nil."
-  (funcall (getf rack :get-module-by-name) name))
+  (funcall (getf rack :get-module) path))
 
 (defun get-environment (rack)
   "Returns the environment of the rack."
@@ -153,29 +155,6 @@
     <li>output-socket A keyword representing one of the outputs of the module.</li>
   </ul></p>"
   (funcall (getf rack :add-rack-output) rack-output-socket output-module-name output-socket))
-
-(defun find-module (rack module-path)
-  "Get a module of a rack. <p>The function has the following parameters:
-    <ul>
-      <li>rack The rack.</li>
-      <li>module-path The path of the module.</br>
-         Example 1: \"VCO\"</br> 
-         Example 2: '(\"VOICE-1\" \"VCO\")</li>
-    </ul></p>
-   Returns the module or nil."
-  (if (not (listp module-path))
-      (setf module-path (list module-path)))
-  (if (not module-path)
-      nil
-      (let* ((module (get-module rack (first module-path))))
-	(if module
-	    (let ((module module))
-	      (if (< 1 (length module-path))
-		  (if (getf module :is-rack)
-		      (find-module module (rest module-path))
-		      nil)
-		  module))
-	    nil))))
 
 (defun play-rack (rack &key duration-seconds)
   "A utility function that \"plays\" the rack by consecutively calling its update function

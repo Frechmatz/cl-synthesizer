@@ -71,19 +71,29 @@
 	;;
 	;;
 	;;
-	((get-module-by-name (name)
-	   (find-if
-	    (lambda (m) (string= name (funcall (getf m *module-get-name*))))
-	    modules))
+	((get-module (path)
+	   (if (not (listp path))
+	       (find-if
+		(lambda (m) (string= path (funcall (getf m *module-get-name*))))
+		modules)
+	       (let ((rack this) (module nil))
+		 (dolist (path-segment path)
+		   (if (not rack)
+		       (setf module nil)
+		       (setf module (funcall (getf rack :get-module) path-segment)))
+		   (if (and module (getf module :is-rack))
+		       (setf rack module)
+		       (setf rack nil)))
+		 module)))
 	 ;;
 	 ;;
 	 ;;
 	 (update-rack-inputs ()
 	   (labels ((get-input-setter-fn (module-name socket)
-		      (getf (getf (funcall (getf (get-module-by-name module-name) :inputs))
+		      (getf (getf (funcall (getf (get-module module-name) :inputs))
 				  socket) :set))
 		    (get-input-getter-fn (module-name socket)
-		      (getf (getf (funcall (getf (get-module-by-name module-name) :inputs))
+		      (getf (getf (funcall (getf (get-module module-name) :inputs))
 				  socket) :get)))
 	     (setf rack-inputs nil)
 	     (dolist (exposed-input-socket exposed-input-sockets)
@@ -101,7 +111,7 @@
 	 ;;
 	 (update-rack-outputs ()
 	   (labels ((get-output-getter-fn (module-name socket)
-		      (getf (getf (funcall (getf (get-module-by-name module-name) :outputs))
+		      (getf (getf (funcall (getf (get-module module-name) :outputs))
 				  socket) :get)))
 	     (let ((new-outputs nil))
 	       (dolist (exposed-output-socket exposed-output-sockets)
@@ -182,8 +192,8 @@
 			  (string= module-name (getf entry :module-name))))
 		       exposed-output-sockets)))
 	     
-	     (let ((source-module (get-module-by-name output-name))
-		   (destination-module (get-module-by-name input-name)))
+	     (let ((source-module (get-module output-name))
+		   (destination-module (get-module input-name)))
 	       (if (not source-module)
 		   (error
 		    'assembly-error
@@ -306,7 +316,7 @@
 		  :format-control
 		  "add-rack-input: Module already exposes input socket '~a'"
 		  :format-arguments (list rack-input-socket)))
-	     (let ((module (get-module-by-name input-module-name)))
+	     (let ((module (get-module input-module-name)))
 	       (if (not module)
 		   (error
 		    'assembly-error
@@ -349,7 +359,7 @@
 		  :format-control
 		  "add-rack-outut: Module already exposes output socket '~a'"
 		  :format-arguments (list rack-output-socket)))
-	     (let ((module (get-module-by-name output-module-name)))
+	     (let ((module (get-module output-module-name)))
 	       (if (not module)
 		   (error
 		    'assembly-error
@@ -372,7 +382,7 @@
 	 ;;
 	 ;;
 	 (assert-add-module (module-name)
-	   (if (get-module-by-name module-name)
+	   (if (get-module module-name)
 	       (error
 		'assembly-error
 		:format-control
@@ -516,7 +526,7 @@
 	     module)))
       (let ((rack
 	      (list
-	       :get-module-by-name (lambda (name) (get-module-by-name name))
+	       :get-module (lambda (name) (get-module name))
 	       :add-rack-input (lambda(rack-input-socket input-module-name input-socket)
 				 (add-rack-input rack-input-socket input-module-name input-socket))
 	       :add-rack-output (lambda(rack-output-socket output-module-name output-socket)

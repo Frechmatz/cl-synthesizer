@@ -227,8 +227,6 @@
 					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "add-rack-output"))
 				(heading (:toc t :name "get-module")
 					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "get-module"))
-				(heading (:toc t :name "find-module")
-					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "find-module"))
 				(heading (:toc t :name "get-patches")
 					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "get-patches"))
 				(heading (:toc t :name "get-modules")

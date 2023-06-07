@@ -19,44 +19,44 @@
 		 (let ((nested-nested-rack (cl-synthesizer:get-module nested-rack "RACK-3-1")))
 		   (cl-synthesizer:add-module nested-nested-rack "Multiplier 3" #'cl-synthesizer-test::multiplier-module)))
 
-	       (assert-true (cl-synthesizer:find-module rack "Multiplier"))
+	       (assert-true (cl-synthesizer:get-module rack "Multiplier"))
 	       (assert-true (string=
 			     "Multiplier"
 			     (cl-synthesizer:get-module-name
-			      (cl-synthesizer:find-module rack "Multiplier"))))
-	       (assert-true (cl-synthesizer:find-module rack (list "Multiplier")))
+			      (cl-synthesizer:get-module rack "Multiplier"))))
+	       (assert-true (cl-synthesizer:get-module rack (list "Multiplier")))
 	       (assert-true (string=
 			     "Multiplier"
 			     (cl-synthesizer:get-module-name
-			      (cl-synthesizer:find-module rack (list "Multiplier")))))
-	       (assert-false (cl-synthesizer:find-module rack (list "Multiplier" nil)))
-	       (assert-false (cl-synthesizer:find-module rack (list "Multiplier" 5.0)))
-	       (assert-true (cl-synthesizer:find-module rack "RACK-1"))
+			      (cl-synthesizer:get-module rack (list "Multiplier")))))
+	       (assert-false (cl-synthesizer:get-module rack (list "Multiplier" nil)))
+	       (assert-false (cl-synthesizer:get-module rack (list "Multiplier" 5.0)))
+	       (assert-true (cl-synthesizer:get-module rack "RACK-1"))
 	       (assert-true (string=
 			     "RACK-1"
 			     (cl-synthesizer:get-module-name
-			      (cl-synthesizer:find-module rack "RACK-1"))))
-	       (assert-true (cl-synthesizer:find-module rack (list "RACK-1")))
+			      (cl-synthesizer:get-module rack "RACK-1"))))
+	       (assert-true (cl-synthesizer:get-module rack (list "RACK-1")))
 	       (assert-true (string=
 			     "RACK-1"
 			     (cl-synthesizer:get-module-name
-			      (cl-synthesizer:find-module rack (list "RACK-1")))))
-	       (assert-true (cl-synthesizer:find-module rack (list "RACK-1" "Multiplier")))
+			      (cl-synthesizer:get-module rack (list "RACK-1")))))
+	       (assert-true (cl-synthesizer:get-module rack (list "RACK-1" "Multiplier")))
 	       (assert-true (string=
 			     "Multiplier"
 			     (cl-synthesizer:get-module-name
-			      (cl-synthesizer:find-module rack (list "RACK-1" "Multiplier")))))
-	       (assert-false (cl-synthesizer:find-module rack (list "RACK-1" "Unknown module")))
-	       (assert-false (cl-synthesizer:find-module rack (list "RACK-1" "Multiplier 2")))
-	       (assert-true (cl-synthesizer:find-module rack (list "RACK-3" "Multiplier 2")))
+			      (cl-synthesizer:get-module rack (list "RACK-1" "Multiplier")))))
+	       (assert-false (cl-synthesizer:get-module rack (list "RACK-1" "Unknown module")))
+	       (assert-false (cl-synthesizer:get-module rack (list "RACK-1" "Multiplier 2")))
+	       (assert-true (cl-synthesizer:get-module rack (list "RACK-3" "Multiplier 2")))
 
-	       (assert-true (cl-synthesizer:find-module
+	       (assert-true (cl-synthesizer:get-module
 			     rack
 			     (list "RACK-3" "RACK-3-1" "Multiplier 3")))
 	       (assert-true (string=
 			     "Multiplier 3"
 			     (cl-synthesizer:get-module-name
-			      (cl-synthesizer:find-module
+			      (cl-synthesizer:get-module
 			       rack
 			       (list "RACK-3" "RACK-3-1" "Multiplier 3")))))))
 

@@ -37,7 +37,6 @@
 <li><a href="#add-rack-input">add-rack-input</a></li>
 <li><a href="#add-rack-output">add-rack-output</a></li>
 <li><a href="#get-module">get-module</a></li>
-<li><a href="#find-module">find-module</a></li>
 <li><a href="#get-patches">get-patches</a></li>
 <li><a href="#get-modules">get-modules</a></li>
 <li><a href="#add-hook">add-hook</a></li>
@@ -106,7 +105,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3894737060" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3895160528" type="audio/wav"></audio></p>
 <h2 id="Frequency modulated Saw">Frequency modulated Saw</h2><p><pre><code>(defpackage :cl-synthesizer-patches-frequency-modulated-saw
   (:use :cl)
   (:documentation &quot;Frequency modulated Saw&quot;))
@@ -140,7 +139,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3894737060" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3895160528" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated Saws">Two frequency modulated Saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-two-frequency-modulated-saws
   (:use :cl)
   (:documentation &quot;Two frequency modulated Saws&quot;))
@@ -182,7 +181,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3894737060" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3895160528" type="audio/wav"></audio></p>
 <h1 id="Change-Log">Change-Log</h1>
 <h2>Version 1.0.0</h2><p>Initial version. Not tagged.</p>
 <h2>Version 2.x</h2>Work in progress. Master branch.<ul><li>Removed bridge modules.</li><li>Added rack:add-rack-input.</li><li>Added rack:add-rack-output.</li><li>Added module input socket getters.</li></ul>
@@ -397,18 +396,12 @@ to set input values, to retrieve output values, to update the module, to shutdow
     <li>output-module-name Name of the module whose output is to be exposed.</li>
     <li>output-socket A keyword representing one of the outputs of the module.</li>
   </ul></p></p>
-<h3 id="get-module">get-module</h3><b>cl-synthesizer:get-module</b>&nbsp;(rack name)<p>Get a module by its name. <p>The function has the following parameters:
+<h3 id="get-module">get-module</h3><b>cl-synthesizer:get-module</b>&nbsp;(rack path)<p>Get a module by its name. <p>The function has the following parameters:
     <ul>
       <li>rack The rack.</li>
-      <li>name The name of the module.</li>
-    </ul></p>
-   Returns the module or nil.</p>
-<h3 id="find-module">find-module</h3><b>cl-synthesizer:find-module</b>&nbsp;(rack module-path)<p>Get a module of a rack. <p>The function has the following parameters:
-    <ul>
-      <li>rack The rack.</li>
-      <li>module-path The path of the module.</br>
-         Example 1: "VCO"</br> 
-         Example 2: '("VOICE-1" "VCO")</li>
+      <li>path The path of the module.</br>
+         Example: "VCO"</br> 
+         Example: '("VOICE-1" "VCO")</li>
     </ul></p>
    Returns the module or nil.</p>
 <h3 id="get-patches">get-patches</h3><b>cl-synthesizer:get-patches</b>&nbsp;(rack)<p>Returns a list of the patches of a rack. Each patch is represented by a property list with the following keys:
@@ -1713,4 +1706,4 @@ This agent sits between the monitor and its backend. The agent instantiates the 
 <h1 id="Generate documentation">Generate documentation</h1>Depends on :cl-html-readme and :docparser which are available via Quicklisp.<p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2023-06-03  01:24:20</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-06-07  23:02:08</small></p></footer></body></html>
