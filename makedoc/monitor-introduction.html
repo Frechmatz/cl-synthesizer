@@ -1,4 +1,4 @@
-<p>Monitors are hooks that are called after a rack has processed an update. They collect module states like output socket values and pass them to a so called "Monitor Backend".
+<p>Monitors are hook implementations that register themselves at a rack. They are called after a rack has processed an update. They collect data like output socket values and pass them to a so called "Monitor Backend".
   A monitor backend can for example be a CSV-File-Writer.
 A monitor backend is a module. It is instantiated by a so called "Monitor Agent".
 This agent sits between the monitor and its backend. The agent instantiates the backend

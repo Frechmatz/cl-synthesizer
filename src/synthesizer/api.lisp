@@ -80,13 +80,14 @@
   (funcall (getf module :cl-synthesizer-module-get-rack)))
 
 (defun get-module (rack path)
-  "Get a module by its name. <p>The function has the following parameters:
+  "Get a module by its name or path. <p>The function has the following parameters:
     <ul>
       <li>rack The rack.</li>
-      <li>path The path of the module.</br>
-         Example: \"VCO\"</br> 
-         Example: '(\"VOICE-1\" \"VCO\")</li>
-    </ul></p>
+      <li>path The path of the module. Examples:
+       <ul>
+         <li>\"VCO\" Module \"VCO\" of the given rack</li>
+         <li>'(\"VOICE-1\" \"VCO\") Module \"VCO\" of the sub-rack \"VOICE-1\"</li>
+       </ul></ul></p>
    Returns the module or nil."
   (funcall (getf rack :get-module) path))
 
