@@ -1,37 +1,5 @@
 (in-package :cl-synthesizer)
 
-
-;;
-;; Module
-;;
-
-(defparameter *module-get-name* :cl-synthesizer-module-get-name)
-(defparameter *module-get-rack* :cl-synthesizer-module-get-rack)
-(defparameter *module-reserved-keys*
-  (list *module-get-name* *module-get-rack*))
-
-(defun make-enriched-module (module rack module-name)
-  ;; Verify that module does not use reserved properties
-  (dolist (keyword *module-reserved-keys*)
-    (if (find keyword module)
-	(error
-	 'assembly-error
-	 :format-control "Invalid module '~a': Property '~a' is a reserved for internal use"
-	 :format-arguments (list module-name keyword))))
-  (let ((enriched-module
-	  (concatenate
-	   'list 
-	   (copy-list module)
-	   (list
-	    *module-get-name* (lambda() module-name)
-	    *module-get-rack* (lambda() rack)))))
-    enriched-module))
-
-
-;;
-;; Rack
-;;
-
 (defun make-rack (&key environment)
   "Creates a rack.<p>The function has the following parameters:
     <ul>
@@ -74,7 +42,7 @@
 	((get-module (path)
 	   (if (not (listp path))
 	       (find-if
-		(lambda (m) (string= path (funcall (getf m *module-get-name*))))
+		(lambda (m) (string= path (funcall (getf m :cl-synthesizer-module-get-name))))
 		modules)
 	       (let ((rack this) (module nil))
 		 (dolist (path-segment path)
@@ -516,11 +484,32 @@
 	 ;;
 	 ;;
 	 ;;
+	 (enrich-module (module module-name)
+	   ;; Verify that module does not use reserved properties
+	   (dolist (keyword (list :cl-synthesizer-module-get-name :cl-synthesizer-module-get-rack))
+	     (if (find keyword module)
+		 (error
+		  'assembly-error
+		  :format-control
+		  "Invalid module '~a': Property '~a' is a reserved for internal use"
+		  :format-arguments
+		  (list module-name keyword))))
+	   (let ((enriched-module
+		   (concatenate
+		    'list 
+		    module
+		    (list
+		     :cl-synthesizer-module-get-name (lambda() module-name)
+		     :cl-synthesizer-module-get-rack (lambda() this)))))
+	     enriched-module))
+	 ;;
+	 ;;
+	 ;;
 	 (add-module (module-name module-fn &rest args)
 	   (assert-add-module module-name)
 	   (let ((module (apply module-fn `(,module-name ,environment ,@args))))
 	     (assert-module-structure module-name module)
-	     (setf module (make-enriched-module module this module-name))
+	     (setf module (enrich-module module module-name))
 	     (setf compiled-rack nil)
 	     (push module modules)
 	     module)))
