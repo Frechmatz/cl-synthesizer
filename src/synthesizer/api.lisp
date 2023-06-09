@@ -114,9 +114,8 @@
 
 (defun add-patch (rack output-module-name output-socket input-module-name input-socket)
   "Adds a patch to the rack. A patch is an unidirectional connection between an output socket
-    of a source module and an input socket of a destination module. The rack supports cycles 
-    which means that an output socket of a module can be patched with one of its inputs (typically via
-    multiple hops through other modules). <p>The function has the following parameters:
+    of a source module and an input socket of a destination module.<p>
+    The function has the following parameters:
     <ul>
 	<li>rack The rack.</li>
 	<li>output-module-name Name of the output (source) module.</li>
@@ -126,7 +125,7 @@
 	<li>input-socket A keyword representing one of the input sockets of the
 	    input module.</li>
     </ul></p>
-    <p>The rack signals an assembly-error in the following cases:
+    <p>The rack signals an assembly-error in cases such as:
     <ul>
 	<li>A module with the given output name does not exist.</li>
 	<li>A module with the given input name does not exist.</li>

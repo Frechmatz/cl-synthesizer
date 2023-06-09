@@ -3,16 +3,9 @@
 (defun make-rack (&key environment)
   "Creates a rack.<p>The function has the following parameters:
     <ul>
-	<li>:environment The synthesizer environment.</li>
+	<li>:environment The environment.</li>
     </ul></p>
-    <p>    
-    The update function of the rack calls the update function of all embedded modules. If the 
-    rack has already been shut down the function immediately returns nil.
-    Othwerwise it returns t.
-    </p><p>
-    The shutdown function of the rack calls the shutdown handlers of all embedded modules and hooks. If the rack has 
-    already been shut down the function immediately returns.
-    </p>"
+    Returns the rack."
   (if (not environment)
       (error
        'simple-error
@@ -23,7 +16,7 @@
 	(has-shut-down nil)
 	;; list of modules
 	(modules nil)
-	;; list of (:update <update-fn> :shutdown <shutdown-fn>)
+	;; list of (:updated <updated-fn> :updating <updating-fn> :shutdown <shutdown-fn>)
 	(hooks nil)
 	;; list of (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
 	(patches nil)
