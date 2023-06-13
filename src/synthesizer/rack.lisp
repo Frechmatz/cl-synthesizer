@@ -21,6 +21,8 @@
 	;; list of (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
 	(patches nil)
 	(compiled-rack nil)
+	(rack-inputs-dirty t)
+	(rack-outputs-dirty t)
 	;; List of (:rack-socket s :module-name module :module-socket module-socket)
 	(exposed-input-sockets nil)
 	;; List of (:rack-socket s :module-name module :module-socket module-socket)
@@ -342,7 +344,7 @@
 		  :module-name output-module-name
 		  :module-socket output-socket)
 		 exposed-output-sockets)
-	   (update-rack-outputs))
+	   (setf rack-outputs-dirty t))
 	 ;;
 	 ;;
 	 ;;
@@ -357,7 +359,7 @@
 		  :module-name input-module-name
 		  :module-socket input-socket)
 		 exposed-input-sockets)
-	   (update-rack-inputs))
+	   (setf rack-inputs-dirty t))
 	 ;;
 	 ;;
 	 ;;
@@ -491,8 +493,8 @@
 	       :add-rack-output (lambda(rack-output-socket output-module-name output-socket)
 				  (add-rack-output rack-output-socket output-module-name output-socket))
 	       :modules (lambda() modules)
-	       :outputs (lambda() rack-outputs)
-	       :inputs (lambda() rack-inputs)
+	       :outputs (lambda() (if rack-outputs-dirty (update-rack-outputs)) rack-outputs)
+	       :inputs (lambda() (if rack-inputs-dirty (update-rack-inputs)) rack-inputs)
 	       :patches (lambda() patches)
 	       :hooks (lambda () hooks)
 	       :update (lambda () (update))
