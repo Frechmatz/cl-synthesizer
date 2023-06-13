@@ -74,15 +74,14 @@
 	   (labels ((get-output-getter-fn (module-name socket)
 		      (getf (getf (funcall (getf (get-module module-name) :outputs))
 				  socket) :get)))
-	     (let ((new-outputs nil))
-	       (dolist (exposed-output-socket exposed-output-sockets)
-		 (push
-		  (list :get (get-output-getter-fn
-			      (getf exposed-output-socket :module-name)
-			      (getf exposed-output-socket :module-socket)))
-		  new-outputs)
-		 (push (getf exposed-output-socket :rack-socket) new-outputs))
-	       (setf rack-outputs new-outputs))))
+	     (setf rack-outputs nil)
+	     (dolist (exposed-output-socket exposed-output-sockets)
+	       (push
+		(list :get (get-output-getter-fn
+			    (getf exposed-output-socket :module-name)
+			    (getf exposed-output-socket :module-socket)))
+		rack-outputs)
+	       (push (getf exposed-output-socket :rack-socket) rack-outputs))))
 	 ;;
 	 ;;
 	 ;;
