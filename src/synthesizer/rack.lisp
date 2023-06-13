@@ -236,26 +236,6 @@
 	 ;;
 	 ;;
 	 ;;
-	 (assert-input-socket-p (socket)
-	   (if (not (getf rack-inputs socket))
-	       (error
-		'simple-error
-		:format-control
-		"Internal Error: Input socket ~a should be exposed by a module but is not. Inputs: ~a"
-		:format-arguments (list socket rack-inputs))))
-	 ;;
-	 ;;
-	 ;;
-	 (assert-output-socket-p (socket)
-	   (if (not (getf rack-outputs socket))
-	       (error
-		'simple-error
-		:format-control
-		"Internal Error: Output socket ~a should be exposed by a module but is not. Outputs: ~a"
-		:format-arguments (list socket rack-outputs))))
-	 ;;
-	 ;;
-	 ;;
 	 (assert-add-rack-input (rack-input-socket input-module-name
 				 input-socket exposed-input-sockets)
 	   (labels ((get-exposed-input-socket (socket)
@@ -363,8 +343,7 @@
 		  :module-name output-module-name
 		  :module-socket output-socket)
 		 exposed-output-sockets)
-	   (update-rack-outputs)
-	   (assert-output-socket-p rack-output-socket))
+	   (update-rack-outputs))
 	 ;;
 	 ;;
 	 ;;
@@ -379,8 +358,7 @@
 		  :module-name input-module-name
 		  :module-socket input-socket)
 		 exposed-input-sockets)
-	   (update-rack-inputs)
-	   (assert-input-socket-p rack-input-socket))
+	   (update-rack-inputs))
 	 ;;
 	 ;;
 	 ;;
