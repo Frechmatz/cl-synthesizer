@@ -503,6 +503,9 @@
 	       (:module "src/monitor/wave-file"
 		:serial t
 		:components ((:file "example-1")))
+	       (:module "src/monitor/buffer"
+		:serial t
+		:components ((:file "example-1")))
 	       (:module "src/sound-server-client"
 		:serial t
 		:components ((:file "example-1")

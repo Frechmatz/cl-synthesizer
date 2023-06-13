@@ -104,7 +104,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3895670553" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3895672398" type="audio/wav"></audio></p>
 <h2 id="Frequency modulated Saw">Frequency modulated Saw</h2><p><pre><code>(defpackage :cl-synthesizer-patches-frequency-modulated-saw
   (:use :cl)
   (:documentation &quot;Frequency modulated Saw&quot;))
@@ -138,7 +138,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3895670553" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3895672398" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated Saws">Two frequency modulated Saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-two-frequency-modulated-saws
   (:use :cl)
   (:documentation &quot;Two frequency modulated Saws&quot;))
@@ -180,7 +180,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3895670553" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3895672398" type="audio/wav"></audio></p>
 <h1 id="Change-Log">Change-Log</h1>
 <h2>Version 1.0.0</h2><p>Initial version. Not tagged.</p>
 <h2>Version 2.x</h2>Work in progress. Master branch.<ul><li>Removed bridge modules.</li><li>Added rack:add-rack-input.</li><li>Added rack:add-rack-output.</li><li>Added module input socket getters.</li></ul>
@@ -1294,7 +1294,32 @@ This agent sits between the monitor and its backend. The agent instantiates the 
     <ul>
        <li>A property list that implements a module (this is the Monitor-Backend).</li>
        <li>An ordered list of input sockets of the module.</li>
-    </ul></p></p>
+    </ul></p></p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-monitor-buffer-example-1
+  (:use :cl))
+
+(in-package :cl-synthesizer-monitor-buffer-example-1)
+
+(defun example ()
+  &quot;Buffer-Agent example&quot;
+  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
+    
+    (cl-synthesizer:add-module
+     rack &quot;VCO&quot; #'cl-synthesizer-modules-vco:make-module :base-frequency 5.0 :v-peak 5.0)
+
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-buffer-agent:make-backend
+     '((&quot;VCO&quot; :output-socket :sine)
+       (&quot;VCO&quot; :output-socket :saw))
+     :buffer (make-array 2))
+    
+    rack))
+
+(defun run-example ()
+  (let ((rack (example)))
+    (cl-synthesizer:play-rack rack :duration-seconds 2)))
+
+;; (run-example)</code></pre></p>
 <h2 id="MIDI">MIDI</h2>
 <h3 id="MIDI Event">MIDI Event</h3><b>cl-synthesizer-midi-event:make-control-change-event</b>&nbsp;(&key channel controller-number control-value)<p>Creates a MIDI control change event.</p><b>cl-synthesizer-midi-event:make-note-on-event</b>&nbsp;(&key channel note-number velocity)<p>Creates a MIDI Note-On event.</p><b>cl-synthesizer-midi-event:make-note-off-event</b>&nbsp;(&key channel note-number velocity)<p>Creates a MIDI Note-Off event.</p><b>cl-synthesizer-midi-event:control-change-eventp</b>&nbsp;(event)<p>Returns t if the given MIDI event is a Control-Change event.</p><b>cl-synthesizer-midi-event:note-on-eventp</b>&nbsp;(event)<p>Returns t if the given MIDI event is a Note-On event.</p><b>cl-synthesizer-midi-event:note-off-eventp</b>&nbsp;(event)<p>Returns t if the given MIDI event is a Note-Off event.</p><b>cl-synthesizer-midi-event:get-channel</b>&nbsp;(event)<p>Returns the MIDI channel number to which the event belongs.</p><b>cl-synthesizer-midi-event:get-controller-number</b>&nbsp;(event)<p>Returns the controller number of a Control-Change MIDI event.</p><b>cl-synthesizer-midi-event:get-control-value</b>&nbsp;(event)<p>Returns the control value of a Control-Change MIDI event.</p><b>cl-synthesizer-midi-event:get-note-number</b>&nbsp;(event)<p>Returns the note number of Note-On/Off MIDI event.</p><b>cl-synthesizer-midi-event:get-velocity</b>&nbsp;(event)<p>Returns the velocity of a Note-On/Off MIDI event.</p>
 <h3 id="MIDI Polyphonic Interface">MIDI Polyphonic Interface</h3><b>cl-synthesizer-modules-midi-polyphonic-interface:make-module</b>&nbsp;(name environment &key (voice-count 1) (channel nil) (cv-gate-on 5.0)
@@ -1696,4 +1721,4 @@ This agent sits between the monitor and its backend. The agent instantiates the 
 <h1 id="Generate documentation">Generate documentation</h1>Depends on :cl-html-readme and :docparser which are available via Quicklisp.<p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2023-06-13  20:42:33</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-06-13  21:13:18</small></p></footer></body></html>
