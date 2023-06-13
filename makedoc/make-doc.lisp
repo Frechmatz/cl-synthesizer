@@ -235,8 +235,6 @@
 					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "add-rack-output"))
 				(heading (:toc t :name "add-hook")
 					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "add-hook"))
-				(heading (:toc t :name "get-hooks")
-					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "get-hooks"))
 				(heading (:toc t :name "play-rack")
 					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "play-rack")))
 		       (heading	(:toc t :name "Modules")

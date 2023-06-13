@@ -8,7 +8,6 @@
    :make-rack
    :add-module
    :add-patch
-   :get-hooks
    :add-hook
    :get-module
    :play-rack

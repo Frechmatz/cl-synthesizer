@@ -95,10 +95,6 @@
   "Returns the environment of the rack."
   (getf rack :environment))
 
-(defun get-hooks (rack)
-  "Returns the hooks of a rack."
-  (funcall (getf rack :hooks)))
-
 (defun add-hook (rack hook)
   "Adds a hook to a rack. <p>The function has the following parameters:
    <ul>
