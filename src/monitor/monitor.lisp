@@ -138,8 +138,8 @@
                     the CSV formatting string.</li>
 		<li>additional-agent-args Any additional keyword parameters as
 		    passed to the monitor function. These parameters can be
-		    used to initialize agent specific properties such as
-		    the filename of a CSV file.</li>
+		    used to provide backend specific properties, like for example
+		    a filename.</li>
 	    </ul>
 	    The function must return a values object with the following entries:
 	    <ul>
@@ -151,21 +151,17 @@
 	<li>socket-mappings Declares the input/outputs/states whose values are to be tracked.
             Each entry has the following format:
 	    <ul>
-		<li>module-path Optional path of a module of the rack from which the value of
-		    a certain input/output socket or state is to be retrieved, for
-		    example \"ADSR\" or '(\"VOICE-1\" \"ADSR\").</li>
+		<li>module-path Optional name/path of a module of the rack from which the value of
+		    a certain input/output socket or state is to be retrieved.</li>
 		<li>socket-type One of the following keywords: 
                     <ul>
                         <li>:input-socket The value of an input socket of the module.</li>
                         <li>:output-socket The value of an output socket of the module.</li>
-                        <li>:state The value of an internal state of the module (see state function).</li>
+                        <li>:state The value of an internal state that is exposed by the module.</li>
                     </ul>
                 </li>
-		<li>socket A keyword that identifies one of the input/output sockets or internal states
-		    provided by the module, for example :cv</li>
-                <li>Any additional settings. Supported settings depend
-                    on the agent that is being used, for example a CSV writer may
-                    support a column name.</li>
+		<li>socket A keyword that identifies one of the input/output sockets or internal states provided by the module.</li>
+                <li>any additional backend input-socket specific settings, like for example a column name.</li>
 	    </ul>
 	</li>
 	<li>&rest additional-agent-args Optional keyword arguments to be passed to

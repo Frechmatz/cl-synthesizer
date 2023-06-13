@@ -105,7 +105,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3895336785" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3895669144" type="audio/wav"></audio></p>
 <h2 id="Frequency modulated Saw">Frequency modulated Saw</h2><p><pre><code>(defpackage :cl-synthesizer-patches-frequency-modulated-saw
   (:use :cl)
   (:documentation &quot;Frequency modulated Saw&quot;))
@@ -139,7 +139,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3895336785" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3895669144" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated Saws">Two frequency modulated Saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-two-frequency-modulated-saws
   (:use :cl)
   (:documentation &quot;Two frequency modulated Saws&quot;))
@@ -181,7 +181,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3895336785" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3895669144" type="audio/wav"></audio></p>
 <h1 id="Change-Log">Change-Log</h1>
 <h2>Version 1.0.0</h2><p>Initial version. Not tagged.</p>
 <h2>Version 2.x</h2>Work in progress. Master branch.<ul><li>Removed bridge modules.</li><li>Added rack:add-rack-input.</li><li>Added rack:add-rack-output.</li><li>Added module input socket getters.</li></ul>
@@ -1174,8 +1174,8 @@ This agent sits between the monitor and its backend. The agent instantiates the 
                     the CSV formatting string.</li>
 		<li>additional-agent-args Any additional keyword parameters as
 		    passed to the monitor function. These parameters can be
-		    used to initialize agent specific properties such as
-		    the filename of a CSV file.</li>
+		    used to provide backend specific properties, like for example
+		    a filename.</li>
 	    </ul>
 	    The function must return a values object with the following entries:
 	    <ul>
@@ -1187,32 +1187,29 @@ This agent sits between the monitor and its backend. The agent instantiates the 
 	<li>socket-mappings Declares the input/outputs/states whose values are to be tracked.
             Each entry has the following format:
 	    <ul>
-		<li>module-path Optional path of a module of the rack from which the value of
-		    a certain input/output socket or state is to be retrieved, for
-		    example "ADSR" or '("VOICE-1" "ADSR").</li>
+		<li>module-path Optional name/path of a module of the rack from which the value of
+		    a certain input/output socket or state is to be retrieved.</li>
 		<li>socket-type One of the following keywords: 
                     <ul>
                         <li>:input-socket The value of an input socket of the module.</li>
                         <li>:output-socket The value of an output socket of the module.</li>
-                        <li>:state The value of an internal state of the module (see state function).</li>
+                        <li>:state The value of an internal state that is exposed by the module.</li>
                     </ul>
                 </li>
-		<li>socket A keyword that identifies one of the input/output sockets or internal states
-		    provided by the module, for example :cv</li>
-                <li>Any additional settings. Supported settings depend
-                    on the agent that is being used, for example a CSV writer may
-                    support a column name.</li>
+		<li>socket A keyword that identifies one of the input/output sockets or internal states provided by the module.</li>
+                <li>any additional backend input-socket specific settings, like for example a column name.</li>
 	    </ul>
 	</li>
 	<li>&rest additional-agent-args Optional keyword arguments to be passed to
 	    the agent.</li>
     </ul></p></p>
-<h3 id="wave-file-agent">wave-file-agent</h3><b>cl-synthesizer-monitor-wave-file-agent:make-backend</b>&nbsp;(name environment inputs &rest rest &key filename &allow-other-keys)<p>Creates a monitor backend which writes to a Wave file.
+<h3 id="wave-file-agent">wave-file-agent</h3><b>cl-synthesizer-monitor-wave-file-agent:make-backend</b>&nbsp;(name environment input-socket-settings &rest rest &key filename
+ &allow-other-keys)<p>Creates a monitor backend which writes to a Wave file.
     <p>The function has the following parameters:
     <ul>
 	<li>name A name.</li>
 	<li>environment The synthesizer environment.</li>
-	<li>inputs The column input settings as provided by the Monitor component.</li>
+	<li>input-socket-settings For each backend input-socket a list of settings.</li>
 	<li>:filename A file path relative to the output directory as defined by the environment.</li>
     </ul></p>
     <p>The function returns a values object consisting of
@@ -1246,12 +1243,13 @@ This agent sits between the monitor and its backend. The agent instantiates the 
     (cl-synthesizer:play-rack rack :duration-seconds 2)))
 
 ;; (run-example)</code></pre></p>
-<h3 id="csv-file-agent">csv-file-agent</h3><b>cl-synthesizer-monitor-csv-file-agent:make-backend</b>&nbsp;(name environment inputs &rest rest &key filename &allow-other-keys)<p>Creates a monitor backend which writes to a CSV file.
+<h3 id="csv-file-agent">csv-file-agent</h3><b>cl-synthesizer-monitor-csv-file-agent:make-backend</b>&nbsp;(name environment input-socket-settings &rest rest &key filename
+ &allow-other-keys)<p>Creates a monitor backend which writes to a CSV file.
     <p>The function has the following parameters:
     <ul>
 	<li>name A name.</li>
 	<li>environment The synthesizer environment.</li>
-	<li>inputs The column input settings as provided by the Monitor component.</li>
+	<li>input-socket-settings For each backend input-socket a list of settings. For supported settings refer to cl-synthesizer-modules-csv-file-writer.</li>
 	<li>:filename A file path relative to the output directory as defined by the environment.</li>
     </ul></p>
     <p>The function returns a values object consisting of
@@ -1285,12 +1283,13 @@ This agent sits between the monitor and its backend. The agent instantiates the 
     (cl-synthesizer:play-rack rack :duration-seconds 2)))
 
 ;; (run-example)</code></pre></p>
-<h3 id="buffer-agent">buffer-agent</h3><b>cl-synthesizer-monitor-buffer-agent:make-backend</b>&nbsp;(name environment inputs &rest rest &key buffer &allow-other-keys)<p>Creates a monitor backend which writes to a memory buffer.
+<h3 id="buffer-agent">buffer-agent</h3><b>cl-synthesizer-monitor-buffer-agent:make-backend</b>&nbsp;(name environment input-socket-settings &rest rest &key buffer
+ &allow-other-keys)<p>Creates a monitor backend which writes to a memory buffer.
     <p>The function has the following parameters:
     <ul>
 	<li>name A name.</li>
 	<li>environment The synthesizer environment.</li>
-	<li>inputs The input settings as provided by the Monitor component.</li>
+	<li>input-socket-settings For each backend input-socket a list of settings.</li>
 	<li>:buffer An array with dimension (length inputs).</li>
     </ul></p>
     <p>The function returns a values object consisting of
@@ -1699,4 +1698,4 @@ This agent sits between the monitor and its backend. The agent instantiates the 
 <h1 id="Generate documentation">Generate documentation</h1>Depends on :cl-html-readme and :docparser which are available via Quicklisp.<p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2023-06-09  23:59:45</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-06-13  20:19:04</small></p></footer></body></html>

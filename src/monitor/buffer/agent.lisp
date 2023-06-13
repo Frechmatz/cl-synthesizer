@@ -43,13 +43,13 @@
 ;;
 ;;
 
-(defun make-backend (name environment inputs &rest rest &key buffer &allow-other-keys)
+(defun make-backend (name environment input-socket-settings &rest rest &key buffer &allow-other-keys)
   "Creates a monitor backend which writes to a memory buffer.
     <p>The function has the following parameters:
     <ul>
 	<li>name A name.</li>
 	<li>environment The synthesizer environment.</li>
-	<li>inputs The input settings as provided by the Monitor component.</li>
+	<li>input-socket-settings For each backend input-socket a list of settings.</li>
 	<li>:buffer An array with dimension (length inputs).</li>
     </ul></p>
     <p>The function returns a values object consisting of
@@ -61,5 +61,5 @@
   (let ((handler (make-buffer-module name environment :buffer buffer)))
     (values 
      handler
-     (make-keyword-list "input" (length inputs)))))
+     (make-keyword-list "input" (length input-socket-settings)))))
 
