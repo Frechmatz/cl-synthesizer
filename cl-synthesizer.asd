@@ -379,6 +379,7 @@
 		:components ((:file "module-helper")
 			     (:file "pass-through-module")
 			     (:file "update-counter-module")
+			     (:file "update-notification-module")
 			     (:file "multiplier-module")
 			     (:file "input-adder-module")
 			     (:file "expect-error")

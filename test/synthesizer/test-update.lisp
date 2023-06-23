@@ -1,119 +1,160 @@
 (in-package :cl-synthesizer-test)
 
-(defun create-test-rack-simple ()
-  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
-    (cl-synthesizer:add-module rack "Counter" #'cl-synthesizer-test::update-counter-module)
-    (cl-synthesizer:add-module rack "Multiplier" #'cl-synthesizer-test::multiplier-module)
-    (assert-eq 2 (length (cl-synthesizer:get-modules rack)))
-    (let ((found-module-1 (cl-synthesizer:get-module rack "Counter"))
-	  (found-module-2 (cl-synthesizer:get-module rack "Multiplier")))
-      (assert-true found-module-1)
-      (assert-true found-module-2)
-      (assert-equal "Counter" (cl-synthesizer:get-module-name found-module-1))
-      (assert-equal "Multiplier" (cl-synthesizer:get-module-name found-module-2)))
-    rack))
+
+;;
+;; Test rack updates
+;; - All modules are updated during a tick
+;; - Modules are updated in correct order during a tick
+;; - Modules are not updated multiple times during a tick
+;;
+
+(defun make-update-logger ()
+  (let ((log nil))
+    (labels ((get-position (module-name)
+	       ;; The reverse is brutal :(
+	       (position module-name (reverse log) :test #'string=)))
+    (list
+     :update
+     (lambda (module-name)
+       (push module-name log))
+     :is-updated-before
+     (lambda (module-name-before module-name-after)
+       (let ((position-before (get-position module-name-before))
+	     (position-after (get-position module-name-after)))
+	 (< position-before position-after)))
+     :is-updated
+     (lambda (module-name)
+       (get-position module-name))
+     :length
+     (lambda ()
+       (length log))))))
 
 (define-test test-rack-update-1 ()
-	     (let ((rack (create-test-rack-simple)))
-	       (let ((counter (cl-synthesizer:get-module rack "Counter"))
-		     (multiplier (cl-synthesizer:get-module rack "Multiplier")))
-		 (cl-synthesizer:add-patch
-		  rack
-		  "Counter" :out
-		  "Multiplier" :in)
-		 (assert-equal 0 (get-module-output counter :out))
-		 (assert-equal 0 (get-module-output multiplier :out))
-		 (update-module rack nil)
-		 (assert-equal 1 (get-module-output counter :out))
-		 (assert-equal 2 (get-module-output multiplier :out))
-		 (update-module rack nil)
-		 (assert-equal 2 (get-module-output counter :out))
-		 (assert-equal 4 (get-module-output multiplier :out))
-		 (cl-synthesizer:shutdown rack)
-		 (assert-true (cl-synthesizer-test::get-module-state counter :shutdown-called)))))
+  "Rack consisting of multiple modules and no patches"
+  (let* ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment)))
+	 (logger (make-update-logger))
+	 (update-handler (getf logger :update)))
+    (cl-synthesizer:add-module
+     rack
+     "Module-1"
+     #'cl-synthesizer-test::update-notification-module :update-handler update-handler)
+    (cl-synthesizer:add-module
+     rack
+     "Module-2"
+     #'cl-synthesizer-test::update-notification-module :update-handler update-handler)
+    (cl-synthesizer:add-module
+     rack
+     "Module-3"
+     #'cl-synthesizer-test::update-notification-module :update-handler update-handler)
+    (cl-synthesizer:update rack)
+    (assert-equal 3 (funcall (getf logger :length)))
+    ;; Update order is not defined. Verify that all modules have been updated.
+    (assert-true (funcall (getf logger :is-updated) "Module-1"))
+    (assert-true (funcall (getf logger :is-updated) "Module-2"))
+    (assert-true (funcall (getf logger :is-updated) "Module-3"))))
 
-(defun create-test-rack-adder ()
-  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
-    (cl-synthesizer:add-module rack "Counter 1" #'cl-synthesizer-test::update-counter-module)
-    (cl-synthesizer:add-module rack "Counter 2" #'cl-synthesizer-test::update-counter-module)
-    (cl-synthesizer:add-module rack "Adder" #'cl-synthesizer-test::input-adder-module)
-    (assert-eq 3 (length (cl-synthesizer:get-modules rack)))
-    (let ((found-module-1 (cl-synthesizer:get-module rack "Counter 1"))
-	  (found-module-2 (cl-synthesizer:get-module rack "Counter 2"))
-	  (found-module-3 (cl-synthesizer:get-module rack "Adder")))
-      (assert-true found-module-1)
-      (assert-true found-module-2)
-      (assert-true found-module-3)
-      (assert-equal "Counter 1" (cl-synthesizer:get-module-name found-module-1))
-      (assert-equal "Counter 2" (cl-synthesizer:get-module-name found-module-2))
-      (assert-equal "Adder" (cl-synthesizer:get-module-name found-module-3)))
-    rack))
+(define-test test-rack-update-2 ()
+  "Patches: Module-1 => Module-2 => Module-3"
+  (let* ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment)))
+	 (logger (make-update-logger))
+	 (update-handler (getf logger :update)))
+    (cl-synthesizer:add-module
+     rack
+     "Module-1"
+     #'cl-synthesizer-test::update-notification-module :update-handler update-handler)
+    (cl-synthesizer:add-module
+     rack
+     "Module-2"
+     #'cl-synthesizer-test::update-notification-module :update-handler update-handler)
+    (cl-synthesizer:add-module
+     rack
+     "Module-3"
+     #'cl-synthesizer-test::update-notification-module :update-handler update-handler)
+    (cl-synthesizer:add-patch
+     rack
+     "Module-1" :output-1
+     "Module-2" :input-1)
+    (cl-synthesizer:add-patch
+     rack
+     "Module-2" :output-1
+     "Module-3" :input-1)
+    (cl-synthesizer:add-module
+     rack
+     "Module-All-Alone"
+     #'cl-synthesizer-test::update-notification-module :update-handler update-handler)
+    (cl-synthesizer:update rack)
+    (assert-equal 4 (funcall (getf logger :length)))
+    (assert-true (funcall (getf logger :is-updated-before) "Module-1" "Module-2"))
+    (assert-true (funcall (getf logger :is-updated-before) "Module-2" "Module-3"))
+    (assert-true (funcall (getf logger :is-updated) "Module-All-Alone"))))
 
-(define-test test-rack-update-adder ()
-	     (let ((rack (create-test-rack-adder)))
-	       (let ((counter-1 (cl-synthesizer:get-module rack "Counter 1"))
-		     (counter-2 (cl-synthesizer:get-module rack "Counter 2"))
-		     (adder (cl-synthesizer:get-module rack "Adder")))
-		 (cl-synthesizer:add-patch
-		  rack
-		  "Counter 1" :out
-		  "Adder" :in-1)
-		 (cl-synthesizer:add-patch
-		  rack
-		  "Counter 2" :out
-		  "Adder" :in-2)
-		 (assert-equal 0 (get-module-output counter-1 :out))
-		 (assert-equal 0 (get-module-output counter-2 :out))
-		 (assert-equal 0 (get-module-output adder :out))
-		 (update-module rack nil)
-		 (assert-equal 1 (get-module-output counter-1 :out))
-		 (assert-equal 1 (get-module-output counter-2 :out))
-		 (assert-equal 2 (get-module-output adder :out))
-		 (update-module rack nil)
-		 (assert-equal 2 (get-module-output counter-1 :out))
-		 (assert-equal 2 (get-module-output counter-2 :out))
-		 (assert-equal 4 (get-module-output adder :out)))))
 
-(defun create-test-rack-recursive ()
-  "Input of adder is connected with one of its outputs"
-  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
-    (cl-synthesizer:add-module rack "Counter" #'cl-synthesizer-test::update-counter-module)
-    (cl-synthesizer:add-module rack "Adder" #'cl-synthesizer-test::input-adder-module)
-    (assert-eq 2 (length (cl-synthesizer:get-modules rack)))
-    (let ((found-module-1 (cl-synthesizer:get-module rack "Counter"))
-	  (found-module-2 (cl-synthesizer:get-module rack "Adder")))
-      (assert-true found-module-1)
-      (assert-true found-module-2)
-      (assert-equal "Counter" (cl-synthesizer:get-module-name found-module-1))
-      (assert-equal "Adder" (cl-synthesizer:get-module-name found-module-2)))
-    rack))
+(define-test test-rack-update-3 ()
+  "Patches: Island-1-Module-1 => Island-1-Module-2 and Island-2-Module-1 => Island-2-Module-2"
+  (let* ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment)))
+	 (logger (make-update-logger))
+	 (update-handler (getf logger :update)))
+    (cl-synthesizer:add-module
+     rack
+     "Island-1-Module-1"
+     #'cl-synthesizer-test::update-notification-module :update-handler update-handler)
+    (cl-synthesizer:add-module
+     rack
+     "Island-1-Module-2"
+     #'cl-synthesizer-test::update-notification-module :update-handler update-handler)
+    (cl-synthesizer:add-patch
+     rack
+     "Island-1-Module-1" :output-1
+     "Island-1-Module-2" :input-1)
+    (cl-synthesizer:add-module
+     rack
+     "Island-2-Module-1"
+     #'cl-synthesizer-test::update-notification-module :update-handler update-handler)
+    (cl-synthesizer:add-module
+     rack
+     "Island-2-Module-2"
+     #'cl-synthesizer-test::update-notification-module :update-handler update-handler)
+    (cl-synthesizer:add-patch
+     rack
+     "Island-2-Module-1" :output-1
+     "Island-2-Module-2" :input-1)
+    (cl-synthesizer:add-module
+     rack
+     "Module-All-Alone"
+     #'cl-synthesizer-test::update-notification-module :update-handler update-handler)
+    (cl-synthesizer:update rack)
+    (assert-equal 5 (funcall (getf logger :length)))
+    (assert-true (funcall (getf logger :is-updated-before) "Island-1-Module-1" "Island-1-Module-2"))
+    (assert-true (funcall (getf logger :is-updated-before) "Island-2-Module-1" "Island-2-Module-2"))
+    (assert-true (funcall (getf logger :is-updated) "Module-All-Alone"))))
 
-(define-test test-rack-update-recursive ()
-	     (let ((rack (create-test-rack-recursive)))
-	       (let ((counter (cl-synthesizer:get-module rack "Counter"))
-		     (adder (cl-synthesizer:get-module rack "Adder")))
-		 (cl-synthesizer:add-patch
-		  rack
-		  "Counter" :out
-		  "Adder" :in-1)
-		 (cl-synthesizer:add-patch
-		  rack
-		  "Adder" :out
-		  "Adder" :in-2)
-		 (assert-equal 0 (get-module-output counter :out))
-		 (assert-equal 0 (get-module-output adder :out))
-		 (update-module rack nil)
-		 (assert-equal 1 (get-module-output counter :out))
-		 (assert-equal 1 (get-module-output adder :out))
-		 (update-module rack nil)
-		 (assert-equal 2 (get-module-output counter :out))
-		 (assert-equal 3 (get-module-output adder :out))
-		 (update-module rack nil)
-		 (assert-equal 3 (get-module-output counter :out))
-		 (assert-equal 6 (get-module-output adder :out)))))
-
-(define-test test-rack-update-empty-rack ()
-  (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
-    (update-module rack nil)
-    (assert-true t)))
+(define-test test-rack-update-4 ()
+  "Patches: Module-1 => Module-2 => Module-1"
+  (let* ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment)))
+	 (logger (make-update-logger))
+	 (update-handler (getf logger :update)))
+    (cl-synthesizer:add-module
+     rack
+     "Module-1"
+     #'cl-synthesizer-test::update-notification-module :update-handler update-handler)
+    (cl-synthesizer:add-module
+     rack
+     "Module-2"
+     #'cl-synthesizer-test::update-notification-module :update-handler update-handler)
+    (cl-synthesizer:add-patch
+     rack
+     "Module-1" :output-1
+     "Module-2" :input-1)
+    (cl-synthesizer:add-patch
+     rack
+     "Module-2" :output-1
+     "Module-1" :input-1)
+    (cl-synthesizer:add-module
+     rack
+     "Module-All-Alone"
+     #'cl-synthesizer-test::update-notification-module :update-handler update-handler)
+    (cl-synthesizer:update rack)
+    (assert-equal 3 (funcall (getf logger :length)))
+    (assert-true (funcall (getf logger :is-updated-before) "Module-1" "Module-2"))
+    (assert-true (funcall (getf logger :is-updated) "Module-All-Alone"))))
 
