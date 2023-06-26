@@ -591,7 +591,6 @@
 	       :outputs (lambda() (if rack-outputs-dirty (update-rack-outputs)) rack-outputs)
 	       :inputs (lambda() (if rack-inputs-dirty (update-rack-inputs)) rack-inputs)
 	       :patches (lambda() patches)
-	       :hooks (lambda () hooks)
 	       :update (lambda () (update))
 	       :add-module (lambda (module-name module-fn &rest args)
 			     (apply #'add-module module-name module-fn args))
