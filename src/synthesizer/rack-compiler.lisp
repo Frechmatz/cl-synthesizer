@@ -26,25 +26,6 @@
 		  (output-module-socket (getf patch :output-socket)))
 	      (funcall callback input-socket output-module output-module-socket)))))))
 
-(defun get-module-trace (rack)
-  "Get list of modules in execution order"
-  (let ((module-trace nil)
-	(visited-modules nil))
-    (labels ((traverse-module (module)
-	       (if (not (find module visited-modules :test #'eq))
-		   (progn
-		     (push module visited-modules)
-		     (iterate-module-input-patches
-		      rack
-		      module
-		      (lambda (input-socket output-module output-module-socket)
-			(declare (ignore input-socket output-module-socket))
-			(traverse-module output-module)))
-		     (push module module-trace)))))
-      (dolist (module (cl-synthesizer:get-modules rack))
-	(traverse-module module))
-      (nreverse module-trace))))
-
 (defun make-get-output-lambda (module output-socket)
   (getf (getf (funcall (getf module :outputs)) output-socket) :get))
 
@@ -75,7 +56,7 @@
   (let ((module-updates
 	  (mapcar
 	   (lambda (module) (compile-module rack module))
-	   (get-module-trace rack)))
+	   (funcall (getf rack :get-module-trace))))
 	(rack-updated-hooks nil)
 	(rack-updating-hooks nil))
     (dolist (hook (funcall (getf rack :hooks)))

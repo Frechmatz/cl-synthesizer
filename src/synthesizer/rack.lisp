@@ -484,7 +484,52 @@
 	     (setf module (enrich-module module module-name))
 	     (setf compiled-rack nil)
 	     (push module modules)
-	     module)))
+	     module))
+
+	 ;;
+	 ;;
+	 ;;
+	 (do-module-input-patches (module callback)
+	   "callback: lambda (input-socket output-module output-module-socket)"
+	   (let ((module-name (funcall (getf module :cl-synthesizer-module-get-name))))
+	     (cl-synthesizer-property-list-iterator:do-property-list-keys
+		 (funcall (getf module :inputs))
+		 cur-input-socket
+	       (let ((patch
+		       (find-if
+			(lambda (p)
+			  (and
+			   (string= (getf p :input-name) module-name)
+			   (eq (getf p :input-socket) cur-input-socket)))
+			patches)))
+		 (if patch
+		     (let ((output-module (get-module (getf patch :output-name)))
+			   (input-socket cur-input-socket)
+			   (output-module-socket (getf patch :output-socket)))
+		       (funcall callback input-socket output-module output-module-socket)))))))
+	 ;;
+	 ;;
+	 ;;
+	 (get-module-trace ()
+	   "Get modules sorted by update order"
+	   (let ((module-trace nil)
+		 (visited-modules nil))
+	     (labels ((traverse-module (module)
+			(if (not (find module visited-modules :test #'eq))
+			    (progn
+			      (push module visited-modules)
+			      (do-module-input-patches
+			       module
+			       (lambda (input-socket output-module output-module-socket)
+				 (declare (ignore input-socket output-module-socket))
+				 (traverse-module output-module)))
+			      (push module module-trace)))))
+	       (dolist (module modules)
+		 (traverse-module module))
+	       (nreverse module-trace))))
+	 
+	 
+	 )
       (let ((rack
 	      (list
 	       :get-module (lambda (name) (get-module name))
@@ -505,7 +550,10 @@
 	       :environment environment
 	       :is-rack t
 	       :add-patch (lambda (output-name output-socket input-name input-socket)
-			    (add-patch output-name output-socket input-name input-socket)))))
+			    (add-patch output-name output-socket input-name input-socket))
+
+	      :get-module-trace (lambda() (get-module-trace))
+	      )))
       	(setf this rack)
 	rack))))
 
