@@ -281,12 +281,12 @@
 		 (values 
 		  (lambda ()
 		    (dotimes (i number-of-compiler-runs)
-		      (funcall (getf rack :cl-synthesizer-rack-compile)))
+		      (funcall (getf rack :cl-synthesizer-rack-compile))))
 		  (format
 		   nil
 		   "Compiling a rack ~a times (Modules: ~a Patches: ~a)"
 		   number-of-compiler-runs
-		   (getf info :module-count) (getf info :patch-count))))))))))
+		   (getf info :module-count) (getf info :patch-count)))))))))
 
 ;;
 ;; Profiling plan runner
@@ -516,7 +516,7 @@
    :profile-time t
    :profile-statistical nil
    :init nil
-   :jobs '((:client-id :compiler :init (:number-of-compiler-runs 5000)))))
+   :jobs '((:client-id :compiler :init (:number-of-compiler-runs 10)))))
 
 (defparameter *profiling-plan-all*
   (list
@@ -558,7 +558,7 @@
 	   (:client-id :adsr :init (:duration-seconds 60 :exponential t))
 	   (:client-id :mixer :init (:duration-seconds 60 :channel-count 32))
 	   (:client-id :keyboard :init (:duration-seconds 10 :voice-count 50))
-	   (:client-id :compiler :init (:number-of-compiler-runs 5000)))))
+	   (:client-id :compiler :init (:number-of-compiler-runs 10)))))
 
 ;; (run-plan *profiling-plan-vco-core*)
 ;; (run-plan *profiling-plan-vco*)
