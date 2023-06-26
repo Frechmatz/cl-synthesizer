@@ -20,11 +20,6 @@
    :add-rack-input
    :add-rack-output))
 
-(defpackage :cl-synthesizer-rack-compiler
-  (:use :cl)
-  (:export
-   :compile-rack))
-
 (defpackage :cl-synthesizer-property-list-iterator
   (:use :cl)
   (:export

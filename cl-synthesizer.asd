@@ -44,7 +44,6 @@
 			     (:file "conditions")
 			     (:file "api")
 			     (:file "environment")
-			     (:file "rack-compiler") 
 			     (:file "rack")))))
 
 (defsystem :cl-synthesizer/util

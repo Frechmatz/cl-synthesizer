@@ -12,23 +12,26 @@
        :format-control "Environment must not be nil"
        :format-arguments nil))
 
-  (let ((this nil) ;; Property-List representation of the rack
-	(has-shut-down nil)
-	;; list of modules
-	(modules nil)
-	;; list of (:updated <updated-fn> :updating <updating-fn> :shutdown <shutdown-fn>)
-	(hooks nil)
-	;; list of (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
-	(patches nil)
-	(compiled-rack nil)
-	(rack-inputs-dirty t)
-	(rack-outputs-dirty t)
-	;; List of (:rack-socket s :module-name module :module-socket module-socket)
-	(exposed-input-sockets nil)
-	;; List of (:rack-socket s :module-name module :module-socket module-socket)
-	(exposed-output-sockets nil)
-	(rack-outputs nil)
-	(rack-inputs nil))
+  (let(
+       ;; Property-List representation of the rack
+       (this nil) 
+       (has-shut-down nil)
+       ;; list of modules
+       (modules nil)
+       ;; list of (:updated <updated-fn> :updating <updating-fn> :shutdown <shutdown-fn>)
+       (hooks nil)
+       ;; list of (:output-name "name" :output-socket <socket> :input-name "name" :input-socket <socket>)
+       (patches nil)
+       ;; Lambda without parameters representing the compiled rack
+       (compiled-rack nil)
+       (rack-inputs-dirty t)
+       (rack-outputs-dirty t)
+       ;; List of (:rack-socket s :module-name module :module-socket module-socket)
+       (exposed-input-sockets nil)
+       ;; List of (:rack-socket s :module-name module :module-socket module-socket)
+       (exposed-output-sockets nil)
+       (rack-outputs nil)
+       (rack-inputs nil))
     
     (labels
 	;;
@@ -82,10 +85,10 @@
 			    (progn
 			      (push module visited-modules)
 			      (do-module-input-patches
-			       module
-			       (lambda (input-socket output-module output-module-socket)
-				 (declare (ignore input-socket output-module-socket))
-				 (traverse-module output-module)))
+				module
+				(lambda (input-socket output-module output-module-socket)
+				  (declare (ignore input-socket output-module-socket))
+				  (traverse-module output-module)))
 			      (push module module-trace)))))
 	       (dolist (module modules)
 		 (traverse-module module))
@@ -186,7 +189,7 @@
 	       (progn
 		 (if (not compiled-rack)
 		     (setf compiled-rack 
-		      (compile-rack)))
+			   (compile-rack)))
 		 (funcall compiled-rack)
 		 t)))
 	 ;;
@@ -338,11 +341,11 @@
 		       exposed-input-sockets))
 		    (is-input-patched (module-name socket)
 		      (find-if
-	      (lambda (p)
-		(and
-		 (eq socket (getf p :input-socket))
-		 (string= module-name (getf p :input-name))))
-	      patches)))
+		       (lambda (p)
+			 (and
+			  (eq socket (getf p :input-socket))
+			  (string= module-name (getf p :input-name))))
+		       patches)))
 	     
 	     (if (get-exposed-input-socket rack-input-socket)
 		 (error
@@ -598,8 +601,8 @@
 	       :is-rack t
 	       :add-patch (lambda (output-name output-socket input-name input-socket)
 			    (add-patch output-name output-socket input-name input-socket))
-	       :compile (lambda() (compile-rack))
-	      )))
+	       ;; Exposed for profiler
+	       :cl-synthesizer-rack-compile (lambda() (compile-rack)))))
       	(setf this rack)
 	rack))))
 

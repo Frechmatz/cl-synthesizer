@@ -281,12 +281,12 @@
 		 (values 
 		  (lambda ()
 		    (dotimes (i number-of-compiler-runs)
-		      (cl-synthesizer-rack-compiler::compile-rack rack)))
+		      (funcall (getf rack :cl-synthesizer-rack-compile)))
 		  (format
 		   nil
 		   "Compiling a rack ~a times (Modules: ~a Patches: ~a)"
 		   number-of-compiler-runs
-		   (getf info :module-count) (getf info :patch-count)))))))))
+		   (getf info :module-count) (getf info :patch-count))))))))))
 
 ;;
 ;; Profiling plan runner
