@@ -527,6 +527,31 @@
 	       (dolist (module modules)
 		 (traverse-module module))
 	       (nreverse module-trace))))
+	 ;;
+	 ;;
+	 ;;
+	 (compile-module (module)
+	   (labels ((get-output-lambda (module output-socket)
+		      (getf (getf (funcall (getf module :outputs)) output-socket) :get)))
+	     (let ((input-setters nil)
+		   (inputs (funcall (getf module :inputs)))
+		   (module-update-fn (getf module :update)))
+	       ;; Push setters for all inputs
+	       (do-module-input-patches
+		 module
+		 (lambda (cur-input-socket output-module output-socket)
+		   (let ((input-setter (getf (getf inputs cur-input-socket) :set)))
+		     (let ((output-getter (get-output-lambda output-module output-socket)))
+		       (push (lambda()
+			       (funcall input-setter (funcall output-getter)))
+			     input-setters)))))
+	       ;; The compiled update function
+	       (lambda ()
+		 ;; Set inputs
+		 (dolist (fn input-setters)
+		   (funcall fn))
+		 ;; Update module
+		 (funcall module-update-fn)))))
 	 
 	 
 	 )
@@ -552,7 +577,8 @@
 	       :add-patch (lambda (output-name output-socket input-name input-socket)
 			    (add-patch output-name output-socket input-name input-socket))
 
-	      :get-module-trace (lambda() (get-module-trace))
+	       :get-module-trace (lambda() (get-module-trace))
+	       :compile-module (lambda(module) (compile-module module))
 	      )))
       	(setf this rack)
 	rack))))
