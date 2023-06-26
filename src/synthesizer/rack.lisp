@@ -51,6 +51,99 @@
 	 ;;
 	 ;;
 	 ;;
+	 (do-module-input-patches (module callback)
+	   "Iterate over input patches of given module.
+            callback: lambda (input-socket output-module output-module-socket)"
+	   (let ((module-name (funcall (getf module :cl-synthesizer-module-get-name))))
+	     (cl-synthesizer-property-list-iterator:do-property-list-keys
+		 (funcall (getf module :inputs))
+		 cur-input-socket
+	       (let ((patch
+		       (find-if
+			(lambda (p)
+			  (and
+			   (string= (getf p :input-name) module-name)
+			   (eq (getf p :input-socket) cur-input-socket)))
+			patches)))
+		 (if patch
+		     (let ((output-module (get-module (getf patch :output-name)))
+			   (input-socket cur-input-socket)
+			   (output-module-socket (getf patch :output-socket)))
+		       (funcall callback input-socket output-module output-module-socket)))))))
+	 ;;
+	 ;;
+	 ;;
+	 (get-module-trace ()
+	   "Get modules sorted by update order"
+	   (let ((module-trace nil)
+		 (visited-modules nil))
+	     (labels ((traverse-module (module)
+			(if (not (find module visited-modules :test #'eq))
+			    (progn
+			      (push module visited-modules)
+			      (do-module-input-patches
+			       module
+			       (lambda (input-socket output-module output-module-socket)
+				 (declare (ignore input-socket output-module-socket))
+				 (traverse-module output-module)))
+			      (push module module-trace)))))
+	       (dolist (module modules)
+		 (traverse-module module))
+	       (nreverse module-trace))))
+	 ;;
+	 ;;
+	 ;;
+	 (compile-module (module)
+	   (labels ((get-output-lambda (module output-socket)
+		      (getf (getf (funcall (getf module :outputs)) output-socket) :get)))
+	     (let ((input-setters nil)
+		   (inputs (funcall (getf module :inputs)))
+		   (module-update-fn (getf module :update)))
+	       ;; Push setters for all inputs
+	       (do-module-input-patches
+		 module
+		 (lambda (cur-input-socket output-module output-socket)
+		   (let ((input-setter (getf (getf inputs cur-input-socket) :set)))
+		     (let ((output-getter (get-output-lambda output-module output-socket)))
+		       (push (lambda()
+			       (funcall input-setter (funcall output-getter)))
+			     input-setters)))))
+	       ;; The compiled update function
+	       (lambda ()
+		 ;; Set inputs
+		 (dolist (fn input-setters)
+		   (funcall fn))
+		 ;; Update module
+		 (funcall module-update-fn)))))
+	 ;;
+	 ;;
+	 ;;
+	 (compile-rack ()
+	   "Compile the rack. Returns a lambda without parameters."
+	   (let ((module-updates
+		   (mapcar
+		    #'compile-module
+		    (get-module-trace)))
+		 (rack-updated-hooks nil)
+		 (rack-updating-hooks nil))
+	     (dolist (hook hooks)
+	       (let ((updated (getf hook :updated))
+		     (updating (getf hook :updating)))
+		 (if updating (push updating rack-updating-hooks))
+		 (if updated (push updated rack-updated-hooks))))
+	     (lambda ()
+	       ;; Call hooks
+	       (dolist (fn rack-updating-hooks)
+		 (funcall fn))
+	       ;; Update modules
+	       (dolist (fn module-updates)
+		 (funcall fn))
+	       ;; Call hooks
+	       (dolist (fn rack-updated-hooks)
+		 (funcall fn)))))
+	 ;;
+	 ;;
+	 ;;
 	 (update-rack-inputs ()
 	   (labels ((get-input-setter-fn (module-name socket)
 		      (getf (getf (funcall (getf (get-module module-name) :inputs))
@@ -92,9 +185,8 @@
 	       nil
 	       (progn
 		 (if (not compiled-rack)
-		     (setf
-		      compiled-rack
-		      (cl-synthesizer-rack-compiler:compile-rack this)))
+		     (setf compiled-rack 
+		      (compile-rack)))
 		 (funcall compiled-rack)
 		 t)))
 	 ;;
@@ -484,77 +576,7 @@
 	     (setf module (enrich-module module module-name))
 	     (setf compiled-rack nil)
 	     (push module modules)
-	     module))
-
-	 ;;
-	 ;;
-	 ;;
-	 (do-module-input-patches (module callback)
-	   "callback: lambda (input-socket output-module output-module-socket)"
-	   (let ((module-name (funcall (getf module :cl-synthesizer-module-get-name))))
-	     (cl-synthesizer-property-list-iterator:do-property-list-keys
-		 (funcall (getf module :inputs))
-		 cur-input-socket
-	       (let ((patch
-		       (find-if
-			(lambda (p)
-			  (and
-			   (string= (getf p :input-name) module-name)
-			   (eq (getf p :input-socket) cur-input-socket)))
-			patches)))
-		 (if patch
-		     (let ((output-module (get-module (getf patch :output-name)))
-			   (input-socket cur-input-socket)
-			   (output-module-socket (getf patch :output-socket)))
-		       (funcall callback input-socket output-module output-module-socket)))))))
-	 ;;
-	 ;;
-	 ;;
-	 (get-module-trace ()
-	   "Get modules sorted by update order"
-	   (let ((module-trace nil)
-		 (visited-modules nil))
-	     (labels ((traverse-module (module)
-			(if (not (find module visited-modules :test #'eq))
-			    (progn
-			      (push module visited-modules)
-			      (do-module-input-patches
-			       module
-			       (lambda (input-socket output-module output-module-socket)
-				 (declare (ignore input-socket output-module-socket))
-				 (traverse-module output-module)))
-			      (push module module-trace)))))
-	       (dolist (module modules)
-		 (traverse-module module))
-	       (nreverse module-trace))))
-	 ;;
-	 ;;
-	 ;;
-	 (compile-module (module)
-	   (labels ((get-output-lambda (module output-socket)
-		      (getf (getf (funcall (getf module :outputs)) output-socket) :get)))
-	     (let ((input-setters nil)
-		   (inputs (funcall (getf module :inputs)))
-		   (module-update-fn (getf module :update)))
-	       ;; Push setters for all inputs
-	       (do-module-input-patches
-		 module
-		 (lambda (cur-input-socket output-module output-socket)
-		   (let ((input-setter (getf (getf inputs cur-input-socket) :set)))
-		     (let ((output-getter (get-output-lambda output-module output-socket)))
-		       (push (lambda()
-			       (funcall input-setter (funcall output-getter)))
-			     input-setters)))))
-	       ;; The compiled update function
-	       (lambda ()
-		 ;; Set inputs
-		 (dolist (fn input-setters)
-		   (funcall fn))
-		 ;; Update module
-		 (funcall module-update-fn)))))
-	 
-	 
-	 )
+	     module)))
       (let ((rack
 	      (list
 	       :get-module (lambda (name) (get-module name))
@@ -576,9 +598,7 @@
 	       :is-rack t
 	       :add-patch (lambda (output-name output-socket input-name input-socket)
 			    (add-patch output-name output-socket input-name input-socket))
-
-	       :get-module-trace (lambda() (get-module-trace))
-	       :compile-module (lambda(module) (compile-module module))
+	       :compile (lambda() (compile-rack))
 	      )))
       	(setf this rack)
 	rack))))
