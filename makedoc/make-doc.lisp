@@ -11,7 +11,6 @@
       (setf *system-indexes* 
 	    (list
 	     :cl-synthesizer (docparser:parse :cl-synthesizer)
-	     :cl-synthesizer/modules (docparser:parse :cl-synthesizer/modules)
 	     :cl-synthesizer/vco (docparser:parse :cl-synthesizer/vco)
 	     :cl-synthesizer/multiple (docparser:parse :cl-synthesizer/multiple)
 	     :cl-synthesizer/vca (docparser:parse :cl-synthesizer/vca)
@@ -173,17 +172,18 @@
 				 :name ,(get-package-docstring :cl-synthesizer/doc "cl-synthesizer-patches-two-frequency-modulated-saws")))
 		       ,(make-code-string "makedoc/patches/two-frequency-modulated-saws.lisp")
 		       ,(make-audio-element "two-frequency-modulated-saws.wav"))
-	      (heading (:name "Change-Log" :toc t)
-		       (heading (:name "Version 1.0.0")
-				"<p>Initial version. Not tagged.</p>")
-		       (heading (:name "Version 2.x")
-				"Work in progress. Master branch."
-				"<ul>"
-				"<li>Removed bridge modules.</li>"
-				"<li>Added rack:add-rack-input.</li>"
-				"<li>Added rack:add-rack-output.</li>"
-				"<li>Added module input socket getters.</li>"
-				"</ul>"))
+	      ;; No change log yet. All is work in progress :)
+	      ;; (heading (:name "Change-Log" :toc t)
+	      ;; 	       (heading (:name "Version 1.0.0")
+	      ;; 			"<p>Initial version. Not tagged.</p>")
+	      ;; 	       (heading (:name "Version 2.x")
+	      ;; 			"Work in progress. Master branch."
+	      ;; 			"<ul>"
+	      ;; 			"<li>Removed bridge modules.</li>"
+	      ;; 			"<li>Added rack:add-rack-input.</li>"
+	      ;; 			"<li>Added rack:add-rack-output.</li>"
+	      ;; 			"<li>Added module input socket getters.</li>"
+	      ;; 			"</ul>"))
 	      (heading (:name "Concepts" :toc t)
 		       (heading (:name "Environment" :toc t)
 				,(cl-html-readme:read-file "makedoc/environment-introduction.html"))
@@ -337,7 +337,7 @@
 		       "Depends on :cl-html-readme and :docparser which are available via Quicklisp."
 		       ,(make-code-string "makedoc/generate-doc.lisp"))
 	      (heading (:name "Acknowledgements" :toc t)
-		       ,(cl-html-readme:read-file "makedoc/acknowledge.html")))
+		       "<p>Envelope generation has been inspired by <a href=\"https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes\">dhemery</a></p>"))
     (semantic (:name "footer")
 	      "<hr/><p><small>Generated " ,(now) "</small></p>")
     "</body></html>"))
@@ -377,7 +377,7 @@
 
 (defun make-doc ()
   (let ((cl-synthesizer:*home-directory* (asdf:system-source-directory :cl-synthesizer/doc)))
-    ;; Generate patches
+    ;; Generate wave files of example patches
     (cl-synthesizer-patches-saw::run-example)
     (cl-synthesizer-patches-frequency-modulated-saw::run-example)
     (cl-synthesizer-patches-two-frequency-modulated-saws::run-example))
