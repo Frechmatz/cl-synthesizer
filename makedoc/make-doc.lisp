@@ -339,7 +339,11 @@
 	      (heading (:name "Acknowledgements" :toc t)
 		       "<p>Envelope generation has been inspired by <a href=\"https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes\">dhemery</a></p>"))
     (semantic (:name "footer")
-	      "<hr/><p><small>Generated " ,(now) "</small></p>")
+	      "<hr/><p><small>Generated "
+	      ,(now)
+	      " (cl-html-readme "
+	      ,(format nil "~a" (slot-value (asdf:find-system 'cl-html-readme) 'asdf:version))	        	  ")"
+	      "</small></p>")
     "</body></html>"))
 
 ;;
@@ -368,7 +372,11 @@
 			   :path "makedoc/patches/two-frequency-modulated-saws.lisp"
 			   :wave-file "two-frequency-modulated-saws.wav"))
     (semantic (:name "footer")
-	      "<hr/><p><small>Generated " ,(now) "</small></p>")
+	      "<hr/><p><small>Generated "
+	      ,(now)
+	      " (cl-html-readme "
+	      ,(format nil "~a" (slot-value (asdf:find-system 'cl-html-readme) 'asdf:version))	        	  ")"
+	      "</small></p>")
     "</body></html>"))
 
 ;;
@@ -376,6 +384,7 @@
 ;;
 
 (defun make-doc ()
+  (format t "~%cl-html-readme version ~a~%" (slot-value (asdf:find-system 'cl-html-readme) 'asdf:version))
   (let ((cl-synthesizer:*home-directory* (asdf:system-source-directory :cl-synthesizer/doc)))
     ;; Generate wave files of example patches
     (cl-synthesizer-patches-saw::run-example)
@@ -383,7 +392,7 @@
     (cl-synthesizer-patches-two-frequency-modulated-saws::run-example))
   ;; Generate html files
   (let ((cl-html-readme:*home-directory* (asdf:system-source-directory :cl-synthesizer/doc))
-	(cl-html-readme:*tab-width* 8)) // 8 == default emacs column width
+	(cl-html-readme:*tab-width* 8)) ;; 8 == default emacs column width
     (with-open-file (fh (cl-html-readme:make-path "docs/index.html")
 			:direction :output
 			:if-exists :supersede
