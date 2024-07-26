@@ -42,6 +42,7 @@
 <li><a href="#add-hook">add-hook</a></li>
 <li><a href="#play-rack">play-rack</a></li></ul></li>
 <li><a href="#Modules">Modules</a><ul>
+<li><a href="#System">System</a></li>
 <li><a href="#VCO">VCO</a></li>
 <li><a href="#VCA">VCA</a></li>
 <li><a href="#ADSR">ADSR</a></li>
@@ -103,7 +104,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3929016364" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3931013311" type="audio/wav"></audio></p>
 <h2 id="Frequency modulated Saw">Frequency modulated Saw</h2><p><pre><code>(defpackage :cl-synthesizer-patches-frequency-modulated-saw
   (:use :cl)
   (:documentation &quot;Frequency modulated Saw&quot;))
@@ -137,7 +138,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3929016364" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3931013311" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated Saws">Two frequency modulated Saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-two-frequency-modulated-saws
   (:use :cl)
   (:documentation &quot;Two frequency modulated Saws&quot;))
@@ -179,7 +180,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3929016364" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3931013311" type="audio/wav"></audio></p>
 <h1 id="Concepts">Concepts</h1>
 <h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer.</p>
 <h2 id="Module">Module</h2><p>Modules are creating the sounds of the synthesizer.
@@ -420,6 +421,51 @@ to set input values, to retrieve output values, to update the module, to shutdow
 	    by its environment is 44100, then the update function of the rack will be called 88200 times.</li>
     </ul></p></p>
 <h2 id="Modules">Modules</h2>
+<h3 id="System">System</h3><b>cl-synthesizer-modules-system:make-module</b>&nbsp;(name environment &key)<p>Creates a module which exposes runtime information of its rack.
+   <p>The function has the following parameters:
+    <ul>
+	<li>name Name of the module.</li>
+	<li>environment The synthesizer environment.</li>
+    </ul></p>
+    <p>The module has no inputs.</p>
+    <p>The module has the following outputs:
+    <ul>
+       <li>:sample-rate The sample rate of the rack.</li>
+       <li>:ticks The tick number that is being processed. The first tick has the number 0.</li>
+       <li>:milliseconds The point-of-time in milliseconds relative to <code>:ticks</code>.</li>
+       <li>:seconds The point-of-time in seconds relative to <code>:ticks</code>.</li>
+    </ul></p></p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-modules-system-example-1
+  (:use :cl))
+
+(in-package :cl-synthesizer-modules-system-example-1)
+
+(defun example ()
+  &quot;System example&quot;
+  (let ((rack (cl-synthesizer:make-rack
+               :environment (cl-synthesizer:make-environment))))
+    
+    (cl-synthesizer:add-module
+     rack &quot;SYSTEM&quot;
+     #'cl-synthesizer-modules-system:make-module)
+    
+    (cl-synthesizer-monitor:add-monitor
+     rack
+     #'cl-synthesizer-monitor-csv-file-agent:make-backend
+     '((&quot;SYSTEM&quot; :output-socket :ticks :name &quot;ticks&quot;)
+       (&quot;SYSTEM&quot; :output-socket :milliseconds :name &quot;milliseconds&quot;)
+       (&quot;SYSTEM&quot; :output-socket :seconds :name &quot;seconds&quot;)
+       (&quot;SYSTEM&quot; :output-socket :sample-rate :name &quot;sample-rate&quot;))
+     :filename &quot;cl-synthesizer-examples/system-example-1.csv&quot;
+     :add-header t
+     :column-separator &quot;,&quot;)
+
+    rack))
+
+(defun run-example ()
+  (let ((rack (example)))
+    (cl-synthesizer:play-rack rack :duration-seconds 2)))
+
+;; (run-example)</code></pre></p>
 <h3 id="VCO">VCO</h3><b>cl-synthesizer-modules-vco:make-module</b>&nbsp;(name environment &key base-frequency v-peak (cv-lin-hz-v 0.0) (duty-cycle 0.5)
  (phase-offset 0.0) (f-max 12000.0) (wave-forms nil) (sync-threshold 2.5))<p>Creates a Voltage Controlled Oscillator module with 1V/Octave and linear frequency modulation
    inputs. The oscillator has through-zero support.
@@ -1717,4 +1763,4 @@ This agent sits between the monitor and its backend. The agent instantiates the 
 <h1 id="Generate documentation">Generate documentation</h1>Depends on :cl-html-readme and :docparser which are available via Quicklisp.<p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2024-07-03  19:26:04 (cl-html-readme 3.0.0)</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2024-07-26  22:08:31 (cl-html-readme 3.0.0)</small></p></footer></body></html>
