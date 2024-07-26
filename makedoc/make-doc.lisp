@@ -11,6 +11,7 @@
       (setf *system-indexes* 
 	    (list
 	     :cl-synthesizer (docparser:parse :cl-synthesizer)
+	     :cl-synthesizer/system (docparser:parse :cl-synthesizer/system)
 	     :cl-synthesizer/vco (docparser:parse :cl-synthesizer/vco)
 	     :cl-synthesizer/multiple (docparser:parse :cl-synthesizer/multiple)
 	     :cl-synthesizer/vca (docparser:parse :cl-synthesizer/vca)
@@ -238,6 +239,10 @@
 				(heading (:toc t :name "play-rack")
 					 ,(make-function-string :cl-synthesizer "cl-synthesizer" "play-rack")))
 		       (heading	(:toc t :name "Modules")
+			(heading (:toc t :name "System")
+				 ,(make-function-string :cl-synthesizer/system "cl-synthesizer-modules-system" "make-module")
+				 ,(make-example-header)
+				 ,(make-code-string "src/modules/system/example-1.lisp"))
 			(heading (:toc t :name "VCO")
 				 ,(make-function-string :cl-synthesizer/vco "cl-synthesizer-modules-vco" "make-module")
 				 ,(make-example-header)

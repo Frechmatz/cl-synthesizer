@@ -8,6 +8,7 @@
   :description "An audio synthesizer"
   :long-description "An audio synthesizer"
   :depends-on (:cl-synthesizer/core
+	       :cl-synthesizer/system
 	       :cl-synthesizer/vco
 	       :cl-synthesizer/multiple
 	       :cl-synthesizer/vca
@@ -61,6 +62,21 @@
 			     (:file "phase-waveform-converter")
 			     (:file "phase-generator")
 			     (:file "normalized-exp")))))
+
+(defsystem :cl-synthesizer/system
+  :serial t
+  :version "1.0.0"
+  :licence "MIT"
+  :author "Oliver <frechmatz@gmx.de>"
+  :maintainer "Oliver <frechmatz@gmx.de>"
+  :homepage "https://github.com/Frechmatz/cl-synthesizer"
+  :description "System module"
+  :long-description "System module"
+  :depends-on (:cl-synthesizer/core)
+  :components ((:module "src/modules/system"
+		:serial t
+		:components ((:file "packages")
+			     (:file "system")))))
 
 (defsystem :cl-synthesizer/vco
   :serial t
@@ -392,7 +408,8 @@
 		:components ((:file "test-waveform")))
 	       (:module "test/modules"
 		:serial t
-		:components ((:file "test-adder")
+		:components ((:file "test-system")
+			     (:file "test-adder")
 			     (:file "test-trigger")
 			     (:file "test-mixer")
 			     (:file "test-ramp")
@@ -459,6 +476,9 @@
 		:components ((:file "adder-2")
 			     (:file "adder-4")
 			     (:file "adder-rack")))
+	       (:module "src/modules/system"
+		:serial t
+		:components ((:file "example-1")))
 	       (:module "src/modules/vca"
 		:serial t
 		:components ((:file "example-1")
