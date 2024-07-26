@@ -12,8 +12,8 @@
     <ul>
        <li>:sample-rate The sample rate of the rack.</li>
        <li>:ticks The tick number that is being processed. The first tick has the number 0.</li>
-       <li>:milliseconds The point-of-time in milliseconds relative to <code>:ticks</code>.</li>
-       <li>:seconds The point-of-time in seconds relative to <code>:ticks</code>.</li>
+       <li>:milliseconds The point-of-time in milliseconds relative to the first tick.</li>
+       <li>:seconds The point-of-time in seconds relative to the first tick.</li>
     </ul></p>"
   (declare (ignore name))
   (let ((ticks -1)
