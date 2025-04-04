@@ -1,7 +1,7 @@
-(defpackage :cl-synthesizer-example-1-adder-4
+(defpackage :cl-synthesizer-examples-adder-4
   (:use :cl)
   (:export :make-module))
-(in-package :cl-synthesizer-example-1-adder-4)
+(in-package :cl-synthesizer-examples-adder-4)
 
 (defun make-module (name environment)
   "Adder module with 4 inputs"
@@ -10,9 +10,9 @@
   (let ((rack (cl-synthesizer:make-rack :environment environment)))
 
     ;; add modules
-    (cl-synthesizer:add-module rack "ADDER-1" #'cl-synthesizer-example-1-adder-2:make-module)
-    (cl-synthesizer:add-module rack "ADDER-2" #'cl-synthesizer-example-1-adder-2:make-module)
-    (cl-synthesizer:add-module rack "MAIN-ADDER" #'cl-synthesizer-example-1-adder-2:make-module)
+    (cl-synthesizer:add-module rack "ADDER-1" #'cl-synthesizer-examples-adder-2:make-module)
+    (cl-synthesizer:add-module rack "ADDER-2" #'cl-synthesizer-examples-adder-2:make-module)
+    (cl-synthesizer:add-module rack "MAIN-ADDER" #'cl-synthesizer-examples-adder-2:make-module)
 
     ;; patch modules
     (cl-synthesizer:add-patch rack "ADDER-1" :sum "MAIN-ADDER" :input-1)

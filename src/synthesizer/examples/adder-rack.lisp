@@ -1,11 +1,11 @@
-(defpackage :cl-synthesizer-example-1
+(defpackage :cl-synthesizer-examples-adder-rack
   (:use :cl))
-(in-package :cl-synthesizer-example-1)
+(in-package :cl-synthesizer-examples-adder-rack)
 
 
 (defun make-example-rack ()
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
-    (cl-synthesizer:add-module rack "ADDER" #'cl-synthesizer-example-1-adder-4:make-module)
+    (cl-synthesizer:add-module rack "ADDER" #'cl-synthesizer-examples-adder-4:make-module)
     ;; add rack inputs
     (cl-synthesizer:add-rack-input rack :input-1 "ADDER" :input-1)
     (cl-synthesizer:add-rack-input rack :input-2 "ADDER" :input-2)

@@ -104,7 +104,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3952781125" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3952785457" type="audio/wav"></audio></p>
 <h2 id="Frequency modulated Saw">Frequency modulated Saw</h2><p><pre><code>(defpackage :cl-synthesizer-patches-frequency-modulated-saw
   (:use :cl)
   (:documentation &quot;Frequency modulated Saw&quot;))
@@ -138,7 +138,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3952781125" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3952785457" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated Saws">Two frequency modulated Saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-two-frequency-modulated-saws
   (:use :cl)
   (:documentation &quot;Two frequency modulated Saws&quot;))
@@ -180,7 +180,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3952781125" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3952785457" type="audio/wav"></audio></p>
 <h1 id="Concepts">Concepts</h1>
 <h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer.</p>
 <h2 id="Module">Module</h2><p>Modules are creating the sounds of the synthesizer.
@@ -194,10 +194,10 @@ to set input values, to retrieve output values, to update the module, to shutdow
     readily instantiated module is passed, but its factory function. This function is called by the synthesizer. The synthesizer passes the module name, 
     the environment and any arbitrary initialization parameters to it.</p>
 <p>For each input/output socket that a module exposes, it must provide a corresponding setter/getter function. When processing an update, the synthesizer sets the inputs of the module via successive calls to the input setters. An input setter must not change the current outputs of the module. When all inputs have been set, the synthesizer calls the update function of the module, which has no parameters. The update function sets the module-outputs according to the previously set inputs.</p>
-<h3 id="Example: A module">Example: A module</h3><p><pre><code>(defpackage :cl-synthesizer-example-1-adder-2
+<h3 id="Example: A module">Example: A module</h3><p><pre><code>(defpackage :cl-synthesizer-examples-adder-2
   (:use :cl)
   (:export :make-module))
-(in-package :cl-synthesizer-example-1-adder-2)
+(in-package :cl-synthesizer-examples-adder-2)
 
 (defun make-module (name environment)
   &quot;Adder module with 2 inputs&quot;
@@ -218,10 +218,10 @@ to set input values, to retrieve output values, to update the module, to shutdow
        :inputs (lambda() inputs)
        :outputs (lambda() outputs)
        :update (lambda () (setf cur-output (+ input-1 input-2)))))))</code></pre></p>
-<h3 id="Example: A module based on other modules">Example: A module based on other modules</h3><p><pre><code>(defpackage :cl-synthesizer-example-1-adder-4
+<h3 id="Example: A module based on other modules">Example: A module based on other modules</h3><p><pre><code>(defpackage :cl-synthesizer-examples-adder-4
   (:use :cl)
   (:export :make-module))
-(in-package :cl-synthesizer-example-1-adder-4)
+(in-package :cl-synthesizer-examples-adder-4)
 
 (defun make-module (name environment)
   &quot;Adder module with 4 inputs&quot;
@@ -230,9 +230,9 @@ to set input values, to retrieve output values, to update the module, to shutdow
   (let ((rack (cl-synthesizer:make-rack :environment environment)))
 
     ;; add modules
-    (cl-synthesizer:add-module rack &quot;ADDER-1&quot; #'cl-synthesizer-example-1-adder-2:make-module)
-    (cl-synthesizer:add-module rack &quot;ADDER-2&quot; #'cl-synthesizer-example-1-adder-2:make-module)
-    (cl-synthesizer:add-module rack &quot;MAIN-ADDER&quot; #'cl-synthesizer-example-1-adder-2:make-module)
+    (cl-synthesizer:add-module rack &quot;ADDER-1&quot; #'cl-synthesizer-examples-adder-2:make-module)
+    (cl-synthesizer:add-module rack &quot;ADDER-2&quot; #'cl-synthesizer-examples-adder-2:make-module)
+    (cl-synthesizer:add-module rack &quot;MAIN-ADDER&quot; #'cl-synthesizer-examples-adder-2:make-module)
 
     ;; patch modules
     (cl-synthesizer:add-patch rack &quot;ADDER-1&quot; :sum &quot;MAIN-ADDER&quot; :input-1)
@@ -250,14 +250,14 @@ to set input values, to retrieve output values, to update the module, to shutdow
     ;; return the rack
     rack))</code></pre></p>
 <h2 id="Rack">Rack</h2><p>Racks are holding modules and their connections with each other. The connections are so called "Patches".</p>
-<h3 id="Example">Example</h3><p><pre><code>(defpackage :cl-synthesizer-example-1
+<h3 id="Example">Example</h3><p><pre><code>(defpackage :cl-synthesizer-examples-adder-rack
   (:use :cl))
-(in-package :cl-synthesizer-example-1)
+(in-package :cl-synthesizer-examples-adder-rack)
 
 
 (defun make-example-rack ()
   (let ((rack (cl-synthesizer:make-rack :environment (cl-synthesizer:make-environment))))
-    (cl-synthesizer:add-module rack &quot;ADDER&quot; #'cl-synthesizer-example-1-adder-4:make-module)
+    (cl-synthesizer:add-module rack &quot;ADDER&quot; #'cl-synthesizer-examples-adder-4:make-module)
     ;; add rack inputs
     (cl-synthesizer:add-rack-input rack :input-1 &quot;ADDER&quot; :input-1)
     (cl-synthesizer:add-rack-input rack :input-2 &quot;ADDER&quot; :input-2)
@@ -1763,4 +1763,4 @@ This agent sits between the monitor and its backend. The agent instantiates the 
 <h1 id="Generate documentation">Generate documentation</h1>Depends on :cl-html-readme and :docparser which are available via Quicklisp.<p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2025-04-04  20:45:25 (cl-html-readme 3.0.0)</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2025-04-04  21:57:37 (cl-html-readme 3.0.0)</small></p></footer></body></html>

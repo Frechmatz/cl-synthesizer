@@ -471,7 +471,7 @@
   :homepage "https://github.com/Frechmatz/cl-synthesizer"
   :description "Examples of cl-synthesizer"
   :depends-on (:cl-synthesizer)
-  :components ((:module "src/synthesizer/examples/example-1"
+  :components ((:module "src/synthesizer/examples"
 		:serial t
 		:components ((:file "adder-2")
 			     (:file "adder-4")

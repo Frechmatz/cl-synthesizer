@@ -1,7 +1,7 @@
-(defpackage :cl-synthesizer-example-1-adder-2
+(defpackage :cl-synthesizer-examples-adder-2
   (:use :cl)
   (:export :make-module))
-(in-package :cl-synthesizer-example-1-adder-2)
+(in-package :cl-synthesizer-examples-adder-2)
 
 (defun make-module (name environment)
   "Adder module with 2 inputs"
