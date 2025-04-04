@@ -11,6 +11,7 @@
     (assert-equal 0.0 (get-module-output system :milliseconds))
     (update-module system nil)
     (assert-equal 1 (get-module-output system :ticks))
-    (assert-equal 1 (get-module-output system :ticks))
+    (assert-equal 0.002 (get-module-output system :seconds))
+    (assert-equal 2.0 (get-module-output system :milliseconds))
     (assert-equal 500.0 (get-module-output system :sample-rate))))
 
