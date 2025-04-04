@@ -475,7 +475,8 @@
 		:serial t
 		:components ((:file "adder-2")
 			     (:file "adder-4")
-			     (:file "adder-rack")))
+			     (:file "adder-rack")
+			     (:file "expose-state")))
 	       (:module "src/modules/system"
 		:serial t
 		:components ((:file "example-1")))

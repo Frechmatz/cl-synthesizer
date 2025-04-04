@@ -16,7 +16,8 @@
 <li><a href="#Environment">Environment</a></li>
 <li><a href="#Module">Module</a><ul>
 <li><a href="#Example: A module">Example: A module</a></li>
-<li><a href="#Example: A module based on other modules">Example: A module based on other modules</a></li></ul></li>
+<li><a href="#Example: A module based on other modules">Example: A module based on other modules</a></li>
+<li><a href="#Example: A module that exposes an internal state">Example: A module that exposes an internal state</a></li></ul></li>
 <li><a href="#Rack">Rack</a><ul>
 <li><a href="#Example">Example</a></li></ul></li></ul></li>
 <li><a href="#API">API</a><ul>
@@ -104,7 +105,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3952785457" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3952789211" type="audio/wav"></audio></p>
 <h2 id="Frequency modulated Saw">Frequency modulated Saw</h2><p><pre><code>(defpackage :cl-synthesizer-patches-frequency-modulated-saw
   (:use :cl)
   (:documentation &quot;Frequency modulated Saw&quot;))
@@ -138,7 +139,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3952785457" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3952789211" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated Saws">Two frequency modulated Saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-two-frequency-modulated-saws
   (:use :cl)
   (:documentation &quot;Two frequency modulated Saws&quot;))
@@ -180,20 +181,21 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3952785457" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3952789211" type="audio/wav"></audio></p>
 <h1 id="Concepts">Concepts</h1>
 <h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer.</p>
 <h2 id="Module">Module</h2><p>Modules are creating the sounds of the synthesizer.
 Modules do have a name, inputs, outputs and a shutdown function. The inputs/outputs are represented by keywords and are so called sockets. The shutdown function can be used to release resources 
 that have been allocated by the module.</p>
-<p>Beside the input/output sockets a module can also expose "state sockets".
-State sockets represent internal states of the module. These sockets are not accessible when connecting modules with each other. Their purpose is to support debugging/analyzation of a module, for example by writing certain states to a CSV file.</p>
 <p>A module is represented by a property list. This list provides functions such as to get the input sockets, to get the output sockets, to get the state sockets, 
 to set input values, to retrieve output values, to update the module, to shutdown the module and so on.</p>
 <p>A module must provide a factory/instantiation function. The typical name of this function is "make-module". When a module is added to the synthesizer then not the 
     readily instantiated module is passed, but its factory function. This function is called by the synthesizer. The synthesizer passes the module name, 
     the environment and any arbitrary initialization parameters to it.</p>
 <p>For each input/output socket that a module exposes, it must provide a corresponding setter/getter function. When processing an update, the synthesizer sets the inputs of the module via successive calls to the input setters. An input setter must not change the current outputs of the module. When all inputs have been set, the synthesizer calls the update function of the module, which has no parameters. The update function sets the module-outputs according to the previously set inputs.</p>
+<p>Beside of the input/output sockets a module can also expose so called "state sockets".
+  State sockets represent internal states of the module. State sockets cannot be used for connecting modules with each other. Their major purpose is to support with
+  debugging/analyzation. For example by writing them to a CSV file. By definition internal states are undefined during the processing of an update.</p>
 <h3 id="Example: A module">Example: A module</h3><p><pre><code>(defpackage :cl-synthesizer-examples-adder-2
   (:use :cl)
   (:export :make-module))
@@ -249,6 +251,24 @@ to set input values, to retrieve output values, to update the module, to shutdow
 
     ;; return the rack
     rack))</code></pre></p>
+<h3 id="Example: A module that exposes an internal state">Example: A module that exposes an internal state</h3><p><pre><code>(defpackage :cl-synthesizer-examples-expose-state
+  (:use :cl)
+  (:export :make-module))
+(in-package :cl-synthesizer-examples-expose-state)
+
+(defun make-module (name environment)
+  &quot;Module that exposes an internal state.&quot;
+  (declare (ignore name environment))
+  (let ((internal-state 0))
+    (list
+     :inputs (lambda() nil)
+     :outputs (lambda() nil)
+     :update (lambda () (setf internal-state (+ 1 internal-state)))
+     :state (lambda (key)
+              (cond
+                ((eq key :state)
+                 internal-state)
+                (t nil))))))</code></pre></p>
 <h2 id="Rack">Rack</h2><p>Racks are holding modules and their connections with each other. The connections are so called "Patches".</p>
 <h3 id="Example">Example</h3><p><pre><code>(defpackage :cl-synthesizer-examples-adder-rack
   (:use :cl))
@@ -1763,4 +1783,4 @@ This agent sits between the monitor and its backend. The agent instantiates the 
 <h1 id="Generate documentation">Generate documentation</h1>Depends on :cl-html-readme and :docparser which are available via Quicklisp.<p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2025-04-04  21:57:37 (cl-html-readme 3.0.0)</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2025-04-04  23:00:11 (cl-html-readme 3.0.0)</small></p></footer></body></html>

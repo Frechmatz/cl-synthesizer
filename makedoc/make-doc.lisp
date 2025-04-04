@@ -193,7 +193,9 @@
 				(heading (:name "Example: A module" :toc t)
 					 ,(make-code-string "src/synthesizer/examples/adder-2.lisp"))
 				(heading (:name "Example: A module based on other modules" :toc t)
-					 ,(make-code-string "src/synthesizer/examples/adder-4.lisp")))
+					 ,(make-code-string "src/synthesizer/examples/adder-4.lisp"))
+				(heading (:name "Example: A module that exposes an internal state" :toc t)
+					 ,(make-code-string "src/synthesizer/examples/expose-state.lisp")))
 		       (heading (:name "Rack" :toc t)
 				"<p>Racks are holding modules and their connections with each other. The connections are so called \"Patches\".</p>"
 				(heading (:name "Example" :toc t)
