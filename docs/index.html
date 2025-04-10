@@ -105,7 +105,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3952789211" type="audio/wav"></audio></p>
+;; (run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="saw.wav?cb=3953293065" type="audio/wav"></audio></p>
 <h2 id="Frequency modulated Saw">Frequency modulated Saw</h2><p><pre><code>(defpackage :cl-synthesizer-patches-frequency-modulated-saw
   (:use :cl)
   (:documentation &quot;Frequency modulated Saw&quot;))
@@ -139,7 +139,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3952789211" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="frequency-modulated-saw.wav?cb=3953293065" type="audio/wav"></audio></p>
 <h2 id="Two frequency modulated Saws">Two frequency modulated Saws</h2><p><pre><code>(defpackage :cl-synthesizer-patches-two-frequency-modulated-saws
   (:use :cl)
   (:documentation &quot;Two frequency modulated Saws&quot;))
@@ -181,7 +181,7 @@ git clone https://github.com/Frechmatz/cl-synthesizer.git
 (defun run-example ()
   (cl-synthesizer:play-rack (example) :duration-seconds 3.0))
 
-;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3952789211" type="audio/wav"></audio></p>
+;;(run-example)</code></pre></p><p><audio controls preload="none">Your browser does not support the <code>audio</code> element.<source src="two-frequency-modulated-saws.wav?cb=3953293065" type="audio/wav"></audio></p>
 <h1 id="Concepts">Concepts</h1>
 <h2 id="Environment">Environment</h2><p>An environment defines properties such as the sample rate and the home directory of the synthesizer.</p>
 <h2 id="Module">Module</h2><p>Modules are creating the sounds of the synthesizer.
@@ -448,12 +448,13 @@ to set input values, to retrieve output values, to update the module, to shutdow
 	<li>environment The synthesizer environment.</li>
     </ul></p>
     <p>The module has no inputs.</p>
-    <p>The module has the following outputs:
+    <p>The module has no outputs.</p>
+    <p>The module exposes the following states:
     <ul>
        <li>:sample-rate The sample rate of the rack.</li>
-       <li>:ticks The tick number that is being processed. The first tick has the number 0.</li>
-       <li>:milliseconds The time in milliseconds that has passed since the first tick.</li>
-       <li>:seconds The time in seconds that has passed since the first tick.</li>
+       <li>:elapsed-ticks Number of processed ticks.</li>
+       <li>:elapsed-milliseconds Elapsed time in milliseconds.</li>
+       <li>:elapsed-seconds Elapsed time in seconds.</li>
     </ul></p></p><p><b>Example</b></p><p><pre><code>(defpackage :cl-synthesizer-modules-system-example-1
   (:use :cl))
 
@@ -471,10 +472,10 @@ to set input values, to retrieve output values, to update the module, to shutdow
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-csv-file-agent:make-backend
-     '((&quot;SYSTEM&quot; :output-socket :ticks :name &quot;ticks&quot;)
-       (&quot;SYSTEM&quot; :output-socket :milliseconds :name &quot;milliseconds&quot;)
-       (&quot;SYSTEM&quot; :output-socket :seconds :name &quot;seconds&quot;)
-       (&quot;SYSTEM&quot; :output-socket :sample-rate :name &quot;sample-rate&quot;))
+     '((&quot;SYSTEM&quot; :state :elapsed-ticks :name &quot;ticks&quot;)
+       (&quot;SYSTEM&quot; :state :elapsed-milliseconds :name &quot;milliseconds&quot;)
+       (&quot;SYSTEM&quot; :state :elapsed-seconds :name &quot;seconds&quot;)
+       (&quot;SYSTEM&quot; :state :sample-rate :name &quot;sample-rate&quot;))
      :filename &quot;cl-synthesizer-examples/system-example-1.csv&quot;
      :add-header t
      :column-separator &quot;,&quot;)
@@ -527,7 +528,7 @@ to set input values, to retrieve output values, to update the module, to shutdow
 	<li>:saw A saw wave.</li>
 	<li>:square A square wave.</li>
     </ul></p>
-    <p>The module exposes the following states via the state function:
+    <p>The module exposes the following states:
        <ul>
           <li>:frequency The current frequency of the module.</li>
           <li>:linear-frequency The current linear frequency portion of the module.</li>
@@ -1783,4 +1784,4 @@ This agent sits between the monitor and its backend. The agent instantiates the 
 <h1 id="Generate documentation">Generate documentation</h1>Depends on :cl-html-readme and :docparser which are available via Quicklisp.<p><pre><code>(asdf:load-system :cl-synthesizer/doc)
 (cl-synthesizer-make-doc::make-doc)</code></pre></p>
 <h1 id="Acknowledgements">Acknowledgements</h1><p>Envelope generation has been inspired by <a href="https://github.com/dhemery/DHE-Modules/wiki/Multi-Stage-Envelopes">dhemery</a></p></section>
-<footer><hr/><p><small>Generated 2025-04-04  23:00:11 (cl-html-readme 3.0.0)</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2025-04-10  18:57:45 (cl-html-readme 3.0.0)</small></p></footer></body></html>
