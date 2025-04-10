@@ -15,10 +15,10 @@
     (cl-synthesizer-monitor:add-monitor
      rack
      #'cl-synthesizer-monitor-csv-file-agent:make-backend
-     '(("SYSTEM" :output-socket :ticks :name "ticks")
-       ("SYSTEM" :output-socket :milliseconds :name "milliseconds")
-       ("SYSTEM" :output-socket :seconds :name "seconds")
-       ("SYSTEM" :output-socket :sample-rate :name "sample-rate"))
+     '(("SYSTEM" :state :elapsed-ticks :name "ticks")
+       ("SYSTEM" :state :elapsed-milliseconds :name "milliseconds")
+       ("SYSTEM" :state :elapsed-seconds :name "seconds")
+       ("SYSTEM" :state :sample-rate :name "sample-rate"))
      :filename "cl-synthesizer-examples/system-example-1.csv"
      :add-header t
      :column-separator ",")
