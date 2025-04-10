@@ -49,7 +49,7 @@
 	<li>:saw A saw wave.</li>
 	<li>:square A square wave.</li>
     </ul></p>
-    <p>The module exposes the following states via the state function:
+    <p>The module exposes the following states:
        <ul>
           <li>:frequency The current frequency of the module.</li>
           <li>:linear-frequency The current linear frequency portion of the module.</li>
