@@ -1,7 +1,7 @@
-(defpackage :cl-synthesizer-examples-expose-state
+(defpackage :cl-synthesizer-examples-module-expose-state
   (:use :cl)
   (:export :make-module))
-(in-package :cl-synthesizer-examples-expose-state)
+(in-package :cl-synthesizer-examples-module-expose-state)
 
 (defun make-module (name environment)
   "Module that exposes an internal state."

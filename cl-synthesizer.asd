@@ -473,10 +473,11 @@
   :depends-on (:cl-synthesizer)
   :components ((:module "src/synthesizer/examples"
 		:serial t
-		:components ((:file "adder-2")
-			     (:file "adder-4")
-			     (:file "adder-rack")
-			     (:file "expose-state")))
+		:components ((:file "module-adder-2")
+			     (:file "module-composed-adder-4")
+			     (:file "rack-3-adders")
+			     (:file "module-expose-state")
+			     (:file "rack-expose")))
 	       (:module "src/modules/system"
 		:serial t
 		:components ((:file "example-1")))
