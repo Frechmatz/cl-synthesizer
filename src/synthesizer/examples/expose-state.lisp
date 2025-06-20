@@ -16,3 +16,6 @@
 		((eq key :state)
 		 internal-state)
 		(t nil))))))
+
+(defun run-example ()
+  (make-module "Module" (cl-synthesizer:make-environment)))

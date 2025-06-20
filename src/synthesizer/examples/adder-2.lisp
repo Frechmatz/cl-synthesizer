@@ -22,3 +22,8 @@
        :inputs (lambda() inputs)
        :outputs (lambda() outputs)
        :update (lambda () (setf cur-output (+ input-1 input-2)))))))
+
+(defun run-example ()
+  (make-module "Module" (cl-synthesizer:make-environment)))
+
+

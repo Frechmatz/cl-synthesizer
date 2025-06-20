@@ -29,3 +29,6 @@
 
     ;; return the rack
     rack))
+
+(defun run-example ()
+  (make-module "Module" (cl-synthesizer:make-environment)))
